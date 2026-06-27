@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>React & Firebase Tutorial — BAJA PRO</title>
+<meta name="description" content="Complete React + Firebase tutorial. Build a real-time CRUD app with authentication, Realtime Database, and Netlify deployment."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="stylesheet" href="../style.css"/>
+<style>
+.article-layout{display:grid;grid-template-columns:1fr 300px;gap:40px;align-items:start}
+.article-content{max-width:none}
+.article-header{margin-bottom:40px;padding-bottom:32px;border-bottom:1px solid var(--border)}
+.article-cats{display:flex;gap:8px;margin-bottom:16px}
+.article-title{font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:900;line-height:1.2;margin-bottom:16px;letter-spacing:-.5px}
+.article-meta-row{display:flex;align-items:center;gap:16px;font-size:13px;color:var(--text-3);flex-wrap:wrap}
+.toc{background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--purple);border-radius:var(--r-lg);padding:20px;margin-bottom:32px}
+.toc-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-2);margin-bottom:12px}
+.toc ol{padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.toc a{font-size:14px;color:var(--purple);transition:color var(--tr)}
+.toc a:hover{color:var(--blue-light)}
+.article-body h2{font-size:1.5rem;font-weight:800;margin:40px 0 16px;padding-top:8px;border-top:1px solid var(--border)}
+.article-body h3{font-size:1.1rem;font-weight:700;margin:28px 0 12px;color:var(--blue-light)}
+.article-body p{font-size:15px;color:var(--text-2);line-height:1.8;margin-bottom:16px}
+.article-body ul,.article-body ol{margin:0 0 16px 24px;display:flex;flex-direction:column;gap:6px}
+.article-body li{font-size:15px;color:var(--text-2);line-height:1.6}
+.article-body strong{color:var(--text-1)}
+.code-block{background:#0D1117;border:1px solid rgba(255,255,255,.1);border-radius:var(--r-lg);overflow:hidden;margin:20px 0;position:relative}
+.code-block-header{background:#161B22;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.1)}
+.code-lang{font-size:12px;color:#8B949E;font-weight:600;font-family:var(--mono)}
+.copy-code-btn{background:transparent;border:1px solid rgba(255,255,255,.15);color:#8B949E;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;transition:all var(--tr)}
+.copy-code-btn:hover{background:rgba(255,255,255,.1);color:#fff}
+.code-block pre{padding:20px;margin:0;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.7;color:#E6EDF3}
+.callout{border-radius:var(--r-lg);padding:16px 20px;margin:20px 0;font-size:14px;line-height:1.6;display:flex;gap:12px;align-items:flex-start}
+.callout.info{background:rgba(59,130,246,.08);border-left:3px solid var(--blue)}
+.callout.tip{background:rgba(16,185,129,.08);border-left:3px solid var(--green)}
+.callout.warning{background:rgba(245,158,11,.08);border-left:3px solid var(--gold)}
+.callout.note{background:rgba(139,92,246,.08);border-left:3px solid var(--purple)}
+.callout-icon{font-size:18px;flex-shrink:0;margin-top:2px}
+.step-num{display:inline-flex;width:28px;height:28px;align-items:center;justify-content:center;background:var(--grad-tutorial);border-radius:50%;font-size:13px;font-weight:800;color:#fff;margin-right:10px;flex-shrink:0}
+.sidebar-sticky{position:sticky;top:calc(var(--nav-h) + 20px);display:flex;flex-direction:column;gap:16px}
+.sidebar-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px}
+.sidebar-card h4{font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text-2);text-transform:uppercase;letter-spacing:.8px}
+.related-link{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2);padding:8px 0;border-bottom:1px solid var(--border);transition:color var(--tr)}
+.related-link:last-child{border-bottom:none}
+.related-link:hover{color:var(--purple)}
+@media(max-width:1024px){.article-layout{grid-template-columns:1fr}.sidebar-sticky{position:static}}
+</style>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="container nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-badge">⚡</div><span class="logo-text">BAJA</span><span class="logo-pro">PRO</span></a>
+    <div class="nav-menu" id="navMenu">
+      <a href="../tools/index.html" class="nav-link">🛠️ Tools</a>
+      <a href="../finance/index.html" class="nav-link">📈 Finance</a>
+      <a href="index.html" class="nav-link active">📚 Tutorial</a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn-icon" id="langBtn"><span id="langLabel">🌐 EN</span></button>
+      <button class="btn-icon" id="themeBtn"><span id="themeIcon">☀️</span></button>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div style="padding-top:var(--nav-h)"></div>
+
+<section class="section">
+  <div class="container">
+    <div class="ad-slot" style="height:90px;width:100%;margin-bottom:32px"><!-- AdSense --></div>
+    <div class="article-layout">
+      <article class="article-content">
+        <div class="article-header">
+          <div class="article-cats">
+            <span class="tag tag-purple">React</span>
+            <span class="tag tag-blue">Firebase</span>
+            <span class="tag tag-blue">Web Dev</span>
+          </div>
+          <h1 class="article-title">Getting Started with React + Firebase: Build a Real-time CRUD App</h1>
+          <div class="article-meta-row">
+            <span>⏱️ 10 min read</span>
+            <span>📅 June 2025</span>
+            <span class="diff-badge diff-beginner" style="padding:4px 12px;border-radius:999px;font-size:11px;background:rgba(16,185,129,.15);color:var(--green)">Beginner</span>
+          </div>
+        </div>
+
+        <div class="toc">
+          <div class="toc-title">📋 Table of Contents</div>
+          <ol>
+            <li><a href="#prerequisites">Prerequisites</a></li>
+            <li><a href="#setup">Project Setup</a></li>
+            <li><a href="#firebase">Firebase Configuration</a></li>
+            <li><a href="#components">React Components</a></li>
+            <li><a href="#crud">CRUD Operations</a></li>
+            <li><a href="#auth">Adding Authentication</a></li>
+            <li><a href="#deploy">Deploy to Netlify</a></li>
+          </ol>
+        </div>
+
+        <div class="article-body">
+          <h2 id="prerequisites">1. Prerequisites</h2>
+          <p>Before we begin, make sure you have the following installed on your machine:</p>
+          <ul>
+            <li><strong>Node.js v18+</strong> — Download from nodejs.org</li>
+            <li><strong>npm or yarn</strong> — Comes with Node.js</li>
+            <li><strong>A Google account</strong> — For Firebase console access</li>
+            <li><strong>VS Code</strong> (recommended) — With ESLint and Prettier extensions</li>
+          </ul>
+
+          <div class="callout info"><div class="callout-icon">ℹ️</div><div>This tutorial uses React 18 with Vite as the build tool (faster than Create React App) and Firebase v10 (modular SDK).</div></div>
+
+          <h2 id="setup">2. Project Setup</h2>
+          <p>Let's scaffold a new React project using Vite:</p>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-lang">bash</span><button class="copy-code-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre># Create new Vite + React project
+npm create vite@latest my-firebase-app -- --template react
+cd my-firebase-app
+npm install
+
+# Install Firebase SDK
+npm install firebase
+
+# Start development server
+npm run dev</pre>
+          </div>
+
+          <p>Your project structure should look like this:</p>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-lang">text</span><button class="copy-code-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>my-firebase-app/
+├── src/
+│   ├── components/
+│   ├── firebase.js      ← Firebase config
+│   ├── App.jsx
+│   └── main.jsx
+├── index.html
+└── package.json</pre>
+          </div>
+
+          <h2 id="firebase">3. Firebase Configuration</h2>
+          <p>Go to <strong>console.firebase.google.com</strong>, create a new project, then add a Web App. Copy your config object:</p>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-lang">javascript</span><button class="copy-code-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>// src/firebase.js
+import { initializeApp } from 'firebase/app';
+import { getDatabase } from 'firebase/database';
+import { getAuth } from 'firebase/auth';
+
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+export const db = getDatabase(app);
+export const auth = getAuth(app);</pre>
+          </div>
+
+          <div class="callout warning"><div class="callout-icon">⚠️</div><div>Never commit your Firebase config to a public GitHub repo. Use environment variables: <code>.env.local</code> with <code>VITE_FIREBASE_API_KEY=...</code> and access via <code>import.meta.env.VITE_FIREBASE_API_KEY</code>.</div></div>
+
+          <h2 id="components">4. React Components</h2>
+          <p>Create a simple task list component that reads and writes to Firebase:</p>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-lang">jsx</span><button class="copy-code-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>// src/components/TaskList.jsx
+import { useState, useEffect } from 'react';
+import { db } from '../firebase';
+import { ref, onValue, push, remove } from 'firebase/database';
+
+function TaskList() {
+  const [tasks, setTasks] = useState([]);
+  const [input, setInput] = useState('');
+
+  useEffect(() => {
+    const tasksRef = ref(db, 'tasks');
+    const unsubscribe = onValue(tasksRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const taskList = Object.entries(data).map(([id, val]) => ({
+          id,
+          ...val
+        }));
+        setTasks(taskList);
+      } else {
+        setTasks([]);
+      }
+    });
+    // Cleanup listener on unmount
+    return () => unsubscribe();
+  }, []);
+
+  const addTask = async () => {
+    if (!input.trim()) return;
+    await push(ref(db, 'tasks'), {
+      text: input,
+      createdAt: Date.now(),
+      done: false
+    });
+    setInput('');
+  };
+
+  const deleteTask = async (id) => {
+    await remove(ref(db, `tasks/${id}`));
+  };
+
+  return (
+    &lt;div className="task-container"&gt;
+      &lt;div className="task-input-row"&gt;
+        &lt;input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && addTask()}
+          placeholder="Add a new task..."
+        /&gt;
+        &lt;button onClick={addTask}&gt;Add&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;ul&gt;
+        {tasks.map(task => (
+          &lt;li key={task.id}&gt;
+            &lt;span&gt;{task.text}&lt;/span&gt;
+            &lt;button onClick={() => deleteTask(task.id)}&gt;🗑️&lt;/button&gt;
+          &lt;/li&gt;
+        ))}
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}
+
+export default TaskList;</pre>
+          </div>
+
+          <h2 id="crud">5. CRUD Operations</h2>
+          <p>Firebase Realtime Database uses these core functions from the modular SDK:</p>
+
+          <h3>Read (Real-time listener)</h3>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-lang">javascript</span><button class="copy-code-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>import { ref, onValue, get } from 'firebase/database';
+
+// Real-time listener (updates on every change)
+onValue(ref(db, 'tasks'), (snapshot) => {
+  console.log(snapshot.val());
+});
+
+// One-time read
+const snapshot = await get(ref(db, 'tasks'));
+console.log(snapshot.val());</pre>
+          </div>
+
+          <h3>Write, Update, Delete</h3>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-lang">javascript</span><button class="copy-code-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>import { ref, set, push, update, remove } from 'firebase/database';
+
+// Create (auto-generated ID)
+await push(ref(db, 'tasks'), { text: 'Buy groceries', done: false });
+
+// Create (custom ID)
+await set(ref(db, 'users/user123'), { name: 'Alfan', role: 'admin' });
+
+// Update (partial)
+await update(ref(db, 'tasks/-NxxxxID'), { done: true });
+
+// Delete
+await remove(ref(db, 'tasks/-NxxxxID'));</pre>
+          </div>
+
+          <div class="callout tip"><div class="callout-icon">💡</div><div>Use <code>push()</code> for lists (tasks, posts, messages) — it generates a time-based unique key. Use <code>set()</code> when you want to define the path (e.g., user profile keyed by UID).</div></div>
+
+          <!-- AdSense In-Article -->
+          <div class="ad-slot ad-responsive"><!-- AdSense In-Article --></div>
+
+          <h2 id="auth">6. Adding Authentication</h2>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-lang">javascript</span><button class="copy-code-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>import { auth } from '../firebase';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signOut
+} from 'firebase/auth';
+
+// Register with email
+await createUserWithEmailAndPassword(auth, email, password);
+
+// Login with email
+await signInWithEmailAndPassword(auth, email, password);
+
+// Google login
+const provider = new GoogleAuthProvider();
+await signInWithPopup(auth, provider);
+
+// Listen to auth state
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    console.log('Logged in:', user.uid, user.email);
+  } else {
+    console.log('Logged out');
+  }
+});
+
+// Logout
+await signOut(auth);</pre>
+          </div>
+
+          <h2 id="deploy">7. Deploy to Netlify</h2>
+          <p>Build and deploy your app to Netlify in minutes:</p>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-lang">bash</span><button class="copy-code-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre># Build the app
+npm run build
+
+# Install Netlify CLI globally
+npm install -g netlify-cli
+
+# Login and deploy
+netlify login
+netlify deploy --prod --dir=dist</pre>
+          </div>
+
+          <div class="callout tip"><div class="callout-icon">✅</div><div>Add your Firebase environment variables in <strong>Netlify Dashboard → Site Settings → Environment Variables</strong>. This keeps your API keys secure and out of your codebase.</div></div>
+
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:32px;margin-top:40px;text-align:center">
+            <div style="font-size:36px;margin-bottom:12px">🎉</div>
+            <h3 style="font-size:18px;margin-bottom:8px">You've built your first React + Firebase app!</h3>
+            <p style="color:var(--text-2);margin-bottom:20px">Continue learning with these next steps:</p>
+            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+              <a href="index.html" class="btn-primary">📚 More Tutorials</a>
+              <a href="iot-arduino.html" class="btn-secondary">🤖 Try IoT Tutorial</a>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Sidebar -->
+      <aside>
+        <div class="sidebar-sticky">
+          <div class="ad-slot ad-rectangle"><!-- AdSense 300x250 --></div>
+          <div class="sidebar-card">
+            <h4>Related Tutorials</h4>
+            <a href="index.html" class="related-link">⚛️ React Hooks Deep Dive</a>
+            <a href="index.html" class="related-link">🔒 Firebase Auth: Multiple Providers</a>
+            <a href="index.html" class="related-link">🗄️ Firestore vs Realtime DB</a>
+            <a href="index.html" class="related-link">🚀 Next.js + Firebase Full-Stack</a>
+          </div>
+          <div class="sidebar-card">
+            <h4>Resources</h4>
+            <a href="https://react.dev" target="_blank" class="related-link">📖 React Docs</a>
+            <a href="https://firebase.google.com/docs" target="_blank" class="related-link">🔥 Firebase Docs</a>
+            <a href="https://vitejs.dev" target="_blank" class="related-link">⚡ Vite Docs</a>
+            <a href="https://netlify.com" target="_blank" class="related-link">🌐 Netlify</a>
+          </div>
+          <div class="ad-slot" style="height:250px;width:100%"><!-- AdSense --></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<footer class="footer"><div class="container"><div class="footer-bottom" style="border-top:none;padding-top:0"><span>© 2025 BAJA PRO</span><a href="index.html">← All Tutorials</a></div></div></footer>
+<button id="scrollTop">↑</button>
+<script src="../app.js"></script>
+<script>
+function copyCode(btn) {
+  const code = btn.closest('.code-block').querySelector('pre').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'Copied!';
+    btn.style.color = 'var(--green)';
+    setTimeout(() => { btn.textContent = 'Copy'; btn.style.color = ''; }, 2000);
+  });
+}
+</script>
+</body>
+</html>

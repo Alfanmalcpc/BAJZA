@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Image Compressor — BAJA PRO</title>
+<meta name="description" content="Free online image compressor. Reduce JPG, PNG, WebP file size up to 80% without quality loss."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="stylesheet" href="../style.css"/>
+<style>
+.compressor-layout{display:grid;grid-template-columns:1fr 300px;gap:28px;align-items:start}
+.drop-zone{border:2px dashed var(--border);border-radius:var(--r-xl);padding:60px 40px;text-align:center;cursor:pointer;transition:all var(--tr);background:var(--bg-card)}
+.drop-zone:hover,.drop-zone.dragover{border-color:var(--blue);background:rgba(59,130,246,.06);transform:scale(1.01)}
+.drop-icon{font-size:56px;margin-bottom:16px}
+.drop-title{font-size:20px;font-weight:700;margin-bottom:8px}
+.drop-sub{font-size:14px;color:var(--text-2)}
+.drop-or{margin:16px 0;color:var(--text-3);font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1px}
+.btn-file{display:inline-block;background:var(--grad-tools);color:#fff;padding:12px 28px;border-radius:var(--r-full);font-size:14px;font-weight:600;cursor:pointer;transition:all var(--tr)}
+.btn-file:hover{opacity:.9;transform:scale(1.04)}
+.quality-panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px}
+.quality-label{display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;margin-bottom:12px}
+.quality-val{font-size:22px;font-weight:900;background:var(--grad-tools);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+input[type=range]{width:100%;accent-color:var(--blue);height:6px;border-radius:3px}
+.preview-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}
+.preview-box{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;display:none}
+.preview-box.show{display:block}
+.preview-header{padding:12px 16px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-3);display:flex;justify-content:space-between;border-bottom:1px solid var(--border)}
+.preview-img{width:100%;height:200px;object-fit:contain;background:#000;display:block}
+.preview-size{font-size:18px;font-weight:700}
+.size-before{color:var(--text-1)}
+.size-after{color:var(--green)}
+.saving-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);color:var(--green);padding:6px 14px;border-radius:var(--r-full);font-size:13px;font-weight:700;margin-top:12px}
+.btn-download{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#10B981,#059669);color:#fff;padding:12px 28px;border-radius:var(--r-full);font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all var(--tr);width:100%;justify-content:center;margin-top:16px}
+.btn-download:hover{opacity:.9;transform:translateY(-2px)}
+.btn-download:disabled{opacity:.4;cursor:not-allowed;transform:none}
+@media(max-width:900px){.compressor-layout{grid-template-columns:1fr}.preview-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="container nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-badge">⚡</div><span class="logo-text">BAJA</span><span class="logo-pro">PRO</span></a>
+    <div class="nav-menu" id="navMenu">
+      <a href="index.html" class="nav-link active">🛠️ <span data-en="Tools" data-id="Utilitas">Tools</span></a>
+      <a href="../finance/index.html" class="nav-link">📈 Finance</a>
+      <a href="../tutorial/index.html" class="nav-link">📚 Tutorial</a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn-icon" id="langBtn"><span id="langLabel">🌐 EN</span></button>
+      <button class="btn-icon" id="themeBtn"><span id="themeIcon">☀️</span></button>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="container">
+    <div class="section-badge">🗜️ Image Compressor</div>
+    <h1 data-en="Image Compressor & Optimizer" data-id="Kompresor & Optimizer Gambar">Image Compressor & Optimizer</h1>
+    <p data-en="Reduce image file size without losing visible quality. 100% private — no server upload." data-id="Kurangi ukuran file gambar tanpa kehilangan kualitas. 100% privat — tanpa upload server.">Reduce image file size without losing visible quality.</p>
+  </div>
+</div>
+
+<section class="section" style="padding-top:32px">
+  <div class="container">
+    <div class="ad-slot" style="height:90px;width:100%;margin-bottom:24px"><!-- AdSense --></div>
+    <div class="compressor-layout">
+      <div>
+        <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" style="display:none"/>
+        <div class="drop-zone" id="dropZone">
+          <div class="drop-icon">🖼️</div>
+          <div class="drop-title" data-en="Drop your image here" data-id="Taruh gambar di sini">Drop your image here</div>
+          <div class="drop-sub" data-en="Supports JPG, PNG, WebP • Max 20MB" data-id="Mendukung JPG, PNG, WebP • Maks 20MB">Supports JPG, PNG, WebP • Max 20MB</div>
+          <div class="drop-or">— or —</div>
+          <label for="fileInput" class="btn-file" data-en="📂 Choose File" data-id="📂 Pilih File">📂 Choose File</label>
+        </div>
+
+        <div class="quality-panel" style="margin-top:20px">
+          <div class="quality-label">
+            <span data-en="Compression Quality" data-id="Kualitas Kompresi">Compression Quality</span>
+            <span class="quality-val" id="qualityVal">80%</span>
+          </div>
+          <input type="range" id="qualitySlider" min="10" max="100" value="80"/>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);margin-top:4px">
+            <span data-en="Smallest (10%)" data-id="Terkecil (10%)">Smallest</span>
+            <span data-en="Best Quality (100%)" data-id="Kualitas Terbaik (100%)">Best Quality</span>
+          </div>
+        </div>
+
+        <div class="preview-grid">
+          <div class="preview-box" id="origBox">
+            <div class="preview-header">
+              <span data-en="Original" data-id="Asli">Original</span>
+              <span class="size-before preview-size" id="origSize">—</span>
+            </div>
+            <img id="origImg" class="preview-img" alt="Original"/>
+          </div>
+          <div class="preview-box" id="compBox">
+            <div class="preview-header">
+              <span data-en="Compressed" data-id="Terkompresi">Compressed</span>
+              <span class="size-after preview-size" id="compSize">—</span>
+            </div>
+            <img id="compImg" class="preview-img" alt="Compressed"/>
+          </div>
+        </div>
+
+        <div id="resultInfo" style="display:none;margin-top:16px;text-align:center">
+          <div class="saving-badge" id="savingBadge">💾 Saved 0%</div>
+          <button class="btn-download" id="downloadBtn" disabled>⬇️ <span data-en="Download Compressed Image" data-id="Unduh Gambar Terkompresi">Download Compressed Image</span></button>
+        </div>
+      </div>
+
+      <div>
+        <div class="ad-slot ad-rectangle" style="margin-bottom:20px"><!-- AdSense 300x250 --></div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px">
+          <h3 style="font-size:14px;font-weight:700;margin-bottom:14px">📊 <span data-en="Compression Tips" data-id="Tips Kompresi">Compression Tips</span></h3>
+          <div style="display:flex;flex-direction:column;gap:12px;font-size:13px;color:var(--text-2)">
+            <div>🎯 <strong>80%</strong> — <span data-en="Best balance" data-id="Keseimbangan terbaik">Best balance</span></div>
+            <div>🌐 <strong>60%</strong> — <span data-en="Ideal for web" data-id="Ideal untuk web">Ideal for web</span></div>
+            <div>📱 <strong>50%</strong> — <span data-en="Social media" data-id="Media sosial">Social media</span></div>
+            <div>🖨️ <strong>90%+</strong> — <span data-en="Print quality" data-id="Kualitas cetak">Print quality</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<button id="scrollTop">↑</button>
+<script src="../app.js"></script>
+<script>
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const qualitySlider = document.getElementById('qualitySlider');
+const qualityVal = document.getElementById('qualityVal');
+let originalFile = null;
+let compressedBlob = null;
+
+qualitySlider.addEventListener('input', () => {
+  qualityVal.textContent = qualitySlider.value + '%';
+  if (originalFile) compressImage(originalFile);
+});
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) handleFile(f);
+});
+fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
+
+function handleFile(file) {
+  originalFile = file;
+  const url = URL.createObjectURL(file);
+  document.getElementById('origImg').src = url;
+  document.getElementById('origBox').classList.add('show');
+  document.getElementById('origSize').textContent = formatSize(file.size);
+  compressImage(file);
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1024/1024).toFixed(2) + ' MB';
+}
+
+function compressImage(file) {
+  const quality = parseInt(qualitySlider.value) / 100;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      canvas.toBlob(blob => {
+        compressedBlob = blob;
+        const url = URL.createObjectURL(blob);
+        document.getElementById('compImg').src = url;
+        document.getElementById('compBox').classList.add('show');
+        document.getElementById('compSize').textContent = formatSize(blob.size);
+        const saved = Math.round((1 - blob.size/file.size) * 100);
+        document.getElementById('savingBadge').textContent = `💾 Saved ${Math.max(0,saved)}%`;
+        document.getElementById('resultInfo').style.display = 'block';
+        const btn = document.getElementById('downloadBtn');
+        btn.disabled = false;
+        btn.onclick = () => {
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'baja_compressed_' + file.name.replace(/\.[^.]+$/, '.jpg');
+          a.click();
+        };
+      }, 'image/jpeg', quality);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+</script>
+</body>
+</html>

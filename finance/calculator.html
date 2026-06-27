@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Trading Calculator — BAJA PRO</title>
+<meta name="description" content="Free trading simulation calculator. Calculate P&L, risk management, stop-loss, and take-profit levels."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="stylesheet" href="../style.css"/>
+<style>
+.calc-layout{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.calc-form{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:32px}
+.form-row{margin-bottom:20px}
+.form-label{font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:8px;display:block}
+.form-input{width:100%;background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 16px;font-size:15px;font-weight:600;color:var(--text-1);outline:none;transition:border-color var(--tr)}
+.form-input:focus{border-color:var(--blue)}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.trade-type-row{display:flex;gap:10px;margin-bottom:20px}
+.type-btn{flex:1;padding:12px;border-radius:var(--r-md);font-size:14px;font-weight:700;transition:all var(--tr);border:2px solid var(--border);background:var(--bg-card);color:var(--text-2)}
+.type-btn.long.active{background:rgba(16,185,129,.15);border-color:var(--green);color:var(--green)}
+.type-btn.short.active{background:rgba(239,68,68,.15);border-color:var(--red);color:var(--red)}
+.type-btn:hover{background:var(--bg-card-hover)}
+.btn-calc{width:100%;background:var(--grad-tools);color:#fff;padding:14px;border-radius:var(--r-lg);font-size:16px;font-weight:700;transition:all var(--tr);margin-top:8px}
+.btn-calc:hover{transform:translateY(-2px);box-shadow:var(--glow-blue)}
+.results-panel{display:flex;flex-direction:column;gap:16px}
+.result-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:28px}
+.result-title{font-size:13px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+.result-main{font-size:36px;font-weight:900;margin-bottom:8px}
+.result-sub{font-size:14px;color:var(--text-2)}
+.result-profit{color:var(--green)}
+.result-loss{color:var(--red)}
+.breakdown{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.bk-item{background:var(--bg-elevated);border-radius:var(--r-md);padding:14px}
+.bk-label{font-size:11px;color:var(--text-3);font-weight:600;text-transform:uppercase;margin-bottom:4px}
+.bk-val{font-size:16px;font-weight:700}
+.risk-bar-wrap{margin-top:16px}
+.risk-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text-2);margin-bottom:6px}
+.risk-bar{height:10px;background:var(--bg-elevated);border-radius:var(--r-full);overflow:hidden}
+.risk-fill{height:100%;border-radius:var(--r-full);transition:width 1s ease}
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-3)}
+.empty-icon{font-size:48px;margin-bottom:12px}
+@media(max-width:768px){.calc-layout,.form-row-2,.breakdown{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="container nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-badge">⚡</div><span class="logo-text">BAJA</span><span class="logo-pro">PRO</span></a>
+    <div class="nav-menu" id="navMenu">
+      <a href="../tools/index.html" class="nav-link">🛠️ Tools</a>
+      <a href="index.html" class="nav-link active">📈 Finance</a>
+      <a href="../tutorial/index.html" class="nav-link">📚 Tutorial</a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn-icon" id="langBtn"><span id="langLabel">🌐 EN</span></button>
+      <button class="btn-icon" id="themeBtn"><span id="themeIcon">☀️</span></button>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header" style="background:linear-gradient(180deg,rgba(59,130,246,.08) 0%,transparent 100%)">
+  <div class="container">
+    <div class="section-badge">🧮 Trading Calculator</div>
+    <h1>Trade Simulation Calculator</h1>
+    <p>Calculate P&amp;L, risk/reward ratio, and position sizing before making any trade. For simulation only.</p>
+  </div>
+</div>
+
+<section class="section" style="padding-top:32px">
+  <div class="container">
+    <div class="ad-slot" style="height:90px;width:100%;margin-bottom:24px"><!-- AdSense --></div>
+    <div class="calc-layout">
+      <div class="calc-form">
+        <h2 style="font-size:18px;font-weight:800;margin-bottom:24px">📊 Trade Setup</h2>
+
+        <div class="trade-type-row">
+          <button class="type-btn long active" id="longBtn">📈 LONG</button>
+          <button class="type-btn short" id="shortBtn">📉 SHORT</button>
+        </div>
+
+        <div class="form-row">
+          <label class="form-label">Asset / Pair</label>
+          <select class="form-input" id="assetPair">
+            <option>BTC/USDT</option><option>ETH/USDT</option><option>BNB/USDT</option><option>SOL/USDT</option><option>Custom</option>
+          </select>
+        </div>
+        <div class="form-row-2">
+          <div class="form-row" style="margin:0">
+            <label class="form-label">Entry Price ($)</label>
+            <input type="number" class="form-input" id="entryPrice" placeholder="e.g. 65000" min="0" step="any"/>
+          </div>
+          <div class="form-row" style="margin:0">
+            <label class="form-label">Exit Price ($)</label>
+            <input type="number" class="form-input" id="exitPrice" placeholder="e.g. 70000" min="0" step="any"/>
+          </div>
+        </div>
+        <div class="form-row" style="margin-top:20px">
+          <label class="form-label">Capital / Margin ($)</label>
+          <input type="number" class="form-input" id="capital" placeholder="e.g. 1000" min="0" step="any"/>
+        </div>
+        <div class="form-row-2">
+          <div class="form-row" style="margin:0">
+            <label class="form-label">Leverage (x)</label>
+            <input type="number" class="form-input" id="leverage" placeholder="1" min="1" max="125" value="1"/>
+          </div>
+          <div class="form-row" style="margin:0">
+            <label class="form-label">Fee Rate (%)</label>
+            <input type="number" class="form-input" id="feeRate" placeholder="0.1" value="0.1" min="0" step="0.01"/>
+          </div>
+        </div>
+        <div class="form-row-2" style="margin-top:20px">
+          <div class="form-row" style="margin:0">
+            <label class="form-label">Stop-Loss ($)</label>
+            <input type="number" class="form-input" id="stopLoss" placeholder="Optional" min="0" step="any"/>
+          </div>
+          <div class="form-row" style="margin:0">
+            <label class="form-label">Take-Profit ($)</label>
+            <input type="number" class="form-input" id="takeProfit" placeholder="Optional" min="0" step="any"/>
+          </div>
+        </div>
+        <button class="btn-calc" id="calcBtn">🧮 Calculate Trade</button>
+        <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:var(--r-md);padding:12px 16px;font-size:12px;color:var(--gold);margin-top:16px">⚠️ For simulation only. Not financial advice.</div>
+      </div>
+
+      <div class="results-panel" id="resultsPanel">
+        <div class="empty-state">
+          <div class="empty-icon">🧮</div>
+          <div>Fill in the trade details and click <strong>Calculate</strong> to see your P&amp;L analysis.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer"><div class="container"><div class="footer-bottom" style="border-top:none;padding-top:0"><span>© 2025 BAJA PRO</span><a href="index.html">← Finance Hub</a></div></div></footer>
+<button id="scrollTop">↑</button>
+<script src="../app.js"></script>
+<script>
+let tradeType = 'long';
+document.getElementById('longBtn').addEventListener('click', () => {
+  tradeType = 'long';
+  document.getElementById('longBtn').classList.add('active');
+  document.getElementById('shortBtn').classList.remove('active');
+});
+document.getElementById('shortBtn').addEventListener('click', () => {
+  tradeType = 'short';
+  document.getElementById('shortBtn').classList.add('active');
+  document.getElementById('longBtn').classList.remove('active');
+});
+
+document.getElementById('calcBtn').addEventListener('click', () => {
+  const entry = parseFloat(document.getElementById('entryPrice').value);
+  const exit = parseFloat(document.getElementById('exitPrice').value);
+  const capital = parseFloat(document.getElementById('capital').value);
+  const leverage = parseFloat(document.getElementById('leverage').value) || 1;
+  const feeRate = parseFloat(document.getElementById('feeRate').value) / 100 || 0;
+  const sl = parseFloat(document.getElementById('stopLoss').value);
+  const tp = parseFloat(document.getElementById('takeProfit').value);
+
+  if (!entry || !exit || !capital) {
+    alert('Please fill in Entry Price, Exit Price, and Capital.'); return;
+  }
+
+  const positionSize = capital * leverage;
+  const qty = positionSize / entry;
+  const rawPnl = tradeType === 'long' ? (exit - entry) * qty : (entry - exit) * qty;
+  const fee = positionSize * feeRate * 2; // entry + exit
+  const netPnl = rawPnl - fee;
+  const pnlPct = (netPnl / capital) * 100;
+  const isProfit = netPnl >= 0;
+  const rrRatio = (!isNaN(sl) && !isNaN(tp)) ? Math.abs(tp - entry) / Math.abs(entry - sl) : null;
+  const slLoss = !isNaN(sl) ? Math.abs(tradeType==='long' ? (sl - entry)*qty : (entry - sl)*qty) : null;
+  const tpProfit = !isNaN(tp) ? Math.abs(tradeType==='long' ? (tp - entry)*qty : (entry - tp)*qty) : null;
+  const riskPct = slLoss ? (slLoss / capital * 100) : null;
+
+  const panel = document.getElementById('resultsPanel');
+  panel.innerHTML = `
+    <div class="result-card">
+      <div class="result-title">Net P&amp;L Result</div>
+      <div class="result-main ${isProfit?'result-profit':'result-loss'}">${isProfit?'+':''}${BAJA.formatUSD(netPnl)}</div>
+      <div class="result-sub ${isProfit?'up':'down'}">${isProfit?'📈':'📉'} ${isProfit?'+':''}${pnlPct.toFixed(2)}% on capital</div>
+      <div class="breakdown">
+        <div class="bk-item"><div class="bk-label">Position Size</div><div class="bk-val">${BAJA.formatUSD(positionSize)}</div></div>
+        <div class="bk-item"><div class="bk-label">Leverage</div><div class="bk-val">${leverage}x</div></div>
+        <div class="bk-item"><div class="bk-label">Quantity</div><div class="bk-val">${qty.toFixed(6)}</div></div>
+        <div class="bk-item"><div class="bk-label">Total Fees</div><div class="bk-val down">-${BAJA.formatUSD(fee)}</div></div>
+      </div>
+    </div>
+    ${rrRatio !== null ? `
+    <div class="result-card">
+      <div class="result-title">Risk / Reward</div>
+      <div class="result-main" style="color:var(--${rrRatio>=2?'green':rrRatio>=1?'gold':'red'})">1 : ${rrRatio.toFixed(2)}</div>
+      <div class="breakdown">
+        <div class="bk-item"><div class="bk-label">Max Loss (SL)</div><div class="bk-val down">-${BAJA.formatUSD(slLoss||0)}</div></div>
+        <div class="bk-item"><div class="bk-label">Max Profit (TP)</div><div class="bk-val up">+${BAJA.formatUSD(tpProfit||0)}</div></div>
+      </div>
+      ${riskPct !== null ? `
+      <div class="risk-bar-wrap">
+        <div class="risk-label"><span>Capital at Risk</span><span style="color:var(--${riskPct>5?'red':'gold'})">${riskPct.toFixed(1)}%</span></div>
+        <div class="risk-bar"><div class="risk-fill" style="width:${Math.min(riskPct,100)}%;background:var(--${riskPct>5?'red':'gold'})"></div></div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:6px">${riskPct>5?'⚠️ High risk — consider reducing leverage':'✅ Risk within safe range (≤5%)'}</div>
+      </div>` : ''}
+    </div>` : ''}
+    <div class="result-card">
+      <div class="result-title">Trade Summary</div>
+      <div style="font-size:13px;color:var(--text-2);line-height:1.8">
+        <div><strong>Type:</strong> ${tradeType.toUpperCase()}</div>
+        <div><strong>Entry:</strong> ${BAJA.formatUSD(entry)} → <strong>Exit:</strong> ${BAJA.formatUSD(exit)}</div>
+        <div><strong>Price Change:</strong> ${((exit-entry)/entry*100).toFixed(2)}%</div>
+        ${!isNaN(sl)?`<div><strong>Stop-Loss:</strong> ${BAJA.formatUSD(sl)}</div>`:''}
+        ${!isNaN(tp)?`<div><strong>Take-Profit:</strong> ${BAJA.formatUSD(tp)}</div>`:''}
+      </div>
+    </div>
+  `;
+});
+</script>
+</body>
+</html>

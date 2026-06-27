@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Tutorials — BAJA PRO</title>
+<meta name="description" content="Technical tutorials on React, Firebase, Arduino, ESP32, and IoT projects. Free step-by-step guides."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="stylesheet" href="../style.css"/>
+<style>
+.cat-tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:40px}
+.cat-tab{background:var(--bg-card);border:1px solid var(--border);color:var(--text-2);padding:8px 20px;border-radius:var(--r-full);font-size:14px;font-weight:600;transition:all var(--tr);cursor:pointer}
+.cat-tab.active{background:var(--grad-tutorial);color:#fff;border-color:transparent}
+.cat-tab:hover:not(.active){background:var(--bg-card-hover);color:var(--text-1)}
+.articles-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.art-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;transition:all var(--tr);display:flex;flex-direction:column}
+.art-card:hover{transform:translateY(-5px);border-color:rgba(139,92,246,.3);box-shadow:var(--glow-purple)}
+.art-thumb{height:160px;display:flex;align-items:center;justify-content:center;font-size:56px;position:relative}
+.art-thumb .diff-badge{position:absolute;top:12px;right:12px;font-size:10px;font-weight:700;padding:4px 10px;border-radius:var(--r-full)}
+.diff-beginner{background:rgba(16,185,129,.2);color:var(--green)}
+.diff-intermediate{background:rgba(245,158,11,.2);color:var(--gold)}
+.diff-advanced{background:rgba(239,68,68,.2);color:var(--red)}
+.art-body{padding:20px;display:flex;flex-direction:column;flex:1;gap:10px}
+.art-cat{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--purple)}
+.art-title{font-size:16px;font-weight:700;line-height:1.4;flex:1}
+.art-excerpt{font-size:13px;color:var(--text-2);line-height:1.5}
+.art-meta{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-3);padding-top:8px;border-top:1px solid var(--border)}
+.art-link{color:var(--purple);font-weight:600;font-size:13px;display:flex;align-items:center;gap:4px;transition:gap var(--tr)}
+.art-card:hover .art-link{gap:8px}
+.featured-art{background:var(--bg-card);border:1px solid rgba(139,92,246,.3);border-radius:var(--r-xl);padding:40px;display:grid;grid-template-columns:1fr auto;gap:32px;align-items:center;margin-bottom:48px;box-shadow:var(--glow-purple)}
+.featured-icon{font-size:80px;text-align:center}
+.featured-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(139,92,246,.15);color:var(--purple);padding:4px 12px;border-radius:var(--r-full);font-size:11px;font-weight:700;margin-bottom:12px}
+.featured-title{font-size:24px;font-weight:800;margin-bottom:10px;line-height:1.3}
+.featured-excerpt{font-size:15px;color:var(--text-2);line-height:1.6;margin-bottom:20px}
+@media(max-width:900px){.articles-grid{grid-template-columns:repeat(2,1fr)}.featured-art{grid-template-columns:1fr}}
+@media(max-width:600px){.articles-grid{grid-template-columns:1fr}.featured-icon{display:none}}
+</style>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="container nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-badge">⚡</div><span class="logo-text">BAJA</span><span class="logo-pro">PRO</span></a>
+    <div class="nav-menu" id="navMenu">
+      <a href="../tools/index.html" class="nav-link">🛠️ Tools</a>
+      <a href="../finance/index.html" class="nav-link">📈 Finance</a>
+      <a href="index.html" class="nav-link active">📚 Tutorial</a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn-icon" id="langBtn"><span id="langLabel">🌐 EN</span></button>
+      <button class="btn-icon" id="themeBtn"><span id="themeIcon">☀️</span></button>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header" style="background:linear-gradient(180deg,rgba(139,92,246,.08) 0%,transparent 100%)">
+  <div class="container">
+    <div class="section-badge" style="color:var(--purple)">📚 Technical Tutorials</div>
+    <h1>Learn. Build. Deploy.</h1>
+    <p>Step-by-step technical guides for web development and electronics/IoT projects.</p>
+  </div>
+</div>
+
+<section class="section" style="padding-top:40px">
+  <div class="container">
+    <div class="ad-slot" style="height:90px;width:100%;margin-bottom:32px"><!-- AdSense --></div>
+
+    <!-- Featured Article -->
+    <div class="featured-art">
+      <div>
+        <div class="featured-badge">⭐ Featured</div>
+        <div class="featured-title">Getting Started with React + Firebase: Build a Real-time CRUD App</div>
+        <div class="featured-excerpt">The ultimate beginner guide to building a production-ready React application connected to Firebase Realtime Database. Includes authentication, data sync, and Netlify deployment.</div>
+        <a href="web-dev.html" class="btn-primary" style="display:inline-flex;align-items:center;gap:8px">📖 Read Tutorial →</a>
+      </div>
+      <div class="featured-icon">⚛️</div>
+    </div>
+
+    <div class="cat-tabs">
+      <button class="cat-tab active" data-cat="all">All Topics</button>
+      <button class="cat-tab" data-cat="webdev">Web Dev</button>
+      <button class="cat-tab" data-cat="iot">IoT / Arduino</button>
+      <button class="cat-tab" data-cat="firebase">Firebase</button>
+      <button class="cat-tab" data-cat="react">React</button>
+    </div>
+
+    <div class="articles-grid" id="articlesGrid"></div>
+    <div class="ad-slot ad-responsive" style="margin-top:32px"><!-- AdSense --></div>
+  </div>
+</section>
+
+<footer class="footer"><div class="container"><div class="footer-bottom" style="border-top:none;padding-top:0"><span>© 2025 BAJA PRO</span><a href="../index.html">← Back to Home</a></div></div></footer>
+<button id="scrollTop">↑</button>
+<script src="../app.js"></script>
+<script>
+const articles = [
+  {cat:'webdev react',icon:'⚛️',bg:'rgba(59,130,246,.1)',title:'React Hooks Deep Dive: useState, useEffect, useContext',excerpt:'Master the most important React hooks with real-world examples and performance tips.',diff:'intermediate',read:'10 min',link:'web-dev.html'},
+  {cat:'firebase webdev',icon:'🔥',bg:'rgba(251,146,60,.1)',title:'Firebase Authentication: Email, Google & GitHub Login',excerpt:'Implement multi-provider auth in React using Firebase Auth SDK with protected routes.',diff:'beginner',read:'8 min',link:'web-dev.html'},
+  {cat:'iot',icon:'🌡️',bg:'rgba(16,185,129,.1)',title:'ESP32 + DHT22: Real-time Temperature Dashboard',excerpt:'Connect ESP32 sensor to WiFi and display live temperature data on a web dashboard.',diff:'intermediate',read:'12 min',link:'iot-arduino.html'},
+  {cat:'iot',icon:'🤖',bg:'rgba(139,92,246,.1)',title:'Arduino Line-Following Robot with PID Control',excerpt:'Build a self-navigating robot using Arduino Uno, IR sensors, and PID algorithm.',diff:'advanced',read:'20 min',link:'iot-arduino.html'},
+  {cat:'webdev react',icon:'🗄️',bg:'rgba(6,182,212,.1)',title:'Next.js 14 with Firebase: Full-Stack App Guide',excerpt:'Build a full-stack web app with Next.js App Router, Firebase Firestore, and Server Actions.',diff:'advanced',read:'18 min',link:'web-dev.html'},
+  {cat:'iot',icon:'📡',bg:'rgba(245,158,11,.1)',title:'ESP8266 + MQTT: IoT Data to Home Assistant',excerpt:'Send sensor data from ESP8266 to Home Assistant via MQTT broker over your local network.',diff:'intermediate',read:'15 min',link:'iot-arduino.html'},
+  {cat:'firebase webdev',icon:'📊',bg:'rgba(16,185,129,.1)',title:'Firebase Realtime DB: Build a Live Chat App',excerpt:'Create a real-time chat application using Firebase Realtime Database and React.',diff:'beginner',read:'9 min',link:'web-dev.html'},
+  {cat:'iot',icon:'🔌',bg:'rgba(239,68,68,.1)',title:'Arduino Relay Module: Control AC Devices Safely',excerpt:'Learn how to wire and program a relay module with Arduino to control home appliances safely.',diff:'beginner',read:'7 min',link:'iot-arduino.html'},
+  {cat:'react webdev',icon:'🎨',bg:'rgba(139,92,246,.1)',title:'React Context + Custom Hooks: State Management Pattern',excerpt:'Build a scalable state management system using Context API and reusable custom hooks.',diff:'intermediate',read:'11 min',link:'web-dev.html'},
+];
+
+function renderArticles(data) {
+  document.getElementById('articlesGrid').innerHTML = data.map(a => `
+    <a href="${a.link}" class="art-card">
+      <div class="art-thumb" style="background:${a.bg}">
+        ${a.icon}
+        <span class="diff-badge diff-${a.diff}">${a.diff}</span>
+      </div>
+      <div class="art-body">
+        <div class="art-cat">${a.cat.split(' ')[0]}</div>
+        <div class="art-title">${a.title}</div>
+        <div class="art-excerpt">${a.excerpt}</div>
+        <div class="art-meta">
+          <span>⏱️ ${a.read}</span>
+          <span class="art-link">Read →</span>
+        </div>
+      </div>
+    </a>`).join('');
+}
+
+renderArticles(articles);
+
+document.querySelectorAll('.cat-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cat = btn.dataset.cat;
+    const filtered = cat === 'all' ? articles : articles.filter(a => a.cat.includes(cat));
+    renderArticles(filtered);
+  });
+});
+</script>
+</body>
+</html>

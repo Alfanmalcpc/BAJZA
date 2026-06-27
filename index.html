@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>BAJA PRO — All-in-One Utility, Finance & Learning Platform</title>
+<meta name="description" content="BAJA PRO: Your all-in-one web platform for developer tools, crypto & stock finance dashboard, and technical tutorials. Free, fast, and powerful."/>
+<meta name="keywords" content="web tools, crypto dashboard, bitcoin price, code beautifier, image compressor, arduino tutorial, react tutorial, firebase"/>
+<meta property="og:title" content="BAJA PRO — All-in-One Utility & Learning Platform"/>
+<meta property="og:description" content="Free developer tools, live crypto & stock dashboard, and technical tutorials all in one place."/>
+<meta property="og:type" content="website"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="stylesheet" href="style.css"/>
+<style>
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:64px}
+.stat-item{text-align:center;padding:28px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg)}
+.stat-num{font-size:2.2rem;font-weight:900;background:var(--grad-tools);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+.stat-label{font-size:13px;color:var(--text-2);margin-top:6px;font-weight:500}
+.finance-section{background:var(--bg-surface)}
+.view-all{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--blue-light);transition:gap var(--tr)}
+.view-all:hover{gap:10px}
+.cta-section{background:linear-gradient(135deg,rgba(59,130,246,.1) 0%,rgba(6,182,212,.08) 100%);border-top:1px solid rgba(59,130,246,.15);border-bottom:1px solid rgba(59,130,246,.15)}
+.cta-inner{text-align:center;max-width:560px;margin:0 auto}
+.cta-inner h2{font-size:2rem;font-weight:800;margin-bottom:14px}
+.cta-inner p{color:var(--text-2);margin-bottom:32px;font-size:16px}
+@media(max-width:768px){.stats-row{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar" id="navbar">
+  <div class="container nav-container">
+    <a href="index.html" class="nav-logo">
+      <div class="logo-badge">⚡</div>
+      <span class="logo-text">BAJA</span>
+      <span class="logo-pro">PRO</span>
+    </a>
+    <div class="nav-menu" id="navMenu">
+      <a href="tools/index.html" class="nav-link"><span>🛠️</span> <span data-en="Tools" data-id="Utilitas">Tools</span></a>
+      <a href="finance/index.html" class="nav-link"><span>📈</span> <span data-en="Finance" data-id="Finansial">Finance</span></a>
+      <a href="tutorial/index.html" class="nav-link"><span>📚</span> <span data-en="Tutorial" data-id="Tutorial">Tutorial</span></a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn-icon" id="langBtn"><span id="langLabel">🌐 EN</span></button>
+      <button class="btn-icon" id="themeBtn"><span id="themeIcon">☀️</span></button>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-badge">⚡ <span data-en="All-in-One Platform" data-id="Platform Serba Bisa">All-in-One Platform</span></div>
+      <h1 class="hero-title">
+        <span data-en="Your Ultimate" data-id="Platform Terbaik">Your Ultimate</span><br/>
+        <span class="gradient-text">BAJA PRO</span><br/>
+        <span data-en="Workspace" data-id="Tempat Kerja">Workspace</span>
+      </h1>
+      <p class="hero-sub" data-en="Free developer tools, live crypto & stock dashboards, and in-depth technical tutorials. All in one powerful platform." data-id="Alat developer gratis, dashboard kripto & saham langsung, dan tutorial teknis mendalam. Semua dalam satu platform yang powerful.">
+        Free developer tools, live crypto & stock dashboards, and in-depth technical tutorials. All in one powerful platform.
+      </p>
+      <div class="hero-cta">
+        <a href="tools/index.html" class="btn-primary" data-en="🛠️ Explore Tools" data-id="🛠️ Jelajahi Tools">🛠️ Explore Tools</a>
+        <a href="finance/index.html" class="btn-secondary" data-en="📈 Finance Dashboard" data-id="📈 Dashboard Finansial">📈 Finance Dashboard</a>
+      </div>
+      <div class="stats-row">
+        <div class="stat-item"><div class="stat-num">10+</div><div class="stat-label" data-en="Free Tools" data-id="Tools Gratis">Free Tools</div></div>
+        <div class="stat-item"><div class="stat-num">Live</div><div class="stat-label" data-en="Crypto Prices" data-id="Harga Kripto">Crypto Prices</div></div>
+        <div class="stat-item"><div class="stat-num">20+</div><div class="stat-label" data-en="Tutorials" data-id="Tutorial">Tutorials</div></div>
+        <div class="stat-item"><div class="stat-num">100%</div><div class="stat-label" data-en="Free Forever" data-id="Gratis Selamanya">Free Forever</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AdSense Leaderboard #1 -->
+<div class="container">
+  <div class="ad-slot ad-leaderboard" id="ad-hero-bottom">
+    <!-- Google AdSense: Replace with real ad unit code -->
+    <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+  </div>
+</div>
+
+<!-- Live Crypto Ticker -->
+<div class="ticker-wrap">
+  <div class="ticker-inner" id="tickerTrack">
+    <div class="ticker-item"><span>₿ <strong class="ticker-coin">BTC</strong></span><span class="ticker-price">Loading...</span></div>
+  </div>
+</div>
+
+<!-- 3 Pillars -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-badge">🏛️ <span data-en="Three Pillars" data-id="Tiga Pilar">Three Pillars</span></div>
+      <h2 class="section-title" data-en="Everything You Need, In One Place" data-id="Semua yang Anda Butuhkan, Dalam Satu Tempat">Everything You Need, In One Place</h2>
+      <p class="section-sub" data-en="From developer utilities to financial insights and technical knowledge." data-id="Dari utilitas developer hingga wawasan finansial dan pengetahuan teknis.">From developer utilities to financial insights and technical knowledge.</p>
+    </div>
+    <div class="pillars-grid">
+      <a href="tools/index.html" class="pillar-card tools">
+        <div class="pillar-icon">🛠️</div>
+        <h3 class="pillar-title" data-en="Tools & Utilities" data-id="Tools & Utilitas">Tools & Utilities</h3>
+        <p class="pillar-desc" data-en="Practical browser-based tools: file converters, image compressor, code beautifier — no upload to server needed." data-id="Alat berbasis browser: konverter file, kompresor gambar, beautifier kode — tanpa upload ke server.">Practical browser-based tools: file converters, image compressor, code beautifier — no upload to server needed.</p>
+        <div class="pillar-tags">
+          <span class="tag tag-blue">PDF Converter</span>
+          <span class="tag tag-blue">Image Compress</span>
+          <span class="tag tag-blue">Code Beautifier</span>
+        </div>
+        <div class="pillar-link">Explore Tools →</div>
+      </a>
+      <a href="finance/index.html" class="pillar-card finance">
+        <div class="pillar-icon">📈</div>
+        <h3 class="pillar-title" data-en="Finance & Investment" data-id="Finansial & Investasi">Finance & Investment</h3>
+        <p class="pillar-desc" data-en="Live crypto & stock prices, RSI indicators, IPO calendar, and trading simulation calculator." data-id="Harga kripto & saham langsung, indikator RSI, kalender IPO, dan kalkulator simulasi trading.">Live crypto & stock prices, RSI indicators, IPO calendar, and trading simulation calculator.</p>
+        <div class="pillar-tags">
+          <span class="tag tag-green">BTC Live</span>
+          <span class="tag tag-green">RSI Chart</span>
+          <span class="tag tag-green">IPO Calendar</span>
+        </div>
+        <div class="pillar-link">Go to Finance →</div>
+      </a>
+      <a href="tutorial/index.html" class="pillar-card tutorial">
+        <div class="pillar-icon">📚</div>
+        <h3 class="pillar-title" data-en="Technical Tutorials" data-id="Tutorial Teknis">Technical Tutorials</h3>
+        <p class="pillar-desc" data-en="Web development (React, Firebase, Next.js) and electronics/IoT projects (Arduino, ESP32, sensors)." data-id="Web development (React, Firebase, Next.js) dan proyek elektronika/IoT (Arduino, ESP32, sensor).">Web development (React, Firebase, Next.js) and electronics/IoT projects (Arduino, ESP32, sensors).</p>
+        <div class="pillar-tags">
+          <span class="tag tag-purple">React</span>
+          <span class="tag tag-purple">Arduino</span>
+          <span class="tag tag-purple">Firebase</span>
+        </div>
+        <div class="pillar-link">Read Tutorials →</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Tools Preview -->
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-badge">🛠️ <span data-en="Popular Tools" data-id="Tools Populer">Popular Tools</span></div>
+      <h2 class="section-title" data-en="Browser-Powered Tools" data-id="Tools Berbasis Browser">Browser-Powered Tools</h2>
+      <p class="section-sub" data-en="All processing happens in your browser. No files are ever uploaded to our servers." data-id="Semua pemrosesan terjadi di browser Anda. Tidak ada file yang diunggah ke server kami.">All processing happens in your browser. No files are ever uploaded to our servers.</p>
+    </div>
+    <div class="tools-preview">
+      <div class="tool-card">
+        <div class="tool-icon">✨</div>
+        <div class="tool-name" data-en="Code Beautifier" data-id="Perapih Kode">Code Beautifier</div>
+        <div class="tool-desc" data-en="Format and prettify HTML, CSS, JavaScript, and JSON code instantly." data-id="Format dan rapikan kode HTML, CSS, JavaScript, dan JSON secara instan.">Format and prettify HTML, CSS, JavaScript, and JSON code instantly.</div>
+        <a href="tools/beautifier.html" class="tool-btn" data-en="Use Tool →" data-id="Gunakan →">Use Tool →</a>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">🗜️</div>
+        <div class="tool-name" data-en="Image Compressor" data-id="Kompresor Gambar">Image Compressor</div>
+        <div class="tool-desc" data-en="Compress JPG, PNG, and WebP images up to 80% smaller without visible quality loss." data-id="Kompres gambar JPG, PNG, dan WebP hingga 80% lebih kecil tanpa kehilangan kualitas yang terlihat.">Compress JPG, PNG, and WebP images up to 80% smaller without visible quality loss.</div>
+        <a href="tools/compressor.html" class="tool-btn" data-en="Compress Now →" data-id="Kompres Sekarang →">Compress Now →</a>
+      </div>
+      <div class="tool-card">
+        <div class="tool-icon">📄</div>
+        <div class="tool-name" data-en="File Converter" data-id="Konverter File">File Converter</div>
+        <div class="tool-desc" data-en="Convert PDF pages to images directly in your browser. Fast and private." data-id="Konversi halaman PDF menjadi gambar langsung di browser Anda. Cepat dan privat.">Convert PDF pages to images directly in your browser. Fast and private.</div>
+        <a href="tools/converter.html" class="tool-btn" data-en="Convert Now →" data-id="Konversi Sekarang →">Convert Now →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Finance Preview -->
+<section class="section finance-section">
+  <div class="container">
+    <div class="section-header" style="margin-bottom:40px">
+      <div class="section-badge">📈 <span data-en="Live Market" data-id="Pasar Langsung">Live Market</span></div>
+      <h2 class="section-title" data-en="Crypto Price Monitor" data-id="Monitor Harga Kripto">Crypto Price Monitor</h2>
+      <p class="section-sub" data-en="Live prices powered by CoinGecko API. Updated every 60 seconds." data-id="Harga langsung didukung oleh API CoinGecko. Diperbarui setiap 60 detik.">Live prices powered by CoinGecko API. Updated every 60 seconds.</p>
+    </div>
+    <div class="crypto-mini-grid" id="cryptoGrid">
+      <div class="crypto-mini-card"><div class="crypto-logo">₿</div><div class="crypto-symbol">BTC</div><div class="crypto-price" id="price-btc">—</div><div class="crypto-change" id="chg-btc">—</div></div>
+      <div class="crypto-mini-card"><div class="crypto-logo">⟠</div><div class="crypto-symbol">ETH</div><div class="crypto-price" id="price-eth">—</div><div class="crypto-change" id="chg-eth">—</div></div>
+      <div class="crypto-mini-card"><div class="crypto-logo">🔶</div><div class="crypto-symbol">BNB</div><div class="crypto-price" id="price-bnb">—</div><div class="crypto-change" id="chg-bnb">—</div></div>
+      <div class="crypto-mini-card"><div class="crypto-logo">◎</div><div class="crypto-symbol">SOL</div><div class="crypto-price" id="price-sol">—</div><div class="crypto-change" id="chg-sol">—</div></div>
+    </div>
+    <div style="text-align:center;margin-top:32px">
+      <a href="finance/crypto.html" class="btn-primary" data-en="📊 Full Dashboard →" data-id="📊 Dashboard Lengkap →">📊 Full Dashboard →</a>
+    </div>
+  </div>
+</section>
+
+<!-- AdSense Responsive #2 -->
+<div class="container">
+  <div class="ad-slot ad-responsive" id="ad-mid"><!-- AdSense mid-page slot --></div>
+</div>
+
+<!-- Tutorial Preview -->
+<section class="section">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-badge">📚 <span data-en="Latest Tutorials" data-id="Tutorial Terbaru">Latest Tutorials</span></div>
+      <h2 class="section-title" data-en="Learn. Build. Deploy." data-id="Belajar. Bangun. Deploy.">Learn. Build. Deploy.</h2>
+      <p class="section-sub" data-en="Step-by-step guides for web development and IoT/electronics projects." data-id="Panduan langkah demi langkah untuk web development dan proyek IoT/elektronika.">Step-by-step guides for web development and IoT/electronics projects.</p>
+    </div>
+    <div class="tutorial-grid">
+      <a href="tutorial/web-dev.html" class="article-card">
+        <div class="article-thumb web">⚛️</div>
+        <div class="article-body">
+          <div class="article-meta"><span>Web Dev</span> · 8 min read</div>
+          <div class="article-title">Getting Started with React + Firebase Realtime Database</div>
+          <div class="article-excerpt">Build a real-time web app using React hooks and Firebase. Complete with auth, CRUD, and deployment to Netlify.</div>
+        </div>
+      </a>
+      <a href="tutorial/iot-arduino.html" class="article-card">
+        <div class="article-thumb iot">🤖</div>
+        <div class="article-body">
+          <div class="article-meta"><span>IoT / Arduino</span> · 12 min read</div>
+          <div class="article-title">ESP32 + DHT22: Real-time Temperature Monitor with Web Dashboard</div>
+          <div class="article-excerpt">Connect ESP32 to a DHT22 sensor, send data over WiFi, and visualize it on a live web dashboard.</div>
+        </div>
+      </a>
+      <a href="tutorial/web-dev.html" class="article-card">
+        <div class="article-thumb react">🔥</div>
+        <div class="article-body">
+          <div class="article-meta"><span>Firebase</span> · 10 min read</div>
+          <div class="article-title">Firebase Authentication: Email, Google & GitHub Login in 30 Minutes</div>
+          <div class="article-excerpt">Implement multiple authentication providers in a React app using Firebase Auth SDK with protected routes.</div>
+        </div>
+      </a>
+    </div>
+    <div style="text-align:center;margin-top:40px">
+      <a href="tutorial/index.html" class="view-all" data-en="View All Tutorials →" data-id="Lihat Semua Tutorial →">View All Tutorials →</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Section -->
+<section class="section cta-section">
+  <div class="container">
+    <div class="cta-inner">
+      <h2 data-en="Start Using BAJA PRO Today" data-id="Mulai Gunakan BAJA PRO Hari Ini">Start Using BAJA PRO Today</h2>
+      <p data-en="No account needed. No signup required. 100% free, always." data-id="Tidak perlu akun. Tidak perlu mendaftar. 100% gratis, selamanya.">No account needed. No signup required. 100% free, always.</p>
+      <div class="hero-cta">
+        <a href="tools/index.html" class="btn-primary" data-en="🛠️ Open Toolbox" data-id="🛠️ Buka Toolbox">🛠️ Open Toolbox</a>
+        <a href="finance/crypto.html" class="btn-secondary" data-en="₿ Check Crypto" data-id="₿ Cek Kripto">₿ Check Crypto</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo-text">BAJA</div>
+        <p class="footer-desc" data-en="Your all-in-one platform for tools, finance, and technical learning. Free forever." data-id="Platform serba bisa untuk tools, finansial, dan belajar teknis. Gratis selamanya.">Your all-in-one platform for tools, finance, and technical learning. Free forever.</p>
+        <div class="footer-socials">
+          <a href="#" class="social-btn">🐙</a>
+          <a href="#" class="social-btn">🐦</a>
+          <a href="#" class="social-btn">📘</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 data-en="Tools" data-id="Utilitas">Tools</h4>
+        <div class="footer-links">
+          <a href="tools/beautifier.html" data-en="Code Beautifier" data-id="Perapih Kode">Code Beautifier</a>
+          <a href="tools/compressor.html" data-en="Image Compressor" data-id="Kompresor Gambar">Image Compressor</a>
+          <a href="tools/converter.html" data-en="File Converter" data-id="Konverter File">File Converter</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4 data-en="Finance" data-id="Finansial">Finance</h4>
+        <div class="footer-links">
+          <a href="finance/crypto.html" data-en="Crypto Dashboard" data-id="Dashboard Kripto">Crypto Dashboard</a>
+          <a href="finance/ipo.html" data-en="IPO Calendar" data-id="Kalender IPO">IPO Calendar</a>
+          <a href="finance/calculator.html" data-en="Trading Calculator" data-id="Kalkulator Trading">Trading Calculator</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Tutorial</h4>
+        <div class="footer-links">
+          <a href="tutorial/web-dev.html">React & Firebase</a>
+          <a href="tutorial/iot-arduino.html">Arduino & ESP32</a>
+          <a href="tutorial/index.html" data-en="All Tutorials" data-id="Semua Tutorial">All Tutorials</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 <strong>BAJA PRO</strong>. <span data-en="All rights reserved." data-id="Hak cipta dilindungi.">All rights reserved.</span></span>
+      <span data-en="Data for informational purposes only. Not financial advice." data-id="Data hanya untuk tujuan informasi. Bukan saran keuangan.">Data for informational purposes only. Not financial advice.</span>
+    </div>
+  </div>
+</footer>
+
+<button id="scrollTop" aria-label="Scroll to top">↑</button>
+
+<script src="app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  // Crypto ticker
+  await BAJA.initTicker();
+
+  // Mini crypto grid
+  const data = await BAJA.fetchCryptoPrices(['bitcoin','ethereum','binancecoin','solana']);
+  if (data) {
+    const map = {bitcoin:'btc',ethereum:'eth',binancecoin:'bnb',solana:'sol'};
+    for (const [id, sym] of Object.entries(map)) {
+      const d = data[id];
+      if (!d) continue;
+      const p = document.getElementById('price-' + sym);
+      const c = document.getElementById('chg-' + sym);
+      if (p) p.textContent = BAJA.formatUSD(d.usd);
+      if (c) {
+        const ch = d.usd_24h_change?.toFixed(2) || '0';
+        const up = parseFloat(ch) >= 0;
+        c.textContent = `${up ? '▲' : '▼'} ${Math.abs(ch)}%`;
+        c.className = 'crypto-change ' + (up ? 'up' : 'down');
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>

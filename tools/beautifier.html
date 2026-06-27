@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Code Beautifier — BAJA PRO</title>
+<meta name="description" content="Free online code beautifier and formatter for HTML, CSS, JavaScript, and JSON. Instant results in your browser."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="stylesheet" href="../style.css"/>
+<style>
+.beautifier-layout{display:grid;grid-template-columns:1fr 300px;gap:28px;align-items:start}
+.editor-panel{display:flex;flex-direction:column;gap:16px}
+.lang-select{display:flex;gap:8px;flex-wrap:wrap}
+.lang-btn{background:var(--bg-card);border:1px solid var(--border);color:var(--text-2);padding:8px 18px;border-radius:var(--r-full);font-size:13px;font-weight:600;transition:all var(--tr)}
+.lang-btn.active,.lang-btn:hover{background:var(--grad-tools);color:#fff;border-color:transparent}
+.action-row{display:flex;gap:10px;flex-wrap:wrap}
+.btn-beautify{background:var(--grad-tools);color:#fff;padding:12px 28px;border-radius:var(--r-full);font-size:14px;font-weight:700;transition:all var(--tr);display:flex;align-items:center;gap:8px}
+.btn-beautify:hover{transform:translateY(-2px);box-shadow:var(--glow-blue)}
+.btn-clear,.btn-copy{background:var(--bg-card);border:1px solid var(--border);color:var(--text-2);padding:12px 20px;border-radius:var(--r-full);font-size:14px;font-weight:500;transition:all var(--tr)}
+.btn-clear:hover,.btn-copy:hover{background:var(--bg-card-hover);color:var(--text-1)}
+.editor-split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.editor-label{font-size:12px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.output-area{width:100%;min-height:300px;background:#0D1117;border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;font-family:var(--mono);font-size:13px;color:#E6EDF3;resize:vertical;line-height:1.6;outline:none}
+.sidebar-ad{position:sticky;top:calc(var(--nav-h) + 20px)}
+.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--green);color:#fff;padding:12px 28px;border-radius:var(--r-full);font-size:14px;font-weight:600;transition:transform var(--tr);z-index:2000;opacity:0}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.line-counter{font-size:12px;color:var(--text-3);font-family:var(--mono);padding:8px 12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-sm);display:flex;gap:20px}
+@media(max-width:900px){.beautifier-layout{grid-template-columns:1fr}.editor-split{grid-template-columns:1fr}.sidebar-ad{position:static}}
+</style>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="container nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-badge">⚡</div><span class="logo-text">BAJA</span><span class="logo-pro">PRO</span></a>
+    <div class="nav-menu" id="navMenu">
+      <a href="index.html" class="nav-link active">🛠️ <span data-en="Tools" data-id="Utilitas">Tools</span></a>
+      <a href="../finance/index.html" class="nav-link">📈 <span data-en="Finance" data-id="Finansial">Finance</span></a>
+      <a href="../tutorial/index.html" class="nav-link">📚 Tutorial</a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn-icon" id="langBtn"><span id="langLabel">🌐 EN</span></button>
+      <button class="btn-icon" id="themeBtn"><span id="themeIcon">☀️</span></button>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="container">
+    <div class="section-badge">✨ Code Beautifier</div>
+    <h1 data-en="Code Formatter & Beautifier" data-id="Pemformat & Perapih Kode">Code Formatter & Beautifier</h1>
+    <p data-en="Paste your messy code and get it formatted instantly. Supports HTML, CSS, JS, and JSON." data-id="Tempel kode berantakan Anda dan dapatkan format instan. Mendukung HTML, CSS, JS, dan JSON.">Paste your messy code and get it formatted instantly.</p>
+  </div>
+</div>
+
+<section class="section" style="padding-top:32px">
+  <div class="container">
+    <div class="beautifier-layout">
+      <div class="editor-panel">
+        <!-- AdSense above tool -->
+        <div class="ad-slot" style="height:90px;width:100%;margin-bottom:8px"><!-- AdSense --></div>
+
+        <div class="lang-select">
+          <button class="lang-btn active" data-lang="js">JavaScript</button>
+          <button class="lang-btn" data-lang="html">HTML</button>
+          <button class="lang-btn" data-lang="css">CSS</button>
+          <button class="lang-btn" data-lang="json">JSON</button>
+        </div>
+
+        <div class="editor-split">
+          <div>
+            <div class="editor-label" data-en="Input Code" data-id="Kode Input">Input Code</div>
+            <div class="code-editor">
+              <div class="editor-header">
+                <div class="editor-dots"><span></span><span></span><span></span></div>
+                <span class="editor-lang" id="langLabel2">JavaScript</span>
+              </div>
+              <textarea class="editor-area" id="inputCode" placeholder="// Paste your code here...
+function hello(name){return 'Hello '+name+'!';}
+const x={a:1,b:2,c:{d:3}};"></textarea>
+            </div>
+          </div>
+          <div>
+            <div class="editor-label" data-en="Formatted Output" data-id="Output Terformat">Formatted Output</div>
+            <div class="code-editor">
+              <div class="editor-header">
+                <div class="editor-dots"><span></span><span></span><span></span></div>
+                <span class="editor-lang" data-en="Result" data-id="Hasil">Result</span>
+              </div>
+              <textarea class="editor-area" id="outputCode" readonly placeholder="// Formatted code will appear here..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="line-counter">
+          <span id="inputLines">Input: 0 lines</span>
+          <span id="inputChars">0 chars</span>
+          <span id="outputLines">Output: 0 lines</span>
+        </div>
+
+        <div class="action-row">
+          <button class="btn-beautify" id="beautifyBtn">✨ <span data-en="Beautify Code" data-id="Rapikan Kode">Beautify Code</span></button>
+          <button class="btn-copy" id="copyBtn">📋 <span data-en="Copy Output" data-id="Salin Output">Copy Output</span></button>
+          <button class="btn-clear" id="clearBtn">🗑️ <span data-en="Clear" data-id="Hapus">Clear</span></button>
+        </div>
+      </div>
+
+      <!-- Sidebar with Ad -->
+      <div class="sidebar-ad">
+        <div class="ad-slot ad-rectangle"><!-- AdSense Rectangle 300x250 --></div>
+        <div style="margin-top:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px">
+          <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">💡 Tips</h3>
+          <ul style="font-size:13px;color:var(--text-2);display:flex;flex-direction:column;gap:8px;padding-left:16px;list-style:disc">
+            <li data-en="Use Ctrl+A to select all code" data-id="Gunakan Ctrl+A untuk pilih semua">Use Ctrl+A to select all code</li>
+            <li data-en="JSON must be valid before formatting" data-id="JSON harus valid sebelum diformat">JSON must be valid before formatting</li>
+            <li data-en="HTML attributes will be sorted" data-id="Atribut HTML akan diurutkan">HTML attributes will be sorted</li>
+            <li data-en="CSS rules will be alphabetically sorted" data-id="Aturan CSS akan diurutkan alfabet">CSS rules sorted alphabetically</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="toast" id="toast">✅ Copied to clipboard!</div>
+<button id="scrollTop">↑</button>
+<script src="../app.js"></script>
+<script>
+let currentLang = 'js';
+const langNames = {js:'JavaScript',html:'HTML',css:'CSS',json:'JSON'};
+const inputCode = document.getElementById('inputCode');
+const outputCode = document.getElementById('outputCode');
+
+// Lang buttons
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentLang = btn.dataset.lang;
+    document.getElementById('langLabel2').textContent = langNames[currentLang];
+  });
+});
+
+// Line/char counter
+inputCode.addEventListener('input', updateCounter);
+function updateCounter() {
+  const lines = inputCode.value.split('\n').length;
+  const chars = inputCode.value.length;
+  document.getElementById('inputLines').textContent = `Input: ${lines} lines`;
+  document.getElementById('inputChars').textContent = `${chars} chars`;
+}
+
+// Beautify
+document.getElementById('beautifyBtn').addEventListener('click', () => {
+  const code = inputCode.value.trim();
+  if (!code) return;
+  let result = '';
+  try {
+    if (currentLang === 'json') {
+      result = JSON.stringify(JSON.parse(code), null, 2);
+    } else if (currentLang === 'js') {
+      result = beautifyJS(code);
+    } else if (currentLang === 'html') {
+      result = beautifyHTML(code);
+    } else if (currentLang === 'css') {
+      result = beautifyCSS(code);
+    }
+    outputCode.value = result;
+    const outLines = result.split('\n').length;
+    document.getElementById('outputLines').textContent = `Output: ${outLines} lines`;
+  } catch(e) {
+    outputCode.value = '// Error: ' + e.message;
+  }
+});
+
+function beautifyJS(code) {
+  let indent = 0, result = '', i = 0;
+  const IND = '  ';
+  // Simple JS beautifier
+  code = code.replace(/;/g, ';\n').replace(/\{/g, '{\n').replace(/\}/g, '\n}\n').replace(/,(?!\n)/g, ', ');
+  return code.split('\n').map(line => {
+    line = line.trim();
+    if (!line) return '';
+    if (line.startsWith('}')) indent = Math.max(0, indent - 1);
+    const out = IND.repeat(indent) + line;
+    if (line.endsWith('{')) indent++;
+    return out;
+  }).filter(l => l !== '').join('\n');
+}
+
+function beautifyHTML(code) {
+  const IND = '  ';
+  let indent = 0, result = '';
+  const voidTags = ['area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr'];
+  code = code.replace(/>\s*</g, '>\n<').replace(/\s+/g, ' ');
+  return code.split('\n').map(line => {
+    line = line.trim();
+    if (!line) return '';
+    const isClose = line.startsWith('</');
+    const isVoid = voidTags.some(t => line.startsWith('<' + t));
+    if (isClose) indent = Math.max(0, indent - 1);
+    const out = IND.repeat(indent) + line;
+    if (!isClose && !isVoid && line.startsWith('<') && !line.startsWith('<!') && !line.endsWith('/>')) indent++;
+    return out;
+  }).join('\n');
+}
+
+function beautifyCSS(code) {
+  return code
+    .replace(/\s*\{\s*/g, ' {\n  ')
+    .replace(/;\s*/g, ';\n  ')
+    .replace(/\s*\}\s*/g, '\n}\n\n')
+    .replace(/,\s*/g, ',\n')
+    .trim();
+}
+
+// Copy
+document.getElementById('copyBtn').addEventListener('click', () => {
+  if (!outputCode.value) return;
+  navigator.clipboard.writeText(outputCode.value).then(() => showToast('✅ Copied!'));
+});
+
+// Clear
+document.getElementById('clearBtn').addEventListener('click', () => {
+  inputCode.value = '';
+  outputCode.value = '';
+  updateCounter();
+  document.getElementById('outputLines').textContent = 'Output: 0 lines';
+});
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>

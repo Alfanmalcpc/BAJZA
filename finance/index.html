@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Finance Dashboard — BAJA PRO</title>
+<meta name="description" content="Live crypto & stock dashboard, RSI indicators, IPO calendar, and trading calculator."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="stylesheet" href="../style.css"/>
+<style>
+.finance-hub-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+.fhub-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:36px 32px;transition:all var(--tr);display:block;position:relative;overflow:hidden}
+.fhub-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.fhub-card.green::before{background:var(--grad-finance)}
+.fhub-card.gold::before{background:linear-gradient(90deg,#F59E0B,#D97706)}
+.fhub-card.blue::before{background:var(--grad-tools)}
+.fhub-card.purple::before{background:var(--grad-tutorial)}
+.fhub-card:hover{transform:translateY(-5px);box-shadow:var(--glow-green)}
+.fhub-icon{font-size:44px;margin-bottom:20px}
+.fhub-title{font-size:20px;font-weight:800;margin-bottom:8px}
+.fhub-desc{font-size:14px;color:var(--text-2);line-height:1.6;margin-bottom:20px}
+.fhub-link{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
+.market-overview{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:48px}
+.mo-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px}
+.mo-name{font-size:12px;color:var(--text-2);font-weight:600;margin-bottom:4px}
+.mo-price{font-size:20px;font-weight:800;margin-bottom:4px}
+.disclaimer{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:var(--r-lg);padding:16px 20px;font-size:13px;color:var(--gold);margin-top:32px}
+@media(max-width:768px){.finance-hub-grid,.market-overview{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="container nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-badge">⚡</div><span class="logo-text">BAJA</span><span class="logo-pro">PRO</span></a>
+    <div class="nav-menu" id="navMenu">
+      <a href="../tools/index.html" class="nav-link">🛠️ Tools</a>
+      <a href="index.html" class="nav-link active">📈 Finance</a>
+      <a href="../tutorial/index.html" class="nav-link">📚 Tutorial</a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn-icon" id="langBtn"><span id="langLabel">🌐 EN</span></button>
+      <button class="btn-icon" id="themeBtn"><span id="themeIcon">☀️</span></button>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header" style="background:linear-gradient(180deg,rgba(16,185,129,.08) 0%,transparent 100%)">
+  <div class="container">
+    <div class="section-badge" style="color:var(--green)">📈 Finance & Investment</div>
+    <h1>Your Financial Intelligence Hub</h1>
+    <p>Live crypto prices, stock monitoring, IPO calendar, and trading simulation tools.</p>
+  </div>
+</div>
+
+<section class="section" style="padding-top:40px">
+  <div class="container">
+    <div class="ad-slot" style="height:90px;width:100%;margin-bottom:32px"><!-- AdSense --></div>
+    <div class="section-header" style="text-align:left;margin-bottom:24px">
+      <div class="section-badge" style="color:var(--red)">🔴 LIVE</div>
+      <h2 class="section-title" style="font-size:1.6rem">Market Overview</h2>
+    </div>
+    <div class="market-overview">
+      <div class="mo-card"><div class="mo-name">Bitcoin (BTC)</div><div class="mo-price" id="mo-btc">—</div><div id="mo-btc-ch" class="crypto-change">—</div></div>
+      <div class="mo-card"><div class="mo-name">Ethereum (ETH)</div><div class="mo-price" id="mo-eth">—</div><div id="mo-eth-ch" class="crypto-change">—</div></div>
+      <div class="mo-card"><div class="mo-name">BNB</div><div class="mo-price" id="mo-bnb">—</div><div id="mo-bnb-ch" class="crypto-change">—</div></div>
+      <div class="mo-card"><div class="mo-name">Solana (SOL)</div><div class="mo-price" id="mo-sol">—</div><div id="mo-sol-ch" class="crypto-change">—</div></div>
+    </div>
+    <div class="finance-hub-grid">
+      <a href="crypto.html" class="fhub-card green">
+        <div class="fhub-icon">📊</div>
+        <div class="fhub-title">Crypto Dashboard</div>
+        <div class="fhub-desc">Live prices for BTC, ETH, BNB, SOL with 24h charts and RSI indicator. Data from CoinGecko API.</div>
+        <div class="fhub-link" style="color:var(--green)">Open Dashboard →</div>
+      </a>
+      <a href="ipo.html" class="fhub-card gold">
+        <div class="fhub-icon">📅</div>
+        <div class="fhub-title">IPO Calendar</div>
+        <div class="fhub-desc">Track upcoming IPO schedules, offering price ranges, and market expectations for tech stocks.</div>
+        <div class="fhub-link" style="color:var(--gold)">View Calendar →</div>
+      </a>
+      <a href="calculator.html" class="fhub-card blue">
+        <div class="fhub-icon">🧮</div>
+        <div class="fhub-title">Trading Calculator</div>
+        <div class="fhub-desc">Simulate trades with P&amp;L calculation, risk management, stop-loss, take-profit, and position sizing.</div>
+        <div class="fhub-link" style="color:var(--blue-light)">Open Calculator →</div>
+      </a>
+      <a href="crypto.html" class="fhub-card purple">
+        <div class="fhub-icon">📉</div>
+        <div class="fhub-title">RSI Indicator</div>
+        <div class="fhub-desc">Relative Strength Index chart for BTC and ETH. Spot overbought and oversold conditions with visual signals.</div>
+        <div class="fhub-link" style="color:var(--purple)">View RSI →</div>
+      </a>
+    </div>
+    <div class="disclaimer">⚠️ Data is for informational purposes only. This is NOT financial advice. Always do your own research (DYOR) before investing.</div>
+  </div>
+</section>
+
+<footer class="footer"><div class="container"><div class="footer-bottom" style="border-top:none;padding-top:0"><span>© 2025 BAJA PRO</span><a href="../index.html">← Back to Home</a></div></div></footer>
+<button id="scrollTop">↑</button>
+<script src="../app.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const data = await BAJA.fetchCryptoPrices(['bitcoin','ethereum','binancecoin','solana']);
+  if (!data) return;
+  const map = {bitcoin:'btc',ethereum:'eth',binancecoin:'bnb',solana:'sol'};
+  for (const [id, sym] of Object.entries(map)) {
+    const d = data[id]; if (!d) continue;
+    const p = document.getElementById('mo-' + sym);
+    const c = document.getElementById('mo-' + sym + '-ch');
+    if (p) p.textContent = BAJA.formatUSD(d.usd);
+    if (c) {
+      const ch = (d.usd_24h_change||0).toFixed(2);
+      c.textContent = `${parseFloat(ch)>=0?'▲':'▼'} ${Math.abs(ch)}%`;
+      c.className = 'crypto-change ' + (parseFloat(ch)>=0?'up':'down');
+    }
+  }
+});
+</script>
+</body>
+</html>

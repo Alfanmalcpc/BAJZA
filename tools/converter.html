@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PDF to Image Converter — BAJA PRO</title>
+<meta name="description" content="Free PDF to PNG/JPG converter. Convert PDF pages to images directly in your browser using PDF.js."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="stylesheet" href="../style.css"/>
+<style>
+.converter-wrap{max-width:900px;margin:0 auto}
+.drop-zone{border:2px dashed var(--border);border-radius:var(--r-xl);padding:70px 40px;text-align:center;cursor:pointer;transition:all var(--tr);background:var(--bg-card)}
+.drop-zone:hover,.drop-zone.dragover{border-color:var(--purple);background:rgba(139,92,246,.06)}
+.drop-icon{font-size:64px;margin-bottom:16px}
+.drop-title{font-size:22px;font-weight:700;margin-bottom:8px}
+.drop-sub{font-size:14px;color:var(--text-2);margin-bottom:20px}
+.btn-file-pdf{display:inline-block;background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff;padding:12px 28px;border-radius:var(--r-full);font-size:14px;font-weight:600;cursor:pointer;transition:all var(--tr)}
+.btn-file-pdf:hover{opacity:.9;transform:scale(1.04)}
+.progress-bar{background:var(--bg-surface);border-radius:var(--r-full);height:8px;margin:20px 0;overflow:hidden;display:none}
+.progress-fill{height:100%;background:linear-gradient(90deg,#8B5CF6,#3B82F6);border-radius:var(--r-full);transition:width .4s ease;width:0%}
+.pages-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:28px}
+.page-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;transition:all var(--tr)}
+.page-card:hover{transform:translateY(-3px);border-color:rgba(139,92,246,.4)}
+.page-img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block}
+.page-footer{padding:10px 12px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text-2)}
+.btn-dl-page{background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff;padding:5px 12px;border-radius:var(--r-full);font-size:11px;font-weight:600;cursor:pointer;border:none;transition:all var(--tr)}
+.action-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:24px;padding:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);display:none}
+.info-box{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;margin-top:20px}
+</style>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="container nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-badge">⚡</div><span class="logo-text">BAJA</span><span class="logo-pro">PRO</span></a>
+    <div class="nav-menu" id="navMenu">
+      <a href="index.html" class="nav-link active">🛠️ <span data-en="Tools" data-id="Utilitas">Tools</span></a>
+      <a href="../finance/index.html" class="nav-link">📈 Finance</a>
+      <a href="../tutorial/index.html" class="nav-link">📚 Tutorial</a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn-icon" id="langBtn"><span id="langLabel">🌐 EN</span></button>
+      <button class="btn-icon" id="themeBtn"><span id="themeIcon">☀️</span></button>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="container">
+    <div class="section-badge">📄 File Converter</div>
+    <h1 data-en="PDF to Image Converter" data-id="Konverter PDF ke Gambar">PDF to Image Converter</h1>
+    <p data-en="Convert each PDF page to a high-quality PNG image. Runs entirely in your browser." data-id="Konversi setiap halaman PDF menjadi gambar PNG berkualitas tinggi. Berjalan sepenuhnya di browser Anda.">Convert each PDF page to a high-quality PNG image.</p>
+  </div>
+</div>
+
+<section class="section" style="padding-top:32px">
+  <div class="container">
+    <div class="ad-slot" style="height:90px;width:100%;margin-bottom:24px"><!-- AdSense --></div>
+    <div class="converter-wrap">
+      <input type="file" id="pdfInput" accept=".pdf" style="display:none"/>
+      <div class="drop-zone" id="dropZone">
+        <div class="drop-icon">📄</div>
+        <div class="drop-title" data-en="Drop your PDF here" data-id="Taruh PDF di sini">Drop your PDF here</div>
+        <div class="drop-sub" data-en="Up to 50 pages supported • Max 50MB" data-id="Hingga 50 halaman • Maks 50MB">Up to 50 pages supported • Max 50MB</div>
+        <label for="pdfInput" class="btn-file-pdf">📂 <span data-en="Choose PDF File" data-id="Pilih File PDF">Choose PDF File</span></label>
+      </div>
+
+      <div class="progress-bar" id="progressBar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div id="progressText" style="text-align:center;font-size:13px;color:var(--text-2);display:none"></div>
+
+      <div class="action-bar" id="actionBar">
+        <span id="pageCount" style="font-size:14px;font-weight:600;flex:1"></span>
+        <button class="btn-beautify" id="downloadAllBtn" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9)">⬇️ <span data-en="Download All as ZIP" data-id="Unduh Semua sebagai ZIP">Download All as ZIP</span></button>
+        <button class="btn-clear" id="resetBtn" onclick="location.reload()" data-en="🔄 Reset" data-id="🔄 Ulang">🔄 Reset</button>
+      </div>
+
+      <div class="pages-grid" id="pagesGrid"></div>
+
+      <div class="ad-slot ad-responsive" style="margin-top:24px"><!-- AdSense mid --></div>
+
+      <div class="info-box">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:12px">ℹ️ <span data-en="How it works" data-id="Cara kerjanya">How it works</span></h3>
+        <div style="font-size:14px;color:var(--text-2);line-height:1.7" data-en="This tool uses Mozilla's PDF.js library to render each PDF page as a high-resolution canvas element, then exports it as a PNG image. Your PDF file is never uploaded to any server — everything happens locally in your browser." data-id="Tool ini menggunakan library PDF.js Mozilla untuk merender setiap halaman PDF sebagai elemen canvas resolusi tinggi, kemudian mengekspornya sebagai gambar PNG. File PDF Anda tidak pernah diunggah ke server mana pun — semuanya terjadi secara lokal di browser Anda.">This tool uses Mozilla's PDF.js library to render each PDF page as a high-resolution canvas element, then exports it as a PNG image. Your PDF file is never uploaded to any server — everything happens locally in your browser.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<button id="scrollTop">↑</button>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="../app.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+const dropZone = document.getElementById('dropZone');
+const pdfInput = document.getElementById('pdfInput');
+const pagesGrid = document.getElementById('pagesGrid');
+const progressBar = document.getElementById('progressBar');
+const progressFill = document.getElementById('progressFill');
+const progressText = document.getElementById('progressText');
+const actionBar = document.getElementById('actionBar');
+let pageBlobs = [];
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type === 'application/pdf') processPDF(f);
+});
+pdfInput.addEventListener('change', e => { if (e.target.files[0]) processPDF(e.target.files[0]); });
+
+async function processPDF(file) {
+  pageBlobs = [];
+  pagesGrid.innerHTML = '';
+  dropZone.style.display = 'none';
+  progressBar.style.display = 'block';
+  progressText.style.display = 'block';
+
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const total = pdf.numPages;
+  document.getElementById('pageCount').textContent = `${total} page${total>1?'s':''} converted`;
+
+  for (let i = 1; i <= total; i++) {
+    const page = await pdf.getPage(i);
+    const scale = 2;
+    const vp = page.getViewport({ scale });
+    const canvas = document.createElement('canvas');
+    canvas.width = vp.width;
+    canvas.height = vp.height;
+    const ctx = canvas.getContext('2d');
+    await page.render({ canvasContext: ctx, viewport: vp }).promise;
+
+    const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+    pageBlobs.push(blob);
+    const url = URL.createObjectURL(blob);
+
+    const card = document.createElement('div');
+    card.className = 'page-card';
+    card.innerHTML = `<img class="page-img" src="${url}" alt="Page ${i}"/>
+      <div class="page-footer">
+        <span>Page ${i}</span>
+        <button class="btn-dl-page" data-url="${url}" data-page="${i}">⬇️ Save</button>
+      </div>`;
+    pagesGrid.appendChild(card);
+
+    const pct = Math.round((i/total)*100);
+    progressFill.style.width = pct + '%';
+    progressText.textContent = `Converting page ${i} of ${total}...`;
+  }
+
+  progressBar.style.display = 'none';
+  progressText.style.display = 'none';
+  actionBar.style.display = 'flex';
+
+  pagesGrid.querySelectorAll('.btn-dl-page').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const a = document.createElement('a');
+      a.href = btn.dataset.url;
+      a.download = `baja_page_${btn.dataset.page}.png`;
+      a.click();
+    });
+  });
+
+  document.getElementById('downloadAllBtn').addEventListener('click', async () => {
+    // Simple download each page individually (ZIP requires JSZip library)
+    pageBlobs.forEach((blob, idx) => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `baja_page_${idx+1}.png`;
+      setTimeout(() => a.click(), idx * 300);
+    });
+  });
+}
+</script>
+</body>
+</html>

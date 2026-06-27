@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Tools & Utilities — BAJA PRO</title>
+<meta name="description" content="Free browser-based developer tools: code beautifier, image compressor, and file converter. No upload required."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="stylesheet" href="../style.css"/>
+<style>
+.tools-big-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+.tool-big-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:40px 32px;transition:all var(--tr);display:flex;flex-direction:column;gap:16px;position:relative;overflow:hidden}
+.tool-big-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r-xl) var(--r-xl) 0 0}
+.tool-big-card.beautifier::after{background:var(--grad-tools)}
+.tool-big-card.compressor::after{background:linear-gradient(90deg,#10B981,#059669)}
+.tool-big-card.converter::after{background:linear-gradient(90deg,#8B5CF6,#6D28D9)}
+.tool-big-card:hover{transform:translateY(-6px);border-color:var(--border-active);box-shadow:var(--glow-blue)}
+.tool-big-icon{font-size:48px}
+.tool-big-name{font-size:22px;font-weight:800}
+.tool-big-desc{font-size:15px;color:var(--text-2);line-height:1.6;flex:1}
+.tool-features{display:flex;flex-direction:column;gap:8px}
+.feature-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2)}
+.feature-item::before{content:'✓';color:var(--green);font-weight:700}
+.tool-launch{display:inline-flex;align-items:center;gap:8px;background:var(--grad-tools);color:#fff;padding:12px 24px;border-radius:var(--r-full);font-size:14px;font-weight:600;transition:all var(--tr);width:fit-content}
+.tool-launch:hover{transform:scale(1.04);opacity:.9}
+.why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:24px}
+.why-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px;text-align:center}
+.why-icon{font-size:32px;margin-bottom:12px}
+.why-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.why-desc{font-size:13px;color:var(--text-2)}
+@media(max-width:900px){.tools-big-grid{grid-template-columns:1fr}.why-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="container nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-badge">⚡</div><span class="logo-text">BAJA</span><span class="logo-pro">PRO</span></a>
+    <div class="nav-menu" id="navMenu">
+      <a href="index.html" class="nav-link active">🛠️ <span data-en="Tools" data-id="Utilitas">Tools</span></a>
+      <a href="../finance/index.html" class="nav-link">📈 <span data-en="Finance" data-id="Finansial">Finance</span></a>
+      <a href="../tutorial/index.html" class="nav-link">📚 Tutorial</a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn-icon" id="langBtn"><span id="langLabel">🌐 EN</span></button>
+      <button class="btn-icon" id="themeBtn"><span id="themeIcon">☀️</span></button>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="container">
+    <div class="section-badge">🛠️ <span data-en="Tools & Utilities" data-id="Tools & Utilitas">Tools & Utilities</span></div>
+    <h1 data-en="Browser-Powered Dev Tools" data-id="Tools Developer Berbasis Browser">Browser-Powered Dev Tools</h1>
+    <p data-en="All tools run entirely in your browser. Zero uploads, maximum privacy." data-id="Semua tools berjalan di browser Anda. Tanpa upload, privasi maksimal.">All tools run entirely in your browser. Zero uploads, maximum privacy.</p>
+  </div>
+</div>
+
+<div class="container"><div class="ad-slot ad-leaderboard"><!-- AdSense Leaderboard --></div></div>
+
+<section class="section" style="padding-top:40px">
+  <div class="container">
+    <div class="tools-big-grid">
+      <div class="tool-big-card beautifier">
+        <div class="tool-big-icon">✨</div>
+        <div class="tool-big-name" data-en="Code Beautifier" data-id="Perapih Kode">Code Beautifier</div>
+        <div class="tool-big-desc" data-en="Format messy code into clean, readable structure. Supports HTML, CSS, JavaScript, and JSON." data-id="Format kode berantakan menjadi struktur yang bersih dan mudah dibaca. Mendukung HTML, CSS, JavaScript, dan JSON.">Format messy code into clean, readable structure. Supports HTML, CSS, JavaScript, and JSON.</div>
+        <div class="tool-features">
+          <div class="feature-item" data-en="HTML, CSS, JS, JSON support" data-id="Dukungan HTML, CSS, JS, JSON">HTML, CSS, JS, JSON support</div>
+          <div class="feature-item" data-en="Instant formatting" data-id="Format instan">Instant formatting</div>
+          <div class="feature-item" data-en="Copy to clipboard" data-id="Salin ke clipboard">Copy to clipboard</div>
+          <div class="feature-item" data-en="Dark code editor theme" data-id="Tema editor kode gelap">Dark code editor theme</div>
+        </div>
+        <a href="beautifier.html" class="tool-launch">✨ <span data-en="Open Beautifier" data-id="Buka Beautifier">Open Beautifier</span></a>
+      </div>
+      <div class="tool-big-card compressor">
+        <div class="tool-big-icon">🗜️</div>
+        <div class="tool-big-name" data-en="Image Compressor" data-id="Kompresor Gambar">Image Compressor</div>
+        <div class="tool-big-desc" data-en="Reduce image file size up to 80% without visible quality loss. Perfect for web optimization." data-id="Kurangi ukuran file gambar hingga 80% tanpa kehilangan kualitas. Sempurna untuk optimasi web.">Reduce image file size up to 80% without visible quality loss. Perfect for web optimization.</div>
+        <div class="tool-features">
+          <div class="feature-item">JPG, PNG, WebP supported</div>
+          <div class="feature-item" data-en="Adjustable quality slider" data-id="Slider kualitas yang dapat disesuaikan">Adjustable quality slider</div>
+          <div class="feature-item" data-en="Before/after size comparison" data-id="Perbandingan ukuran sebelum/sesudah">Before/after size comparison</div>
+          <div class="feature-item" data-en="One-click download" data-id="Unduh satu klik">One-click download</div>
+        </div>
+        <a href="compressor.html" class="tool-launch" style="background:linear-gradient(135deg,#10B981,#059669)">🗜️ <span data-en="Open Compressor" data-id="Buka Kompressor">Open Compressor</span></a>
+      </div>
+      <div class="tool-big-card converter">
+        <div class="tool-big-icon">📄</div>
+        <div class="tool-big-name" data-en="File Converter" data-id="Konverter File">File Converter</div>
+        <div class="tool-big-desc" data-en="Convert PDF pages to PNG images directly in your browser using PDF.js technology." data-id="Konversi halaman PDF ke gambar PNG langsung di browser menggunakan teknologi PDF.js.">Convert PDF pages to PNG images directly in your browser using PDF.js technology.</div>
+        <div class="tool-features">
+          <div class="feature-item">PDF → PNG/JPG</div>
+          <div class="feature-item" data-en="Multi-page support" data-id="Dukungan multi-halaman">Multi-page support</div>
+          <div class="feature-item" data-en="High resolution output" data-id="Output resolusi tinggi">High resolution output</div>
+          <div class="feature-item" data-en="Batch download as ZIP" data-id="Unduh batch sebagai ZIP">Batch download as ZIP</div>
+        </div>
+        <a href="converter.html" class="tool-launch" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9)">📄 <span data-en="Open Converter" data-id="Buka Konverter">Open Converter</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title" data-en="Why Use BAJA Tools?" data-id="Mengapa Gunakan BAJA Tools?">Why Use BAJA Tools?</h2>
+    </div>
+    <div class="why-grid">
+      <div class="why-card"><div class="why-icon">🔒</div><div class="why-title" data-en="100% Private" data-id="100% Privat">100% Private</div><div class="why-desc" data-en="Files never leave your device." data-id="File tidak pernah meninggalkan perangkat Anda.">Files never leave your device.</div></div>
+      <div class="why-card"><div class="why-icon">⚡</div><div class="why-title" data-en="Lightning Fast" data-id="Super Cepat">Lightning Fast</div><div class="why-desc" data-en="No server roundtrip. Results in seconds." data-id="Tanpa roundtrip server. Hasil dalam detik.">No server roundtrip. Results in seconds.</div></div>
+      <div class="why-card"><div class="why-icon">💸</div><div class="why-title">100% Free</div><div class="why-desc" data-en="No account, no credit card, no limits." data-id="Tanpa akun, kartu kredit, atau batasan.">No account, no credit card, no limits.</div></div>
+      <div class="why-card"><div class="why-icon">📱</div><div class="why-title" data-en="Works Everywhere" data-id="Berjalan di Mana Saja">Works Everywhere</div><div class="why-desc" data-en="Desktop, tablet, and mobile friendly." data-id="Ramah desktop, tablet, dan mobile.">Desktop, tablet, and mobile friendly.</div></div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-bottom" style="border-top:none;padding-top:0">
+      <span>© 2025 <strong>BAJA PRO</strong></span>
+      <a href="../index.html" data-en="← Back to Home" data-id="← Kembali ke Beranda">← Back to Home</a>
+    </div>
+  </div>
+</footer>
+<button id="scrollTop">↑</button>
+<script src="../app.js"></script>
+</body>
+</html>

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ESP32 + DHT22 IoT Tutorial — BAJA PRO</title>
+<meta name="description" content="Build a real-time temperature & humidity monitor with ESP32 and DHT22. Step-by-step Arduino code and web dashboard guide."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="stylesheet" href="../style.css"/>
+<style>
+.article-layout{display:grid;grid-template-columns:1fr 300px;gap:40px;align-items:start}
+.article-body h2{font-size:1.5rem;font-weight:800;margin:40px 0 16px;padding-top:8px;border-top:1px solid var(--border)}
+.article-body h3{font-size:1.1rem;font-weight:700;margin:28px 0 12px;color:var(--green)}
+.article-body p{font-size:15px;color:var(--text-2);line-height:1.8;margin-bottom:16px}
+.article-body ul,.article-body ol{margin:0 0 16px 24px;display:flex;flex-direction:column;gap:6px}
+.article-body li{font-size:15px;color:var(--text-2);line-height:1.6}
+.article-body strong{color:var(--text-1)}
+.code-block{background:#0D1117;border:1px solid rgba(255,255,255,.1);border-radius:var(--r-lg);overflow:hidden;margin:20px 0}
+.code-block-header{background:#161B22;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.1)}
+.code-lang{font-size:12px;color:#8B949E;font-weight:600;font-family:var(--mono)}
+.copy-code-btn{background:transparent;border:1px solid rgba(255,255,255,.15);color:#8B949E;padding:4px 10px;border-radius:4px;font-size:11px;cursor:pointer;transition:all var(--tr)}
+.copy-code-btn:hover{background:rgba(255,255,255,.1);color:#fff}
+.code-block pre{padding:20px;margin:0;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.7;color:#E6EDF3}
+.callout{border-radius:var(--r-lg);padding:16px 20px;margin:20px 0;font-size:14px;line-height:1.6;display:flex;gap:12px}
+.callout.info{background:rgba(59,130,246,.08);border-left:3px solid var(--blue)}
+.callout.tip{background:rgba(16,185,129,.08);border-left:3px solid var(--green)}
+.callout.warning{background:rgba(245,158,11,.08);border-left:3px solid var(--gold)}
+.callout-icon{font-size:18px;flex-shrink:0;margin-top:2px}
+.toc{background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:var(--r-lg);padding:20px;margin-bottom:32px}
+.toc-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-2);margin-bottom:12px}
+.toc ol{padding-left:20px;display:flex;flex-direction:column;gap:6px}
+.toc a{font-size:14px;color:var(--green);transition:color var(--tr)}
+.toc a:hover{color:var(--blue-light)}
+.parts-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:14px}
+.parts-table th{background:var(--bg-elevated);padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border)}
+.parts-table td{padding:12px 16px;border-bottom:1px solid var(--border);color:var(--text-2)}
+.parts-table tr:hover td{background:var(--bg-card-hover)}
+.price-cell{color:var(--green);font-weight:600}
+.sidebar-sticky{position:sticky;top:calc(var(--nav-h) + 20px);display:flex;flex-direction:column;gap:16px}
+.sidebar-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px}
+.sidebar-card h4{font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text-2);text-transform:uppercase;letter-spacing:.8px}
+.related-link{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2);padding:8px 0;border-bottom:1px solid var(--border);transition:color var(--tr)}
+.related-link:last-child{border-bottom:none}
+.related-link:hover{color:var(--green)}
+@media(max-width:1024px){.article-layout{grid-template-columns:1fr}.sidebar-sticky{position:static}}
+</style>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="container nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-badge">⚡</div><span class="logo-text">BAJA</span><span class="logo-pro">PRO</span></a>
+    <div class="nav-menu" id="navMenu">
+      <a href="../tools/index.html" class="nav-link">🛠️ Tools</a>
+      <a href="../finance/index.html" class="nav-link">📈 Finance</a>
+      <a href="index.html" class="nav-link active">📚 Tutorial</a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn-icon" id="langBtn"><span id="langLabel">🌐 EN</span></button>
+      <button class="btn-icon" id="themeBtn"><span id="themeIcon">☀️</span></button>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div style="padding-top:var(--nav-h)"></div>
+
+<section class="section">
+  <div class="container">
+    <div class="ad-slot" style="height:90px;width:100%;margin-bottom:32px"><!-- AdSense --></div>
+    <div class="article-layout">
+      <article>
+        <div style="margin-bottom:40px;padding-bottom:32px;border-bottom:1px solid var(--border)">
+          <div style="display:flex;gap:8px;margin-bottom:16px">
+            <span class="tag tag-green">IoT</span>
+            <span class="tag tag-green">Arduino</span>
+            <span class="tag tag-blue">ESP32</span>
+          </div>
+          <h1 style="font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:900;line-height:1.2;margin-bottom:16px">ESP32 + DHT22: Real-time Temperature & Humidity Monitor with Web Dashboard</h1>
+          <div style="display:flex;align-items:center;gap:16px;font-size:13px;color:var(--text-3);flex-wrap:wrap">
+            <span>⏱️ 12 min read</span>
+            <span>📅 June 2025</span>
+            <span style="background:rgba(245,158,11,.15);color:var(--gold);padding:4px 12px;border-radius:999px;font-size:11px;font-weight:700">Intermediate</span>
+          </div>
+        </div>
+
+        <div class="toc">
+          <div class="toc-title">📋 Table of Contents</div>
+          <ol>
+            <li><a href="#overview">Project Overview</a></li>
+            <li><a href="#parts">Parts Required</a></li>
+            <li><a href="#wiring">Wiring Diagram</a></li>
+            <li><a href="#arduino-code">Arduino Code</a></li>
+            <li><a href="#web-server">ESP32 Web Server</a></li>
+            <li><a href="#dashboard">Web Dashboard</a></li>
+            <li><a href="#firebase-cloud">Optional: Cloud with Firebase</a></li>
+          </ol>
+        </div>
+
+        <div class="article-body">
+          <h2 id="overview">1. Project Overview</h2>
+          <p>In this tutorial, we'll build a <strong>real-time environmental monitor</strong> using the ESP32 microcontroller and DHT22 temperature/humidity sensor. The ESP32 will host its own web server accessible on your local WiFi network, displaying live sensor readings on a mobile-friendly dashboard.</p>
+
+          <h2 id="parts">2. Parts Required</h2>
+          <table class="parts-table">
+            <thead><tr><th>Component</th><th>Qty</th><th>Est. Price</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td>ESP32 Dev Board</td><td>1</td><td class="price-cell">~$5–8</td><td>Any ESP32-WROOM-32 variant</td></tr>
+              <tr><td>DHT22 Sensor</td><td>1</td><td class="price-cell">~$3–5</td><td>More accurate than DHT11</td></tr>
+              <tr><td>10kΩ Resistor</td><td>1</td><td class="price-cell">~$0.10</td><td>Pull-up resistor for DHT22</td></tr>
+              <tr><td>Breadboard</td><td>1</td><td class="price-cell">~$2</td><td>Half-size is sufficient</td></tr>
+              <tr><td>Jumper Wires</td><td>~10</td><td class="price-cell">~$1</td><td>M-M wires</td></tr>
+              <tr><td>USB Cable (Micro/USB-C)</td><td>1</td><td class="price-cell">Varies</td><td>For programming ESP32</td></tr>
+            </tbody>
+          </table>
+
+          <div class="callout info"><div class="callout-icon">💡</div><div>Total project cost is under <strong>$20</strong>. All components are widely available on Tokopedia, Shopee, or AliExpress.</div></div>
+
+          <h2 id="wiring">3. Wiring Diagram</h2>
+          <p>Wire the DHT22 to your ESP32 as follows:</p>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-lang">text</span><button class="copy-code-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>DHT22 Pin   →   ESP32 Pin
+─────────────────────────
+VCC (Pin 1) →   3.3V
+Data (Pin 2)→   GPIO 4  (+ 10kΩ pull-up to 3.3V)
+NC  (Pin 3) →   Not connected
+GND (Pin 4) →   GND
+
+Note: Place the 10kΩ resistor between Data and VCC pins.</pre>
+          </div>
+
+          <div class="callout warning"><div class="callout-icon">⚠️</div><div>Use <strong>3.3V</strong> for DHT22 with ESP32, NOT 5V. The ESP32 GPIO pins are NOT 5V tolerant. Using 5V may permanently damage your ESP32.</div></div>
+
+          <h2 id="arduino-code">4. Arduino Code</h2>
+          <p>First, install these libraries via Arduino IDE → Sketch → Include Library → Manage Libraries:</p>
+          <ul>
+            <li><strong>DHT sensor library</strong> by Adafruit</li>
+            <li><strong>Adafruit Unified Sensor</strong></li>
+            <li><strong>WiFi</strong> (built-in for ESP32)</li>
+          </ul>
+
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-lang">cpp (Arduino)</span><button class="copy-code-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>#include &lt;WiFi.h&gt;
+#include &lt;WebServer.h&gt;
+#include &lt;DHT.h&gt;
+#include &lt;ArduinoJson.h&gt;
+
+// ── Configuration ──
+#define DHTPIN    4       // GPIO connected to DHT22 data pin
+#define DHTTYPE   DHT22
+
+const char* SSID = "Your_WiFi_SSID";
+const char* PASSWORD = "Your_WiFi_Password";
+
+// ── Globals ──
+DHT dht(DHTPIN, DHTTYPE);
+WebServer server(80);
+
+// ── Sensor Data ──
+float temperature = 0.0;
+float humidity = 0.0;
+unsigned long lastRead = 0;
+const unsigned long READ_INTERVAL = 2000; // Read every 2 seconds
+
+void readSensor() {
+  if (millis() - lastRead &lt; READ_INTERVAL) return;
+  lastRead = millis();
+  
+  float t = dht.readTemperature();
+  float h = dht.readHumidity();
+  
+  if (!isnan(t) && !isnan(h)) {
+    temperature = t;
+    humidity = h;
+    Serial.printf("Temp: %.1f°C | Humidity: %.1f%%\n", t, h);
+  } else {
+    Serial.println("DHT22 read failed!");
+  }
+}
+
+void handleRoot() {
+  // Serve the web dashboard HTML (see next section)
+  server.send(200, "text/html", getDashboardHTML());
+}
+
+void handleData() {
+  // JSON API endpoint for live data
+  StaticJsonDocument&lt;128&gt; doc;
+  doc["temperature"] = temperature;
+  doc["humidity"] = humidity;
+  doc["heatIndex"] = dht.computeHeatIndex(temperature, humidity, false);
+  doc["timestamp"] = millis();
+  
+  String output;
+  serializeJson(doc, output);
+  server.send(200, "application/json", output);
+}
+
+void setup() {
+  Serial.begin(115200);
+  dht.begin();
+  
+  // Connect to WiFi
+  WiFi.begin(SSID, PASSWORD);
+  Serial.print("Connecting to WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nConnected! IP: " + WiFi.localIP().toString());
+  
+  // Register routes
+  server.on("/", handleRoot);
+  server.on("/data", handleData);
+  server.begin();
+  Serial.println("HTTP server started");
+}
+
+void loop() {
+  readSensor();
+  server.handleClient();
+}</pre>
+          </div>
+
+          <h2 id="web-server">5. ESP32 Web Server Dashboard</h2>
+          <p>The ESP32 serves an HTML page that fetches live data from the <code>/data</code> endpoint every 2 seconds:</p>
+
+          <!-- AdSense In-Article -->
+          <div class="ad-slot ad-responsive"><!-- AdSense In-Article --></div>
+
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-lang">cpp - getDashboardHTML()</span><button class="copy-code-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>String getDashboardHTML() {
+  return R"rawhtml(
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta charset='UTF-8'/&gt;
+  &lt;meta name='viewport' content='width=device-width,initial-scale=1'/&gt;
+  &lt;title&gt;ESP32 Monitor&lt;/title&gt;
+  &lt;style&gt;
+    body{font-family:sans-serif;background:#0D1526;color:#fff;margin:0;padding:20px;text-align:center}
+    h1{font-size:1.5rem;color:#06B6D4;margin-bottom:30px}
+    .card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+          border-radius:16px;padding:30px;margin:15px auto;max-width:300px;display:inline-block}
+    .val{font-size:3rem;font-weight:900}
+    .unit{font-size:1.2rem;color:#94A3B8}
+    .label{font-size:14px;color:#64748B;margin-top:8px}
+    .temp{color:#EF4444}
+    .hum{color:#3B82F6}
+    #status{font-size:12px;color:#64748B;margin-top:20px}
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;⚡ ESP32 Environment Monitor&lt;/h1&gt;
+  &lt;div class='card'&gt;
+    &lt;div class='val temp'&gt;&lt;span id='temp'&gt;--&lt;/span&gt;&lt;span class='unit'&gt;°C&lt;/span&gt;&lt;/div&gt;
+    &lt;div class='label'&gt;🌡️ Temperature&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class='card'&gt;
+    &lt;div class='val hum'&gt;&lt;span id='hum'&gt;--&lt;/span&gt;&lt;span class='unit'&gt;%&lt;/span&gt;&lt;/div&gt;
+    &lt;div class='label'&gt;💧 Humidity&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div id='status'&gt;Fetching data...&lt;/div&gt;
+  &lt;script&gt;
+    async function update() {
+      const r = await fetch('/data');
+      const d = await r.json();
+      document.getElementById('temp').textContent = d.temperature.toFixed(1);
+      document.getElementById('hum').textContent = d.humidity.toFixed(1);
+      document.getElementById('status').textContent = '🔄 Last updated: ' + new Date().toLocaleTimeString();
+    }
+    update();
+    setInterval(update, 2000);
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;)rawhtml";
+}</pre>
+          </div>
+
+          <h2 id="firebase-cloud">6. Optional: Send Data to Firebase</h2>
+          <p>To log data to the cloud for historical viewing, add the <strong>Firebase ESP32 Client</strong> library:</p>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-lang">cpp</span><button class="copy-code-btn" onclick="copyCode(this)">Copy</button></div>
+            <pre>#include &lt;Firebase_ESP_Client.h&gt;
+#include &lt;addons/TokenHelper.h&gt;
+
+#define FIREBASE_HOST "https://your-project-default-rtdb.firebaseio.com/"
+#define FIREBASE_AUTH "YOUR_DATABASE_SECRET"
+
+FirebaseData fbdo;
+FirebaseAuth auth;
+FirebaseConfig config;
+
+void setupFirebase() {
+  config.host = FIREBASE_HOST;
+  config.signer.tokens.legacy_token = FIREBASE_AUTH;
+  Firebase.begin(&config, &auth);
+  Firebase.reconnectWiFi(true);
+}
+
+void sendToFirebase() {
+  if (Firebase.RTDB.setFloat(&fbdo, "/sensor/temperature", temperature) &&
+      Firebase.RTDB.setFloat(&fbdo, "/sensor/humidity", humidity)) {
+    Serial.println("Firebase: Data sent!");
+  } else {
+    Serial.println("Firebase error: " + fbdo.errorReason());
+  }
+}</pre>
+          </div>
+
+          <div class="callout tip"><div class="callout-icon">✅</div><div>With Firebase logging, you can visualize historical data trends on a web dashboard connected to the same Firebase project you learned to build in the <a href="web-dev.html" style="color:var(--blue-light)">React + Firebase tutorial</a>!</div></div>
+
+          <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:32px;margin-top:40px;text-align:center">
+            <div style="font-size:36px;margin-bottom:12px">🤖</div>
+            <h3 style="font-size:18px;margin-bottom:8px">Project Complete!</h3>
+            <p style="color:var(--text-2);margin-bottom:20px">Explore more IoT and electronics projects:</p>
+            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+              <a href="index.html" class="btn-primary">📚 More Tutorials</a>
+              <a href="web-dev.html" class="btn-secondary">⚛️ React Tutorial</a>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <aside>
+        <div class="sidebar-sticky">
+          <div class="ad-slot ad-rectangle"><!-- AdSense 300x250 --></div>
+          <div class="sidebar-card">
+            <h4>Related Projects</h4>
+            <a href="index.html" class="related-link">🔌 Arduino Relay: Control AC Devices</a>
+            <a href="index.html" class="related-link">📡 ESP8266 + MQTT + Home Assistant</a>
+            <a href="index.html" class="related-link">🤖 Arduino Line-Following Robot</a>
+            <a href="index.html" class="related-link">🌱 Smart Plant Watering System</a>
+          </div>
+          <div class="sidebar-card">
+            <h4>Libraries Used</h4>
+            <a href="https://github.com/adafruit/DHT-sensor-library" target="_blank" class="related-link">📦 DHT Sensor Library</a>
+            <a href="https://github.com/bblanchon/ArduinoJson" target="_blank" class="related-link">📦 ArduinoJson</a>
+            <a href="https://github.com/mobizt/Firebase-ESP-Client" target="_blank" class="related-link">📦 Firebase ESP Client</a>
+          </div>
+          <div class="ad-slot" style="height:250px;width:100%"><!-- AdSense --></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<footer class="footer"><div class="container"><div class="footer-bottom" style="border-top:none;padding-top:0"><span>© 2025 BAJA PRO</span><a href="index.html">← All Tutorials</a></div></div></footer>
+<button id="scrollTop">↑</button>
+<script src="../app.js"></script>
+<script>
+function copyCode(btn) {
+  const code = btn.closest('.code-block').querySelector('pre').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'Copied!';
+    btn.style.color = 'var(--green)';
+    setTimeout(() => { btn.textContent = 'Copy'; btn.style.color = ''; }, 2000);
+  });
+}
+</script>
+</body>
+</html>
