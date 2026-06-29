@@ -7,6 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
 <link rel="stylesheet" href="../style.css"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9184269136757439" crossorigin="anonymous"></script>
 <style>
 .crypto-layout{display:grid;grid-template-columns:1fr 300px;gap:28px;align-items:start}
 .crypto-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:28px}
@@ -135,251 +136,227 @@
 <script src="../app.js"></script>
 <script>
 const COINS = [
-  {id:'bitcoin',    symbol:'BTCUSDT', label:'BTC', icon:'₿',  color:'#F7931A'},
-  {id:'ethereum',   symbol:'ETHUSDT', label:'ETH', icon:'⟠', color:'#627EEA'},
-  {id:'binancecoin',symbol:'BNBUSDT', label:'BNB', icon:'🔶', color:'#F3BA2F'},
-  {id:'solana',     symbol:'SOLUSDT', label:'SOL', icon:'◎', color:'#9945FF'},
+  {id:'bitcoin',    sym:'BTC', stream:'btcusdt', icon:'₿',  color:'#F7931A'},
+  {id:'ethereum',   sym:'ETH', stream:'ethusdt', icon:'⟠', color:'#627EEA'},
+  {id:'binancecoin',sym:'BNB', stream:'bnbusdt', icon:'🔶', color:'#F3BA2F'},
+  {id:'solana',     sym:'SOL', stream:'solusdt', icon:'◎', color:'#9945FF'},
 ];
 
 let priceChart = null;
 let selectedCoin = COINS[0];
-let marketData = {};  
-let livePrice = {};   
-let pollTimer = null;
+let marketData = {};   // CoinGecko via BAJA.fetchCryptoPrices()
+let livePrice  = {};   // Binance WebSocket tick-by-tick
+let ws = null;
 
-// ── 1. Fetch Ticker & Harga via API Resmi Binance (Setiap 2.5 Detik) ──
-async function fetchPricesBinance() {
+// ── 1. Load metadata via BAJA.fetchCryptoPrices() — sama dengan halaman lain ──
+async function loadMarketData() {
+  const ids = COINS.map(c => c.id);
+  const raw = await BAJA.fetchCryptoPrices(ids);   // CoinGecko simple/price
+  if (!raw) return;
+
+  // Simpan ke livePrice & buat objek marketData yang kompatibel
+  COINS.forEach(c => {
+    const d = raw[c.id];
+    if (!d) return;
+    livePrice[c.id]  = d.usd;
+    marketData[c.id] = {
+      id:    c.id,
+      name:  c.sym,
+      current_price:               d.usd,
+      price_change_percentage_24h: d.usd_24h_change || 0,
+      market_cap:                  d.usd_market_cap || 0,
+      total_volume:                0,   // simple/price tidak menyertakan volume
+      sparkline_in_7d: null,
+    };
+  });
+
+  renderCards();
+  selectCoin(selectedCoin.id);
+  setStatus('connected');
+  document.getElementById('lastUpdated').textContent =
+    `✅ Meta dimuat · ${new Date().toLocaleTimeString('id-ID')} · CoinGecko API`;
+}
+
+// ── 2. Load sparkline 7 hari (pakai endpoint markets — sama dengan index.html) ──
+async function loadSparklines() {
   try {
-    // Membentuk array symbol khusus untuk Binance API: ["BTCUSDT","ETHUSDT",...]
-    const syms = COINS.map(c => c.symbol);
-    const symbolsParam = encodeURIComponent(JSON.stringify(syms));
-    
-    // Endpoint Ticker 24h Binance Spot API
-    const url = `https://api.binance.com/api/v3/ticker/24hr?symbols=${symbolsParam}&_t=${Date.now()}`;
-    const r = await fetch(url, { cache: 'no-store' });
-    if (!r.ok) throw new Error(`HTTP Error ${r.status}`);
-    
-    const data = await r.json();
-    let changed = false;
-    
+    const ids = COINS.map(c => c.id).join(',');
+    const res  = await fetch(
+      `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=${ids}&sparkline=true&price_change_percentage=24h`
+    );
+    if (!res.ok) throw new Error('markets error');
+    const data = await res.json();
     data.forEach(d => {
-      const coin = COINS.find(c => c.symbol === d.symbol);
-      if (!coin) return;
-      
-      const newP = parseFloat(d.lastPrice) || 0;
-      const oldP = livePrice[coin.id] || newP;
-      
-      // Flash jika harga berubah
-      if (Math.abs(newP - oldP) > 0.000001) {
-        flashCard(coin.id, newP > oldP ? 'up' : 'down');
-        changed = true;
+      if (marketData[d.id]) {
+        marketData[d.id].sparkline_in_7d = d.sparkline_in_7d;
+        marketData[d.id].total_volume    = d.total_volume;
+        marketData[d.id].market_cap      = d.market_cap;
+        marketData[d.id].price_change_percentage_24h = d.price_change_percentage_24h;
       }
-      livePrice[coin.id] = newP;
-      
-      // Update market data untuk meta (sidebar dll)
-      if (!marketData[coin.id]) marketData[coin.id] = { id: coin.id, symbol: coin.symbol, name: coin.label };
-      marketData[coin.id].current_price = newP;
-      marketData[coin.id].price_change_percentage_24h = parseFloat(d.priceChangePercent) || 0;
-      marketData[coin.id].total_volume = parseFloat(d.quoteVolume) || 0; // Volume dalam USDT
-      marketData[coin.id].market_cap = newP * getHardcodedSupply(coin.label);
-      
-      // Update tulisan harga di kartu
-      const el = document.getElementById('lp-' + coin.id);
-      if (el) el.textContent = BAJA.formatUSD(newP);
     });
-    
-    renderCards(false); 
-    
-    if (changed) {
-      if (selectedCoin) {
-        document.getElementById('st-price').textContent = BAJA.formatUSD(livePrice[selectedCoin.id]);
-      }
-      document.getElementById('lastUpdated').textContent = `🟢 LIVE · Tick: ${new Date().toLocaleTimeString('id-ID')} · Source: Binance REST API`;
+    // Re-render agar market cap & volume terupdate
+    renderCards();
+    if (marketData[selectedCoin.id]?.sparkline_in_7d) {
+      drawChart(marketData[selectedCoin.id]);
+      calcRSI(marketData[selectedCoin.id].sparkline_in_7d.price || []);
     }
-    setStatus('connected');
-    
   } catch(e) {
-    console.warn('Binance Fetch error:', e.message);
-    setStatus('error');
-    document.getElementById('lastUpdated').textContent = '🔴 Error Binance API: ' + e.message;
+    console.warn('Sparkline error:', e.message);
   }
 }
 
-// ── 2. Load Chart History via Binance Klines API ──
-async function loadChartDataBinance(coinId) {
-  const coin = COINS.find(c => c.id === coinId);
-  if (!coin) return;
-  
-  try {
-    // Endpoint Klines Binance Spot API (1 jam interval, 48 candle terakhir)
-    const url = `https://api.binance.com/api/v3/klines?symbol=${coin.symbol}&interval=1h&limit=48`;
-    const r = await fetch(url);
-    if (!r.ok) throw new Error(`HTTP Error ${r.status}`);
-    
-    const klines = await r.json();
-    // Format Klines Binance: [ [OpenTime, Open, High, Low, Close, Volume, CloseTime...], ... ]
-    
-    if (klines && klines.length > 0) {
-      if (!marketData[coin.id]) marketData[coin.id] = {};
-      
-      // Ambil array harga penutupan (Close price pada indeks 4)
-      marketData[coin.id].sparkline_in_7d = {
-        price: klines.map(candle => parseFloat(candle[4])) 
-      };
-      
-      if (selectedCoin.id === coin.id) {
-        drawChart(marketData[coin.id]);
-        calcRSI(marketData[coin.id].sparkline_in_7d.price);
-      }
+// ── 3. Binance WebSocket — tick-by-tick real-time price (sama persis dengan app.js pattern) ──
+function connectWS() {
+  const streams = COINS.map(c => `${c.stream}@miniTicker`).join('/');
+  setStatus('connecting');
+  if (ws) { try { ws.close(); } catch(_){} }
+  ws = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams}`);
+
+  ws.onopen = () => {
+    setStatus('connected');
+    document.getElementById('lastUpdated').textContent = '🟢 WebSocket terhubung · Binance';
+  };
+
+  ws.onmessage = (evt) => {
+    const { data: ticker } = JSON.parse(evt.data);
+    if (!ticker) return;
+    const coin = COINS.find(c => c.stream === ticker.s?.toLowerCase());
+    if (!coin) return;
+
+    const newP = parseFloat(ticker.c);
+    const oldP = livePrice[coin.id] || newP;
+
+    if (newP !== oldP) flashCard(coin.id, newP > oldP ? 'up' : 'down');
+    livePrice[coin.id] = newP;
+
+    // Update harga di kartu
+    const el = document.getElementById('lp-' + coin.id);
+    if (el) el.textContent = BAJA.formatUSD(newP);
+
+    // Update sidebar jika koin ini yang aktif
+    if (selectedCoin.id === coin.id) {
+      document.getElementById('st-price').textContent = BAJA.formatUSD(newP);
     }
-  } catch(err) {
-    console.warn(`Gagal memuat chart Binance untuk ${coin.symbol}:`, err.message);
-  }
+
+    document.getElementById('lastUpdated').textContent =
+      `🟢 LIVE · ${new Date().toLocaleTimeString('id-ID')} · Binance WebSocket`;
+  };
+
+  ws.onerror = () => setStatus('error');
+  ws.onclose = () => {
+    setStatus('error');
+    document.getElementById('lastUpdated').textContent = '🔴 Terputus · Menghubungkan ulang...';
+    setTimeout(connectWS, 5000);
+  };
 }
 
-function getHardcodedSupply(label) {
-  const supplies = { 'BTC': 19710000, 'ETH': 120150000, 'BNB': 147580000, 'SOL': 462000000 };
-  return supplies[label] || 0;
-}
-
+// ── UI Helpers ──
 function flashCard(id, dir) {
   const card = document.querySelector(`.coin-card[data-id="${id}"]`);
   if (!card) return;
   card.classList.remove('flash-up','flash-down');
-  void card.offsetWidth; // trigger reflow
+  void card.offsetWidth;
   card.classList.add(dir === 'up' ? 'flash-up' : 'flash-down');
 }
 
 function setStatus(s) {
   const el = document.getElementById('wsStatus');
   if (!el) return;
-  el.textContent = {connected:'🟢 LIVE', connecting:'🟡 Connecting...', error:'🔴 Error'}[s];
-  el.className = 'ws-badge ' + ({connected:'ws-connected',connecting:'ws-connecting',error:'ws-error'}[s]);
+  el.textContent = {connected:'🟢 LIVE', connecting:'🟡 Connecting...', error:'🔴 Reconnecting...'}[s];
+  el.className = 'ws-badge ' + {connected:'ws-connected', connecting:'ws-connecting', error:'ws-error'}[s];
 }
 
-// ── Render UI Kartu Koin ──
-function renderCards(fullRebuild = true) {
-  if (fullRebuild) {
-    document.getElementById('cryptoCards').innerHTML = COINS.map(coin => {
-      return `<div class="coin-card${selectedCoin.id===coin.id?' active':''}" data-id="${coin.id}" onclick="selectCoin('${coin.id}')">
-        <div class="coin-top">
-          <div class="coin-id">
-            <span class="coin-icon">${coin.icon}</span>
-            <div><div class="coin-sym">${coin.label}</div><div class="coin-name">${coin.symbol}</div></div>
-          </div>
-          <span class="badge-green" id="badge-${coin.id}">0.00%</span>
+// ── Render Kartu ──
+function renderCards() {
+  document.getElementById('cryptoCards').innerHTML = COINS.map(coin => {
+    const md  = marketData[coin.id] || {};
+    const price = livePrice[coin.id] || 0;
+    const ch  = md.price_change_percentage_24h || 0;
+    const up  = ch >= 0;
+    return `<div class="coin-card${selectedCoin.id===coin.id?' active':''}" data-id="${coin.id}" onclick="selectCoin('${coin.id}')">
+      <div class="coin-top">
+        <div class="coin-id">
+          <span class="coin-icon">${coin.icon}</span>
+          <div><div class="coin-sym">${coin.sym}</div><div class="coin-name">${md.name||coin.sym}</div></div>
         </div>
-        <div class="coin-price" id="lp-${coin.id}">...</div>
-        <div class="coin-meta">
-          <span id="mc-${coin.id}">MCap: -</span>
-          <span id="vol-${coin.id}">Vol: -</span>
-        </div>
-      </div>`;
-    }).join('');
-  }
-
-  COINS.forEach(coin => {
-    const md = marketData[coin.id] || {};
-    const ch = md.price_change_percentage_24h || 0;
-    const up = ch >= 0;
-    
-    const badge = document.getElementById('badge-' + coin.id);
-    if (badge) {
-      badge.textContent = (up ? '+' : '') + ch.toFixed(2) + '%';
-      badge.className = up ? 'badge-green' : 'badge-red';
-    }
-    const mc = document.getElementById('mc-' + coin.id);
-    if (mc && md.market_cap) mc.textContent = 'MCap: $' + BAJA.formatCompact(md.market_cap);
-    
-    const vol = document.getElementById('vol-' + coin.id);
-    if (vol && md.total_volume) vol.textContent = 'Vol: $' + BAJA.formatCompact(md.total_volume);
-  });
+        <span class="${up?'badge-green':'badge-red'}">${up?'+':''}${ch.toFixed(2)}%</span>
+      </div>
+      <div class="coin-price" id="lp-${coin.id}">${price ? BAJA.formatUSD(price) : '…'}</div>
+      <div class="coin-meta">
+        <span>MCap: $${BAJA.formatCompact(md.market_cap||0)}</span>
+        <span>Vol: $${BAJA.formatCompact(md.total_volume||0)}</span>
+      </div>
+    </div>`;
+  }).join('');
 }
 
-// ── Fungsi Select Coin (Klik Kartu) ──
+// ── Pilih Koin ──
 function selectCoin(id) {
   selectedCoin = COINS.find(c => c.id === id) || COINS[0];
   document.querySelectorAll('.coin-card').forEach(c => c.classList.toggle('active', c.dataset.id === id));
-  
   const md = marketData[id];
-  if (!md) { 
-    document.getElementById('st-price').textContent = BAJA.formatUSD(livePrice[id]||0); 
-    loadChartDataBinance(id);
-    return; 
-  }
-  
+  if (!md) { document.getElementById('st-price').textContent = BAJA.formatUSD(livePrice[id]||0); return; }
   const up = md.price_change_percentage_24h >= 0;
-  document.getElementById('st-price').textContent = BAJA.formatUSD(livePrice[id]||md.current_price);
+  document.getElementById('st-price').textContent = BAJA.formatUSD(livePrice[id] || md.current_price);
   document.getElementById('st-chg').innerHTML = `<span class="${up?'up':'down'}">${up?'+':''}${md.price_change_percentage_24h?.toFixed(2)||'0'}%</span>`;
-  document.getElementById('st-mc').textContent = '$' + BAJA.formatCompact(md.market_cap || 0);
+  document.getElementById('st-mc').textContent  = '$' + BAJA.formatCompact(md.market_cap  || 0);
   document.getElementById('st-vol').textContent = '$' + BAJA.formatCompact(md.total_volume || 0);
-  document.getElementById('chartCoin').textContent = `${md.name} (${selectedCoin.symbol})`;
-  
-  if (md.sparkline_in_7d && md.sparkline_in_7d.price) {
-    drawChart(md);
-    calcRSI(md.sparkline_in_7d.price);
-  } else {
-    loadChartDataBinance(id);
-  }
+  document.getElementById('chartCoin').textContent = `${md.name} (${coin_sym(id)})`;
+  if (md.sparkline_in_7d?.price) { drawChart(md); calcRSI(md.sparkline_in_7d.price); }
 }
+const coin_sym = id => (COINS.find(c=>c.id===id)||{}).sym || id;
 
-// ── Gambar Grafik (Chart.js) ──
+// ── Grafik ──
 function drawChart(md) {
   const prices = md.sparkline_in_7d?.price || [];
   if (!prices.length) return;
   const coin = COINS.find(c => c.id === md.id) || {};
-  const col = coin.color || '#3B82F6';
-  
-  // Karena OHLCV kita ambil 48 limit, jaraknya 1 jam
+  const col  = coin.color || '#3B82F6';
   const labels = prices.map((_,i) => {
-    const d = new Date(); d.setHours(d.getHours()-(prices.length-i));
-    return d.toLocaleTimeString('en',{hour:'2-digit', minute:'2-digit'});
+    const d = new Date(); d.setHours(d.getHours() - (prices.length - i));
+    return d.toLocaleDateString('en',{month:'short', day:'numeric'});
   });
-  
   const ctx = document.getElementById('priceChart').getContext('2d');
   if (priceChart) priceChart.destroy();
   priceChart = new Chart(ctx, {
     type:'line',
-    data:{labels,datasets:[{data:prices,borderColor:col,backgroundColor:col+'18',fill:true,tension:0.4,pointRadius:0,borderWidth:2}]},
-    options:{responsive:true,plugins:{legend:{display:false}},scales:{
-      x:{ticks:{color:'#64748B',maxTicksLimit:7},grid:{color:'rgba(255,255,255,.04)'}},
-      y:{ticks:{color:'#64748B',callback:v=>'$'+BAJA.formatCompact(v)},grid:{color:'rgba(255,255,255,.04)'}}
+    data:{labels, datasets:[{data:prices, borderColor:col, backgroundColor:col+'18', fill:true, tension:0.4, pointRadius:0, borderWidth:2}]},
+    options:{responsive:true, plugins:{legend:{display:false}}, scales:{
+      x:{ticks:{color:'#64748B', maxTicksLimit:7}, grid:{color:'rgba(255,255,255,.04)'}},
+      y:{ticks:{color:'#64748B', callback:v=>'$'+BAJA.formatCompact(v)}, grid:{color:'rgba(255,255,255,.04)'}}
     }}
   });
 }
 
-// ── Kalkulasi RSI ──
+// ── RSI ──
 function calcRSI(prices) {
-  if (prices.length < 15) { document.getElementById('rsiValue').textContent='N/A'; return; }
-  const period=14, sl=prices.slice(-period-1);
-  let g=0,l=0;
-  for(let i=1;i<sl.length;i++){const d=sl[i]-sl[i-1];d>0?g+=d:l+=Math.abs(d);}
-  const rsi=l===0?100:100-(100/(1+(g/period)/(l/period)));
-  const r=Math.round(rsi);
-  document.getElementById('rsiValue').textContent=r;
-  document.getElementById('rsiFill').style.width=r+'%';
+  if (prices.length < 15) { document.getElementById('rsiValue').textContent = 'N/A'; return; }
+  const period = 14, sl = prices.slice(-period-1);
+  let g=0, l=0;
+  for(let i=1;i<sl.length;i++){const d=sl[i]-sl[i-1]; d>0?g+=d:l+=Math.abs(d);}
+  const r = Math.round(l===0 ? 100 : 100-(100/(1+(g/period)/(l/period))));
+  document.getElementById('rsiValue').textContent = r;
+  document.getElementById('rsiFill').style.width = r+'%';
   const rv=document.getElementById('rsiValue'), sig=document.getElementById('rsiSignal'), fill=document.getElementById('rsiFill');
-  if(r<30){fill.style.background='var(--green)';rv.style.color='var(--green)';sig.textContent='📈 Oversold — Potential Buy';sig.className='rsi-signal rsi-oversold';}
-  else if(r>70){fill.style.background='var(--red)';rv.style.color='var(--red)';sig.textContent='📉 Overbought — Potential Sell';sig.className='rsi-signal rsi-overbought';}
-  else{fill.style.background='var(--gold)';rv.style.color='var(--gold)';sig.textContent='➡️ Neutral Zone';sig.className='rsi-signal rsi-neutral';}
+  if(r<30){ fill.style.background='var(--green)'; rv.style.color='var(--green)'; sig.textContent='📈 Oversold — Potential Buy';  sig.className='rsi-signal rsi-oversold'; }
+  else if(r>70){ fill.style.background='var(--red)'; rv.style.color='var(--red)'; sig.textContent='📉 Overbought — Potential Sell'; sig.className='rsi-signal rsi-overbought'; }
+  else{ fill.style.background='var(--gold)'; rv.style.color='var(--gold)'; sig.textContent='➡️ Neutral Zone'; sig.className='rsi-signal rsi-neutral'; }
 }
 
-// ── Initialize ──
-document.getElementById('refreshBtn').addEventListener('click', () => {
+// ── Init ──
+document.getElementById('refreshBtn').addEventListener('click', async () => {
   setStatus('connecting');
-  fetchPricesBinance();
+  await loadMarketData();
+  loadSparklines();
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
-  renderCards(true);
   setStatus('connecting');
-  
-  await fetchPricesBinance();
-  loadChartDataBinance(selectedCoin.id);
-  
-  // Polling setiap 2.5 detik ke Binance Spot API
-  pollTimer = setInterval(fetchPricesBinance, 2500);
+  await loadMarketData();   // CoinGecko via BAJA — metadata cepat
+  loadSparklines();          // CoinGecko markets — sparkline 7 hari (async)
+  connectWS();               // Binance WebSocket — harga real-time
 });
+
+window.addEventListener('beforeunload', () => { if (ws) ws.close(); });
 </script>
-</body>
-</html>
+
