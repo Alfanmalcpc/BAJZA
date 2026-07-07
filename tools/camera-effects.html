@@ -8,6 +8,8 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
 <link rel="stylesheet" href="../style.css"/>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9184269136757439" crossorigin="anonymous"></script>
+<!-- MediaPipe Hands for gesture detection -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 <style>
 /* Comic Pattern Background */
 .camera-section {
@@ -281,6 +283,69 @@
   .comic-title { font-size: 2.2rem; }
 }
 
+/* Gesture Badge */
+.gesture-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 20;
+  background: #000;
+  color: #fff;
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 6px 14px;
+  border: 3px solid var(--cyan);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  white-space: nowrap;
+}
+.gesture-badge.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+.gesture-badge.blur-active {
+  background: var(--cyan);
+  color: #000;
+  border-color: #000;
+  box-shadow: 4px 4px 0 #000;
+  animation: badge-pop 0.3s ease;
+}
+@keyframes badge-pop {
+  0%   { transform: scale(0.9) rotate(-2deg); }
+  50%  { transform: scale(1.1) rotate(1deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+.finger-count {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+.finger-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--cyan);
+  border: 2px solid #000;
+  transition: background 0.15s;
+}
+.gesture-badge.blur-active .finger-dot {
+  background: #000;
+}
+
+/* Gesture blur override — applied via inline style from JS */
+#videoElement.gesture-blur-on {
+  transition: filter 0.25s ease;
+}
+
 .toast {
   position: fixed;
   bottom: 32px;
@@ -342,6 +407,11 @@
         <div class="video-wrapper">
           <video id="videoElement" class="filter-normal" autoplay playsinline></video>
           <div id="loadingText" style="position:absolute;color:#fff;font-family:var(--font-heading);font-size:24px;font-weight:900;text-transform:uppercase;text-shadow:2px 2px 0 #000;">Kamera Nonaktif. Klik "Start"</div>
+          <!-- Gesture Badge -->
+          <div class="gesture-badge" id="gestureBadge">
+            <span id="gestureLabel">✌️ 0 JARI</span>
+            <span class="finger-count" id="fingerDots"></span>
+          </div>
         </div>
         
         <div class="controls-bar">
@@ -387,6 +457,10 @@
   let stream = null;
   let currentFilterClass = 'filter-normal';
   let currentFrameData = null; // Stores color & thickness
+  let gestureBlurActive = false;
+  let gestureRAF = null;       // requestAnimationFrame ID for gesture loop
+  let handsModel = null;       // MediaPipe Hands instance
+  let lastFingerCount = -1;    // Avoid redundant DOM updates
 
   // Tab switching
   tabBtns.forEach(btn => {
@@ -656,13 +730,203 @@
     setTimeout(() => toast.classList.remove('show'), 3000);
   });
 
+  // Start Camera Function
+  async function startCamera() {
+    try {
+      loadingText.style.display = 'none';
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: false
+      });
+      video.srcObject = stream;
+      video.play();
+
+      video.addEventListener('loadedmetadata', () => {
+        canvas.width = video.videoWidth || 1280;
+        canvas.height = video.videoHeight || 720;
+      }, { once: true });
+
+      startBtn.style.display = 'none';
+      captureBtn.style.display = 'flex';
+      stopBtn.style.display = 'flex';
+
+      // Start gesture detection loop
+      if (handsModel) {
+        stopGestureLoop = startGestureLoop();
+      }
+
+      toast.textContent = '🎬 Kamera aktif! Siap beraksi!';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+
+    } catch (err) {
+      loadingText.style.display = 'block';
+      let msg = '❌ Kamera tidak bisa diakses.';
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        msg = '🚫 Izin kamera ditolak. Klik ikon kunci di address bar dan izinkan akses kamera.';
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        msg = '🔌 Tidak ada kamera yang terdeteksi di perangkat ini.';
+      } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+        msg = '⚠️ Kamera sedang digunakan oleh aplikasi lain. Tutup aplikasi lain dan coba lagi.';
+      } else if (location.protocol === 'file:') {
+        msg = '⚠️ Kamera tidak bisa diakses dari file lokal. Buka situs melalui server (http://) atau gunakan Live Server.';
+      }
+      loadingText.textContent = msg;
+      loadingText.style.color = '#ff4757';
+      console.error('Camera error:', err);
+    }
+  }
+
+  // Stop Camera Function
+  function stopCamera() {
+    // Stop gesture loop first
+    if (stopGestureLoop) { stopGestureLoop(); stopGestureLoop = null; }
+    applyGestureBlur(false);
+    gestureBadge.classList.remove('visible');
+    lastFingerCount = -1;
+
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      stream = null;
+    }
+    video.srcObject = null;
+    loadingText.textContent = 'Kamera Nonaktif. Klik "Start"';
+    loadingText.style.color = '#fff';
+    loadingText.style.display = 'block';
+    startBtn.style.display = 'flex';
+    captureBtn.style.display = 'none';
+    stopBtn.style.display = 'none';
+  }
+
+  // ─────────────────────────────────────────────
+  // GESTURE DETECTION — MediaPipe Hands
+  // ─────────────────────────────────────────────
+  const gestureBadge  = document.getElementById('gestureBadge');
+  const gestureLabel  = document.getElementById('gestureLabel');
+  const fingerDotsEl  = document.getElementById('fingerDots');
+
+  // CSS filter strings for each base class
+  const filterMap = {
+    'filter-normal':    'none',
+    'filter-grayscale': 'grayscale(100%)',
+    'filter-sepia':     'sepia(100%)',
+    'filter-invert':    'invert(100%)',
+    'filter-blur':      'blur(8px)',
+    'filter-contrast':  'contrast(200%)',
+    'filter-hue':       'hue-rotate(90deg)',
+    'filter-neon':      'contrast(150%) saturate(200%) hue-rotate(180deg)',
+    'filter-vintage':   'sepia(50%) contrast(120%) saturate(80%)'
+  };
+
+  function applyGestureBlur(active) {
+    if (active === gestureBlurActive) return;
+    gestureBlurActive = active;
+    const base = filterMap[currentFilterClass] || 'none';
+    if (active) {
+      const blurStr = (base === 'none') ? 'blur(12px)' : base + ' blur(12px)';
+      video.style.filter = blurStr;
+      gestureBadge.classList.add('blur-active');
+    } else {
+      video.style.filter = '';
+      gestureBadge.classList.remove('blur-active');
+    }
+  }
+
+  function updateFingerDots(count) {
+    if (count === lastFingerCount) return;
+    lastFingerCount = count;
+    fingerDotsEl.innerHTML = '';
+    for (let i = 0; i < Math.min(count, 10); i++) {
+      const d = document.createElement('span');
+      d.className = 'finger-dot';
+      fingerDotsEl.appendChild(d);
+    }
+    const emoji = count === 0 ? '🤚' : count === 1 ? '☝️' : count === 2 ? '✌️' : count >= 5 ? '🖐️' : '🤟';
+    gestureLabel.textContent = `${emoji} ${count} JARI${count === 2 ? ' — BLUR!' : ''}`;
+  }
+
+  // Count extended fingers from MediaPipe landmarks (21 points)
+  function countExtendedFingers(landmarks) {
+    // Tip indices: thumb=4, index=8, middle=12, ring=16, pinky=20
+    // PIP (middle joint) indices: thumb=3(IP), index=6, middle=10, ring=14, pinky=18
+    const tips = [4, 8, 12, 16, 20];
+    const pips = [3, 6, 10, 14, 18];
+    let count = 0;
+    for (let i = 0; i < 5; i++) {
+      const tip = landmarks[tips[i]];
+      const pip = landmarks[pips[i]];
+      if (i === 0) {
+        // Thumb: compare x (mirrored video)
+        if (Math.abs(tip.x - pip.x) > 0.04) count++;
+      } else {
+        // Other fingers: tip.y < pip.y means finger is up
+        if (tip.y < pip.y - 0.02) count++;
+      }
+    }
+    return count;
+  }
+
+  async function initHandDetection() {
+    if (!window.Hands) {
+      console.warn('MediaPipe Hands not loaded.');
+      return;
+    }
+    handsModel = new Hands({
+      locateFile: (file) =>
+        `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+    });
+    handsModel.setOptions({
+      maxNumHands: 2,
+      modelComplexity: 0,   // 0 = fast & light
+      minDetectionConfidence: 0.7,
+      minTrackingConfidence: 0.6
+    });
+
+    let totalFingers = 0;
+    handsModel.onResults((results) => {
+      totalFingers = 0;
+      if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+        results.multiHandLandmarks.forEach(landmarks => {
+          totalFingers += countExtendedFingers(landmarks);
+        });
+      }
+      updateFingerDots(totalFingers);
+      // Show badge whenever camera is active
+      gestureBadge.classList.toggle('visible', !!stream);
+      // Trigger blur on exactly 2 fingers
+      applyGestureBlur(totalFingers === 2);
+    });
+  }
+
+  function startGestureLoop() {
+    if (!handsModel || !stream) return;
+    let running = true;
+
+    async function loop() {
+      if (!running || !stream) return;
+      if (video.readyState >= 2) {
+        try { await handsModel.send({ image: video }); } catch (_) {}
+      }
+      gestureRAF = requestAnimationFrame(loop);
+    }
+    loop();
+
+    // Return stop fn
+    return () => { running = false; cancelAnimationFrame(gestureRAF); };
+  }
+
+  let stopGestureLoop = null;
+
+  // ─────────────────────────────────────────────
   // Event Listeners
+  // ─────────────────────────────────────────────
   startBtn.addEventListener('click', startCamera);
   stopBtn.addEventListener('click', stopCamera);
   
   // Auto-start camera when page loads
-  window.addEventListener('load', () => {
-     startCamera();
+  window.addEventListener('load', async () => {
+    await initHandDetection();
+    startCamera();
   });
 </script>
 </body>
