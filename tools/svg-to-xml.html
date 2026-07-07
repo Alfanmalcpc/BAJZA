@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SVG to XML Converter — BAJA PRO</title>
+<meta name="description" content="Convert SVG files to Android VectorDrawable XML format for Alight Motion and Android Studio."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="stylesheet" href="../style.css"/>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9184269136757439" crossorigin="anonymous"></script>
+<style>
+.beautifier-layout{display:grid;grid-template-columns:1fr 300px;gap:28px;align-items:start}
+.editor-panel{display:flex;flex-direction:column;gap:16px}
+.action-row{display:flex;gap:10px;flex-wrap:wrap}
+.btn-beautify{background:var(--cyan);color:#000;padding:12px 28px;border:3px solid #000;border-radius:var(--r-full);font-family:var(--font-heading);font-size:18px;letter-spacing:1px;transition:all var(--tr);display:flex;align-items:center;gap:8px;box-shadow:4px 4px 0 var(--pink)}
+.btn-beautify:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 #000;background:var(--pink)}
+.btn-clear,.btn-copy{background:#fff;border:3px solid #000;color:#000;padding:12px 20px;border-radius:var(--r-full);font-family:var(--font-heading);font-size:18px;letter-spacing:1px;transition:all var(--tr);box-shadow:4px 4px 0 #000}
+.btn-clear:hover,.btn-copy:hover{background:var(--bg-base);transform:translate(-2px,-2px);box-shadow:6px 6px 0 #000}
+.editor-split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.editor-label{font-family:var(--font-heading);font-size:18px;color:#000;letter-spacing:1px;margin-bottom:8px}
+.code-editor{background:#fff;border:4px solid #000;border-radius:12px;overflow:hidden;box-shadow:6px 6px 0 #000}
+.editor-header{background:#000;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #000}
+.editor-dots{display:flex;gap:6px}
+.editor-dots span{width:12px;height:12px;border-radius:50%;border:2px solid #000}
+.editor-dots span:nth-child(1){background:#ff4757}
+.editor-dots span:nth-child(2){background:#feca57}
+.editor-dots span:nth-child(3){background:#1dd1a1}
+.editor-area{width:100%;min-height:300px;background:#fff;border:none;padding:16px;font-family:var(--mono);font-size:14px;color:#000;resize:vertical;line-height:1.6;outline:none}
+.editor-lang{font-family:var(--font-heading);font-size:16px;color:#fff;letter-spacing:1px}
+.sidebar-ad{position:sticky;top:calc(var(--nav-h) + 20px)}
+.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--green);color:#000;border:3px solid #000;box-shadow:4px 4px 0 #000;padding:12px 28px;border-radius:var(--r-full);font-family:var(--font-heading);font-size:18px;letter-spacing:1px;transition:transform var(--tr);z-index:2000;opacity:0}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+@media(max-width:900px){.beautifier-layout{grid-template-columns:1fr}.editor-split{grid-template-columns:1fr}.sidebar-ad{position:static}}
+</style>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="container nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-badge">⚡</div><span class="logo-text">BAJA</span><span class="logo-pro">PRO</span></a>
+    <div class="nav-menu" id="navMenu">
+      <a href="index.html" class="nav-link active">🛠️ Tools</a>
+      <a href="../finance/index.html" class="nav-link">📈 Finance</a>
+      <a href="../tutorial/index.html" class="nav-link">📚 Tutorial</a>
+    </div>
+    <div class="nav-actions">
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header section">
+  <div class="container">
+    <div class="section-badge" style="transform: skewX(-5deg)">🔄 SVG to XML</div>
+    <h1 class="section-title" style="color:#000;-webkit-text-stroke:0">Vector Format Converter</h1>
+    <p class="section-sub">Convert standard SVG graphics into XML format compatible with Alight Motion and Android Studio.</p>
+  </div>
+</div>
+
+<section class="section" style="padding-top:32px">
+  <div class="container">
+    <div class="beautifier-layout">
+      <div class="editor-panel">
+        <div class="ad-slot" style="height:90px;width:100%;margin-bottom:8px">
+          <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9184269136757439" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
+          <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        </div>
+
+        <div class="editor-split">
+          <div>
+            <div class="editor-label">Input SVG Preview</div>
+            <div class="code-editor">
+              <div class="editor-header">
+                <div class="editor-dots"><span></span><span></span><span></span></div>
+                <span class="editor-lang">SVG Visual</span>
+              </div>
+              <div style="padding:10px; border-bottom: 3px solid #000; background: var(--bg-base); display: flex; gap: 10px; align-items: center;">
+                <label for="fileInput" style="font-family:var(--font-heading); font-size:16px; color:#000;">Upload SVG File:</label>
+                <input type="file" id="fileInput" accept=".svg" style="font-family:var(--font-heading);font-size:16px" />
+              </div>
+              <div id="svgPreview" class="editor-area" style="display:flex; justify-content:center; align-items:center; background-image: radial-gradient(#ccc 1px, transparent 1px); background-size: 20px 20px; overflow:hidden;">
+                 <p style="color:#888; font-family:var(--font-heading); text-align:center;">No SVG Uploaded.<br><span style="font-size:12px">Upload a file to see preview</span></p>
+              </div>
+              <textarea id="inputCode" style="display:none;"></textarea>
+            </div>
+          </div>
+          <div>
+            <div class="editor-label">XML Output</div>
+            <div class="code-editor">
+              <div class="editor-header">
+                <div class="editor-dots"><span></span><span></span><span></span></div>
+                <span class="editor-lang">Android XML</span>
+              </div>
+              <textarea class="editor-area" id="outputCode" readonly placeholder="Converted XML will appear here..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings Panel -->
+        <div style="margin-top:8px; background:#fff; border:4px solid #000; border-radius:12px; padding:16px; box-shadow:6px 6px 0 #000;">
+          <h3 style="font-family:var(--font-heading);font-size:16px;margin-bottom:12px;">⚙️ Output Settings</h3>
+          <div style="display:flex; gap:16px; flex-wrap:wrap; align-items:flex-end;">
+            <div>
+              <label style="font-family:var(--font-heading);font-size:13px;display:block;margin-bottom:4px;">Width (px)</label>
+              <input type="number" id="outWidth" value="1080" min="1" style="width:90px;padding:8px;border:3px solid #000;border-radius:8px;font-family:var(--font-heading);font-size:15px;font-weight:700;"/>
+            </div>
+            <div>
+              <label style="font-family:var(--font-heading);font-size:13px;display:block;margin-bottom:4px;">Height (px)</label>
+              <input type="number" id="outHeight" value="1080" min="1" style="width:90px;padding:8px;border:3px solid #000;border-radius:8px;font-family:var(--font-heading);font-size:15px;font-weight:700;"/>
+            </div>
+            <div>
+              <label style="font-family:var(--font-heading);font-size:13px;display:block;margin-bottom:4px;">FPS</label>
+              <select id="outFps" style="padding:8px;border:3px solid #000;border-radius:8px;font-family:var(--font-heading);font-size:15px;font-weight:700;background:#fff;">
+                <option value="24">24 fps</option>
+                <option value="30">30 fps</option>
+                <option value="60" selected>60 fps</option>
+                <option value="120">120 fps</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-family:var(--font-heading);font-size:13px;display:block;margin-bottom:4px;">Duration (ms)</label>
+              <input type="number" id="outDuration" value="2015" min="100" style="width:110px;padding:8px;border:3px solid #000;border-radius:8px;font-family:var(--font-heading);font-size:15px;font-weight:700;"/>
+            </div>
+            <div>
+              <label style="font-family:var(--font-heading);font-size:13px;display:block;margin-bottom:4px;">Kualitas Scan</label>
+              <select id="outQuality" style="padding:8px;border:3px solid #000;border-radius:8px;font-family:var(--font-heading);font-size:13px;background:#fff;">
+                <option value="1">Sangat Berat (1px)</option>
+                <option value="3">Berat (3px)</option>
+                <option value="5" selected>Normal (5px)</option>
+                <option value="8">Ringan (8px)</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-family:var(--font-heading);font-size:13px;display:block;margin-bottom:4px;">BG Color</label>
+              <div style="display:flex;align-items:center;gap:6px">
+                <input type="color" id="outBgColor" value="#ffffff" style="width:40px;height:40px;border:3px solid #000;border-radius:8px;cursor:pointer;padding:2px;"/>
+                <select id="outBgAlpha" style="padding:8px;border:3px solid #000;border-radius:8px;font-family:var(--font-heading);font-size:13px;background:#fff;">
+                  <option value="ff" selected>Solid</option>
+                  <option value="00">Transparent</option>
+                  <option value="80">50% Alpha</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="analysisPanel" style="display:none; margin-top:8px; background:#fff; border:4px solid #000; border-radius:12px; padding:16px; box-shadow:6px 6px 0 #000;">
+          <h3 style="font-family:var(--font-heading);font-size:18px;margin-bottom:12px;display:flex;align-items:center;gap:8px;">📊 Scan Results</h3>
+          <div style="display:flex; gap:32px; flex-wrap:wrap; font-family:var(--font-heading); font-size:15px; color:#000;">
+             <div>
+                <strong style="display:block;margin-bottom:4px">Total Layers:</strong> 
+                <span id="layerCount" style="font-size:28px;color:var(--pink);font-weight:900;">0</span>
+             </div>
+             <div>
+                <strong style="display:block;margin-bottom:4px">Unique Colors:</strong>
+                <span id="uniqueColorCount" style="font-size:28px;color:var(--cyan);font-weight:900;">0</span>
+             </div>
+             <div style="flex-grow:1">
+                <strong style="display:block;margin-bottom:8px;">Color Palette Detected:</strong>
+                <div id="colorSwatches" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
+             </div>
+          </div>
+          <details style="margin-top:12px">
+            <summary style="cursor:pointer;font-family:var(--font-heading);font-size:13px;color:#555;">🔍 Element Scan Log</summary>
+            <pre id="debugInfo" style="margin-top:8px;font-size:11px;background:#f5f5f5;padding:10px;border-radius:8px;overflow:auto;max-height:200px;white-space:pre-wrap;color:#000;"></pre>
+          </details>
+        </div>
+        </div>
+        
+        <div id="layerSelectionContainer" style="display:none; margin-top:8px; background:#fff; border:4px solid #000; border-radius:12px; padding:16px; box-shadow:6px 6px 0 #000;">
+           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <h3 style="font-family:var(--font-heading);font-size:18px;margin:0;">🛠️ Pilih Layer (${layersCount})</h3>
+              <button id="selectAllLayersBtn" style="padding:6px 12px; background:var(--yellow); border:3px solid #000; border-radius:8px; font-family:var(--font-heading); font-weight:700; cursor:pointer;">Centang / Hapus Semua</button>
+           </div>
+           <div id="layerList" style="max-height: 250px; overflow-y: auto; border: 2px solid #000; padding: 12px; border-radius: 8px; background:#f9f9f9; display:flex; flex-direction:column; gap:8px;">
+           </div>
+        </div>
+
+        <div class="action-row">
+          <button class="btn-beautify" id="convertBtn">🔍 Deep Scan & Convert</button>
+          <button class="btn-copy" id="downloadBtn" style="background:#1dd1a1;color:#000;">💾 Download XML</button>
+          <button class="btn-copy" id="copyBtn">📋 Copy XML</button>
+          <button class="btn-clear" id="clearBtn">🗑️ Clear</button>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="sidebar-ad">
+        <div class="ad-slot ad-rectangle">
+           <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-9184269136757439" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
+           <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        </div>
+        <div style="margin-top:20px;background:#fff;border:4px solid #000;border-radius:12px;padding:20px;box-shadow:6px 6px 0 #000;transform:rotate(1deg)">
+          <h3 style="font-family:var(--font-heading);font-size:20px;margin-bottom:12px">💡 How to use</h3>
+          <ul style="font-size:14px;color:#000;font-weight:700;display:flex;flex-direction:column;gap:8px;padding-left:16px;list-style:disc">
+            <li>Click "Choose File" to upload an `.svg` file directly, OR paste raw SVG code into the left box.</li>
+            <li>Click "Convert to XML" to process.</li>
+            <li>Click "Download XML" to save the result as an `.xml` file for Alight Motion or Android Studio.</li>
+            <li>Note: Only standard vectors (paths) will be converted.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="toast" id="toast">✅ Copied to clipboard!</div>
+<button id="scrollTop">↑</button>
+<script src="../app.js"></script>
+<script>
+const inputCode = document.getElementById('inputCode');
+const outputCode = document.getElementById('outputCode');
+const fileInput = document.getElementById('fileInput');
+
+fileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    const rawSvg = evt.target.result;
+    inputCode.value = rawSvg;
+    
+    // Display visual preview
+    const previewContainer = document.getElementById('svgPreview');
+    previewContainer.innerHTML = rawSvg;
+    
+    // Scale preview appropriately
+    const svgEl = previewContainer.querySelector('svg');
+    if (svgEl) {
+       svgEl.style.maxWidth = '100%';
+       svgEl.style.maxHeight = '300px';
+       svgEl.style.width = 'auto';
+       svgEl.style.height = 'auto';
+       svgEl.style.display = 'block';
+       
+       let w = 0, h = 0;
+       const vb = svgEl.getAttribute('viewBox');
+       if (vb) { const p = vb.split(/[ ,]+/); if (p.length >= 4) { w = parseFloat(p[2]); h = parseFloat(p[3]); } }
+       if (!w && svgEl.getAttribute('width')) w = parseFloat(svgEl.getAttribute('width').replace(/[^0-9.]/g,''));
+       if (!h && svgEl.getAttribute('height')) h = parseFloat(svgEl.getAttribute('height').replace(/[^0-9.]/g,''));
+       if (w > 0) document.getElementById('outWidth').value = Math.round(w);
+       if (h > 0) document.getElementById('outHeight').value = Math.round(h);
+    }
+  };
+  reader.readAsText(file);
+});
+
+let isScanning = false;
+
+document.getElementById('convertBtn').addEventListener('click', async () => {
+  if (isScanning) {
+    alert("Proses scan sedang berjalan! Harap tunggu hingga scan pertama selesai.");
+    return;
+  }
+  
+  const svgText = inputCode.value.trim();
+  if (!svgText) return;
+  
+  isScanning = true;
+  const btn = document.getElementById('convertBtn');
+  btn.textContent = 'Memindai...';
+  btn.style.opacity = '0.5';
+  btn.style.pointerEvents = 'none';
+  
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(svgText, "image/svg+xml");
+    const svgEl = doc.querySelector('svg');
+    
+    if (!svgEl) {
+      outputCode.value = "Error: Invalid SVG code. No <svg> tag found.";
+      return;
+    }
+    
+    // === Read SVG original dimensions (for coordinate scaling) ===
+    let svgW = 0, svgH = 0;
+    const viewBox = svgEl.getAttribute('viewBox');
+    if (viewBox) {
+      const parts = viewBox.split(/[ ,]+/);
+      if (parts.length >= 4) { svgW = parseFloat(parts[2]); svgH = parseFloat(parts[3]); }
+    }
+    if (!svgW && svgEl.getAttribute('width')) svgW = parseFloat(svgEl.getAttribute('width').replace(/[^0-9.]/g,''));
+    if (!svgH && svgEl.getAttribute('height')) svgH = parseFloat(svgEl.getAttribute('height').replace(/[^0-9.]/g,''));
+    
+    // === Read user output settings ===
+    const sceneW = parseInt(document.getElementById('outWidth').value) || 1080;
+    const sceneH = parseInt(document.getElementById('outHeight').value) || 1080;
+    const outFps = parseInt(document.getElementById('outFps').value) || 60;
+    const outDuration = parseInt(document.getElementById('outDuration').value) || 2015;
+    const bgColorHex = document.getElementById('outBgColor').value.replace('#','');
+    const bgAlpha = document.getElementById('outBgAlpha').value;
+    const bgAMColor = `#${bgAlpha}${bgColorHex}`;
+    const cxStr = (sceneW / 2).toFixed(6);
+    const cyStr = (sceneH / 2).toFixed(6);
+    
+    // === Scale factor: map SVG coordinate space → output pixel space ===
+    const scaleX = svgW > 0 ? sceneW / svgW : 1;
+    const scaleY = svgH > 0 ? sceneH / svgH : 1;
+
+    // ── KODE BINER PIXEL SCANNER (CANVAS) ───────────────────────────────────
+    // Inject SVG to DOM to use getBBox() for accurate center calculations
+    const tempContainer = document.createElement('div');
+    tempContainer.style.cssText = 'position:absolute;left:-9999px;top:-9999px;pointer-events:none;';
+    tempContainer.innerHTML = svgText;
+    document.body.appendChild(tempContainer);
+    
+    const domSvg = tempContainer.querySelector('svg');
+    if (!domSvg) {
+        document.body.removeChild(tempContainer);
+        throw new Error('No valid <svg> tag found.');
+    }
+    
+    // Auto-resolve <use> tags inside domSvg
+    Array.from(domSvg.querySelectorAll('use')).forEach(useEl => {
+      const href = useEl.getAttribute('href') || useEl.getAttribute('xlink:href') || '';
+      if (!href.startsWith('#')) return;
+      const target = domSvg.querySelector('[id="' + href.substring(1) + '"]');
+      if (!target) return;
+      const clone = target.cloneNode(true);
+      clone.removeAttribute('id');
+      const ux = parseFloat(useEl.getAttribute('x')||0), uy = parseFloat(useEl.getAttribute('y')||0);
+      if (ux||uy) {
+        if (clone.tagName==='rect') { clone.setAttribute('x',(parseFloat(clone.getAttribute('x')||0)+ux)+''); clone.setAttribute('y',(parseFloat(clone.getAttribute('y')||0)+uy)+''); }
+        else { clone.setAttribute('transform',`translate(${ux},${uy}) ${clone.getAttribute('transform')||''}`); }
+      }
+      ['fill','stroke','opacity','class','style'].forEach(attr => { if(useEl.hasAttribute(attr)) clone.setAttribute(attr,useEl.getAttribute(attr)); });
+      useEl.parentNode.replaceChild(clone, useEl);
+    });
+
+    // Render the SVG to a Canvas for Binary Pixel Reading
+    const canvas = document.createElement('canvas');
+    canvas.width = svgW || sceneW;
+    canvas.height = svgH || sceneH;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    
+    const yieldUI = () => new Promise(r => setTimeout(r, 0));
+
+    // Tampilkan log progress scan biner
+    document.getElementById('debugInfo').textContent = '[ANIMASI SCAN] 0% - Mempersiapkan kanvas dan merender vektor...';
+    await yieldUI();
+
+    let imgData = null;
+    await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'Anonymous';
+        img.onload = () => { 
+            ctx.drawImage(img, 0, 0); 
+            try {
+                imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+                resolve();
+            } catch(e) {
+                reject(new Error('Gagal membaca pixel kanvas (Security Error): ' + e.message));
+            }
+        };
+        img.onerror = () => reject(new Error('Gagal merender SVG ke Canvas. Format tidak didukung atau corrupt.'));
+        // Gunakan utf-8 alih-alih base64 untuk mencegah crash memori/unicode
+        img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgText);
+    });
+
+
+
+    let shapeIdCounter = 102409000;
+    let layersCount = 0;
+    const colorSet = new Set();
+    
+    // Helper to generate shape XML matching exact AM format
+    function createShapeXml(id, type, attrs, fillColor, pathData, effectXml, labelName) {
+       layersCount++;
+       if (fillColor && fillColor !== '#ff000000') colorSet.add(fillColor);
+       const label = labelName || (type === 'roundrect' ? `Bentuk Persegi ${layersCount}` : `Path ${layersCount}`);
+       let s = `<shape id="${id}" label="${label}" startTime="0" endTime="${outDuration}" fillType="color" mediaFillMode="fill"`;
+       if (type === 'roundrect') s += ` s=".rect"`;
+       s += `>\n`;
+       s += `<transform>\n<location value="${attrs.cx},${attrs.cy},0.000000"/>\n</transform>\n`;
+       s += `<fillColor value="${fillColor || '#ff000000'}"/>\n`;
+       if (type === 'roundrect') {
+           s += `<property name="size" type="vec2" value="${attrs.w},${attrs.h}"/>\n`;
+       } else {
+           if (effectXml) s += effectXml;
+           s += `<path d="${pathData}"/>\n`;
+       }
+       s += `</shape>\n`;
+       return s;
+    }
+    
+    const nowMs = Date.now();
+    let xmlChunks = [];
+    let generatedLayers = [];
+    xmlChunks.push(`<!-- \nCreated by Alight Motion (http://alightmotion.com)\nExported: ${new Date().toISOString().replace('T',' ').substring(0,19)}\n5.0.273.1028425 (1028425)\n -->\n`);
+    xmlChunks.push(`<scene title="Converted Vector" width="${sceneW}" height="${sceneH}" exportWidth="${sceneW}" exportHeight="${sceneH}" precompose="dynamicResolution" bgcolor="${bgAMColor}" totalTime="${outDuration}" fps="${outFps}" modifiedTime="${nowMs}" amver="1028425" ffver="106" am="com.alightcreative.motion/5.0.273.1028425" amplatform="android" retime="freeze" retimeAdaptFPS="false">\n`);
+
+    let debugLines = ['=== Hasil Binary Pixel Scan ==='];
+
+    let runTotalCount = 0;
+    
+    // Scan Quality Setting (mengatur ukuran blok pixel)
+    const step = parseInt(document.getElementById('outQuality').value) || 5; 
+    const stepSizeX = step * scaleX;
+    const stepSizeY = step * scaleY;
+    
+    document.getElementById('debugInfo').textContent = `Memulai scan piksel (Step ${step})...`;
+
+    const cols = Math.ceil(canvas.width / step);
+    const rows = Math.ceil(canvas.height / step);
+    
+    document.getElementById('debugInfo').textContent = `[ANIMASI SCAN] Membangun grid warna...`;
+    await yieldUI();
+    
+    const grid = new Uint32Array(cols * rows);
+    for (let y = 0, gy = 0; y < canvas.height; y += step, gy++) {
+        for (let x = 0, gx = 0; x < canvas.width; x += step, gx++) {
+            const idx = (y * canvas.width + x) * 4;
+            const a = imgData[idx + 3];
+            if (a > 5) {
+                grid[gy * cols + gx] = (a << 24) | (imgData[idx] << 16) | (imgData[idx+1] << 8) | imgData[idx+2];
+            } else {
+                grid[gy * cols + gx] = 0;
+            }
+        }
+    }
+    
+    const visited = new Uint8Array(cols * rows);
+    let lastUiUpdate = performance.now();
+    
+    function isSameColor(c1, c2) {
+        if (c1 === 0 || c2 === 0) return false;
+        const r1 = (c1 >> 16) & 255, g1 = (c1 >> 8) & 255, b1 = c1 & 255, a1 = (c1 >>> 24) & 255;
+        const r2 = (c2 >> 16) & 255, g2 = (c2 >> 8) & 255, b2 = c2 & 255, a2 = (c2 >>> 24) & 255;
+        // Kemiripan 80% berarti selisih bisa sampai ~20% dari 255 (sekitar 50-60)
+        return Math.abs(r1 - r2) < 60 && Math.abs(g1 - g2) < 60 && Math.abs(b1 - b2) < 60 && Math.abs(a1 - a2) < 60;
+    }
+
+    for (let gy = 0; gy < rows; gy++) {
+        for (let gx = 0; gx < cols; gx++) {
+            const idx = gy * cols + gx;
+            if (!visited[idx] && grid[idx] !== 0) {
+                const startColor = grid[idx];
+                const blobPixels = [];
+                const queue = [idx];
+                visited[idx] = 1;
+                
+                let sumR = 0, sumG = 0, sumB = 0, sumA = 0;
+                let count = 0;
+                
+                let qHead = 0;
+                while (qHead < queue.length) {
+                    const currIdx = queue[qHead++];
+                    blobPixels.push(currIdx);
+                    
+                    const cColor = grid[currIdx];
+                    sumR += (cColor >> 16) & 255;
+                    sumG += (cColor >> 8) & 255;
+                    sumB += cColor & 255;
+                    sumA += (cColor >>> 24) & 255;
+                    count++;
+                    
+                    const cx = currIdx % cols;
+                    const cy = Math.floor(currIdx / cols);
+                    
+                    const neighbors = [];
+                    if (cx > 0) neighbors.push(currIdx - 1);
+                    if (cx < cols - 1) neighbors.push(currIdx + 1);
+                    if (cy > 0) neighbors.push(currIdx - cols);
+                    if (cy < rows - 1) neighbors.push(currIdx + cols);
+                    
+                    for (let n of neighbors) {
+                        if (!visited[n] && grid[n] !== 0) {
+                            if (isSameColor(startColor, grid[n])) {
+                                visited[n] = 1;
+                                queue.push(n);
+                            }
+                        }
+                    }
+                    
+                    if (performance.now() - lastUiUpdate > 30) {
+                        document.getElementById('debugInfo').textContent = `[ANIMASI SCAN] Menelusuri Area (Layer ke-${runTotalCount+1})...\nMenemukan ${count} piksel warna terhubung`;
+                        btn.textContent = `Menelusuri...`;
+                        lastUiUpdate = performance.now();
+                        await yieldUI();
+                    }
+                }
+                
+                blobPixels.sort((a, b) => a - b);
+                
+                const segments = [];
+                let runStartIdx = -1;
+                let runEndIdx = -1;
+                
+                for (let i = 0; i < blobPixels.length; i++) {
+                    const pIdx = blobPixels[i];
+                    if (runStartIdx === -1) {
+                        runStartIdx = pIdx;
+                        runEndIdx = pIdx;
+                    } else {
+                        if (pIdx === runEndIdx + 1 && Math.floor(pIdx / cols) === Math.floor(runEndIdx / cols)) {
+                            runEndIdx = pIdx;
+                        } else {
+                            segments.push({ start: runStartIdx, end: runEndIdx });
+                            runStartIdx = pIdx;
+                            runEndIdx = pIdx;
+                        }
+                    }
+                }
+                if (runStartIdx !== -1) {
+                    segments.push({ start: runStartIdx, end: runEndIdx });
+                }
+                
+                const avgR = Math.round(sumR / count);
+                const avgG = Math.round(sumG / count);
+                const avgB = Math.round(sumB / count);
+                const avgA = Math.round(sumA / count);
+                const hex = `#${avgA.toString(16).padStart(2,'0')}${avgR.toString(16).padStart(2,'0')}${avgG.toString(16).padStart(2,'0')}${avgB.toString(16).padStart(2,'0')}`;
+                
+                let pathData = "";
+                for (let seg of segments) {
+                    const sx = (seg.start % cols);
+                    const sy = Math.floor(seg.start / cols);
+                    const ex = (seg.end % cols);
+                    
+                    const w = (ex - sx + 1) * step;
+                    const px = (sx * step) + w/2;
+                    const py = (sy * step) + step/2;
+                    
+                    const cx = px * scaleX;
+                    const cy = py * scaleY;
+                    const scaledW = w * scaleX;
+                    const scaledH = stepSizeY;
+                    
+                    const pCx = cx - (sceneW / 2);
+                    const pCy = cy - (sceneH / 2);
+                    const hW = scaledW / 2;
+                    const hH = scaledH / 2;
+                    
+                    pathData += `M ${(pCx - hW).toFixed(4)} ${(pCy - hH).toFixed(4)} L ${(pCx + hW).toFixed(4)} ${(pCy - hH).toFixed(4)} L ${(pCx + hW).toFixed(4)} ${(pCy + hH).toFixed(4)} L ${(pCx - hW).toFixed(4)} ${(pCy + hH).toFixed(4)} Z `;
+                }
+                
+                const labelName = `Region Gabungan ${runTotalCount+1} (${count}px)`;
+                const xml = createShapeXml(shapeIdCounter++, 'path', {
+                    cx: (sceneW / 2).toFixed(6), cy: (sceneH / 2).toFixed(6)
+                }, hex, pathData, '', labelName);
+                
+                generatedLayers.push({
+                    id: runTotalCount + 1,
+                    label: labelName,
+                    color: hex,
+                    count: count,
+                    xml: xml,
+                    checked: true
+                });
+                
+                runTotalCount++;
+            }
+        }
+        
+        if (performance.now() - lastUiUpdate > 30 || gy === rows - 1) {
+            const percent = Math.round((gy / rows) * 100);
+            document.getElementById('debugInfo').textContent = `[ANIMASI SCAN] ${percent}% - Menganalisis area (baris ${gy}/${rows})...`;
+            btn.textContent = `Memindai... ${percent}%`;
+            lastUiUpdate = performance.now();
+            await yieldUI();
+        }
+    }
+    
+    debugLines = [`Selesai mengekstrak KESELURUHAN GAMBAR menjadi ${runTotalCount} layer presisi tinggi.`];
+
+    document.getElementById('debugInfo').textContent = `[ANIMASI SCAN] Memproses Piksel... 100%\n\n` + debugLines.join('\n');
+    btn.textContent = `Menyusun XML... 100%`;
+    await yieldUI(); // Memberi waktu UI untuk render 100% sebelum proses join string yang berat
+    
+    const updateFinalXml = () => {
+        let finalXml = xmlChunks.join("");
+        generatedLayers.forEach(layer => {
+            if (layer.checked) finalXml += layer.xml;
+        });
+        finalXml += `</scene>\n`;
+        outputCode.value = finalXml;
+        
+        const activeLayers = generatedLayers.filter(l => l.checked).length;
+        document.getElementById('layerCount').textContent = activeLayers;
+    };
+    
+    const layerList = document.getElementById('layerList');
+    layerList.innerHTML = '';
+    
+    generatedLayers.forEach((layer, i) => {
+        const div = document.createElement('div');
+        div.style.display = 'flex';
+        div.style.alignItems = 'center';
+        div.style.padding = '8px';
+        div.style.background = '#fff';
+        div.style.border = '2px solid #000';
+        div.style.borderRadius = '6px';
+        
+        const cssHex = layer.color.length === 9 ? '#' + layer.color.substring(3) : layer.color;
+        
+        div.innerHTML = `
+            <input type="checkbox" id="chk_layer_${i}" checked style="margin-right:12px; width:18px; height:18px; cursor:pointer;" />
+            <div style="width:24px;height:24px;background-color:${cssHex};border:2px solid #000;border-radius:4px;margin-right:12px;"></div>
+            <label for="chk_layer_${i}" style="font-family:var(--font-heading);font-size:14px;cursor:pointer;flex-grow:1;color:#000;">
+               ${layer.label}
+            </label>
+        `;
+        
+        div.querySelector('input').addEventListener('change', (e) => {
+            layer.checked = e.target.checked;
+            updateFinalXml();
+        });
+        layerList.appendChild(div);
+    });
+
+    document.getElementById('selectAllLayersBtn').onclick = () => {
+        const checkboxes = layerList.querySelectorAll('input[type="checkbox"]');
+        let allChecked = Array.from(checkboxes).every(c => c.checked);
+        checkboxes.forEach(c => { c.checked = !allChecked; });
+        generatedLayers.forEach(l => l.checked = !allChecked);
+        updateFinalXml();
+    };
+
+    document.getElementById('layerSelectionContainer').querySelector('h3').innerHTML = `🛠️ Pilih Layer (${generatedLayers.length})`;
+    document.getElementById('layerSelectionContainer').style.display = 'block';
+    
+    updateFinalXml();
+    
+    document.body.removeChild(tempContainer);
+    
+    // Update Analysis Panel
+    document.getElementById('layerCount').textContent = layersCount;
+    document.getElementById('uniqueColorCount').textContent = colorSet.size;
+    const swatchContainer = document.getElementById('colorSwatches');
+    swatchContainer.innerHTML = '';
+    
+    if (colorSet.size > 0) {
+      let swatchesHtml = '';
+      let colorLimit = 0;
+      colorSet.forEach(c => {
+         if (colorLimit >= 100) return;
+         const cssHex = c.length === 9 ? '#' + c.substring(3) : c; 
+         swatchesHtml += `<div style="display:inline-flex;flex-direction:column;align-items:center;gap:3px;"><div style="width:40px;height:40px;border-radius:8px;background:${cssHex};border:3px solid #000;cursor:pointer;box-shadow:3px 3px 0 #000" title="AM: ${c}"></div><span style="font-family:var(--mono);font-size:9px;color:#000;">${c}</span></div>`;
+         colorLimit++;
+      });
+      if (colorSet.size > 100) {
+         swatchesHtml += `<div style="display:flex;align-items:center;font-family:var(--font-heading);font-size:12px;color:#555;padding:10px;">+ ${colorSet.size - 100} warna lainnya...</div>`;
+      }
+      swatchContainer.innerHTML = swatchesHtml;
+    } else {
+      swatchContainer.innerHTML = '<span style="font-family:var(--font-heading);color:#888;">No solid fill colors detected. Check the Scan Log below.</span>';
+    }
+    
+    document.getElementById('analysisPanel').style.display = 'block';
+    showToast('\u2705 Deep Scan Complete!');
+    
+  } catch (e) {
+    outputCode.value = "Error parsing SVG: " + e.message;
+  } finally {
+    isScanning = false;
+    const btn = document.getElementById('convertBtn');
+    btn.textContent = '🔍 Deep Scan & Convert';
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'auto';
+  }
+});
+
+document.getElementById('copyBtn').addEventListener('click', () => {
+  if (!outputCode.value) return;
+  navigator.clipboard.writeText(outputCode.value).then(() => showToast('\u2705 XML Copied!'));
+});
+
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  if (!outputCode.value) return;
+  const blob = new Blob([outputCode.value], { type: 'application/xml' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  let filename = 'vector.xml';
+  if (fileInput.files.length > 0) filename = fileInput.files[0].name.replace('.svg', '.xml');
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('\ud83d\udcbe Downloading XML...');
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  inputCode.value = '';
+  outputCode.value = '';
+  fileInput.value = '';
+  document.getElementById('svgPreview').innerHTML = '<p style="color:#888; font-family:var(--font-heading); text-align:center;">No SVG Uploaded.<br><span style="font-size:12px">Upload a file to see preview</span></p>';
+  document.getElementById('analysisPanel').style.display = 'none';
+});
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>

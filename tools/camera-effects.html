@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Camera Effects Studio — BAJA PRO</title>
+<meta name="description" content="Apply real-time effects and filters to your camera and take awesome photos."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="stylesheet" href="../style.css"/>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9184269136757439" crossorigin="anonymous"></script>
+<style>
+/* Comic Pattern Background */
+.camera-section {
+  background-color: var(--purple) !important;
+  border-bottom: 5px solid #000;
+}
+.comic-bg {
+  background-color: var(--purple);
+  background-image: radial-gradient(rgba(0,0,0,0.15) 20%, transparent 20%), radial-gradient(rgba(0,0,0,0.15) 20%, transparent 20%);
+  background-size: 30px 30px;
+  background-position: 0 0, 15px 15px;
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+/* Floating Stickers */
+.sticker {
+  position: absolute;
+  font-family: var(--font-heading);
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--bg-base);
+  text-transform: uppercase;
+  text-shadow: 4px 4px 0 #000;
+  z-index: 1;
+  pointer-events: none;
+}
+.sticker.pow { top: 5%; right: 5%; transform: rotate(15deg); font-size: 5rem; }
+.sticker.zap { bottom: 10%; left: 2%; transform: rotate(-15deg); color: var(--cyan); font-size: 4rem; }
+.sticker.boom { top: 45%; right: 2%; transform: rotate(-25deg); color: var(--pink); font-size: 3.5rem; }
+.sticker.wow { top: 20%; left: 3%; transform: rotate(10deg); color: var(--green); font-size: 3rem; }
+
+.camera-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+  align-items: start;
+  position: relative;
+}
+.camera-preview-container {
+  background-color: var(--orange);
+  border: 5px solid #000;
+  border-radius: 0;
+  padding: 20px;
+  box-shadow: 10px 10px 0 #000;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  position: relative;
+}
+/* CSS Camera Frame Decorations */
+
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 800px;
+  aspect-ratio: 16/9;
+  background-color: #fff; /* Clean white frame */
+  padding: 16px; /* Elegant border thickness */
+  border: 6px solid #000;
+  box-shadow: inset 0 0 0 6px #000;
+  border-radius: var(--ui-radius, 12px);
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+/* Pure CSS Drawing Library */
+.css-shape { position: absolute; z-index: 15; pointer-events: none; filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.5)); }
+.css-shape svg { width: 100%; height: 100%; display: block; }
+.video-wrapper::after {
+  content: "● REC";
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  background: rgba(0,0,0,0.7);
+  color: #ff4757;
+  font-family: var(--font-heading);
+  font-size: 16px;
+  letter-spacing: 2px;
+  padding: 4px 12px;
+  border: 2px solid #000;
+  border-radius: 20px;
+  z-index: 5;
+  animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.2; }
+  100% { opacity: 1; }
+}
+#videoElement {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+  border: 4px solid #000;
+  border-radius: 6px;
+  transition: filter 0.3s ease;
+  transform: scaleX(-1);
+}
+.controls-bar {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.btn-cam {
+  background: var(--blue-light);
+  color: #000;
+  padding: 12px 24px;
+  border: 4px solid #000;
+  border-radius: var(--ui-radius, 0px);
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all var(--tr);
+  box-shadow: var(--ui-shadow, 6px 6px 0 #000);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+}
+.btn-cam:hover {
+  transform: translate(-3px, -3px) rotate(-1deg);
+  box-shadow: var(--ui-shadow-hover, 9px 9px 0 #000);
+}
+.btn-cam.capture {
+  background: #ff4757; /* Bright Red */
+  color: #fff;
+  font-size: 22px;
+  letter-spacing: 2px;
+}
+.btn-cam.capture:hover {
+  background: #ffeaa7; /* Flash yellow on hover */
+  color: #000;
+}
+
+.effects-menu {
+  background-color: var(--pink);
+  background-image: radial-gradient(rgba(255,255,255,0.25) 25%, transparent 25%);
+  background-size: 16px 16px;
+  border: 5px solid #000;
+  border-radius: 0;
+  padding: 16px;
+  box-shadow: 10px 10px 0 #000;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  height: 600px;
+  position: relative;
+}
+.tabs-header {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.tab-btn {
+  flex: 1;
+  background: #fff;
+  border: 3px solid #000;
+  padding: 10px;
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 #000;
+  transition: all 0.2s ease;
+}
+.tab-btn.active {
+  background: var(--bg-base);
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #000;
+}
+.tab-content {
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+  padding-right: 8px;
+  flex: 1;
+}
+.tab-content.active {
+  display: flex;
+}
+/* Scrollbar */
+.tab-content::-webkit-scrollbar { width: 8px; }
+.tab-content::-webkit-scrollbar-track { background: rgba(255,255,255,0.3); border: 2px solid #000; }
+.tab-content::-webkit-scrollbar-thumb { background: #000; }
+.effect-btn {
+  background-color: var(--cyan);
+  background-image: repeating-linear-gradient(-45deg, transparent, transparent 5px, rgba(255,255,255,0.4) 5px, rgba(255,255,255,0.4) 8px);
+  border: 4px solid #000;
+  color: #000;
+  padding: 12px 16px;
+  border-radius: var(--ui-radius, 0px);
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-transform: uppercase;
+}
+.effect-btn span {
+  background: #fff;
+  border: 3px solid #000;
+  padding: 4px 10px;
+  box-shadow: 3px 3px 0 #000;
+}
+/* Alternate comic colors for buttons */
+.effect-btn:nth-child(even) { 
+  background-color: var(--green); 
+  background-image: radial-gradient(rgba(0,0,0,0.15) 25%, transparent 25%);
+  background-size: 10px 10px;
+}
+.effect-btn:nth-child(3n) { 
+  background-color: #fff; 
+  background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(0,0,0,0.06) 5px, rgba(0,0,0,0.06) 8px);
+}
+.effect-btn:hover {
+  transform: scale(1.05) rotate(1deg);
+  box-shadow: var(--ui-shadow-small, 5px 5px 0 #000);
+  z-index: 2;
+}
+.effect-btn.active {
+  background: var(--bg-base) !important;
+  transform: translateX(8px);
+  box-shadow: var(--ui-shadow-small, 5px 5px 0 #000);
+  border-width: 4px;
+}
+
+/* Comic Page Title */
+.comic-title {
+  font-size: 4rem;
+  font-family: var(--font-heading);
+  font-weight: 900;
+  color: var(--bg-base);
+  text-transform: uppercase;
+  text-shadow: 5px 5px 0 #000, 10px 10px 0 var(--cyan);
+  margin-bottom: 12px;
+  line-height: 1.1;
+  transform: rotate(-2deg);
+  display: inline-block;
+}
+.comic-title span {
+  color: var(--pink);
+}
+
+/* Filters */
+.filter-normal { filter: none; }
+.filter-grayscale { filter: grayscale(100%); }
+.filter-sepia { filter: sepia(100%); }
+.filter-invert { filter: invert(100%); }
+.filter-blur { filter: blur(8px); }
+.filter-contrast { filter: contrast(200%); }
+.filter-hue { filter: hue-rotate(90deg); }
+.filter-neon { filter: contrast(150%) saturate(200%) hue-rotate(180deg); }
+.filter-vintage { filter: sepia(50%) contrast(120%) saturate(80%); }
+
+@media(max-width: 768px) {
+  .camera-layout { grid-template-columns: 1fr; }
+  .comic-title { font-size: 2.2rem; }
+}
+
+.toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--bg-base);
+  color: #000;
+  border: 4px solid #000;
+  box-shadow: 6px 6px 0 #000;
+  padding: 16px 32px;
+  border-radius: 0;
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: transform var(--tr);
+  z-index: 2000;
+  opacity: 0;
+}
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="container nav-inner">
+    <a href="../index.html" class="logo">BAJA <span>PRO</span></a>
+    <div class="nav-links">
+      <a href="../index.html" data-en="Home" data-id="Beranda">Home</a>
+      <a href="index.html" class="active" data-en="Tools" data-id="Alat">Tools</a>
+      <a href="../finance/crypto.html" data-en="Finance" data-id="Keuangan">Finance</a>
+      <a href="../learn/index.html" data-en="Learn" data-id="Belajar">Learn</a>
+    </div>
+  </div>
+</nav>
+
+<section class="section camera-section" style="padding-top: 40px; min-height: 80vh; position: relative; overflow: hidden;">
+  <div class="comic-bg"></div>
+  <div class="sticker pow">POW!</div>
+  <div class="sticker zap">ZAP!</div>
+  <div class="sticker boom">BOOM!</div>
+  <div class="sticker wow">WOW!</div>
+  <div class="container" style="position: relative; z-index: 2;">
+    <div class="section-header" style="margin-bottom: 32px; text-align: left; background-color: var(--cyan); background-image: radial-gradient(rgba(255,255,255,0.3) 25%, transparent 25%); background-size: 20px 20px; padding: 24px; border: 5px solid #000; box-shadow: 10px 10px 0 #000; display: inline-block; transform: rotate(1deg);">
+      <a href="index.html" style="display:inline-block;margin-bottom:16px;font-weight:900;text-decoration:none;text-transform:uppercase;border:3px solid #000;padding:6px 16px;background-color:var(--pink);color:#fff;box-shadow: 4px 4px 0 #000; font-family: var(--font-heading); font-size: 18px;">← BACK TO HQ</a><br/>
+      <div style="background:#fff; border:5px solid #000; padding:16px 24px; box-shadow: 10px 10px 0 #000; display:inline-block; transform:rotate(-2deg);">
+        <h1 class="comic-title" style="margin-bottom:0; transform:none; text-shadow: 4px 4px 0 #000, 8px 8px 0 var(--cyan);">📸 CAMERA <span style="color:var(--pink);">STUDIO!</span></h1>
+      </div><br/><br/>
+      <p class="section-sub" style="margin:0; font-family:var(--font-heading); font-size: 20px; color:#000; background-color:var(--bg-base); padding:8px 16px; display:inline-block; border: 3px solid #000; box-shadow: 4px 4px 0 #000; transform: rotate(-1deg);">💥 BAM! Apply live filters and snap awesome photos instantly.</p>
+    </div>
+
+    <div class="camera-layout">
+      <!-- Left: Camera Preview -->
+      <div class="camera-preview-container">
+        <div class="video-wrapper">
+          <video id="videoElement" class="filter-normal" autoplay playsinline></video>
+          <div id="loadingText" style="position:absolute;color:#fff;font-family:var(--font-heading);font-size:24px;font-weight:900;text-transform:uppercase;text-shadow:2px 2px 0 #000;">Kamera Nonaktif. Klik "Start"</div>
+        </div>
+        
+        <div class="controls-bar">
+          <button class="btn-cam" id="startBtn">🎬 Action! (Start)</button>
+          <button class="btn-cam capture" id="captureBtn" style="display:none;">💥 SNAP PHOTO!</button>
+          <button class="btn-cam" id="stopBtn" style="background:var(--red);color:#fff;display:none;">🛑 CUT! (Stop)</button>
+        </div>
+        
+        <canvas id="canvasElement" style="display:none;"></canvas>
+      </div>
+
+      <!-- Right: Effects Menu -->
+      <div class="effects-menu">
+        <div class="tabs-header">
+          <button class="tab-btn active" data-tab="tab-effects">✨ EFFECTS</button>
+          <button class="tab-btn" data-tab="tab-frames">🖼️ 1000 FRAMES</button>
+        </div>
+        
+        <div id="tab-effects" class="tab-content active"></div>
+        <div id="tab-frames" class="tab-content"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="toast" id="toast">✅ Photo saved!</div>
+<button id="scrollTop">↑</button>
+<script src="../app.js"></script>
+
+<script>
+  const video = document.getElementById('videoElement');
+  const canvas = document.getElementById('canvasElement');
+  const startBtn = document.getElementById('startBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const captureBtn = document.getElementById('captureBtn');
+  const loadingText = document.getElementById('loadingText');
+  const toast = document.getElementById('toast');
+  const tabEffects = document.getElementById('tab-effects');
+  const tabFrames = document.getElementById('tab-frames');
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const videoWrapper = document.querySelector('.video-wrapper');
+  
+  let stream = null;
+  let currentFilterClass = 'filter-normal';
+  let currentFrameData = null; // Stores color & thickness
+
+  // Tab switching
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabBtns.forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // 1. Generate Effects
+  const effectsData = [
+    { id: 'filter-normal', name: 'Normal', icon: '✅' },
+    { id: 'filter-grayscale', name: 'Grayscale', icon: '🖤' },
+    { id: 'filter-sepia', name: 'Sepia', icon: '📜' },
+    { id: 'filter-invert', name: 'Invert Colors', icon: '👻' },
+    { id: 'filter-blur', name: 'Blur', icon: '🌫️' },
+    { id: 'filter-contrast', name: 'High Contrast', icon: '🌗' },
+    { id: 'filter-hue', name: 'Alien (Hue)', icon: '👽' },
+    { id: 'filter-neon', name: 'Cyberpunk', icon: '🌆' },
+    { id: 'filter-vintage', name: 'Vintage', icon: '📻' }
+  ];
+  
+  effectsData.forEach((eff, i) => {
+    const btn = document.createElement('button');
+    btn.className = `effect-btn ${i === 0 ? 'active' : ''}`;
+    btn.innerHTML = `<span>${eff.name}</span> <span>${eff.icon}</span>`;
+    btn.addEventListener('click', () => {
+      tabEffects.querySelectorAll('.effect-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      video.classList.remove(currentFilterClass);
+      video.classList.add(eff.id);
+      currentFilterClass = eff.id;
+    });
+    tabEffects.appendChild(btn);
+  });
+
+  // Helper to remove old decos
+  function clearDecos() {
+    videoWrapper.querySelectorAll('.css-shape').forEach(el => el.remove());
+  }
+
+  // 2. Generate 1000 Frames dynamically
+  const noFrameBtn = document.createElement('button');
+  noFrameBtn.className = 'effect-btn active';
+  noFrameBtn.innerHTML = `<span>No Frame (Default)</span> <span>🚫</span>`;
+  noFrameBtn.addEventListener('click', () => {
+    tabFrames.querySelectorAll('.effect-btn').forEach(b => b.classList.remove('active'));
+    noFrameBtn.classList.add('active');
+    currentFrameData = null;
+    videoWrapper.style.padding = '16px';
+    videoWrapper.style.backgroundColor = '#fff';
+    document.documentElement.style.setProperty('--ui-radius', '0px');
+    document.documentElement.style.setProperty('--ui-shadow', '6px 6px 0 #000');
+    document.documentElement.style.setProperty('--ui-shadow-hover', '9px 9px 0 #000');
+    document.documentElement.style.setProperty('--ui-shadow-small', '5px 5px 0 #000');
+    clearDecos();
+  });
+  tabFrames.appendChild(noFrameBtn);
+
+  const svgs = {
+    heart: 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
+    lightning: 'M7 2v11h3v9l7-12h-4l4-8z',
+    star: 'M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z',
+    crown: 'M5 16h14V19H5z M19 5l-4 6-5-4-5 4-4-6 3.5 9h15z',
+    none: ''
+  };
+  const shapes = ['heart', 'lightning', 'star', 'crown', 'none'];
+  const uiStyles = [
+    { radius: '0px', shadow: '6px 6px 0 #000', hover: '9px 9px 0 #000', small: '5px 5px 0 #000' }, // Brutal
+    { radius: '30px', shadow: '0 8px 16px rgba(0,0,0,0.2)', hover: '0 12px 24px rgba(0,0,0,0.3)', small: '0 4px 8px rgba(0,0,0,0.2)' }, // Soft
+    { radius: '12px', shadow: '4px 4px 0 var(--shape-color-1)', hover: '6px 6px 0 var(--shape-color-1)', small: '3px 3px 0 var(--shape-color-1)' }, // Offset color
+    { radius: '50px', shadow: 'inset 4px 4px 0 rgba(255,255,255,0.5), 6px 6px 0 #000', hover: 'inset 4px 4px 0 rgba(255,255,255,0.5), 8px 8px 0 #000', small: '4px 4px 0 #000' } // Pill
+  ];
+
+  for (let i = 1; i <= 1000; i++) {
+    const hue = (i * 137.5) % 360; 
+    const baseColor = `hsl(${hue}, 85%, 55%)`;
+    // Generate a palette of 4 contrasting colors for decorations
+    const colors = [
+      `hsl(${(hue + 120) % 360}, 95%, 60%)`,
+      `hsl(${(hue + 240) % 360}, 95%, 60%)`,
+      '#ffffff',
+      `hsl(${(hue + 60) % 360}, 95%, 60%)`
+    ];
+    
+    const thickness = 10 + ((i * 7) % 30); 
+    
+    // Algorithmic selection
+    const shapeType = shapes[i % shapes.length];
+    const styleData = uiStyles[i % uiStyles.length];
+    
+    const btn = document.createElement('button');
+    btn.className = 'effect-btn';
+    btn.innerHTML = `<span>Frame #${i}</span> <div style="width:24px;height:24px;background:#000;border:${thickness/4}px solid ${baseColor};border-radius:${styleData.radius};"></div>`;
+    
+    // Pre-calculate scattering for this frame
+    const scatterPositions = [];
+    if (shapeType !== 'none') {
+      const numItems = 10 + (i % 15); // 10 to 24 scattered items
+      for (let j = 0; j < numItems; j++) {
+        const edge = j % 4; // 0: top, 1: bottom, 2: left, 3: right
+        const progress = 5 + ((j * 17.3) % 90); // 5% to 95% along the edge to avoid extreme corners
+        const color = colors[j % colors.length];
+        const rot = (j * 45) % 360; // Random looking rotation
+        
+        // Save CSS pos and matching logical pos for Canvas
+        let cssPos = {};
+        let canvasPos = { edge, progress, color, rot };
+        
+        // CSS position strings
+        if (edge === 0) { cssPos = { top: '4px', left: `${progress}%` }; }
+        else if (edge === 1) { cssPos = { bottom: '4px', left: `${progress}%` }; }
+        else if (edge === 2) { cssPos = { left: '4px', top: `${progress}%` }; }
+        else if (edge === 3) { cssPos = { right: '4px', top: `${progress}%` }; }
+        
+        scatterPositions.push({ cssPos, canvasPos });
+      }
+    }
+    
+    btn.addEventListener('click', () => {
+      tabFrames.querySelectorAll('.effect-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      currentFrameData = { color: baseColor, thickness, shape: shapeType, style: styleData, scatterPositions };
+      
+      // Apply UI Theme
+      videoWrapper.style.backgroundColor = baseColor;
+      videoWrapper.style.padding = `${thickness}px`;
+      document.documentElement.style.setProperty('--shape-color-1', colors[0]);
+      document.documentElement.style.setProperty('--ui-radius', styleData.radius);
+      document.documentElement.style.setProperty('--ui-shadow', styleData.shadow);
+      document.documentElement.style.setProperty('--ui-shadow-hover', styleData.hover);
+      document.documentElement.style.setProperty('--ui-shadow-small', styleData.small);
+      
+      clearDecos();
+      
+      if (shapeType !== 'none') {
+        scatterPositions.forEach(item => {
+          const deco = document.createElement('div');
+          deco.className = `css-shape`;
+          Object.assign(deco.style, item.cssPos);
+          deco.style.width = '36px';
+          deco.style.height = '36px';
+          deco.style.transform = `rotate(${item.canvasPos.rot}deg)`;
+          
+          deco.innerHTML = `<svg viewBox="0 0 24 24" fill="${item.canvasPos.color}" stroke="#000" stroke-width="1.5" stroke-linejoin="round"><path d="${svgs[shapeType]}"></path></svg>`;
+          
+          videoWrapper.appendChild(deco);
+        });
+      }
+    });
+    tabFrames.appendChild(btn);
+  }
+
+  // Handle Photo Capture
+  captureBtn.addEventListener('click', () => {
+    if (!stream) return;
+    
+    const ctx = canvas.getContext('2d');
+    
+    // Save state
+    ctx.save();
+    
+    // The video is mirrored via CSS scaleX(-1), so we should mirror the canvas context too
+    // unless the user wants it unmirrored. Usually mirrored is preferred for front-facing photos.
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    
+    // Get the computed style of the video to grab the current exact filter applied
+    const computedFilter = window.getComputedStyle(video).filter;
+    ctx.filter = computedFilter !== 'none' ? computedFilter : 'none';
+    
+    // Draw the current video frame onto the canvas
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    // Restore state
+    ctx.restore();
+    
+    // Draw Frame if selected
+    if (currentFrameData) {
+      const ratio = canvas.width / 800; // rough mapping from UI scale to canvas scale
+      const actualThickness = currentFrameData.thickness * ratio * 1.5; // Scale thickness slightly up for full res
+      
+      ctx.lineWidth = actualThickness;
+      ctx.strokeStyle = currentFrameData.color;
+      // Draw outer frame
+      ctx.strokeRect(actualThickness / 2, actualThickness / 2, canvas.width - actualThickness, canvas.height - actualThickness);
+      
+      // Draw thin black inner boundary for comic style
+      ctx.lineWidth = 6 * ratio;
+      ctx.strokeStyle = '#000000';
+      ctx.strokeRect(actualThickness, actualThickness, canvas.width - (actualThickness*2), canvas.height - (actualThickness*2));
+      
+      // Draw native canvas shapes matching CSS scattered positions
+      if (currentFrameData.shape !== 'none' && currentFrameData.scatterPositions) {
+        const shapeSize = 40 * ratio; // Bigger size for real objects
+        const offsetInner = actualThickness / 2; // Exact center of the border frame
+        
+        currentFrameData.scatterPositions.forEach(item => {
+          const { edge, progress, color, rot } = item.canvasPos;
+          
+          let cx, cy;
+          if (edge === 0) { // top
+            cy = offsetInner;
+            cx = (progress / 100) * canvas.width;
+          } else if (edge === 1) { // bottom
+            cy = canvas.height - offsetInner;
+            cx = (progress / 100) * canvas.width;
+          } else if (edge === 2) { // left
+            cx = offsetInner;
+            cy = (progress / 100) * canvas.height;
+          } else if (edge === 3) { // right
+            cx = canvas.width - offsetInner;
+            cy = (progress / 100) * canvas.height;
+          }
+          
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate((rot * Math.PI) / 180); // apply scattered rotation
+          
+          // SVG is 24x24. Scale it up to shapeSize
+          const scale = shapeSize / 24;
+          ctx.scale(scale, scale);
+          // Center the 24x24 drawing around 0,0
+          ctx.translate(-12, -12);
+          
+          const path = new Path2D(svgs[currentFrameData.shape]);
+          ctx.fillStyle = color;
+          // Scale down the stroke relative to the shape scale so it doesn't get massively thick
+          ctx.lineWidth = 1.5; 
+          ctx.strokeStyle = '#000';
+          
+          ctx.fill(path);
+          ctx.stroke(path);
+          
+          ctx.restore();
+        });
+      }
+    } else {
+      // Default clean white frame
+      const ratio = canvas.width / 800;
+      const actualThickness = 16 * ratio;
+      ctx.lineWidth = actualThickness;
+      ctx.strokeStyle = '#ffffff';
+      ctx.strokeRect(actualThickness / 2, actualThickness / 2, canvas.width - actualThickness, canvas.height - actualThickness);
+    }
+    
+    // Draw outer black border
+    ctx.lineWidth = 8;
+    ctx.strokeStyle = '#000000';
+    ctx.strokeRect(0, 0, canvas.width, canvas.height);
+    
+    // Convert to image and trigger download
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = `baja-photo-${Date.now()}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Show toast
+    toast.textContent = "💥 BOOM! PHOTO SAVED!";
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  });
+
+  // Event Listeners
+  startBtn.addEventListener('click', startCamera);
+  stopBtn.addEventListener('click', stopCamera);
+  
+  // Auto-start camera when page loads
+  window.addEventListener('load', () => {
+     startCamera();
+  });
+</script>
+</body>
+</html>
