@@ -58,7 +58,15 @@
     <div class="beautifier-layout">
       <div class="editor-panel">
         <!-- AdSense above tool -->
-        <div class="ad-slot" style="height:90px;width:100%;margin-bottom:8px"><!-- AdSense --></div>
+        <div class="ad-slot ad-leaderboard" id="ad-beau-top" style="margin-bottom:16px">
+          <ins class="adsbygoogle"
+               style="display:block"
+               data-ad-client="ca-pub-9184269136757439"
+               data-ad-slot="auto"
+               data-ad-format="auto"
+               data-full-width-responsive="true"></ins>
+          <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        </div>
 
         <div class="lang-select">
           <button class="lang-btn active" data-lang="js">JavaScript</button>
@@ -107,7 +115,15 @@ const x={a:1,b:2,c:{d:3}};"></textarea>
 
       <!-- Sidebar with Ad -->
       <div class="sidebar-ad">
-        <div class="ad-slot ad-rectangle"><!-- AdSense Rectangle 300x250 --></div>
+        <div class="ad-slot ad-rectangle" id="ad-beau-side">
+          <ins class="adsbygoogle"
+               style="display:block"
+               data-ad-client="ca-pub-9184269136757439"
+               data-ad-slot="auto"
+               data-ad-format="auto"
+               data-full-width-responsive="true"></ins>
+          <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        </div>
         <div style="margin-top:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px">
           <h3 style="font-size:14px;font-weight:700;margin-bottom:12px">💡 Tips</h3>
           <ul style="font-size:13px;color:var(--text-2);display:flex;flex-direction:column;gap:8px;padding-left:16px;list-style:disc">
@@ -123,6 +139,20 @@ const x={a:1,b:2,c:{d:3}};"></textarea>
 </section>
 
 <div class="toast" id="toast">✅ Copied to clipboard!</div>
+
+<!-- AdSense Bottom -->
+<div class="container" style="padding-bottom:32px">
+  <div class="ad-slot ad-leaderboard" id="ad-beau-bottom">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-9184269136757439"
+         data-ad-slot="auto"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
+</div>
+
 <button id="scrollTop">↑</button>
 <script src="../app.js"></script>
 <script>
