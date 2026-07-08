@@ -1,12 +1,14 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>PDF to Image Converter — BAJA PRO</title>
-<meta name="description" content="Free PDF to PNG/JPG converter. Convert PDF pages to images directly in your browser using PDF.js."/>
+<title>Universal File Converter — BAJA PRO</title>
+<meta name="description" content="Free Universal File Converter. Convert Videos (MP4, MOV), Images (PNG, JPG, SVG, WEBP) and PDF pages directly in your browser."/>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
 <link rel="stylesheet" href="../style.css"/>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9184269136757439" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
+<script src="https://unpkg.com/@ffmpeg/util@0.12.1/dist/umd/index.js"></script>
 <style>
 .converter-wrap{max-width:900px;margin:0 auto}
 .drop-zone{border:2px dashed var(--border);border-radius:var(--r-xl);padding:70px 40px;text-align:center;cursor:pointer;transition:all var(--tr);background:var(--bg-card)}
@@ -14,8 +16,8 @@
 .drop-icon{font-size:64px;margin-bottom:16px}
 .drop-title{font-size:22px;font-weight:700;margin-bottom:8px}
 .drop-sub{font-size:14px;color:var(--text-2);margin-bottom:20px}
-.btn-file-pdf{display:inline-block;background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff;padding:12px 28px;border-radius:var(--r-full);font-size:14px;font-weight:600;cursor:pointer;transition:all var(--tr)}
-.btn-file-pdf:hover{opacity:.9;transform:scale(1.04)}
+.btn-file{display:inline-block;background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff;padding:12px 28px;border-radius:var(--r-full);font-size:14px;font-weight:600;cursor:pointer;transition:all var(--tr)}
+.btn-file:hover{opacity:.9;transform:scale(1.04)}
 .progress-bar{background:var(--bg-surface);border-radius:var(--r-full);height:8px;margin:20px 0;overflow:hidden;display:none}
 .progress-fill{height:100%;background:linear-gradient(90deg,#8B5CF6,#3B82F6);border-radius:var(--r-full);transition:width .4s ease;width:0%}
 .pages-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:28px}
@@ -48,51 +50,107 @@
 <div class="page-header">
   <div class="container">
     <div class="section-badge">📄 File Converter</div>
-    <h1 data-en="PDF to Image Converter" data-id="Konverter PDF ke Gambar">PDF to Image Converter</h1>
-    <p data-en="Convert each PDF page to a high-quality PNG image. Runs entirely in your browser." data-id="Konversi setiap halaman PDF menjadi gambar PNG berkualitas tinggi. Berjalan sepenuhnya di browser Anda.">Convert each PDF page to a high-quality PNG image.</p>
+    <h1 data-en="Universal File Converter" data-id="Konverter File Universal">Universal File Converter</h1>
+    <p data-en="Convert Videos (MP4, MOV), Images, and PDFs securely. Runs entirely in your browser." data-id="Konversi Video (MP4, MOV), Gambar, dan PDF secara aman. Berjalan sepenuhnya di browser Anda.">Convert Videos (MP4, MOV), Images, and PDFs securely.</p>
   </div>
 </div>
 
 <section class="section" style="padding-top:32px">
   <div class="container">
-    <div class="ad-slot ad-leaderboard" id="ad-conv-top" style="margin-bottom:24px">
-
-    </div>
+    <div class="ad-slot ad-leaderboard" id="ad-conv-top" style="margin-bottom:24px"></div>
+    
     <div class="converter-wrap">
-      <input type="file" id="pdfInput" accept=".pdf" style="display:none"/>
+      
+      <!-- STEP 1: UPLOAD -->
+      <input type="file" id="fileInput" accept=".pdf,.png,.jpg,.jpeg,.webp,.svg,.mp4,.mov,.webm" style="display:none"/>
       <div class="drop-zone" id="dropZone">
-        <div class="drop-icon">📄</div>
-        <div class="drop-title" data-en="Drop your PDF here" data-id="Taruh PDF di sini">Drop your PDF here</div>
-        <div class="drop-sub" data-en="Up to 50 pages supported • Max 50MB" data-id="Hingga 50 halaman • Maks 50MB">Up to 50 pages supported • Max 50MB</div>
-        <label for="pdfInput" class="btn-file-pdf">📂 <span data-en="Choose PDF File" data-id="Pilih File PDF">Choose PDF File</span></label>
+        <div class="drop-icon">🔄</div>
+        <div class="drop-title" data-en="Drop your File here" data-id="Taruh File di sini">Drop your File here</div>
+        <div class="drop-sub" data-en="Supports MP4, MOV, PDF, PNG, JPG, SVG • Max 500MB" data-id="Mendukung MP4, MOV, PDF, PNG, JPG, SVG • Maks 500MB">Supports MP4, MOV, PDF, PNG, JPG, SVG • Max 500MB</div>
+        <label for="fileInput" class="btn-file">📂 <span data-en="Choose File" data-id="Pilih File">Choose File</span></label>
       </div>
 
+      <!-- STEP 2: PREVIEW & CONFIGURATION -->
+      <div id="configZone" style="display:none; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-lg); padding:32px 24px; margin-top:24px; text-align:center">
+        <h2 style="font-size:20px; font-weight:800; margin-bottom:24px" data-en="1. Preview & Settings" data-id="1. Pratinjau & Pengaturan">1. Preview & Settings</h2>
+        
+        <div style="display:flex; flex-direction:column; align-items:center; gap:16px">
+          <!-- Previews -->
+          <img id="beforePreview" style="max-width:100%; max-height:280px; border-radius:12px; border:2px solid var(--border); display:none; object-fit:contain; background:var(--bg-surface)" />
+          <video id="videoBeforePreview" controls style="max-width:100%; max-height:280px; border-radius:12px; border:2px solid var(--border); display:none; background:var(--bg-surface)"></video>
+          <div id="pdfIconPreview" style="font-size:80px; display:none; background:var(--bg-surface); width:180px; height:240px; border-radius:12px; border:2px solid var(--border); align-items:center; justify-content:center; margin:0 auto">📄</div>
+          
+          <p id="fileNameDisplay" style="font-size:15px; color:var(--text-1); font-weight:600; word-break:break-all; max-width:80%"></p>
+          
+          <div style="width:100%; max-width:320px; text-align:left; margin-top:12px">
+            <label style="font-size:14px; font-weight:600; color:var(--text-2); display:block; margin-bottom:8px" data-en="Convert to Format:" data-id="Konversi ke Format:">Convert to Format:</label>
+            <select id="formatSelect" style="width:100%; padding:12px 16px; border-radius:8px; border:1px solid var(--border); background:var(--bg-surface); color:var(--text); font-size:15px; font-weight:600; cursor:pointer; outline:none">
+               <!-- Populated dynamically -->
+            </select>
+          </div>
+
+          <button id="doConvertBtn" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9); color:#fff; border:none; padding:14px 32px; border-radius:var(--r-full); font-size:16px; font-weight:700; cursor:pointer; width:100%; max-width:320px; margin-top:24px; transition:all var(--tr); box-shadow:0 10px 25px -5px rgba(139,92,246,0.4)">
+            ✨ <span data-en="Convert Now" data-id="Konversi Sekarang">Convert Now</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- LOADING STATE -->
       <div class="progress-bar" id="progressBar">
         <div class="progress-fill" id="progressFill"></div>
       </div>
-      <div id="progressText" style="text-align:center;font-size:13px;color:var(--text-2);display:none"></div>
+      <div id="progressText" style="text-align:center;font-size:13px;color:var(--text-2);display:none;font-weight:600"></div>
 
-      <div class="action-bar" id="actionBar">
-        <span id="pageCount" style="font-size:14px;font-weight:600;flex:1"></span>
-        <button class="btn-beautify" id="downloadAllBtn" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9)">⬇️ <span data-en="Download All as ZIP" data-id="Unduh Semua sebagai ZIP">Download All as ZIP</span></button>
-        <button class="btn-clear" id="resetBtn" onclick="location.reload()" data-en="🔄 Reset" data-id="🔄 Ulang">🔄 Reset</button>
+      <!-- STEP 3: RESULT ZONE -->
+      <div id="resultZone" style="display:none; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-lg); padding:32px 24px; margin-top:24px">
+        <h2 style="font-size:20px; font-weight:800; margin-bottom:24px; text-align:center" data-en="2. Conversion Result" data-id="2. Hasil Konversi">2. Conversion Result</h2>
+        
+        <!-- Image/Video Result (Before/After) -->
+        <div id="singleResultContainer" style="display:none; flex-direction:column; align-items:center; gap:24px">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; width:100%; max-width:700px; margin:0 auto">
+            <div style="text-align:center">
+              <p style="font-size:13px; font-weight:700; color:var(--text-2); margin-bottom:12px; text-transform:uppercase; letter-spacing:1px">Before</p>
+              <div style="background:var(--bg-surface); padding:8px; border-radius:12px; border:1px solid var(--border)">
+                <img id="resultBeforeImg" style="width:100%; max-height:220px; object-fit:contain; border-radius:6px; display:none" />
+                <video id="resultBeforeVideo" controls style="width:100%; max-height:220px; object-fit:contain; border-radius:6px; display:none"></video>
+              </div>
+            </div>
+            <div style="text-align:center">
+              <p style="font-size:13px; font-weight:700; color:var(--purple); margin-bottom:12px; text-transform:uppercase; letter-spacing:1px">After</p>
+              <div style="background:var(--bg-surface); padding:8px; border-radius:12px; border:1px solid var(--purple); box-shadow:0 0 15px rgba(139,92,246,0.1)">
+                <img id="resultAfterImg" style="width:100%; max-height:220px; object-fit:contain; border-radius:6px; display:none" />
+                <video id="resultAfterVideo" controls style="width:100%; max-height:220px; object-fit:contain; border-radius:6px; display:none"></video>
+              </div>
+            </div>
+          </div>
+          <button id="downloadSingleBtn" style="background:linear-gradient(135deg,#3B82F6,#06B6D4); color:#fff; border:none; padding:14px 36px; border-radius:var(--r-full); font-size:16px; font-weight:700; cursor:pointer; transition:all var(--tr); box-shadow:0 10px 25px -5px rgba(59,130,246,0.4)">
+            ⬇️ <span data-en="Download Result" data-id="Unduh Hasil">Download Result</span>
+          </button>
+        </div>
+
+        <!-- PDF Result (Grid) -->
+        <div id="pdfResultContainer" style="display:none">
+           <div class="action-bar" id="actionBar" style="display:flex; margin-top:0">
+             <span id="pageCount" style="font-size:15px;font-weight:700;flex:1"></span>
+             <button class="btn-file" id="downloadAllBtn">⬇️ <span data-en="Download All" data-id="Unduh Semua">Download All</span></button>
+           </div>
+           <div class="pages-grid" id="pagesGrid"></div>
+        </div>
+        
+        <div style="text-align:center; margin-top:32px; padding-top:24px; border-top:1px solid var(--border)">
+            <button class="btn-clear" onclick="location.reload()" data-en="🔄 Convert Another File" data-id="🔄 Konversi File Lain">🔄 Convert Another File</button>
+        </div>
       </div>
 
-      <div class="pages-grid" id="pagesGrid"></div>
-
-      <div class="ad-slot ad-responsive" id="ad-conv-mid" style="margin-top:24px">
-
-      </div>
+      <div class="ad-slot ad-responsive" id="ad-conv-mid" style="margin-top:24px"></div>
 
       <div class="info-box">
         <h3 style="font-size:15px;font-weight:700;margin-bottom:12px">ℹ️ <span data-en="How it works" data-id="Cara kerjanya">How it works</span></h3>
-        <div style="font-size:14px;color:var(--text-2);line-height:1.7" data-en="This tool uses Mozilla's PDF.js library to render each PDF page as a high-resolution canvas element, then exports it as a PNG image. Your PDF file is never uploaded to any server — everything happens locally in your browser." data-id="Tool ini menggunakan library PDF.js Mozilla untuk merender setiap halaman PDF sebagai elemen canvas resolusi tinggi, kemudian mengekspornya sebagai gambar PNG. File PDF Anda tidak pernah diunggah ke server mana pun — semuanya terjadi secara lokal di browser Anda.">This tool uses Mozilla's PDF.js library to render each PDF page as a high-resolution canvas element, then exports it as a PNG image. Your PDF file is never uploaded to any server — everything happens locally in your browser.</div>
+        <div style="font-size:14px;color:var(--text-2);line-height:1.7" data-en="This tool uses HTML5 Canvas, PDF.js, and FFmpeg.wasm to convert files entirely locally. Your files are never uploaded to any server, ensuring 100% privacy and speed." data-id="Tool ini menggunakan HTML5 Canvas, PDF.js, dan FFmpeg.wasm untuk mengonversi file sepenuhnya secara lokal. File Anda tidak pernah diunggah ke server mana pun, menjamin 100% privasi dan kecepatan.">This tool uses HTML5 Canvas, PDF.js, and FFmpeg.wasm to convert files entirely locally. Your files are never uploaded to any server, ensuring 100% privacy and speed.</div>
       </div>
     </div>
   </div>
 </section>
-
-</div>
 
 <button id="scrollTop">↑</button>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -101,30 +159,250 @@
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 const dropZone = document.getElementById('dropZone');
-const pdfInput = document.getElementById('pdfInput');
-const pagesGrid = document.getElementById('pagesGrid');
+const fileInput = document.getElementById('fileInput');
+const configZone = document.getElementById('configZone');
+const beforePreview = document.getElementById('beforePreview');
+const videoBeforePreview = document.getElementById('videoBeforePreview');
+const pdfIconPreview = document.getElementById('pdfIconPreview');
+const fileNameDisplay = document.getElementById('fileNameDisplay');
+const formatSelect = document.getElementById('formatSelect');
+const doConvertBtn = document.getElementById('doConvertBtn');
+
 const progressBar = document.getElementById('progressBar');
 const progressFill = document.getElementById('progressFill');
 const progressText = document.getElementById('progressText');
+
+const resultZone = document.getElementById('resultZone');
+const singleResultContainer = document.getElementById('singleResultContainer');
+const resultBeforeImg = document.getElementById('resultBeforeImg');
+const resultBeforeVideo = document.getElementById('resultBeforeVideo');
+const resultAfterImg = document.getElementById('resultAfterImg');
+const resultAfterVideo = document.getElementById('resultAfterVideo');
+const downloadSingleBtn = document.getElementById('downloadSingleBtn');
+
+const pdfResultContainer = document.getElementById('pdfResultContainer');
+const pagesGrid = document.getElementById('pagesGrid');
 const actionBar = document.getElementById('actionBar');
+
+let currentFile = null;
+let currentFileType = '';
+let beforeDataUrl = '';
 let pageBlobs = [];
+let ffmpegInstance = null;
 
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
 dropZone.addEventListener('drop', e => {
   e.preventDefault();
   dropZone.classList.remove('dragover');
-  const f = e.dataTransfer.files[0];
-  if (f && f.type === 'application/pdf') processPDF(f);
+  if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
 });
-pdfInput.addEventListener('change', e => { if (e.target.files[0]) processPDF(e.target.files[0]); });
+fileInput.addEventListener('change', e => { if (e.target.files[0]) loadFile(e.target.files[0]); });
 
-async function processPDF(file) {
-  pageBlobs = [];
-  pagesGrid.innerHTML = '';
+function loadFile(file) {
+  currentFile = file;
   dropZone.style.display = 'none';
+  configZone.style.display = 'block';
+  fileNameDisplay.textContent = file.name;
+  
+  if (file.type === 'application/pdf') {
+    currentFileType = 'pdf';
+    pdfIconPreview.style.display = 'flex';
+    beforePreview.style.display = 'none';
+    videoBeforePreview.style.display = 'none';
+    formatSelect.innerHTML = `<option value="png">PNG (High Quality)</option><option value="jpg">JPG (Smaller Size)</option>`;
+  } else if (file.type.startsWith('video/')) {
+    currentFileType = 'video';
+    pdfIconPreview.style.display = 'none';
+    beforePreview.style.display = 'none';
+    videoBeforePreview.style.display = 'block';
+    videoBeforePreview.src = URL.createObjectURL(file);
+    
+    formatSelect.innerHTML = `
+      <option value="mp4">MP4 Video</option>
+      <option value="mov">MOV Video</option>
+      <option value="gif">GIF Animation</option>
+      <option value="mp3">MP3 Audio (Extract)</option>
+    `;
+  } else if (file.type.startsWith('image/')) {
+    currentFileType = 'image';
+    pdfIconPreview.style.display = 'none';
+    beforePreview.style.display = 'block';
+    videoBeforePreview.style.display = 'none';
+    
+    const reader = new FileReader();
+    reader.onload = e => {
+      beforeDataUrl = e.target.result;
+      beforePreview.src = beforeDataUrl;
+    };
+    reader.readAsDataURL(file);
+
+    formatSelect.innerHTML = `
+      <option value="jpg">JPG Document</option>
+      <option value="png">PNG Image</option>
+      <option value="webp">WEBP (Optimized)</option>
+      <option value="svg">SVG (Embedded Base64)</option>
+    `;
+  } else {
+    alert("Unsupported file type! Please upload an Image, Video, or PDF.");
+    location.reload();
+  }
+}
+
+doConvertBtn.addEventListener('click', async () => {
+  configZone.style.display = 'none';
   progressBar.style.display = 'block';
   progressText.style.display = 'block';
+  progressFill.style.width = '10%';
+  
+  const targetFormat = formatSelect.value;
+  
+  if (currentFileType === 'pdf') {
+     await convertPDF(currentFile, targetFormat);
+  } else if (currentFileType === 'video') {
+     await convertVideo(currentFile, targetFormat);
+  } else {
+     await convertImage(beforeDataUrl, targetFormat);
+  }
+});
+
+async function convertVideo(file, format) {
+   progressText.textContent = "Loading FFmpeg Engine (first time only)...";
+   
+   if (!ffmpegInstance) {
+      const { FFmpeg } = FFmpegWASM;
+      ffmpegInstance = new FFmpeg();
+      ffmpegInstance.on('progress', ({ progress, time }) => {
+         progressFill.style.width = Math.max(10, Math.round(progress * 100)) + '%';
+         progressText.textContent = `Converting video... ${Math.round(progress * 100)}%`;
+      });
+      // Load single-threaded core to bypass COOP/COEP requirements
+      await ffmpegInstance.load({
+        coreURL: "https://unpkg.com/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.js",
+        wasmURL: "https://unpkg.com/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.wasm"
+      });
+   }
+   
+   progressText.textContent = "Processing video...";
+   const { fetchFile } = FFmpegUtil;
+   
+   const inputExt = file.name.split('.').pop().toLowerCase();
+   const inputName = `input.${inputExt}`;
+   const outputName = `output.${format}`;
+   
+   await ffmpegInstance.writeFile(inputName, await fetchFile(file));
+   
+   try {
+       // Run the conversion
+       await ffmpegInstance.exec(['-i', inputName, outputName]);
+       
+       const data = await ffmpegInstance.readFile(outputName);
+       const mime = format === 'mp3' ? 'audio/mpeg' : (format === 'gif' ? 'image/gif' : `video/${format}`);
+       const blob = new Blob([data.buffer], { type: mime });
+       const outUrl = URL.createObjectURL(blob);
+       
+       progressFill.style.width = '100%';
+       
+       setTimeout(() => {
+         progressBar.style.display = 'none';
+         progressText.style.display = 'none';
+         resultZone.style.display = 'block';
+         singleResultContainer.style.display = 'flex';
+         pdfResultContainer.style.display = 'none';
+         
+         resultBeforeImg.style.display = 'none';
+         resultBeforeVideo.style.display = 'block';
+         resultBeforeVideo.src = URL.createObjectURL(file);
+         
+         if (format === 'gif' || format === 'mp3') {
+           resultAfterVideo.style.display = 'none';
+           resultAfterImg.style.display = 'block';
+           // If it's MP3, we might want an audio tag, but for simplicity img is used for GIF.
+           // Since MP3 shouldn't show as img, we can just hide it and rely on the download.
+           if (format === 'mp3') {
+             resultAfterImg.style.display = 'none';
+           } else {
+             resultAfterImg.src = outUrl;
+           }
+         } else {
+           resultAfterImg.style.display = 'none';
+           resultAfterVideo.style.display = 'block';
+           resultAfterVideo.src = outUrl;
+         }
+         
+         downloadSingleBtn.onclick = () => {
+           const a = document.createElement('a');
+           a.href = outUrl;
+           a.download = file.name.substring(0, file.name.lastIndexOf('.')) + '_converted.' + format;
+           a.click();
+         };
+       }, 500);
+   } catch (e) {
+       console.error("FFmpeg error:", e);
+       alert("An error occurred during video conversion. The file might be corrupted or unsupported.");
+       location.reload();
+   }
+}
+
+async function convertImage(dataUrl, format) {
+   progressText.textContent = "Processing image...";
+   progressFill.style.width = '50%';
+   
+   const img = new Image();
+   img.src = dataUrl;
+   await new Promise(r => img.onload = r);
+   
+   let outDataUrl = '';
+   if (format === 'svg') {
+     const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" width="${img.width}" height="${img.height}"><image href="${dataUrl}" width="${img.width}" height="${img.height}"/></svg>`;
+     outDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgStr);
+   } else {
+     const canvas = document.createElement('canvas');
+     canvas.width = img.width;
+     canvas.height = img.height;
+     const ctx = canvas.getContext('2d');
+     
+     if (format === 'jpg') {
+       ctx.fillStyle = '#ffffff';
+       ctx.fillRect(0, 0, canvas.width, canvas.height);
+     }
+     
+     ctx.drawImage(img, 0, 0);
+     const mime = format === 'jpg' ? 'image/jpeg' : `image/${format}`;
+     outDataUrl = canvas.toDataURL(mime, 0.92);
+   }
+   
+   progressFill.style.width = '100%';
+   
+   setTimeout(() => {
+     progressBar.style.display = 'none';
+     progressText.style.display = 'none';
+     resultZone.style.display = 'block';
+     singleResultContainer.style.display = 'flex';
+     pdfResultContainer.style.display = 'none';
+     
+     resultBeforeVideo.style.display = 'none';
+     resultBeforeImg.style.display = 'block';
+     resultBeforeImg.src = beforeDataUrl;
+     
+     resultAfterVideo.style.display = 'none';
+     resultAfterImg.style.display = 'block';
+     resultAfterImg.src = outDataUrl;
+     
+     downloadSingleBtn.onclick = () => {
+       const a = document.createElement('a');
+       a.href = outDataUrl;
+       a.download = currentFile.name.substring(0, currentFile.name.lastIndexOf('.')) + '_converted.' + format;
+       a.click();
+     };
+   }, 500);
+}
+
+async function convertPDF(file, format) {
+  pageBlobs = [];
+  pagesGrid.innerHTML = '';
+  const mime = format === 'jpg' ? 'image/jpeg' : 'image/png';
+  const ext = format;
 
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -133,52 +411,58 @@ async function processPDF(file) {
 
   for (let i = 1; i <= total; i++) {
     const page = await pdf.getPage(i);
-    const scale = 2;
+    const scale = 2; // High quality render
     const vp = page.getViewport({ scale });
     const canvas = document.createElement('canvas');
     canvas.width = vp.width;
     canvas.height = vp.height;
     const ctx = canvas.getContext('2d');
+    
+    // Fill white background before rendering PDF (useful for JPG)
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
     await page.render({ canvasContext: ctx, viewport: vp }).promise;
 
-    const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
-    pageBlobs.push(blob);
+    const blob = await new Promise(res => canvas.toBlob(res, mime, 0.92));
+    pageBlobs.push({ blob, ext });
     const url = URL.createObjectURL(blob);
 
     const card = document.createElement('div');
     card.className = 'page-card';
     card.innerHTML = `<img class="page-img" src="${url}" alt="Page ${i}"/>
       <div class="page-footer">
-        <span>Page ${i}</span>
-        <button class="btn-dl-page" data-url="${url}" data-page="${i}">⬇️ Save</button>
+        <span style="font-weight:600">Page ${i}</span>
+        <button class="btn-dl-page" data-url="${url}" data-page="${i}" data-ext="${ext}">⬇️ Save</button>
       </div>`;
     pagesGrid.appendChild(card);
 
     const pct = Math.round((i/total)*100);
     progressFill.style.width = pct + '%';
-    progressText.textContent = `Converting page ${i} of ${total}...`;
+    progressText.textContent = `Rendering page ${i} of ${total}...`;
   }
 
   progressBar.style.display = 'none';
   progressText.style.display = 'none';
-  actionBar.style.display = 'flex';
+  resultZone.style.display = 'block';
+  singleResultContainer.style.display = 'none';
+  pdfResultContainer.style.display = 'block';
 
   pagesGrid.querySelectorAll('.btn-dl-page').forEach(btn => {
     btn.addEventListener('click', () => {
       const a = document.createElement('a');
       a.href = btn.dataset.url;
-      a.download = `baja_page_${btn.dataset.page}.png`;
+      a.download = `baja_page_${btn.dataset.page}.${btn.dataset.ext}`;
       a.click();
     });
   });
 
   document.getElementById('downloadAllBtn').addEventListener('click', async () => {
-    // Simple download each page individually (ZIP requires JSZip library)
-    pageBlobs.forEach((blob, idx) => {
+    pageBlobs.forEach((item, idx) => {
       const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `baja_page_${idx+1}.png`;
-      setTimeout(() => a.click(), idx * 300);
+      a.href = URL.createObjectURL(item.blob);
+      a.download = `baja_page_${idx+1}.${item.ext}`;
+      setTimeout(() => a.click(), idx * 400); // Stagger downloads
     });
   });
 }
