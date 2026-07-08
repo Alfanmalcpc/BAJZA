@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
@@ -215,6 +215,384 @@ fileInput.addEventListener('change', (e) => {
   reader.onload = (evt) => {
     const rawSvg = evt.target.result;
     inputCode.value = rawSvg;
+    const previewContainer = document.getElementById('svgPreview');
+    previewContainer.innerHTML = rawSvg;
+    const svgEl = previewContainer.querySelector('svg');
+    if (svgEl) {
+      svgEl.style.maxWidth = '100%'; svgEl.style.maxHeight = '300px';
+      svgEl.style.width = 'auto'; svgEl.style.height = 'auto'; svgEl.style.display = 'block';
+      let w = 0, h = 0;
+      const vb = svgEl.getAttribute('viewBox');
+      if (vb) { const p = vb.split(/[ ,]+/); if (p.length >= 4) { w = parseFloat(p[2]); h = parseFloat(p[3]); } }
+      if (!w && svgEl.getAttribute('width')) w = parseFloat(svgEl.getAttribute('width').replace(/[^0-9.]/g,''));
+      if (!h && svgEl.getAttribute('height')) h = parseFloat(svgEl.getAttribute('height').replace(/[^0-9.]/g,''));
+      if (w > 0) document.getElementById('outWidth').value = Math.round(w);
+      if (h > 0) document.getElementById('outHeight').value = Math.round(h);
+    }
+  };
+  reader.readAsText(file);
+});
+
+let isScanning = false;
+
+document.getElementById('convertBtn').addEventListener('click', async () => {
+  if (isScanning) { alert("Proses scan sedang berjalan!"); return; }
+  const svgText = inputCode.value.trim();
+  if (!svgText) return;
+
+  isScanning = true;
+  const btn = document.getElementById('convertBtn');
+  btn.textContent = 'Memindai...';
+  btn.style.opacity = '0.5';
+  btn.style.pointerEvents = 'none';
+
+  try {
+    // Read settings
+    const sceneW  = parseInt(document.getElementById('outWidth').value)    || 1080;
+    const sceneH  = parseInt(document.getElementById('outHeight').value)   || 1080;
+    const outFps  = parseInt(document.getElementById('outFps').value)      || 60;
+    const outDuration = parseInt(document.getElementById('outDuration').value) || 2015;
+    const outQuality  = parseInt(document.getElementById('outQuality').value)  || 5;
+    const bgColorHex  = document.getElementById('outBgColor').value.replace('#','');
+    const bgAlpha     = document.getElementById('outBgAlpha').value;
+    const bgAMColor   = `#${bgAlpha}${bgColorHex}`;
+
+    const yieldUI = () => new Promise(r => setTimeout(r, 0));
+    const debugEl = document.getElementById('debugInfo');
+    debugEl.textContent = '[PIXEL SCAN] Merender SVG ke canvas...';
+    await yieldUI();
+
+    // ── STEP 1: Render SVG to canvas ──────────────────────────────────────
+    const MAX_SCAN = 600;
+    // Parse dimensions
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(svgText, "image/svg+xml");
+    const svgEl = doc.querySelector('svg');
+    if (!svgEl) { outputCode.value = "Error: No <svg> element found."; return; }
+    let svgW = 0, svgH = 0;
+    const viewBox = svgEl.getAttribute('viewBox');
+    if (viewBox) { const p = viewBox.split(/[ ,]+/); if (p.length >= 4) { svgW = parseFloat(p[2]); svgH = parseFloat(p[3]); } }
+    if (!svgW && svgEl.getAttribute('width'))  svgW = parseFloat(svgEl.getAttribute('width').replace(/[^0-9.]/g,''));
+    if (!svgH && svgEl.getAttribute('height')) svgH = parseFloat(svgEl.getAttribute('height').replace(/[^0-9.]/g,''));
+    if (!svgW) svgW = 512; if (!svgH) svgH = 512;
+
+    const aspect = svgW / svgH;
+    let cW = aspect >= 1 ? MAX_SCAN : Math.round(MAX_SCAN * aspect);
+    let cH = aspect >= 1 ? Math.round(MAX_SCAN / aspect) : MAX_SCAN;
+    cW = Math.max(1, cW); cH = Math.max(1, cH);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = cW; canvas.height = cH;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, cW, cH);
+
+    const svgBlob = new Blob([svgText], {type:'image/svg+xml;charset=utf-8'});
+    const svgUrl = URL.createObjectURL(svgBlob);
+    await new Promise((res, rej) => {
+      const img = new Image();
+      img.onload = () => { ctx.drawImage(img, 0, 0, cW, cH); URL.revokeObjectURL(svgUrl); res(); };
+      img.onerror = () => { URL.revokeObjectURL(svgUrl); rej(new Error('SVG render failed. Make sure SVG is valid.')); };
+      img.src = svgUrl;
+    });
+
+    const imgData = ctx.getImageData(0, 0, cW, cH);
+    const pixels = imgData.data;
+    debugEl.textContent = `[PIXEL SCAN] Canvas ${cW}x${cH}. Membangun label warna...`;
+    await yieldUI();
+
+    // ── STEP 2: Quantize colors & label pixels ────────────────────────────
+    const QUANT = 16;
+    const q = v => Math.round(v / QUANT) * QUANT;
+    const colorMap = new Map();
+    const colorList = [];
+    const pixelLabel = new Int32Array(cW * cH).fill(-1);
+
+    for (let y = 0; y < cH; y++) {
+      for (let x = 0; x < cW; x++) {
+        const i = (y * cW + x) * 4;
+        if (pixels[i+3] < 20) continue; // transparent
+        const key = `${q(pixels[i])},${q(pixels[i+1])},${q(pixels[i+2])}`;
+        if (!colorMap.has(key)) { colorMap.set(key, colorList.length); colorList.push({ r: q(pixels[i]), g: q(pixels[i+1]), b: q(pixels[i+2]) }); }
+        pixelLabel[y * cW + x] = colorMap.get(key);
+      }
+    }
+
+    debugEl.textContent = `[PIXEL SCAN] ${colorList.length} warna ditemukan. Flood-fill islands...`;
+    await yieldUI();
+
+    // ── STEP 3: 8-way flood-fill → island labels ──────────────────────────
+    const islandLabel = new Int32Array(cW * cH).fill(-1);
+    const islandColor = [];
+    let islandCount = 0;
+    const stack = [];
+
+    for (let y = 0; y < cH; y++) {
+      for (let x = 0; x < cW; x++) {
+        const pos = y * cW + x;
+        if (pixelLabel[pos] === -1 || islandLabel[pos] !== -1) continue;
+        const cIdx = pixelLabel[pos];
+        const iId = islandCount++;
+        islandColor.push(cIdx);
+        islandLabel[pos] = iId;
+        stack.push(pos);
+        while (stack.length > 0) {
+          const p = stack.pop();
+          const px = p % cW, py = (p / cW) | 0;
+          for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+            if (!dx && !dy) continue;
+            const nx = px+dx, ny = py+dy;
+            if (nx < 0 || ny < 0 || nx >= cW || ny >= cH) continue;
+            const np = ny * cW + nx;
+            if (pixelLabel[np] === cIdx && islandLabel[np] === -1) { islandLabel[np] = iId; stack.push(np); }
+          }
+        }
+      }
+      if (y % 60 === 0) { debugEl.textContent = `[ISLAND SCAN] Baris ${y}/${cH}...`; await yieldUI(); }
+    }
+
+    debugEl.textContent = `[MERGE] ${islandCount} island. Menggabungkan yang berdekatan...`;
+    await yieldUI();
+
+    // ── STEP 4: Union-Find merge adjacent same-color islands ──────────────
+    const parent = new Int32Array(islandCount).map((_,i) => i);
+    function find(x) { while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; } return x; }
+    function union(a, b) { a = find(a); b = find(b); if (a !== b) parent[a] = b; }
+
+    for (let y = 0; y < cH; y++) {
+      for (let x = 0; x < cW - 1; x++) {
+        const iA = islandLabel[y*cW+x], iB = islandLabel[y*cW+x+1];
+        if (iA !== -1 && iB !== -1 && islandColor[iA] === islandColor[iB]) union(iA, iB);
+      }
+    }
+    for (let y = 0; y < cH - 1; y++) {
+      for (let x = 0; x < cW; x++) {
+        const iA = islandLabel[y*cW+x], iB = islandLabel[(y+1)*cW+x];
+        if (iA !== -1 && iB !== -1 && islandColor[iA] === islandColor[iB]) union(iA, iB);
+      }
+    }
+
+    // Build groups by root
+    const groups = new Map();
+    for (let pos = 0; pos < cW * cH; pos++) {
+      const iId = islandLabel[pos];
+      if (iId === -1) continue;
+      const root = find(iId);
+      if (!groups.has(root)) groups.set(root, { colorIdx: islandColor[find(iId)], pixels: [] });
+      groups.get(root).pixels.push(pos);
+    }
+
+    // ── STEP 5: Filter & limit layers ────────────────────────────────────
+    const MIN_PIXELS = Math.max(4, Math.round(cW * cH * 0.0005));
+    const MAX_LAYERS = 50;
+
+    let sortedGroups = Array.from(groups.values())
+      .filter(g => g.pixels.length >= MIN_PIXELS)
+      .sort((a, b) => b.pixels.length - a.pixels.length);
+
+    // If still too many, merge all same-color groups
+    if (sortedGroups.length > MAX_LAYERS) {
+      const byColor = new Map();
+      for (const g of sortedGroups) {
+        if (!byColor.has(g.colorIdx)) byColor.set(g.colorIdx, []);
+        byColor.get(g.colorIdx).push(g);
+      }
+      sortedGroups = Array.from(byColor.values())
+        .map(gs => ({ colorIdx: gs[0].colorIdx, pixels: gs.flatMap(g => g.pixels) }))
+        .sort((a, b) => b.pixels.length - a.pixels.length)
+        .slice(0, MAX_LAYERS);
+    }
+
+    debugEl.textContent = `[CONTOUR] Membuat path untuk ${sortedGroups.length} layer...`;
+    await yieldUI();
+
+    // ── STEP 6: Contour tracing + Douglas-Peucker simplification ─────────
+    const amScaleX = sceneW / cW, amScaleY = sceneH / cH;
+    function n4(v) { return parseFloat(v.toFixed(4)); }
+    function toAM(px, py) { return { x: px * amScaleX - sceneW/2, y: py * amScaleY - sceneH/2 }; }
+
+    function dpSimplify(pts, eps) {
+      if (pts.length <= 2) return pts;
+      const [x1,y1] = pts[0], [x2,y2] = pts[pts.length-1];
+      const len = Math.hypot(x2-x1, y2-y1);
+      let maxD = 0, maxI = 0;
+      for (let i = 1; i < pts.length-1; i++) {
+        const [px,py] = pts[i];
+        const d = len === 0 ? Math.hypot(px-x1,py-y1) : Math.abs((y2-y1)*px-(x2-x1)*py+x2*y1-y2*x1)/len;
+        if (d > maxD) { maxD = d; maxI = i; }
+      }
+      if (maxD > eps) {
+        return [...dpSimplify(pts.slice(0, maxI+1), eps).slice(0,-1), ...dpSimplify(pts.slice(maxI), eps)];
+      }
+      return [pts[0], pts[pts.length-1]];
+    }
+
+    function groupToPath(pixelArr) {
+      const set = new Set(pixelArr);
+      const has = (x, y) => x >= 0 && y >= 0 && x < cW && y < cH && set.has(y*cW+x);
+      const edgeMap = new Map();
+      const addEdge = (x1,y1,x2,y2) => {
+        const k=`${x1},${y1}`; if(!edgeMap.has(k)) edgeMap.set(k,[]); edgeMap.get(k).push([x2,y2]);
+      };
+      for (const pos of pixelArr) {
+        const px = pos % cW, py = (pos/cW)|0;
+        if (!has(px, py-1)) addEdge(px, py, px+1, py);
+        if (!has(px+1, py)) addEdge(px+1, py, px+1, py+1);
+        if (!has(px, py+1)) addEdge(px+1, py+1, px, py+1);
+        if (!has(px-1, py)) addEdge(px, py+1, px, py);
+      }
+      let pathStr = '';
+      while (edgeMap.size > 0) {
+        let startKey = edgeMap.keys().next().value;
+        const [sx, sy] = startKey.split(',').map(Number);
+        let cx = sx, cy = sy;
+        const poly = [[cx, cy]];
+        for (let lim = 0; lim < 200000; lim++) {
+          const nexts = edgeMap.get(`${cx},${cy}`);
+          if (!nexts || !nexts.length) { edgeMap.delete(`${cx},${cy}`); break; }
+          const [nx, ny] = nexts.pop();
+          if (!nexts.length) edgeMap.delete(`${cx},${cy}`);
+          cx = nx; cy = ny;
+          if (cx === sx && cy === sy) break;
+          poly.push([cx, cy]);
+        }
+        if (poly.length < 3) continue;
+        const simplified = dpSimplify(poly, outQuality * 0.5);
+        if (simplified.length < 3) continue;
+        const amPts = simplified.map(([x,y]) => toAM(x, y));
+        pathStr += `M ${n4(amPts[0].x)} ${n4(amPts[0].y)} `;
+        for (let i = 1; i < amPts.length; i++) pathStr += `L ${n4(amPts[i].x)} ${n4(amPts[i].y)} `;
+        pathStr += 'Z ';
+      }
+      return pathStr.trim();
+    }
+
+    // ── STEP 7: Build XML ─────────────────────────────────────────────────
+    let shapeIdCounter = 102409000;
+    const colorSet = new Set();
+    const generatedLayers = [];
+    const nowMs = Date.now();
+
+    let xmlChunks = [];
+    xmlChunks.push(`<!-- \nCreated by Alight Motion (http://alightmotion.com)\nExported: ${new Date().toISOString().replace('T',' ').substring(0,19)}\n5.0.273.1028425 (1028425)\n -->\n`);
+    xmlChunks.push(`<scene title="Converted Vector" width="${sceneW}" height="${sceneH}" exportWidth="${sceneW}" exportHeight="${sceneH}" precompose="dynamicResolution" bgcolor="${bgAMColor}" totalTime="${outDuration}" fps="${outFps}" modifiedTime="${nowMs}" amver="1028425" ffver="106" am="com.alightcreative.motion/5.0.273.1028425" amplatform="android" retime="freeze" retimeAdaptFPS="false">\n`);
+
+    for (let gi = 0; gi < sortedGroups.length; gi++) {
+      const grp = sortedGroups[gi];
+      const c = colorList[grp.colorIdx];
+      const amColor = `#ff${c.r.toString(16).padStart(2,'0')}${c.g.toString(16).padStart(2,'0')}${c.b.toString(16).padStart(2,'0')}`;
+      colorSet.add(amColor);
+      debugEl.textContent = `[BUILD PATH] Layer ${gi+1}/${sortedGroups.length}...`;
+      if (gi % 3 === 0) await yieldUI();
+      const pathD = groupToPath(grp.pixels);
+      if (!pathD) continue;
+      const label = `Layer ${gi+1}: ${amColor} (${grp.pixels.length.toLocaleString()}px)`;
+      let shapeXml = `<shape id="${shapeIdCounter++}" label="${label}" startTime="0" endTime="${outDuration}" fillType="color" mediaFillMode="fill">\n`;
+      shapeXml += `<transform>\n<location value="0.000000,0.000000,0.000000"/>\n</transform>\n`;
+      shapeXml += `<fillColor value="${amColor}"/>\n`;
+      shapeXml += `<path d="${pathD}"/>\n`;
+      shapeXml += `</shape>\n`;
+      generatedLayers.push({ label, color: amColor, pixelCount: grp.pixels.length, xml: shapeXml, checked: true });
+    }
+
+    debugEl.textContent = `[SELESAI] ${generatedLayers.length} layer. Canvas: ${cW}x${cH}, Warna: ${colorList.length}`;
+    await yieldUI();
+
+    // ── STEP 8: UI – Layer selector & XML output ──────────────────────────
+    const updateFinalXml = () => {
+      let finalXml = xmlChunks.join("");
+      generatedLayers.forEach(l => { if (l.checked) finalXml += l.xml; });
+      finalXml += `</scene>\n`;
+      outputCode.value = finalXml;
+      document.getElementById('layerCount').textContent = generatedLayers.filter(l => l.checked).length;
+    };
+
+    const layerList = document.getElementById('layerList');
+    layerList.innerHTML = '';
+    generatedLayers.forEach((layer, i) => {
+      const div = document.createElement('div');
+      div.style.cssText = 'display:flex;align-items:center;padding:8px;background:#fff;border:2px solid #000;border-radius:6px;';
+      const cssHex = '#' + layer.color.substring(3);
+      div.innerHTML = `
+        <input type="checkbox" id="chk_${i}" checked style="margin-right:12px;width:18px;height:18px;cursor:pointer;"/>
+        <div style="width:24px;height:24px;background:${cssHex};border:2px solid #000;border-radius:4px;margin-right:12px;flex-shrink:0;"></div>
+        <label for="chk_${i}" style="font-family:var(--font-heading);font-size:13px;cursor:pointer;flex-grow:1;color:#000;">${layer.label}</label>`;
+      div.querySelector('input').addEventListener('change', e => { layer.checked = e.target.checked; updateFinalXml(); });
+      layerList.appendChild(div);
+    });
+
+    document.getElementById('selectAllLayersBtn').onclick = () => {
+      const cbs = layerList.querySelectorAll('input');
+      const allChecked = Array.from(cbs).every(c => c.checked);
+      cbs.forEach(c => c.checked = !allChecked);
+      generatedLayers.forEach(l => l.checked = !allChecked);
+      updateFinalXml();
+    };
+
+    document.getElementById('layerSelectionContainer').querySelector('h3').innerHTML = `🛠️ Pilih Layer (${generatedLayers.length})`;
+    document.getElementById('layerSelectionContainer').style.display = 'block';
+    updateFinalXml();
+
+    // Analysis panel
+    document.getElementById('layerCount').textContent = generatedLayers.length;
+    document.getElementById('uniqueColorCount').textContent = colorSet.size;
+    const swatchContainer = document.getElementById('colorSwatches');
+    let sw = '';
+    colorSet.forEach(c => {
+      const hex = '#' + c.substring(3);
+      sw += `<div style="display:inline-flex;flex-direction:column;align-items:center;gap:3px;"><div style="width:40px;height:40px;border-radius:8px;background:${hex};border:3px solid #000;box-shadow:3px 3px 0 #000" title="${c}"></div><span style="font-family:var(--mono);font-size:9px;color:#000;">${c}</span></div>`;
+    });
+    swatchContainer.innerHTML = sw || '<span style="font-family:var(--font-heading);color:#888;">No colors found.</span>';
+    document.getElementById('analysisPanel').style.display = 'block';
+    showToast('\u2705 Deep Scan Complete!');
+
+  } catch(e) {
+    outputCode.value = "Error: " + e.message;
+    console.error(e);
+  } finally {
+    isScanning = false;
+    btn.textContent = '🔍 Deep Scan & Convert';
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'auto';
+  }
+});
+
+document.getElementById('copyBtn').addEventListener('click', () => {
+  if (!outputCode.value) return;
+  navigator.clipboard.writeText(outputCode.value).then(() => showToast('\u2705 XML Copied!'));
+});
+
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  if (!outputCode.value) return;
+  const blob = new Blob([outputCode.value], { type: 'application/xml' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  let filename = 'vector.xml';
+  if (fileInput.files.length > 0) filename = fileInput.files[0].name.replace('.svg', '.xml');
+  a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('\ud83d\udcbe Downloading XML...');
+});
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  inputCode.value = ''; outputCode.value = ''; fileInput.value = '';
+  document.getElementById('svgPreview').innerHTML = '<p style="color:#888;font-family:var(--font-heading);text-align:center;">No SVG Uploaded.<br><span style="font-size:12px">Upload a file to see preview</span></p>';
+  document.getElementById('analysisPanel').style.display = 'none';
+  document.getElementById('layerSelectionContainer').style.display = 'none';
+});
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    const rawSvg = evt.target.result;
+    inputCode.value = rawSvg;
     
     // Display visual preview
     const previewContainer = document.getElementById('svgPreview');
@@ -283,83 +661,29 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
     const sceneH = parseInt(document.getElementById('outHeight').value) || 1080;
     const outFps = parseInt(document.getElementById('outFps').value) || 60;
     const outDuration = parseInt(document.getElementById('outDuration').value) || 2015;
+    const outQuality = parseInt(document.getElementById('outQuality').value) || 5;
     const bgColorHex = document.getElementById('outBgColor').value.replace('#','');
     const bgAlpha = document.getElementById('outBgAlpha').value;
     const bgAMColor = `#${bgAlpha}${bgColorHex}`;
-    const cxStr = (sceneW / 2).toFixed(6);
-    const cyStr = (sceneH / 2).toFixed(6);
     
-    // === Scale factor: map SVG coordinate space → output pixel space ===
     const scaleX = svgW > 0 ? sceneW / svgW : 1;
     const scaleY = svgH > 0 ? sceneH / svgH : 1;
 
-    // ── KODE BINER PIXEL SCANNER (CANVAS) ───────────────────────────────────
-    // Inject SVG to DOM to use getBBox() for accurate center calculations
+    // ── VECTOR DOM SCANNER ───────────────────────────────────────────────────
+    // Parse SVG DOM directly — no canvas/pixel scanning.
+    // Read actual path/shape data, apply transforms, group by fill color.
     const tempContainer = document.createElement('div');
     tempContainer.style.cssText = 'position:absolute;left:-9999px;top:-9999px;pointer-events:none;';
-    tempContainer.innerHTML = svgText;
     document.body.appendChild(tempContainer);
     
-    const domSvg = tempContainer.querySelector('svg');
-    if (!domSvg) {
-        document.body.removeChild(tempContainer);
-        throw new Error('No valid <svg> tag found.');
-    }
-    
-    // Auto-resolve <use> tags inside domSvg
-    Array.from(domSvg.querySelectorAll('use')).forEach(useEl => {
-      const href = useEl.getAttribute('href') || useEl.getAttribute('xlink:href') || '';
-      if (!href.startsWith('#')) return;
-      const target = domSvg.querySelector('[id="' + href.substring(1) + '"]');
-      if (!target) return;
-      const clone = target.cloneNode(true);
-      clone.removeAttribute('id');
-      const ux = parseFloat(useEl.getAttribute('x')||0), uy = parseFloat(useEl.getAttribute('y')||0);
-      if (ux||uy) {
-        if (clone.tagName==='rect') { clone.setAttribute('x',(parseFloat(clone.getAttribute('x')||0)+ux)+''); clone.setAttribute('y',(parseFloat(clone.getAttribute('y')||0)+uy)+''); }
-        else { clone.setAttribute('transform',`translate(${ux},${uy}) ${clone.getAttribute('transform')||''}`); }
-      }
-      ['fill','stroke','opacity','class','style'].forEach(attr => { if(useEl.hasAttribute(attr)) clone.setAttribute(attr,useEl.getAttribute(attr)); });
-      useEl.parentNode.replaceChild(clone, useEl);
-    });
-
-    // Render the SVG to a Canvas for Binary Pixel Reading
-    const canvas = document.createElement('canvas');
-    canvas.width = svgW || sceneW;
-    canvas.height = svgH || sceneH;
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    
     const yieldUI = () => new Promise(r => setTimeout(r, 0));
-
-    // Tampilkan log progress scan biner
-    document.getElementById('debugInfo').textContent = '[ANIMASI SCAN] 0% - Mempersiapkan kanvas dan merender vektor...';
+    document.getElementById('debugInfo').textContent = '[VECTOR SCAN] Membaca elemen SVG...';
     await yieldUI();
-
-    let imgData = null;
-    await new Promise((resolve, reject) => {
-        const img = new Image();
-        img.crossOrigin = 'Anonymous';
-        img.onload = () => { 
-            ctx.drawImage(img, 0, 0); 
-            try {
-                imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-                resolve();
-            } catch(e) {
-                reject(new Error('Gagal membaca pixel kanvas (Security Error): ' + e.message));
-            }
-        };
-        img.onerror = () => reject(new Error('Gagal merender SVG ke Canvas. Format tidak didukung atau corrupt.'));
-        // Gunakan utf-8 alih-alih base64 untuk mencegah crash memori/unicode
-        img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgText);
-    });
-
-
 
     let shapeIdCounter = 102409000;
     let layersCount = 0;
     const colorSet = new Set();
     
-    // Helper to generate shape XML matching exact AM format
     function createShapeXml(id, type, attrs, fillColor, pathData, effectXml, labelName) {
        layersCount++;
        if (fillColor && fillColor !== '#ff000000') colorSet.add(fillColor);
@@ -385,179 +709,293 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
     xmlChunks.push(`<!-- \nCreated by Alight Motion (http://alightmotion.com)\nExported: ${new Date().toISOString().replace('T',' ').substring(0,19)}\n5.0.273.1028425 (1028425)\n -->\n`);
     xmlChunks.push(`<scene title="Converted Vector" width="${sceneW}" height="${sceneH}" exportWidth="${sceneW}" exportHeight="${sceneH}" precompose="dynamicResolution" bgcolor="${bgAMColor}" totalTime="${outDuration}" fps="${outFps}" modifiedTime="${nowMs}" amver="1028425" ffver="106" am="com.alightcreative.motion/5.0.273.1028425" amplatform="android" retime="freeze" retimeAdaptFPS="false">\n`);
 
-    let debugLines = ['=== Hasil Binary Pixel Scan ==='];
+    let debugLines = ['=== Hasil Vector DOM Scan ==='];
 
-    let runTotalCount = 0;
-    
-    // Scan Quality Setting (mengatur ukuran blok pixel)
-    const step = parseInt(document.getElementById('outQuality').value) || 5; 
-    const stepSizeX = step * scaleX;
-    const stepSizeY = step * scaleY;
-    
-    document.getElementById('debugInfo').textContent = `Memulai scan piksel (Step ${step})...`;
+    // ── MATRIX HELPERS ──────────────────────────────────────────────────────
+    function matIdentity() { return {a:1,b:0,c:0,d:1,e:0,f:0}; }
+    function matMul(m1, m2) {
+        return {
+            a: m1.a*m2.a + m1.c*m2.b, b: m1.b*m2.a + m1.d*m2.b,
+            c: m1.a*m2.c + m1.c*m2.d, d: m1.b*m2.c + m1.d*m2.d,
+            e: m1.a*m2.e + m1.c*m2.f + m1.e, f: m1.b*m2.e + m1.d*m2.f + m1.f
+        };
+    }
+    function applyMatrix(m, x, y) { return { x: m.a*x + m.c*y + m.e, y: m.b*x + m.d*y + m.f }; }
+    function parseTransformAttr(str) {
+        let result = matIdentity();
+        if (!str) return result;
+        const re = /(matrix|translate|scale|rotate|skewX|skewY)\s*\(([^)]+)\)/gi;
+        let match;
+        while ((match = re.exec(str)) !== null) {
+            const name = match[1].toLowerCase();
+            const args = match[2].trim().split(/[\s,]+/).map(Number);
+            let m;
+            switch(name) {
+                case 'matrix': m = {a:args[0],b:args[1],c:args[2],d:args[3],e:args[4],f:args[5]}; break;
+                case 'translate': m = {a:1,b:0,c:0,d:1,e:args[0],f:args[1]||0}; break;
+                case 'scale': m = {a:args[0],b:0,c:0,d:args.length>1?args[1]:args[0],e:0,f:0}; break;
+                case 'rotate': { const ang=args[0]*Math.PI/180,cos=Math.cos(ang),sin=Math.sin(ang);
+                    if (args.length>=3){const px=args[1],py=args[2];m={a:cos,b:sin,c:-sin,d:cos,e:px-px*cos+py*sin,f:py-px*sin-py*cos};}
+                    else{m={a:cos,b:sin,c:-sin,d:cos,e:0,f:0};} break; }
+                case 'skewx': { const t=Math.tan(args[0]*Math.PI/180);m={a:1,b:0,c:t,d:1,e:0,f:0}; break; }
+                case 'skewy': { const t=Math.tan(args[0]*Math.PI/180);m={a:1,b:t,c:0,d:1,e:0,f:0}; break; }
+                default: m = matIdentity();
+            }
+            result = matMul(result, m);
+        }
+        return result;
+    }
+    function getElementMatrix(el, svgRoot) {
+        let m = matIdentity();
+        let node = el;
+        while (node && node !== svgRoot) {
+            const t = node.getAttribute && node.getAttribute('transform');
+            if (t) m = matMul(parseTransformAttr(t), m);
+            node = node.parentElement;
+        }
+        return m;
+    }
 
-    const cols = Math.ceil(canvas.width / step);
-    const rows = Math.ceil(canvas.height / step);
-    
-    document.getElementById('debugInfo').textContent = `[ANIMASI SCAN] Membangun grid warna...`;
+    // ── CSS STYLE RESOLVER (handle SVG <style> blocks & class-based fills) ──
+    const svgStyleMap = new Map(); // selector → property map
+    svgEl.querySelectorAll('style').forEach(styleEl => {
+        const text = styleEl.textContent || '';
+        // Parse rules like .cls-1{fill:#ff0000;stroke:none;}
+        const ruleRe = /([^{}]+)\{([^}]*)\}/g;
+        let rm;
+        while ((rm = ruleRe.exec(text)) !== null) {
+            const selectors = rm[1].trim().split(',').map(s => s.trim());
+            const props = {};
+            rm[2].split(';').forEach(decl => {
+                const [prop, val] = decl.split(':').map(s => s && s.trim());
+                if (prop && val) props[prop.toLowerCase()] = val;
+            });
+            selectors.forEach(sel => svgStyleMap.set(sel, props));
+        }
+    });
+    function getCssFill(el) {
+        // Check all classes and id against svgStyleMap
+        const classes = Array.from(el.classList || []);
+        const id = el.getAttribute('id');
+        const tag = el.tagName.toLowerCase().replace(/^svg:/,'');
+        const candidates = [
+            ...classes.map(c => '.' + c),
+            ...(id ? ['#' + id] : []),
+            tag,
+            ...classes.map(c => tag + '.' + c)
+        ];
+        for (const sel of candidates) {
+            const props = svgStyleMap.get(sel);
+            if (props && props['fill']) return props['fill'];
+        }
+        return null;
+    }
+    const _cc = document.createElement('canvas'); _cc.width=_cc.height=1;
+    const _cctx = _cc.getContext('2d');
+    function colorToArgbHex(colorStr, opacity) {
+        if (!colorStr||colorStr==='none'||colorStr==='transparent') return null;
+        if (colorStr==='currentColor') colorStr='#000000';
+        let r=0,g=0,b=0,a=255;
+        if (colorStr.startsWith('#')) {
+            let hex=colorStr.slice(1);
+            if (hex.length===3) hex=hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+            if (hex.length===6){r=parseInt(hex.slice(0,2),16);g=parseInt(hex.slice(2,4),16);b=parseInt(hex.slice(4,6),16);}
+            else if (hex.length===8){a=parseInt(hex.slice(0,2),16);r=parseInt(hex.slice(2,4),16);g=parseInt(hex.slice(4,6),16);b=parseInt(hex.slice(6,8),16);}
+        } else {
+            const rgb=colorStr.match(/rgba?\s*\(\s*([\d.]+%?)\s*,\s*([\d.]+%?)\s*,\s*([\d.]+%?)(?:\s*,\s*([\d.]+))?\s*\)/);
+            if (rgb){const pct=v=>v.endsWith('%')?Math.round(parseFloat(v)*2.55):parseInt(v);r=pct(rgb[1]);g=pct(rgb[2]);b=pct(rgb[3]);if(rgb[4]!==undefined)a=Math.round(parseFloat(rgb[4])*255);}
+            else{try{_cctx.clearRect(0,0,1,1);_cctx.fillStyle=colorStr;_cctx.fillRect(0,0,1,1);const d=_cctx.getImageData(0,0,1,1).data;r=d[0];g=d[1];b=d[2];a=d[3];}catch(e){}}
+        }
+        const finalA=Math.round(a*Math.max(0,Math.min(1,opacity!==undefined?opacity:1)));
+        return `#${finalA.toString(16).padStart(2,'0')}${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+    }
+    function getEffectiveFill(el, svgRoot) {
+        let fill=null,op=1;
+        let node=el;
+        while (node && node!==svgRoot.parentElement) {
+            if (!node.getAttribute){node=node.parentElement;continue;}
+            const st=node.getAttribute('style')||'';
+            // 1. Fill from style attribute
+            if (!fill){const m=st.match(/(?:^|;)\s*fill\s*:\s*([^;]+)/i);if(m){const v=m[1].trim();if(v!=='inherit')fill=v;}}
+            // 2. Fill from fill attribute
+            if (!fill){const f=node.getAttribute('fill');if(f&&f!=='inherit')fill=f;}
+            // 3. Fill from CSS class (SVG <style> block)
+            if (!fill){const cf=getCssFill(node);if(cf&&cf!=='inherit'&&cf!=='none'||cf==='none')fill=cf||null;}
+            // 4. Opacity
+            const sfo=st.match(/(?:^|;)\s*fill-opacity\s*:\s*([\d.]+)/i);
+            const so=st.match(/(?:^|;)\s*opacity\s*:\s*([\d.]+)/i);
+            if(sfo)op*=parseFloat(sfo[1]);else{const fo=node.getAttribute('fill-opacity');if(fo)op*=parseFloat(fo);}
+            if(so)op*=parseFloat(so[1]);else{const o=node.getAttribute('opacity');if(o)op*=parseFloat(o);}
+            node=node.parentElement;
+        }
+        if (!fill) fill='#000000';
+        if (fill==='none') return null;
+        return colorToArgbHex(fill, op);
+    }
+
+            case 'ellipse': { const cx=f('cx'),cy=f('cy'),rx=f('rx'),ry=f('ry');if(!rx||!ry)return '';const k=0.5522847498;
+                return `M ${cx+rx} ${cy} C ${cx+rx} ${cy-k*ry} ${cx+k*rx} ${cy-ry} ${cx} ${cy-ry} C ${cx-k*rx} ${cy-ry} ${cx-rx} ${cy-k*ry} ${cx-rx} ${cy} C ${cx-rx} ${cy+k*ry} ${cx-k*rx} ${cy+ry} ${cx} ${cy+ry} C ${cx+k*rx} ${cy+ry} ${cx+rx} ${cy+k*ry} ${cx+rx} ${cy} Z`; }
+            case 'polygon': { const pts=(el.getAttribute('points')||'').trim().split(/[\s,]+/).map(Number);if(pts.length<4)return '';let d=`M ${pts[0]} ${pts[1]}`;for(let i=2;i<pts.length;i+=2)d+=` L ${pts[i]} ${pts[i+1]}`;return d+' Z'; }
+            case 'polyline': { const pts=(el.getAttribute('points')||'').trim().split(/[\s,]+/).map(Number);if(pts.length<4)return '';let d=`M ${pts[0]} ${pts[1]}`;for(let i=2;i<pts.length;i+=2)d+=` L ${pts[i]} ${pts[i+1]}`;return d; }
+            case 'line': return `M ${f('x1')} ${f('y1')} L ${f('x2')} ${f('y2')}`;
+            default: return '';
+        }
+    }
+
+    // ── PATH DATA TRANSFORMER (apply 2D matrix to all path coordinates) ────
+    function transformPathD(d, m) {
+        if (!d) return '';
+        const re=/([MmLlHhVvCcSsQqTtAaZz])([^MmLlHhVvCcSsQqTtAaZz]*)/g;
+        let out='',rawCX=0,rawCY=0,rawSX=0,rawSY=0;
+        // Clean number: remove trailing zeros (e.g. -500.0000 → -500, -298.1875 → -298.1875)
+        function n(v){ return parseFloat(v.toFixed(4)); }
+        function pt(x,y){const p=applyMatrix(m,x,y);return `${n(p.x)} ${n(p.y)}`;}
+        // SVG path numbers tokenizer — handles: negative separators, .5.6, 1e-3, etc.
+        function nums(s){
+            const result=[];
+            const nr=/[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?/g;
+            let mm;
+            while((mm=nr.exec(s))!==null) result.push(parseFloat(mm[0]));
+            return result;
+        }
+        let match;
+        while((match=re.exec(d))!==null){
+            const cmd=match[1],vals=nums(match[2]);
+            switch(cmd){
+                // ── Move ──
+                case 'M':for(let i=0;i<vals.length;i+=2){rawCX=vals[i];rawCY=vals[i+1];out+=(i===0?'M ':' L ')+pt(rawCX,rawCY);if(i===0){rawSX=rawCX;rawSY=rawCY;}}out+=' ';break;
+                case 'm':for(let i=0;i<vals.length;i+=2){rawCX+=vals[i];rawCY+=vals[i+1];out+=(i===0?'M ':' L ')+pt(rawCX,rawCY);if(i===0){rawSX=rawCX;rawSY=rawCY;}}out+=' ';break;
+                // ── Line ──
+                case 'L':for(let i=0;i<vals.length;i+=2){rawCX=vals[i];rawCY=vals[i+1];out+=`L ${pt(rawCX,rawCY)} `;}break;
+                case 'l':for(let i=0;i<vals.length;i+=2){rawCX+=vals[i];rawCY+=vals[i+1];out+=`L ${pt(rawCX,rawCY)} `;}break;
+                case 'H':for(let i=0;i<vals.length;i++){rawCX=vals[i];out+=`L ${pt(rawCX,rawCY)} `;}break;
+                case 'h':for(let i=0;i<vals.length;i++){rawCX+=vals[i];out+=`L ${pt(rawCX,rawCY)} `;}break;
+                case 'V':for(let i=0;i<vals.length;i++){rawCY=vals[i];out+=`L ${pt(rawCX,rawCY)} `;}break;
+                case 'v':for(let i=0;i<vals.length;i++){rawCY+=vals[i];out+=`L ${pt(rawCX,rawCY)} `;}break;
+                // ── Cubic Bezier ──
+                case 'C':for(let i=0;i<vals.length;i+=6){out+=`C ${pt(vals[i],vals[i+1])} ${pt(vals[i+2],vals[i+3])} ${pt(vals[i+4],vals[i+5])} `;rawCX=vals[i+4];rawCY=vals[i+5];}break;
+                case 'c':for(let i=0;i<vals.length;i+=6){out+=`C ${pt(rawCX+vals[i],rawCY+vals[i+1])} ${pt(rawCX+vals[i+2],rawCY+vals[i+3])} ${pt(rawCX+vals[i+4],rawCY+vals[i+5])} `;rawCX+=vals[i+4];rawCY+=vals[i+5];}break;
+                // ── Smooth Cubic ──
+                case 'S':for(let i=0;i<vals.length;i+=4){out+=`S ${pt(vals[i],vals[i+1])} ${pt(vals[i+2],vals[i+3])} `;rawCX=vals[i+2];rawCY=vals[i+3];}break;
+                case 's':for(let i=0;i<vals.length;i+=4){out+=`S ${pt(rawCX+vals[i],rawCY+vals[i+1])} ${pt(rawCX+vals[i+2],rawCY+vals[i+3])} `;rawCX+=vals[i+2];rawCY+=vals[i+3];}break;
+                // ── Quadratic Bezier ──
+                case 'Q':for(let i=0;i<vals.length;i+=4){out+=`Q ${pt(vals[i],vals[i+1])} ${pt(vals[i+2],vals[i+3])} `;rawCX=vals[i+2];rawCY=vals[i+3];}break;
+                case 'q':for(let i=0;i<vals.length;i+=4){out+=`Q ${pt(rawCX+vals[i],rawCY+vals[i+1])} ${pt(rawCX+vals[i+2],rawCY+vals[i+3])} `;rawCX+=vals[i+2];rawCY+=vals[i+3];}break;
+                // ── Smooth Quadratic ──
+                case 'T':for(let i=0;i<vals.length;i+=2){out+=`T ${pt(vals[i],vals[i+1])} `;rawCX=vals[i];rawCY=vals[i+1];}break;
+                case 't':for(let i=0;i<vals.length;i+=2){out+=`T ${pt(rawCX+vals[i],rawCY+vals[i+1])} `;rawCX+=vals[i];rawCY+=vals[i+1];}break;
+                // ── Arc — scale radii by matrix scale factors ──
+                case 'A':for(let i=0;i<vals.length;i+=7){
+                    const sx=Math.sqrt(m.a*m.a+m.b*m.b),sy=Math.sqrt(m.c*m.c+m.d*m.d);
+                    rawCX=vals[i+5];rawCY=vals[i+6];
+                    out+=`A ${n(vals[i]*sx)} ${n(vals[i+1]*sy)} ${vals[i+2]} ${vals[i+3]} ${vals[i+4]} ${pt(rawCX,rawCY)} `;
+                }break;
+                case 'a':for(let i=0;i<vals.length;i+=7){
+                    const sx=Math.sqrt(m.a*m.a+m.b*m.b),sy=Math.sqrt(m.c*m.c+m.d*m.d);
+                    rawCX+=vals[i+5];rawCY+=vals[i+6];
+                    out+=`A ${n(vals[i]*sx)} ${n(vals[i+1]*sy)} ${vals[i+2]} ${vals[i+3]} ${vals[i+4]} ${pt(rawCX,rawCY)} `;
+                }break;
+                case 'Z':case 'z':out+='Z ';rawCX=rawSX;rawCY=rawSY;break;
+            }
+        }
+        return out.trim();
+    }
+
+    // Output scale matrix: SVG coord → Alight Motion centered coord
+    const outputMatrix = { a:scaleX, b:0, c:0, d:scaleY, e:-sceneW/2, f:-sceneH/2 };
+
+    // ── SCAN ALL VECTOR ELEMENTS IN SVG DOM ────────────────────────────────
+    const allShapes = Array.from(svgEl.querySelectorAll('path,rect,circle,ellipse,polygon,polyline,line'));
+    document.getElementById('debugInfo').textContent = `[VECTOR SCAN] Ditemukan ${allShapes.length} elemen. Mengkonversi...`;
     await yieldUI();
-    
-    const grid = new Uint32Array(cols * rows);
-    for (let y = 0, gy = 0; y < canvas.height; y += step, gy++) {
-        for (let x = 0, gx = 0; x < canvas.width; x += step, gx++) {
-            const idx = (y * canvas.width + x) * 4;
-            const a = imgData[idx + 3];
-            if (a > 5) {
-                grid[gy * cols + gx] = (a << 24) | (imgData[idx] << 16) | (imgData[idx+1] << 8) | imgData[idx+2];
+
+    const flattenerSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    const flattenerPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    flattenerSvg.appendChild(flattenerPath);
+    document.body.appendChild(flattenerSvg);
+
+    function flattenTransformedPath(d_transformed, quality) {
+        if (!d_transformed) return '';
+        const subpaths = d_transformed.split(/(?=M\s)/g);
+        let finalPath = '';
+        function n(v){ return parseFloat(v.toFixed(4)); }
+        
+        for (const sub of subpaths) {
+            if (!sub.trim()) continue;
+            
+            // If the subpath has no curves, skip flattening to save massive file size
+            if (!/[CcSsQqTtAa]/.test(sub)) {
+                finalPath += sub + ' ';
+                continue;
+            }
+
+            flattenerPath.setAttribute('d', sub);
+            const len = flattenerPath.getTotalLength();
+            if (len === 0) { finalPath += sub + ' '; continue; }
+            
+            const startPt = flattenerPath.getPointAtLength(0);
+            finalPath += `M ${n(startPt.x)} ${n(startPt.y)} `;
+            
+            const isClosed = sub.trim().endsWith('Z') || sub.trim().endsWith('z');
+            const steps = Math.max(1, Math.ceil(len / quality));
+            for (let i = 1; i < steps; i++) {
+                const pt = flattenerPath.getPointAtLength((i / steps) * len);
+                finalPath += `L ${n(pt.x)} ${n(pt.y)} `;
+            }
+            if (isClosed) {
+                finalPath += 'Z ';
             } else {
-                grid[gy * cols + gx] = 0;
+                const endPt = flattenerPath.getPointAtLength(len);
+                finalPath += `L ${n(endPt.x)} ${n(endPt.y)} `;
             }
         }
-    }
-    
-    const visited = new Uint8Array(cols * rows);
-    let lastUiUpdate = performance.now();
-    
-    function isSameColor(c1, c2) {
-        if (c1 === 0 || c2 === 0) return false;
-        const r1 = (c1 >> 16) & 255, g1 = (c1 >> 8) & 255, b1 = c1 & 255, a1 = (c1 >>> 24) & 255;
-        const r2 = (c2 >> 16) & 255, g2 = (c2 >> 8) & 255, b2 = c2 & 255, a2 = (c2 >>> 24) & 255;
-        // Kemiripan 80% berarti selisih bisa sampai ~20% dari 255 (sekitar 50-60)
-        return Math.abs(r1 - r2) < 60 && Math.abs(g1 - g2) < 60 && Math.abs(b1 - b2) < 60 && Math.abs(a1 - a2) < 60;
+        return finalPath.trim();
     }
 
-    for (let gy = 0; gy < rows; gy++) {
-        for (let gx = 0; gx < cols; gx++) {
-            const idx = gy * cols + gx;
-            if (!visited[idx] && grid[idx] !== 0) {
-                const startColor = grid[idx];
-                const blobPixels = [];
-                const queue = [idx];
-                visited[idx] = 1;
-                
-                let sumR = 0, sumG = 0, sumB = 0, sumA = 0;
-                let count = 0;
-                
-                let qHead = 0;
-                while (qHead < queue.length) {
-                    const currIdx = queue[qHead++];
-                    blobPixels.push(currIdx);
-                    
-                    const cColor = grid[currIdx];
-                    sumR += (cColor >> 16) & 255;
-                    sumG += (cColor >> 8) & 255;
-                    sumB += cColor & 255;
-                    sumA += (cColor >>> 24) & 255;
-                    count++;
-                    
-                    const cx = currIdx % cols;
-                    const cy = Math.floor(currIdx / cols);
-                    
-                    const neighbors = [];
-                    if (cx > 0) neighbors.push(currIdx - 1);
-                    if (cx < cols - 1) neighbors.push(currIdx + 1);
-                    if (cy > 0) neighbors.push(currIdx - cols);
-                    if (cy < rows - 1) neighbors.push(currIdx + cols);
-                    
-                    for (let n of neighbors) {
-                        if (!visited[n] && grid[n] !== 0) {
-                            if (isSameColor(startColor, grid[n])) {
-                                visited[n] = 1;
-                                queue.push(n);
-                            }
-                        }
-                    }
-                    
-                    if (performance.now() - lastUiUpdate > 30) {
-                        document.getElementById('debugInfo').textContent = `[ANIMASI SCAN] Menelusuri Area (Layer ke-${runTotalCount+1})...\nMenemukan ${count} piksel warna terhubung`;
-                        btn.textContent = `Menelusuri...`;
-                        lastUiUpdate = performance.now();
-                        await yieldUI();
-                    }
-                }
-                
-                blobPixels.sort((a, b) => a - b);
-                
-                const segments = [];
-                let runStartIdx = -1;
-                let runEndIdx = -1;
-                
-                for (let i = 0; i < blobPixels.length; i++) {
-                    const pIdx = blobPixels[i];
-                    if (runStartIdx === -1) {
-                        runStartIdx = pIdx;
-                        runEndIdx = pIdx;
-                    } else {
-                        if (pIdx === runEndIdx + 1 && Math.floor(pIdx / cols) === Math.floor(runEndIdx / cols)) {
-                            runEndIdx = pIdx;
-                        } else {
-                            segments.push({ start: runStartIdx, end: runEndIdx });
-                            runStartIdx = pIdx;
-                            runEndIdx = pIdx;
-                        }
-                    }
-                }
-                if (runStartIdx !== -1) {
-                    segments.push({ start: runStartIdx, end: runEndIdx });
-                }
-                
-                const avgR = Math.round(sumR / count);
-                const avgG = Math.round(sumG / count);
-                const avgB = Math.round(sumB / count);
-                const avgA = Math.round(sumA / count);
-                const hex = `#${avgA.toString(16).padStart(2,'0')}${avgR.toString(16).padStart(2,'0')}${avgG.toString(16).padStart(2,'0')}${avgB.toString(16).padStart(2,'0')}`;
-                
-                let pathData = "";
-                for (let seg of segments) {
-                    const sx = (seg.start % cols);
-                    const sy = Math.floor(seg.start / cols);
-                    const ex = (seg.end % cols);
-                    
-                    const w = (ex - sx + 1) * step;
-                    const px = (sx * step) + w/2;
-                    const py = (sy * step) + step/2;
-                    
-                    const cx = px * scaleX;
-                    const cy = py * scaleY;
-                    const scaledW = w * scaleX;
-                    const scaledH = stepSizeY;
-                    
-                    const pCx = cx - (sceneW / 2);
-                    const pCy = cy - (sceneH / 2);
-                    const hW = scaledW / 2;
-                    const hH = scaledH / 2;
-                    
-                    pathData += `M ${(pCx - hW).toFixed(4)} ${(pCy - hH).toFixed(4)} L ${(pCx + hW).toFixed(4)} ${(pCy - hH).toFixed(4)} L ${(pCx + hW).toFixed(4)} ${(pCy + hH).toFixed(4)} L ${(pCx - hW).toFixed(4)} ${(pCy + hH).toFixed(4)} Z `;
-                }
-                
-                const labelName = `Region Gabungan ${runTotalCount+1} (${count}px)`;
-                const xml = createShapeXml(shapeIdCounter++, 'path', {
-                    cx: (sceneW / 2).toFixed(6), cy: (sceneH / 2).toFixed(6)
-                }, hex, pathData, '', labelName);
-                
-                generatedLayers.push({
-                    id: runTotalCount + 1,
-                    label: labelName,
-                    color: hex,
-                    count: count,
-                    xml: xml,
-                    checked: true
-                });
-                
-                runTotalCount++;
-            }
-        }
+    // Group: fillColor(#aarrggbb) → transformed path strings[]
+    const colorGroups = new Map();
+    let elemIdx = 0;
+    for (const el of allShapes) {
+        elemIdx++;
+        if (el.closest('defs,symbol,mask,clipPath')) { debugLines.push(`[${elemIdx}] SKIP (in defs/mask): ${el.tagName}`); continue; }
+        const fillColor = getEffectiveFill(el, svgEl);
+        if (!fillColor || fillColor === '#00000000') { debugLines.push(`[${elemIdx}] SKIP (no fill): ${el.tagName} fill=${fillColor}`); continue; }
+        const localPathD = shapeToPathD(el);
+        if (!localPathD) { debugLines.push(`[${elemIdx}] SKIP (no path d): ${el.tagName}`); continue; }
+        const finalMatrix = matMul(outputMatrix, getElementMatrix(el, svgEl));
+        const transformedD = transformPathD(localPathD, finalMatrix);
+        if (!transformedD) { debugLines.push(`[${elemIdx}] SKIP (transform empty): ${el.tagName}`); continue; }
         
-        if (performance.now() - lastUiUpdate > 30 || gy === rows - 1) {
-            const percent = Math.round((gy / rows) * 100);
-            document.getElementById('debugInfo').textContent = `[ANIMASI SCAN] ${percent}% - Menganalisis area (baris ${gy}/${rows})...`;
-            btn.textContent = `Memindai... ${percent}%`;
-            lastUiUpdate = performance.now();
-            await yieldUI();
-        }
+        // Flatten curves into lines based on outQuality
+        const flattenedD = flattenTransformedPath(transformedD, outQuality);
+        
+        if (!colorGroups.has(fillColor)) colorGroups.set(fillColor, []);
+        colorGroups.get(fillColor).push(flattenedD);
+        // Debug: show raw d prefix + transformed d prefix
+        const rawPreview = localPathD.substring(0, 80).replace(/\n/g,' ');
+        const tPreview = flattenedD.substring(0, 80).replace(/\n/g,' ');
+        debugLines.push(`[${elemIdx}] ${el.tagName} fill=${fillColor}`);
+        debugLines.push(`  RAW d: ${rawPreview}...`);
+        debugLines.push(`  OUT d: ${tPreview}...`);
+        if (elemIdx % 30 === 0) { document.getElementById('debugInfo').textContent=`[VECTOR SCAN] Elemen ${elemIdx}/${allShapes.length}...`; await yieldUI(); }
     }
     
-    debugLines = [`Selesai mengekstrak KESELURUHAN GAMBAR menjadi ${runTotalCount} layer presisi tinggi.`];
+    document.body.removeChild(flattenerSvg);
+
+    // ── 1 SHAPE XML PER WARNA UNIK ─────────────────────────────────────────
+    let colorIdx = 0;
+    for (const [fillColor, paths] of colorGroups) {
+        colorIdx++;
+        const mergedPath = paths.join(' ');
+        const labelName = `Warna ${colorIdx}: ${fillColor} (${paths.length} elemen)`;
+        const xml = createShapeXml(shapeIdCounter++, 'path', {
+            cx: (sceneW/2).toFixed(6), cy: (sceneH/2).toFixed(6)
+        }, fillColor, mergedPath, '', labelName);
+        generatedLayers.push({ id:colorIdx, label:labelName, color:fillColor, count:paths.length, xml, checked:true });
+    }
+
+    const runTotalCount = generatedLayers.length;
+    debugLines.unshift(`Selesai: ${runTotalCount} shape (1 per warna) dari ${elemIdx} elemen vektor.`);
 
     document.getElementById('debugInfo').textContent = `[ANIMASI SCAN] Memproses Piksel... 100%\n\n` + debugLines.join('\n');
     btn.textContent = `Menyusun XML... 100%`;
@@ -616,37 +1054,9 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
     document.getElementById('layerSelectionContainer').style.display = 'block';
     
     updateFinalXml();
-    
-    document.body.removeChild(tempContainer);
-    
-    // Update Analysis Panel
-    document.getElementById('layerCount').textContent = layersCount;
-    document.getElementById('uniqueColorCount').textContent = colorSet.size;
-    const swatchContainer = document.getElementById('colorSwatches');
-    swatchContainer.innerHTML = '';
-    
-    if (colorSet.size > 0) {
-      let swatchesHtml = '';
-      let colorLimit = 0;
-      colorSet.forEach(c => {
-         if (colorLimit >= 100) return;
-         const cssHex = c.length === 9 ? '#' + c.substring(3) : c; 
-         swatchesHtml += `<div style="display:inline-flex;flex-direction:column;align-items:center;gap:3px;"><div style="width:40px;height:40px;border-radius:8px;background:${cssHex};border:3px solid #000;cursor:pointer;box-shadow:3px 3px 0 #000" title="AM: ${c}"></div><span style="font-family:var(--mono);font-size:9px;color:#000;">${c}</span></div>`;
-         colorLimit++;
-      });
-      if (colorSet.size > 100) {
-         swatchesHtml += `<div style="display:flex;align-items:center;font-family:var(--font-heading);font-size:12px;color:#555;padding:10px;">+ ${colorSet.size - 100} warna lainnya...</div>`;
-      }
-      swatchContainer.innerHTML = swatchesHtml;
-    } else {
-      swatchContainer.innerHTML = '<span style="font-family:var(--font-heading);color:#888;">No solid fill colors detected. Check the Scan Log below.</span>';
-    }
-    
-    document.getElementById('analysisPanel').style.display = 'block';
-    showToast('\u2705 Deep Scan Complete!');
-    
   } catch (e) {
-    outputCode.value = "Error parsing SVG: " + e.message;
+    outputCode.value = "Error: " + e.message;
+    console.error(e);
   } finally {
     isScanning = false;
     const btn = document.getElementById('convertBtn');
