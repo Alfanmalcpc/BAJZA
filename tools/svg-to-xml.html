@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
@@ -65,18 +65,18 @@
 
         <div class="editor-split">
           <div>
-            <div class="editor-label">Input SVG Preview</div>
+            <div class="editor-label">Input Preview (SVG / PNG / JPG)</div>
             <div class="code-editor">
               <div class="editor-header">
                 <div class="editor-dots"><span></span><span></span><span></span></div>
-                <span class="editor-lang">SVG Visual</span>
+                <span class="editor-lang" id="inputLangLabel">Input Visual</span>
               </div>
-              <div style="padding:10px; border-bottom: 3px solid #000; background: var(--bg-base); display: flex; gap: 10px; align-items: center;">
-                <label for="fileInput" style="font-family:var(--font-heading); font-size:16px; color:#000;">Upload SVG File:</label>
-                <input type="file" id="fileInput" accept=".svg" style="font-family:var(--font-heading);font-size:16px" />
+              <div style="padding:10px; border-bottom: 3px solid #000; background: var(--bg-base); display: flex; gap: 10px; align-items: center; flex-wrap:wrap;">
+                <label for="fileInput" style="font-family:var(--font-heading); font-size:16px; color:#000;">Upload File (SVG / PNG):</label>
+                <input type="file" id="fileInput" accept=".svg,.png,.jpg,.jpeg,.webp" style="font-family:var(--font-heading);font-size:16px" />
               </div>
               <div id="svgPreview" class="editor-area" style="display:flex; justify-content:center; align-items:center; background-image: radial-gradient(#ccc 1px, transparent 1px); background-size: 20px 20px; overflow:hidden;">
-                 <p style="color:#888; font-family:var(--font-heading); text-align:center;">No SVG Uploaded.<br><span style="font-size:12px">Upload a file to see preview</span></p>
+                 <p style="color:#888; font-family:var(--font-heading); text-align:center;">No File Uploaded.<br><span style="font-size:12px">Upload SVG or PNG/JPG to see preview</span></p>
               </div>
               <textarea id="inputCode" style="display:none;"></textarea>
             </div>
@@ -207,38 +207,69 @@
 const inputCode = document.getElementById('inputCode');
 const outputCode = document.getElementById('outputCode');
 const fileInput = document.getElementById('fileInput');
+let currentInputMode = 'svg'; // 'svg' or 'image'
+let currentImageDataUrl = '';
 
 fileInput.addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (evt) => {
-    const rawSvg = evt.target.result;
-    inputCode.value = rawSvg;
-    const previewContainer = document.getElementById('svgPreview');
-    previewContainer.innerHTML = rawSvg;
-    const svgEl = previewContainer.querySelector('svg');
-    if (svgEl) {
-      svgEl.style.maxWidth = '100%'; svgEl.style.maxHeight = '300px';
-      svgEl.style.width = 'auto'; svgEl.style.height = 'auto'; svgEl.style.display = 'block';
-      let w = 0, h = 0;
-      const vb = svgEl.getAttribute('viewBox');
-      if (vb) { const p = vb.split(/[ ,]+/); if (p.length >= 4) { w = parseFloat(p[2]); h = parseFloat(p[3]); } }
-      if (!w && svgEl.getAttribute('width')) w = parseFloat(svgEl.getAttribute('width').replace(/[^0-9.]/g,''));
-      if (!h && svgEl.getAttribute('height')) h = parseFloat(svgEl.getAttribute('height').replace(/[^0-9.]/g,''));
-      if (w > 0) document.getElementById('outWidth').value = Math.round(w);
-      if (h > 0) document.getElementById('outHeight').value = Math.round(h);
-    }
-  };
-  reader.readAsText(file);
+  const previewContainer = document.getElementById('svgPreview');
+
+  if (file.type === 'image/svg+xml' || file.name.endsWith('.svg')) {
+    // ── SVG Mode ──
+    currentInputMode = 'svg';
+    document.getElementById('inputLangLabel').textContent = 'SVG Visual';
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const rawSvg = evt.target.result;
+      inputCode.value = rawSvg;
+      previewContainer.innerHTML = rawSvg;
+      const svgEl = previewContainer.querySelector('svg');
+      if (svgEl) {
+        svgEl.style.maxWidth = '100%'; svgEl.style.maxHeight = '300px';
+        svgEl.style.width = 'auto'; svgEl.style.height = 'auto'; svgEl.style.display = 'block';
+        let w = 0, h = 0;
+        const vb = svgEl.getAttribute('viewBox');
+        if (vb) { const p = vb.split(/[ ,]+/); if (p.length >= 4) { w = parseFloat(p[2]); h = parseFloat(p[3]); } }
+        if (!w && svgEl.getAttribute('width')) w = parseFloat(svgEl.getAttribute('width').replace(/[^0-9.]/g,''));
+        if (!h && svgEl.getAttribute('height')) h = parseFloat(svgEl.getAttribute('height').replace(/[^0-9.]/g,''));
+        if (w > 0) document.getElementById('outWidth').value = Math.round(w);
+        if (h > 0) document.getElementById('outHeight').value = Math.round(h);
+      }
+    };
+    reader.readAsText(file);
+  } else if (file.type.startsWith('image/')) {
+    // ── Raster Image Mode (PNG / JPG / WEBP) ──
+    currentInputMode = 'image';
+    document.getElementById('inputLangLabel').textContent = 'PNG/Image Visual';
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      currentImageDataUrl = evt.target.result;
+      inputCode.value = ''; // no SVG text for raster images
+      previewContainer.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = currentImageDataUrl;
+      img.style.cssText = 'max-width:100%;max-height:300px;width:auto;height:auto;display:block;border-radius:4px;';
+      img.onload = () => {
+        document.getElementById('outWidth').value = img.naturalWidth || 1080;
+        document.getElementById('outHeight').value = img.naturalHeight || 1080;
+      };
+      previewContainer.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  } else {
+    alert('Format tidak didukung. Gunakan SVG, PNG, JPG, atau WEBP.');
+  }
 });
 
 let isScanning = false;
 
 document.getElementById('convertBtn').addEventListener('click', async () => {
   if (isScanning) { alert("Proses scan sedang berjalan!"); return; }
-  const svgText = inputCode.value.trim();
-  if (!svgText) return;
+
+  // Validate input based on mode
+  if (currentInputMode === 'svg' && !inputCode.value.trim()) { alert('Belum ada file yang diupload!'); return; }
+  if (currentInputMode === 'image' && !currentImageDataUrl) { alert('Belum ada gambar yang diupload!'); return; }
 
   isScanning = true;
   const btn = document.getElementById('convertBtn');
@@ -259,41 +290,56 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
 
     const yieldUI = () => new Promise(r => setTimeout(r, 0));
     const debugEl = document.getElementById('debugInfo');
-    debugEl.textContent = '[PIXEL SCAN] Merender SVG ke canvas...';
-    await yieldUI();
-
-    // ── STEP 1: Render SVG to canvas ──────────────────────────────────────
     const MAX_SCAN = 600;
-    // Parse dimensions
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(svgText, "image/svg+xml");
-    const svgEl = doc.querySelector('svg');
-    if (!svgEl) { outputCode.value = "Error: No <svg> element found."; return; }
-    let svgW = 0, svgH = 0;
-    const viewBox = svgEl.getAttribute('viewBox');
-    if (viewBox) { const p = viewBox.split(/[ ,]+/); if (p.length >= 4) { svgW = parseFloat(p[2]); svgH = parseFloat(p[3]); } }
-    if (!svgW && svgEl.getAttribute('width'))  svgW = parseFloat(svgEl.getAttribute('width').replace(/[^0-9.]/g,''));
-    if (!svgH && svgEl.getAttribute('height')) svgH = parseFloat(svgEl.getAttribute('height').replace(/[^0-9.]/g,''));
-    if (!svgW) svgW = 512; if (!svgH) svgH = 512;
-
-    const aspect = svgW / svgH;
-    let cW = aspect >= 1 ? MAX_SCAN : Math.round(MAX_SCAN * aspect);
-    let cH = aspect >= 1 ? Math.round(MAX_SCAN / aspect) : MAX_SCAN;
-    cW = Math.max(1, cW); cH = Math.max(1, cH);
 
     const canvas = document.createElement('canvas');
-    canvas.width = cW; canvas.height = cH;
     const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, cW, cH);
+    let cW, cH;
 
-    const svgBlob = new Blob([svgText], {type:'image/svg+xml;charset=utf-8'});
-    const svgUrl = URL.createObjectURL(svgBlob);
-    await new Promise((res, rej) => {
+    if (currentInputMode === 'svg') {
+      // ── STEP 1a: Render SVG to canvas ───────────────────────────────────
+      debugEl.textContent = '[PIXEL SCAN] Merender SVG ke canvas...';
+      await yieldUI();
+      const svgText = inputCode.value.trim();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(svgText, "image/svg+xml");
+      const svgEl = doc.querySelector('svg');
+      if (!svgEl) { outputCode.value = "Error: No <svg> element found."; return; }
+      let svgW = 0, svgH = 0;
+      const viewBox = svgEl.getAttribute('viewBox');
+      if (viewBox) { const p = viewBox.split(/[ ,]+/); if (p.length >= 4) { svgW = parseFloat(p[2]); svgH = parseFloat(p[3]); } }
+      if (!svgW && svgEl.getAttribute('width'))  svgW = parseFloat(svgEl.getAttribute('width').replace(/[^0-9.]/g,''));
+      if (!svgH && svgEl.getAttribute('height')) svgH = parseFloat(svgEl.getAttribute('height').replace(/[^0-9.]/g,''));
+      if (!svgW) svgW = 512; if (!svgH) svgH = 512;
+      const aspect = svgW / svgH;
+      cW = aspect >= 1 ? MAX_SCAN : Math.round(MAX_SCAN * aspect);
+      cH = aspect >= 1 ? Math.round(MAX_SCAN / aspect) : MAX_SCAN;
+      cW = Math.max(1, cW); cH = Math.max(1, cH);
+      canvas.width = cW; canvas.height = cH;
+      ctx.clearRect(0, 0, cW, cH);
+      const svgBlob = new Blob([svgText], {type:'image/svg+xml;charset=utf-8'});
+      const svgUrl = URL.createObjectURL(svgBlob);
+      await new Promise((res, rej) => {
+        const img = new Image();
+        img.onload = () => { ctx.drawImage(img, 0, 0, cW, cH); URL.revokeObjectURL(svgUrl); res(); };
+        img.onerror = () => { URL.revokeObjectURL(svgUrl); rej(new Error('SVG render failed. Make sure SVG is valid.')); };
+        img.src = svgUrl;
+      });
+    } else {
+      // ── STEP 1b: Render PNG/JPG/WEBP to canvas ──────────────────────────
+      debugEl.textContent = '[PIXEL SCAN] Merender gambar PNG/JPG ke canvas...';
+      await yieldUI();
       const img = new Image();
-      img.onload = () => { ctx.drawImage(img, 0, 0, cW, cH); URL.revokeObjectURL(svgUrl); res(); };
-      img.onerror = () => { URL.revokeObjectURL(svgUrl); rej(new Error('SVG render failed. Make sure SVG is valid.')); };
-      img.src = svgUrl;
-    });
+      img.src = currentImageDataUrl;
+      await new Promise((res, rej) => { img.onload = res; img.onerror = rej; });
+      const aspect = img.naturalWidth / img.naturalHeight;
+      cW = aspect >= 1 ? MAX_SCAN : Math.round(MAX_SCAN * aspect);
+      cH = aspect >= 1 ? Math.round(MAX_SCAN / aspect) : MAX_SCAN;
+      cW = Math.max(1, cW); cH = Math.max(1, cH);
+      canvas.width = cW; canvas.height = cH;
+      ctx.clearRect(0, 0, cW, cH);
+      ctx.drawImage(img, 0, 0, cW, cH);
+    }
 
     const imgData = ctx.getImageData(0, 0, cW, cH);
     const pixels = imgData.data;
@@ -381,31 +427,28 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
       groups.get(root).pixels.push(pos);
     }
 
-    // ── STEP 5: Filter & limit layers ────────────────────────────────────
+    // ── STEP 5: Filter & always merge same-color groups into 1 layer each ──
     const MIN_PIXELS = Math.max(4, Math.round(cW * cH * 0.0005));
     const MAX_LAYERS = 50;
 
-    let sortedGroups = Array.from(groups.values())
-      .filter(g => g.pixels.length >= MIN_PIXELS)
-      .sort((a, b) => b.pixels.length - a.pixels.length);
+    const filteredGroups = Array.from(groups.values())
+      .filter(g => g.pixels.length >= MIN_PIXELS);
 
-    // If still too many, merge all same-color groups
-    if (sortedGroups.length > MAX_LAYERS) {
-      const byColor = new Map();
-      for (const g of sortedGroups) {
-        if (!byColor.has(g.colorIdx)) byColor.set(g.colorIdx, []);
-        byColor.get(g.colorIdx).push(g);
-      }
-      sortedGroups = Array.from(byColor.values())
-        .map(gs => ({ colorIdx: gs[0].colorIdx, pixels: gs.flatMap(g => g.pixels) }))
-        .sort((a, b) => b.pixels.length - a.pixels.length)
-        .slice(0, MAX_LAYERS);
+    // ALWAYS merge all groups that share the same color into a single shape
+    const byColor = new Map();
+    for (const g of filteredGroups) {
+      if (!byColor.has(g.colorIdx)) byColor.set(g.colorIdx, []);
+      byColor.get(g.colorIdx).push(g);
     }
+    let sortedGroups = Array.from(byColor.values())
+      .map(gs => ({ colorIdx: gs[0].colorIdx, pixels: gs.flatMap(g => g.pixels) }))
+      .sort((a, b) => b.pixels.length - a.pixels.length)
+      .slice(0, MAX_LAYERS);
 
     debugEl.textContent = `[CONTOUR] Membuat path untuk ${sortedGroups.length} layer...`;
     await yieldUI();
 
-    // ── STEP 6: Contour tracing + Douglas-Peucker simplification ─────────
+    // ── STEP 6: Contour tracing + DP simplification + Chaikin smoothing ──
     const amScaleX = sceneW / cW, amScaleY = sceneH / cH;
     function n4(v) { return parseFloat(v.toFixed(4)); }
     function toAM(px, py) { return { x: px * amScaleX - sceneW/2, y: py * amScaleY - sceneH/2 }; }
@@ -425,6 +468,28 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
       }
       return [pts[0], pts[pts.length-1]];
     }
+
+    // Chaikin corner-cutting algorithm — smooths sharp polygon corners into curves
+    function chaikinSmooth(pts, iterations, closed) {
+      let result = pts;
+      for (let iter = 0; iter < iterations; iter++) {
+        const next = [];
+        const n = result.length;
+        for (let i = 0; i < n; i++) {
+          const [x0, y0] = result[i];
+          const [x1, y1] = result[(i + 1) % n];
+          if (!closed && i === n - 1) { next.push([x0, y0]); break; }
+          next.push([0.75*x0 + 0.25*x1, 0.75*y0 + 0.25*y1]);
+          next.push([0.25*x0 + 0.75*x1, 0.25*y0 + 0.75*y1]);
+        }
+        result = next;
+      }
+      return result;
+    }
+
+    // Smoothing iterations: more = smoother, but heavier. Tied to quality setting.
+    // Lower quality value = smoother (higher epsilon already reduces points)
+    const smoothIter = outQuality <= 3 ? 3 : outQuality <= 5 ? 2 : 1;
 
     function groupToPath(pixelArr) {
       const set = new Set(pixelArr);
@@ -456,9 +521,13 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
           poly.push([cx, cy]);
         }
         if (poly.length < 3) continue;
+        // 1. Simplify with Douglas-Peucker
         const simplified = dpSimplify(poly, outQuality * 0.5);
         if (simplified.length < 3) continue;
-        const amPts = simplified.map(([x,y]) => toAM(x, y));
+        // 2. Apply Chaikin smoothing for organic curved contours
+        const smoothed = chaikinSmooth(simplified, smoothIter, true);
+        if (smoothed.length < 3) continue;
+        const amPts = smoothed.map(([x,y]) => toAM(x, y));
         pathStr += `M ${n4(amPts[0].x)} ${n4(amPts[0].y)} `;
         for (let i = 1; i < amPts.length; i++) pathStr += `L ${n4(amPts[i].x)} ${n4(amPts[i].y)} `;
         pathStr += 'Z ';
@@ -568,7 +637,10 @@ document.getElementById('downloadBtn').addEventListener('click', () => {
   const a = document.createElement('a');
   a.href = url;
   let filename = 'vector.xml';
-  if (fileInput.files.length > 0) filename = fileInput.files[0].name.replace('.svg', '.xml');
+  if (fileInput.files.length > 0) {
+    const origName = fileInput.files[0].name;
+    filename = origName.replace(/\.(svg|png|jpg|jpeg|webp)$/i, '.xml');
+  }
   a.download = filename;
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
@@ -577,7 +649,9 @@ document.getElementById('downloadBtn').addEventListener('click', () => {
 
 document.getElementById('clearBtn').addEventListener('click', () => {
   inputCode.value = ''; outputCode.value = ''; fileInput.value = '';
-  document.getElementById('svgPreview').innerHTML = '<p style="color:#888;font-family:var(--font-heading);text-align:center;">No SVG Uploaded.<br><span style="font-size:12px">Upload a file to see preview</span></p>';
+  currentInputMode = 'svg'; currentImageDataUrl = '';
+  document.getElementById('inputLangLabel').textContent = 'Input Visual';
+  document.getElementById('svgPreview').innerHTML = '<p style="color:#888;font-family:var(--font-heading);text-align:center;">No File Uploaded.<br><span style="font-size:12px">Upload SVG or PNG/JPG to see preview</span></p>';
   document.getElementById('analysisPanel').style.display = 'none';
   document.getElementById('layerSelectionContainer').style.display = 'none';
 });
