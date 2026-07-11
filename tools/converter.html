@@ -7,8 +7,6 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
 <link rel="stylesheet" href="../style.css"/>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9184269136757439" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
-<script src="https://unpkg.com/@ffmpeg/util@0.12.1/dist/umd/index.js"></script>
 <style>
 .converter-wrap{max-width:900px;margin:0 auto}
 .drop-zone{border:2px dashed var(--border);border-radius:var(--r-xl);padding:70px 40px;text-align:center;cursor:pointer;transition:all var(--tr);background:var(--bg-card)}
@@ -28,6 +26,7 @@
 .btn-dl-page{background:linear-gradient(135deg,#8B5CF6,#6D28D9);color:#fff;padding:5px 12px;border-radius:var(--r-full);font-size:11px;font-weight:600;cursor:pointer;border:none;transition:all var(--tr)}
 .action-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:24px;padding:20px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);display:none}
 .info-box{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;margin-top:20px}
+.format-note{font-size:12px;color:var(--text-2);margin-top:6px;padding:8px 12px;background:rgba(139,92,246,0.08);border-radius:8px;border-left:3px solid var(--purple)}
 </style>
 </head>
 <body>
@@ -87,6 +86,7 @@
             <select id="formatSelect" style="width:100%; padding:12px 16px; border-radius:8px; border:1px solid var(--border); background:var(--bg-surface); color:var(--text); font-size:15px; font-weight:600; cursor:pointer; outline:none">
                <!-- Populated dynamically -->
             </select>
+            <div id="formatNote" class="format-note" style="display:none"></div>
           </div>
 
           <button id="doConvertBtn" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9); color:#fff; border:none; padding:14px 32px; border-radius:var(--r-full); font-size:16px; font-weight:700; cursor:pointer; width:100%; max-width:320px; margin-top:24px; transition:all var(--tr); box-shadow:0 10px 25px -5px rgba(139,92,246,0.4)">
@@ -120,6 +120,7 @@
               <div style="background:var(--bg-surface); padding:8px; border-radius:12px; border:1px solid var(--purple); box-shadow:0 0 15px rgba(139,92,246,0.1)">
                 <img id="resultAfterImg" style="width:100%; max-height:220px; object-fit:contain; border-radius:6px; display:none" />
                 <video id="resultAfterVideo" controls style="width:100%; max-height:220px; object-fit:contain; border-radius:6px; display:none"></video>
+                <audio id="resultAfterAudio" controls style="width:100%; display:none; margin-top:8px"></audio>
               </div>
             </div>
           </div>
@@ -146,7 +147,7 @@
 
       <div class="info-box">
         <h3 style="font-size:15px;font-weight:700;margin-bottom:12px">ℹ️ <span data-en="How it works" data-id="Cara kerjanya">How it works</span></h3>
-        <div style="font-size:14px;color:var(--text-2);line-height:1.7" data-en="This tool uses HTML5 Canvas, PDF.js, and FFmpeg.wasm to convert files entirely locally. Your files are never uploaded to any server, ensuring 100% privacy and speed." data-id="Tool ini menggunakan HTML5 Canvas, PDF.js, dan FFmpeg.wasm untuk mengonversi file sepenuhnya secara lokal. File Anda tidak pernah diunggah ke server mana pun, menjamin 100% privasi dan kecepatan.">This tool uses HTML5 Canvas, PDF.js, and FFmpeg.wasm to convert files entirely locally. Your files are never uploaded to any server, ensuring 100% privacy and speed.</div>
+        <div style="font-size:14px;color:var(--text-2);line-height:1.7" data-en="This tool uses HTML5 Canvas, PDF.js, MediaRecorder API, and Web Audio API to convert files entirely locally. Your files are never uploaded to any server, ensuring 100% privacy and speed." data-id="Tool ini menggunakan HTML5 Canvas, PDF.js, MediaRecorder API, dan Web Audio API untuk mengonversi file sepenuhnya secara lokal. File Anda tidak pernah diunggah ke server mana pun, menjamin 100% privasi dan kecepatan.">This tool uses HTML5 Canvas, PDF.js, MediaRecorder API, and Web Audio API to convert files entirely locally. Your files are never uploaded to any server, ensuring 100% privacy and speed.</div>
       </div>
     </div>
   </div>
@@ -166,6 +167,7 @@ const videoBeforePreview = document.getElementById('videoBeforePreview');
 const pdfIconPreview = document.getElementById('pdfIconPreview');
 const fileNameDisplay = document.getElementById('fileNameDisplay');
 const formatSelect = document.getElementById('formatSelect');
+const formatNote = document.getElementById('formatNote');
 const doConvertBtn = document.getElementById('doConvertBtn');
 
 const progressBar = document.getElementById('progressBar');
@@ -178,6 +180,7 @@ const resultBeforeImg = document.getElementById('resultBeforeImg');
 const resultBeforeVideo = document.getElementById('resultBeforeVideo');
 const resultAfterImg = document.getElementById('resultAfterImg');
 const resultAfterVideo = document.getElementById('resultAfterVideo');
+const resultAfterAudio = document.getElementById('resultAfterAudio');
 const downloadSingleBtn = document.getElementById('downloadSingleBtn');
 
 const pdfResultContainer = document.getElementById('pdfResultContainer');
@@ -188,7 +191,35 @@ let currentFile = null;
 let currentFileType = '';
 let beforeDataUrl = '';
 let pageBlobs = [];
-let ffmpegInstance = null;
+
+function getSupportedVideoMime(format) {
+  const candidates = {
+    'mp4': ['video/mp4;codecs=h264,aac', 'video/mp4;codecs=avc1', 'video/mp4'],
+    'webm': ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'],
+    'mov': ['video/mp4;codecs=h264,aac', 'video/mp4']
+  };
+  const list = candidates[format] || candidates['webm'];
+  for (const mime of list) {
+    if (MediaRecorder.isTypeSupported(mime)) return mime;
+  }
+  if (MediaRecorder.isTypeSupported('video/webm')) return 'video/webm';
+  return '';
+}
+
+function updateFormatNote() {
+  const fmt = formatSelect.value;
+  if (currentFileType !== 'video') { formatNote.style.display = 'none'; return; }
+  
+  const notes = {
+    'mp4':  '✅ MP4: Universally compatible. Browser will use the best available codec.',
+    'webm': '✅ WebM: Best browser support, smaller file size.',
+    'mov':  '⚠️ MOV: Exported as MP4-compatible container (same quality, MOV extension).',
+    'mp3':  '✅ MP3: Extracts audio track from video (exported as WAV — lossless).',
+    'gif':  '⚠️ GIF: Captures frames from video (low FPS, short clips recommended).'
+  };
+  formatNote.textContent = notes[fmt] || '';
+  formatNote.style.display = 'block';
+}
 
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
@@ -211,6 +242,7 @@ function loadFile(file) {
     beforePreview.style.display = 'none';
     videoBeforePreview.style.display = 'none';
     formatSelect.innerHTML = `<option value="png">PNG (High Quality)</option><option value="jpg">JPG (Smaller Size)</option>`;
+    formatNote.style.display = 'none';
   } else if (file.type.startsWith('video/')) {
     currentFileType = 'video';
     pdfIconPreview.style.display = 'none';
@@ -219,11 +251,14 @@ function loadFile(file) {
     videoBeforePreview.src = URL.createObjectURL(file);
     
     formatSelect.innerHTML = `
+      <option value="webm">WebM Video (Best Support)</option>
       <option value="mp4">MP4 Video</option>
       <option value="mov">MOV Video</option>
-      <option value="gif">GIF Animation</option>
       <option value="mp3">MP3 Audio (Extract)</option>
+      <option value="gif">GIF Animation (short clips)</option>
     `;
+    formatSelect.addEventListener('change', updateFormatNote);
+    updateFormatNote();
   } else if (file.type.startsWith('image/')) {
     currentFileType = 'image';
     pdfIconPreview.style.display = 'none';
@@ -243,6 +278,7 @@ function loadFile(file) {
       <option value="webp">WEBP (Optimized)</option>
       <option value="svg">SVG (Embedded Base64)</option>
     `;
+    formatNote.style.display = 'none';
   } else {
     alert("Unsupported file type! Please upload an Image, Video, or PDF.");
     location.reload();
@@ -267,81 +303,276 @@ doConvertBtn.addEventListener('click', async () => {
 });
 
 async function convertVideo(file, format) {
-   progressText.textContent = "Loading FFmpeg Engine (first time only)...";
-   
-   if (!ffmpegInstance) {
-      const { FFmpeg } = FFmpegWASM;
-      ffmpegInstance = new FFmpeg();
-      ffmpegInstance.on('progress', ({ progress, time }) => {
-         progressFill.style.width = Math.max(10, Math.round(progress * 100)) + '%';
-         progressText.textContent = `Converting video... ${Math.round(progress * 100)}%`;
-      });
-      // Load single-threaded core to bypass COOP/COEP requirements
-      await ffmpegInstance.load({
-        coreURL: "https://unpkg.com/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.js",
-        wasmURL: "https://unpkg.com/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.wasm"
-      });
-   }
-   
-   progressText.textContent = "Processing video...";
-   const { fetchFile } = FFmpegUtil;
-   
-   const inputExt = file.name.split('.').pop().toLowerCase();
-   const inputName = `input.${inputExt}`;
-   const outputName = `output.${format}`;
-   
-   await ffmpegInstance.writeFile(inputName, await fetchFile(file));
-   
-   try {
-       // Run the conversion
-       await ffmpegInstance.exec(['-i', inputName, outputName]);
-       
-       const data = await ffmpegInstance.readFile(outputName);
-       const mime = format === 'mp3' ? 'audio/mpeg' : (format === 'gif' ? 'image/gif' : `video/${format}`);
-       const blob = new Blob([data.buffer], { type: mime });
-       const outUrl = URL.createObjectURL(blob);
-       
-       progressFill.style.width = '100%';
-       
-       setTimeout(() => {
-         progressBar.style.display = 'none';
-         progressText.style.display = 'none';
-         resultZone.style.display = 'block';
-         singleResultContainer.style.display = 'flex';
-         pdfResultContainer.style.display = 'none';
-         
-         resultBeforeImg.style.display = 'none';
-         resultBeforeVideo.style.display = 'block';
-         resultBeforeVideo.src = URL.createObjectURL(file);
-         
-         if (format === 'gif' || format === 'mp3') {
-           resultAfterVideo.style.display = 'none';
-           resultAfterImg.style.display = 'block';
-           // If it's MP3, we might want an audio tag, but for simplicity img is used for GIF.
-           // Since MP3 shouldn't show as img, we can just hide it and rely on the download.
-           if (format === 'mp3') {
-             resultAfterImg.style.display = 'none';
-           } else {
-             resultAfterImg.src = outUrl;
-           }
-         } else {
-           resultAfterImg.style.display = 'none';
-           resultAfterVideo.style.display = 'block';
-           resultAfterVideo.src = outUrl;
-         }
-         
-         downloadSingleBtn.onclick = () => {
-           const a = document.createElement('a');
-           a.href = outUrl;
-           a.download = file.name.substring(0, file.name.lastIndexOf('.')) + '_converted.' + format;
-           a.click();
-         };
-       }, 500);
-   } catch (e) {
-       console.error("FFmpeg error:", e);
-       alert("An error occurred during video conversion. The file might be corrupted or unsupported.");
-       location.reload();
-   }
+  try {
+    progressText.textContent = 'Preparing video...';
+    progressFill.style.width = '15%';
+
+    if (format === 'mp3') {
+      await extractAudio(file);
+      return;
+    }
+    if (format === 'gif') {
+      await captureGif(file);
+      return;
+    }
+
+    const videoEl = document.createElement('video');
+    videoEl.src = URL.createObjectURL(file);
+    videoEl.muted = true;
+    videoEl.playsInline = true;
+
+    await new Promise((res, rej) => {
+      videoEl.onloadedmetadata = res;
+      videoEl.onerror = rej;
+    });
+
+    const duration = videoEl.duration;
+    const canvas = document.createElement('canvas');
+    canvas.width  = videoEl.videoWidth  || 1280;
+    canvas.height = videoEl.videoHeight || 720;
+    const ctx = canvas.getContext('2d');
+
+    const outputMime = format === 'mp4' || format === 'mov'
+      ? getSupportedVideoMime('mp4')
+      : getSupportedVideoMime('webm');
+
+    if (!outputMime) {
+      throw new Error('Your browser does not support MediaRecorder for video conversion. Please try Chrome or Firefox.');
+    }
+
+    const recordedChunks = [];
+    const stream = canvas.captureStream(30);
+
+    let audioContext, audioDest;
+    try {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const source = audioContext.createMediaElementSource(videoEl);
+      audioDest = audioContext.createMediaStreamDestination();
+      source.connect(audioDest);
+      source.connect(audioContext.destination);
+      audioDest.stream.getAudioTracks().forEach(t => stream.addTrack(t));
+    } catch(e) {
+      console.warn('Audio capture not available:', e);
+    }
+
+    const recorder = new MediaRecorder(stream, { mimeType: outputMime, videoBitsPerSecond: 4000000 });
+    recorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+
+    const recordingDone = new Promise(res => recorder.onstop = res);
+    recorder.start(100);
+
+    videoEl.currentTime = 0;
+    await new Promise(res => { videoEl.onseeked = res; });
+    await videoEl.play();
+
+    const drawFrame = () => {
+      if (!videoEl.paused && !videoEl.ended) {
+        ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+        const pct = Math.min(90, 25 + Math.round((videoEl.currentTime / duration) * 65));
+        progressFill.style.width = pct + '%';
+        progressText.textContent = `Converting... ${Math.round(videoEl.currentTime)}s / ${Math.round(duration)}s`;
+        requestAnimationFrame(drawFrame);
+      }
+    };
+    requestAnimationFrame(drawFrame);
+
+    await new Promise(res => { videoEl.onended = res; });
+    videoEl.pause();
+    recorder.stop();
+    if (audioContext) audioContext.close();
+    await recordingDone;
+
+    progressFill.style.width = '100%';
+    progressText.textContent = 'Finalising...';
+
+    const ext = (format === 'mp4' || format === 'mov') && outputMime.startsWith('video/mp4') ? format : 'webm';
+    const blobMime = outputMime.split(';')[0];
+    const blob = new Blob(recordedChunks, { type: blobMime });
+    const outUrl = URL.createObjectURL(blob);
+
+    showVideoResult(file, outUrl, format === 'mov' ? 'mov' : ext, blobMime, blob);
+
+  } catch (err) {
+    console.error('Video conversion error:', err);
+    progressBar.style.display = 'none';
+    progressText.style.display = 'none';
+    configZone.style.display = 'block';
+    alert('❌ Video conversion failed:\n' + err.message + '\n\nTip: Try WebM format, or use Chrome/Firefox.');
+  }
+}
+
+async function extractAudio(file) {
+  progressText.textContent = 'Extracting audio track...';
+  progressFill.style.width = '30%';
+
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+    progressFill.style.width = '60%';
+    progressText.textContent = 'Encoding audio...';
+
+    const wavBlob = audioBufferToWav(audioBuffer);
+    const outUrl = URL.createObjectURL(wavBlob);
+
+    progressFill.style.width = '100%';
+    audioCtx.close();
+
+    setTimeout(() => {
+      progressBar.style.display = 'none';
+      progressText.style.display = 'none';
+      resultZone.style.display = 'block';
+      singleResultContainer.style.display = 'flex';
+      pdfResultContainer.style.display = 'none';
+
+      resultBeforeImg.style.display = 'none';
+      resultBeforeVideo.style.display = 'block';
+      resultBeforeVideo.src = URL.createObjectURL(file);
+
+      resultAfterImg.style.display = 'none';
+      resultAfterVideo.style.display = 'none';
+      resultAfterAudio.style.display = 'block';
+      resultAfterAudio.src = outUrl;
+
+      downloadSingleBtn.innerHTML = '⬇️ Download Audio (WAV)';
+      downloadSingleBtn.onclick = () => {
+        const a = document.createElement('a');
+        a.href = outUrl;
+        a.download = file.name.substring(0, file.name.lastIndexOf('.')) + '_audio.wav';
+        a.click();
+      };
+    }, 400);
+
+  } catch(e) {
+    throw new Error('Audio extraction failed: ' + e.message + '. Make sure the video has an audio track.');
+  }
+}
+
+function audioBufferToWav(buffer) {
+  const numChannels = buffer.numberOfChannels;
+  const sampleRate = buffer.sampleRate;
+  const format = 1;
+  const bitDepth = 16;
+  const bytesPerSample = bitDepth / 8;
+  const blockAlign = numChannels * bytesPerSample;
+  const numSamples = buffer.length;
+  const dataSize = numSamples * blockAlign;
+  const wavBuffer = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(wavBuffer);
+
+  const writeStr = (offset, str) => { for (let i=0;i<str.length;i++) view.setUint8(offset+i, str.charCodeAt(i)); };
+  writeStr(0, 'RIFF');
+  view.setUint32(4, 36 + dataSize, true);
+  writeStr(8, 'WAVE');
+  writeStr(12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, format, true);
+  view.setUint16(22, numChannels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * blockAlign, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, bitDepth, true);
+  writeStr(36, 'data');
+  view.setUint32(40, dataSize, true);
+
+  let offset = 44;
+  for (let i = 0; i < numSamples; i++) {
+    for (let ch = 0; ch < numChannels; ch++) {
+      const sample = Math.max(-1, Math.min(1, buffer.getChannelData(ch)[i]));
+      view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+      offset += 2;
+    }
+  }
+  return new Blob([wavBuffer], { type: 'audio/wav' });
+}
+
+async function captureGif(file) {
+  progressText.textContent = 'Capturing frames for GIF...';
+  progressFill.style.width = '20%';
+
+  const videoEl = document.createElement('video');
+  videoEl.src = URL.createObjectURL(file);
+  videoEl.muted = true;
+  videoEl.playsInline = true;
+
+  await new Promise((res, rej) => { videoEl.onloadedmetadata = res; videoEl.onerror = rej; });
+
+  const duration = Math.min(videoEl.duration, 10);
+  const fps = 8;
+  const totalFrames = Math.floor(duration * fps);
+  const canvas = document.createElement('canvas');
+  const scale = 0.5;
+  canvas.width  = Math.round((videoEl.videoWidth  || 640) * scale);
+  canvas.height = Math.round((videoEl.videoHeight || 360) * scale);
+  const ctx = canvas.getContext('2d');
+
+  const frames = [];
+  for (let i = 0; i < totalFrames; i++) {
+    const t = i / fps;
+    videoEl.currentTime = t;
+    await new Promise(res => { videoEl.onseeked = res; });
+    ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+    frames.push(canvas.toDataURL('image/png'));
+    progressFill.style.width = (20 + Math.round((i / totalFrames) * 60)) + '%';
+    progressText.textContent = `Capturing frame ${i+1} / ${totalFrames}...`;
+  }
+
+  progressText.textContent = 'Building animation...';
+  progressFill.style.width = '85%';
+
+  const stream = canvas.captureStream(fps);
+  const supported = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+    ? 'video/webm;codecs=vp9'
+    : 'video/webm';
+  const chunks = [];
+  const rec = new MediaRecorder(stream, { mimeType: supported });
+  rec.ondataavailable = e => chunks.push(e.data);
+  const done = new Promise(r => rec.onstop = r);
+  rec.start();
+
+  for (const frame of frames) {
+    const img = new Image();
+    img.src = frame;
+    await new Promise(r => img.onload = r);
+    ctx.drawImage(img, 0, 0);
+    await new Promise(r => setTimeout(r, 1000 / fps));
+  }
+  rec.stop();
+  await done;
+
+  const blob = new Blob(chunks, { type: 'video/webm' });
+  const outUrl = URL.createObjectURL(blob);
+  progressFill.style.width = '100%';
+
+  showVideoResult(file, outUrl, 'webm', 'video/webm', blob, '⬇️ Download Animation (WebM)');
+}
+
+function showVideoResult(file, outUrl, ext, mime, blob, btnLabel) {
+  setTimeout(() => {
+    progressBar.style.display = 'none';
+    progressText.style.display = 'none';
+    resultZone.style.display = 'block';
+    singleResultContainer.style.display = 'flex';
+    pdfResultContainer.style.display = 'none';
+
+    resultBeforeImg.style.display = 'none';
+    resultBeforeVideo.style.display = 'block';
+    resultBeforeVideo.src = URL.createObjectURL(file);
+
+    resultAfterAudio.style.display = 'none';
+    resultAfterImg.style.display = 'none';
+    resultAfterVideo.style.display = 'block';
+    resultAfterVideo.src = outUrl;
+
+    downloadSingleBtn.innerHTML = btnLabel || '⬇️ Download Result';
+    downloadSingleBtn.onclick = () => {
+      const a = document.createElement('a');
+      a.href = outUrl;
+      a.download = file.name.substring(0, file.name.lastIndexOf('.')) + '_converted.' + ext;
+      a.click();
+    };
+  }, 400);
 }
 
 async function convertImage(dataUrl, format) {
@@ -382,6 +613,7 @@ async function convertImage(dataUrl, format) {
      pdfResultContainer.style.display = 'none';
      
      resultBeforeVideo.style.display = 'none';
+     resultAfterAudio.style.display = 'none';
      resultBeforeImg.style.display = 'block';
      resultBeforeImg.src = beforeDataUrl;
      
@@ -389,6 +621,7 @@ async function convertImage(dataUrl, format) {
      resultAfterImg.style.display = 'block';
      resultAfterImg.src = outDataUrl;
      
+     downloadSingleBtn.innerHTML = '⬇️ Download Result';
      downloadSingleBtn.onclick = () => {
        const a = document.createElement('a');
        a.href = outDataUrl;
@@ -411,14 +644,13 @@ async function convertPDF(file, format) {
 
   for (let i = 1; i <= total; i++) {
     const page = await pdf.getPage(i);
-    const scale = 2; // High quality render
+    const scale = 2;
     const vp = page.getViewport({ scale });
     const canvas = document.createElement('canvas');
     canvas.width = vp.width;
     canvas.height = vp.height;
     const ctx = canvas.getContext('2d');
     
-    // Fill white background before rendering PDF (useful for JPG)
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
@@ -462,7 +694,7 @@ async function convertPDF(file, format) {
       const a = document.createElement('a');
       a.href = URL.createObjectURL(item.blob);
       a.download = `baja_page_${idx+1}.${item.ext}`;
-      setTimeout(() => a.click(), idx * 400); // Stagger downloads
+      setTimeout(() => a.click(), idx * 400);
     });
   });
 }
