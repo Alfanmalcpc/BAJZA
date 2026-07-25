@@ -1,25 +1,17 @@
-// BAJA PRO — Global App Logic
+// BAJA — Global App Logic
 // Real-time Clock
 
 const BAJA = {
-  lang: localStorage.getItem('baja-lang') || 'en',
+  lang: localStorage.getItem('baja-lang') || 'id',
   theme: localStorage.getItem('baja-theme') || 'dark',
 
   init() {
-    this.applyTheme(this.theme);
     this.applyLang(this.lang);
     this.initNav();
     this.initScrollTop();
     this.initClock();
     this.markActiveLink();
-  },
-
-  applyTheme(t) {
-    document.documentElement.setAttribute('data-theme', t);
-    this.theme = t;
-    localStorage.setItem('baja-theme', t);
-    const icon = document.getElementById('themeIcon');
-    if (icon) icon.textContent = t === 'dark' ? '☀️' : '🌙';
+    this.initAuthUI();
   },
 
   applyLang(l) {
@@ -28,7 +20,11 @@ const BAJA = {
     const el = document.getElementById('langLabel');
     if (el) el.textContent = `🌐 ${l.toUpperCase()}`;
     document.querySelectorAll('[data-en]').forEach(node => {
-      node.textContent = l === 'en' ? node.dataset.en : (node.dataset.id || node.dataset.en);
+      if (l === 'id') {
+        node.textContent = node.dataset.id || node.dataset.en;
+      } else {
+        node.textContent = node.dataset.en;
+      }
     });
   },
 
@@ -36,7 +32,6 @@ const BAJA = {
     const navbar = document.getElementById('navbar');
     const hamburger = document.getElementById('hamburger');
     const navMenu = document.getElementById('navMenu');
-    const themeBtn = document.getElementById('themeBtn');
     const langBtn = document.getElementById('langBtn');
 
     window.addEventListener('scroll', () => {
@@ -50,17 +45,72 @@ const BAJA = {
       });
     }
 
-    if (themeBtn) {
-      themeBtn.addEventListener('click', () => {
-        this.applyTheme(this.theme === 'dark' ? 'light' : 'dark');
-      });
-    }
-
     if (langBtn) {
       langBtn.addEventListener('click', () => {
-        this.applyLang(this.lang === 'en' ? 'id' : 'en');
+        window.location.href = this._isRootPage() ? 'settings.html' : '../settings.html';
       });
     }
+  },
+
+  _isRootPage() {
+    const path = window.location.pathname;
+    const depth = (path.match(/\//g) || []).length;
+    return depth <= 1 || path.endsWith('/') || !path.includes('/tools/') && !path.includes('/finance/') && !path.includes('/tutorial/');
+  },
+
+  initAuthUI() {
+    // Only run if Firebase is loaded
+    if (typeof firebase === 'undefined' || typeof auth === 'undefined') return;
+
+    const actions = document.querySelector('.nav-actions');
+    if (!actions) return;
+
+    // Check if auth slot already exists
+    if (document.getElementById('navAuthSlot')) return;
+
+    const slot = document.createElement('div');
+    slot.id = 'navAuthSlot';
+    slot.style.cssText = 'display:flex;align-items:center;gap:8px';
+    const hamburger = actions.querySelector('.hamburger');
+    if (hamburger) actions.insertBefore(slot, hamburger);
+    else actions.appendChild(slot);
+
+    const isRoot = this._isRootPage();
+    const profileHref = isRoot ? 'profile.html' : '../profile.html';
+    const authHref   = isRoot ? 'auth.html'    : '../auth.html';
+
+    auth.onAuthStateChanged(async user => {
+      if (user) {
+        // Get profile from DB for photo/name
+        let displayName = user.displayName || 'Pengguna';
+        let photoURL = user.photoURL || '';
+        try {
+          if (typeof getUserProfile !== 'undefined') {
+            const profile = await getUserProfile(user.uid);
+            if (profile) {
+              displayName = profile.displayName || displayName;
+              photoURL = profile.photoURL || photoURL;
+              // Apply saved language
+              if (profile.lang && profile.lang !== this.lang) {
+                this.applyLang(profile.lang);
+              }
+            }
+          }
+        } catch(e) {}
+
+        const initial = displayName.charAt(0).toUpperCase();
+        slot.innerHTML = `
+          <a href="${profileHref}" id="navAvatarLink" title="${displayName}" style="display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text-1);">
+            ${photoURL
+              ? `<img src="${photoURL}" alt="Avatar" style="width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,0.15);object-fit:cover;"/>`
+              : `<div style="width:34px;height:34px;border-radius:50%;background:var(--grad-tools);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#fff;border:2px solid rgba(255,255,255,0.15);">${initial}</div>`
+            }
+            <span style="font-size:14px;font-weight:600;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:none" class="nav-username">${displayName.split(' ')[0]}</span>
+          </a>`;
+      } else {
+        slot.innerHTML = `<a href="${authHref}" style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--grad-tools);color:#fff;border-radius:var(--r-full);font-size:13px;font-weight:700;text-decoration:none;box-shadow:0 4px 12px rgba(139,92,246,0.3);transition:opacity 0.2s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">👤 Masuk</a>`;
+      }
+    });
   },
 
   initScrollTop() {

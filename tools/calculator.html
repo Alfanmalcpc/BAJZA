@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta name="google-adsense-account" content="ca-pub-6758288522431201">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Scientific Calculator — BAJA</title>
+<meta name="description" content="Free online scientific calculator. Comprehensive math functions directly in your browser."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="stylesheet" href="../style.css"/>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
+<!-- Math.js for robust expression evaluation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.1/math.js"></script>
+<style>
+.calc-wrapper {
+  max-width: 500px;
+  margin: 0 auto;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Display */
+.calc-display {
+  background: transparent;
+  padding: 30px 24px 20px;
+  text-align: right;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+}
+.calc-history {
+  font-size: 16px;
+  color: var(--text-3);
+  min-height: 24px;
+  margin-bottom: 8px;
+  word-wrap: break-word;
+  font-family: monospace;
+}
+.calc-input {
+  font-size: 44px;
+  font-weight: 700;
+  color: #fff;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+  font-family: monospace;
+  letter-spacing: 2px;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+.calc-input::-webkit-scrollbar { display: none; }
+.calc-indicators {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-3);
+  letter-spacing: 1px;
+}
+.ind-active { color: var(--blue-light); text-shadow: 0 0 10px rgba(96, 165, 250, 0.5); }
+
+/* Unified Grid with Floating Buttons */
+.calc-unified-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  padding: 24px;
+  background: transparent;
+}
+
+.calc-btn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--r-md);
+  padding: 14px 4px;
+  font-size: 16px;
+  color: var(--text-1);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+.calc-btn:hover { 
+  background: rgba(255, 255, 255, 0.08); 
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+.calc-btn:active { 
+  background: rgba(255, 255, 255, 0.12); 
+  transform: translateY(1px); 
+}
+
+/* Specific Button Styles */
+.btn-func { color: var(--blue-light); }
+.btn-func:hover { box-shadow: 0 0 15px rgba(96, 165, 250, 0.15); }
+
+.btn-num { font-size: 20px; background: rgba(255, 255, 255, 0.06); font-weight: 700; }
+.btn-num:hover { background: rgba(255, 255, 255, 0.1); }
+
+.btn-op { 
+  color: #c4b5fd; 
+  font-size: 22px; 
+  background: rgba(139, 92, 246, 0.1); 
+  border-color: rgba(139, 92, 246, 0.2); 
+}
+.btn-op:hover { background: rgba(139, 92, 246, 0.2); box-shadow: 0 0 15px rgba(139, 92, 246, 0.2); }
+
+.btn-eq { 
+  background: var(--grad-tools); 
+  color: #fff; 
+  font-size: 24px; 
+  font-weight: 800; 
+  border: none;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+.btn-eq:hover { opacity: 0.9; box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6); }
+
+.btn-clear { color: #f87171; font-weight: 800; font-size: 16px; background: rgba(248, 113, 113, 0.05); }
+.btn-clear:hover { background: rgba(248, 113, 113, 0.1); box-shadow: 0 0 15px rgba(248, 113, 113, 0.2); }
+
+.btn-toggle { color: #34d399; background: rgba(52, 211, 153, 0.05); }
+.btn-toggle:hover { background: rgba(52, 211, 153, 0.1); box-shadow: 0 0 15px rgba(52, 211, 153, 0.2); }
+
+.btn-mem { color: #fbbf24; font-size: 14px; background: rgba(251, 191, 36, 0.05); }
+.btn-mem:hover { background: rgba(251, 191, 36, 0.1); box-shadow: 0 0 15px rgba(251, 191, 36, 0.2); }
+.mem-active { color: #fbbf24 !important; font-weight: 900; }
+
+/* Inverse Toggle States */
+.inv-view { display: none; }
+.is-inv .norm-view { display: none; }
+.is-inv .inv-view { display: inline; }
+.is-inv .btn-inv { background: rgba(52, 211, 153, 0.2); color: #fff; box-shadow: 0 0 15px rgba(52, 211, 153, 0.4); }
+
+@media(max-width: 500px) {
+  .calc-unified-grid { padding: 16px; gap: 6px; }
+  .calc-btn { padding: 12px 2px; font-size: 14px; }
+  .btn-num { font-size: 18px; }
+  .btn-op { font-size: 20px; }
+  .calc-input { font-size: 36px; }
+}
+</style>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="container nav-container">
+    <a href="../index.html" class="nav-logo"><div class="logo-badge">⚡</div><span class="logo-text">BAJA</span></a>
+    <div class="nav-menu" id="navMenu">
+      <a href="index.html" class="nav-link active">🛠️ <span data-en="Tools" data-id="Utilitas">Tools</span></a>
+      <a href="../finance/index.html" class="nav-link">📈 <span data-en="Finance" data-id="Finansial">Finance</span></a>
+      <a href="../tutorial/index.html" class="nav-link">📚 <span data-en="Tutorial" data-id="Tutorial">Tutorial</span></a>
+    </div>
+    <div class="nav-actions">
+      <button class="btn-icon" id="langBtn"><span id="langLabel">🌐 EN</span></button>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="container">
+    <div class="section-badge">🧮 <span data-en="Calculator" data-id="Kalkulator">Calculator</span></div>
+    <h1 data-en="Scientific Calculator" data-id="Kalkulator Saintifik">Scientific Calculator</h1>
+    <p data-en="All symbols and numbers in one powerful layout." data-id="Semua simbol dan angka dalam satu layout yang powerful.">All symbols and numbers in one powerful layout.</p>
+  </div>
+</div>
+
+<section class="section" style="padding-top:32px">
+  <div class="container">
+    <div class="calc-wrapper" id="calcWrapper">
+      <!-- Display -->
+      <div class="calc-display">
+        <div class="calc-indicators">
+          <span id="indDeg" class="ind-active">DEG</span>
+          <span id="indRad">RAD</span>
+          <span id="indMem"></span>
+        </div>
+        <div class="calc-history" id="calcHistory"></div>
+        <div class="calc-input" id="calcInput">0</div>
+      </div>
+      
+      <!-- Unified Grid -->
+      <div class="calc-unified-grid" id="calcGrid">
+        <!-- Row 1 -->
+        <button class="calc-btn btn-toggle btn-inv" id="btnInv">2nd</button>
+        <button class="calc-btn btn-toggle" id="btnDegRad">DEG</button>
+        <button class="calc-btn btn-mem" data-mem="MC">MC</button>
+        <button class="calc-btn btn-mem" data-mem="MR">MR</button>
+        <button class="calc-btn btn-mem" data-mem="MS">MS</button>
+
+        <!-- Row 2 -->
+        <button class="calc-btn btn-func" data-val="sin(" data-inv="asin("><span class="norm-view">sin</span><span class="inv-view">sin⁻¹</span></button>
+        <button class="calc-btn btn-func" data-val="cos(" data-inv="acos("><span class="norm-view">cos</span><span class="inv-view">cos⁻¹</span></button>
+        <button class="calc-btn btn-func" data-val="tan(" data-inv="atan("><span class="norm-view">tan</span><span class="inv-view">tan⁻¹</span></button>
+        <button class="calc-btn btn-clear" data-val="DEL">⌫</button>
+        <button class="calc-btn btn-clear" data-val="AC">AC</button>
+
+        <!-- Row 3 -->
+        <button class="calc-btn btn-func" data-val="sinh(" data-inv="asinh("><span class="norm-view">sinh</span><span class="inv-view">sinh⁻¹</span></button>
+        <button class="calc-btn btn-func" data-val="cosh(" data-inv="acosh("><span class="norm-view">cosh</span><span class="inv-view">cosh⁻¹</span></button>
+        <button class="calc-btn btn-func" data-val="tanh(" data-inv="atanh("><span class="norm-view">tanh</span><span class="inv-view">tanh⁻¹</span></button>
+        <button class="calc-btn btn-func" data-val="π">π</button>
+        <button class="calc-btn btn-func" data-val="e">e</button>
+
+        <!-- Row 4 -->
+        <button class="calc-btn btn-func" data-val="ln(" data-inv="e^("><span class="norm-view">ln</span><span class="inv-view">e^</span></button>
+        <button class="calc-btn btn-func" data-val="log(" data-inv="10^("><span class="norm-view">log</span><span class="inv-view">10^</span></button>
+        <button class="calc-btn btn-func" data-val="²" data-inv="³"><span class="norm-view">x²</span><span class="inv-view">x³</span></button>
+        <button class="calc-btn btn-func" data-val="^" data-inv="^(1/"><span class="norm-view">xʸ</span><span class="inv-view">ʸ√x</span></button>
+        <button class="calc-btn btn-func" data-val="√(" data-inv="³√("><span class="norm-view">√x</span><span class="inv-view">³√x</span></button>
+
+        <!-- Row 5 -->
+        <button class="calc-btn btn-func" data-val="1/(">1/x</button>
+        <button class="calc-btn btn-func" data-val="abs(">|x|</button>
+        <button class="calc-btn btn-func" data-val="!">n!</button>
+        <button class="calc-btn btn-func" data-val="mod(">mod</button>
+        <button class="calc-btn btn-func" data-val="random(">Rand</button>
+
+        <!-- Row 6 -->
+        <button class="calc-btn btn-func" data-val="(">(</button>
+        <button class="calc-btn btn-func" data-val=")">)</button>
+        <button class="calc-btn btn-mem" data-mem="M+">M+</button>
+        <button class="calc-btn btn-mem" data-mem="M-">M-</button>
+        <button class="calc-btn btn-op" data-val="÷">÷</button>
+
+        <!-- Row 7 -->
+        <button class="calc-btn btn-num" data-val="7">7</button>
+        <button class="calc-btn btn-num" data-val="8">8</button>
+        <button class="calc-btn btn-num" data-val="9">9</button>
+        <button class="calc-btn btn-num" data-val="sign">+/-</button>
+        <button class="calc-btn btn-op" data-val="×">×</button>
+
+        <!-- Row 8 -->
+        <button class="calc-btn btn-num" data-val="4">4</button>
+        <button class="calc-btn btn-num" data-val="5">5</button>
+        <button class="calc-btn btn-num" data-val="6">6</button>
+        <button class="calc-btn btn-func" data-val="%">%</button>
+        <button class="calc-btn btn-op" data-val="−">−</button>
+
+        <!-- Row 9 -->
+        <button class="calc-btn btn-num" data-val="1">1</button>
+        <button class="calc-btn btn-num" data-val="2">2</button>
+        <button class="calc-btn btn-num" data-val="3">3</button>
+        <button class="calc-btn btn-num" data-val=".">.</button>
+        <button class="calc-btn btn-op" data-val="+">+</button>
+
+        <!-- Row 10 -->
+        <button class="calc-btn btn-num" data-val="0">0</button>
+        <button class="calc-btn btn-num" data-val="00">00</button>
+        <button class="calc-btn btn-num" data-val="E">Exp</button>
+        <button class="calc-btn btn-func" data-val="Ans">Ans</button>
+        <button class="calc-btn btn-eq" data-val="=">=</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<button id="scrollTop">↑</button>
+<script src="../app.js"></script>
+<script>
+  // -- Calculator Logic --
+  const calcInput = document.getElementById('calcInput');
+  const calcHistory = document.getElementById('calcHistory');
+  const calcWrapper = document.getElementById('calcWrapper');
+  const indDeg = document.getElementById('indDeg');
+  const indRad = document.getElementById('indRad');
+  const indMem = document.getElementById('indMem');
+  
+  let currentExpr = ''; // Visual representation
+  let evaluated = false;
+  let isInv = false;
+  let isDeg = true;
+  let memoryValue = 0;
+  let ansValue = '';
+
+  // math.js configuration for DEG/RAD
+  const origSin = math.sin;
+  const origCos = math.cos;
+  const origTan = math.tan;
+  const origAsin = math.asin;
+  const origAcos = math.acos;
+  const origAtan = math.atan;
+
+  math.import({
+    sin: function(x) { return isDeg ? origSin(math.unit(x, 'deg')) : origSin(x); },
+    cos: function(x) { return isDeg ? origCos(math.unit(x, 'deg')) : origCos(x); },
+    tan: function(x) { return isDeg ? origTan(math.unit(x, 'deg')) : origTan(x); },
+    asin: function(x) { return isDeg ? origAsin(x) * 180 / math.pi : origAsin(x); },
+    acos: function(x) { return isDeg ? origAcos(x) * 180 / math.pi : origAcos(x); },
+    atan: function(x) { return isDeg ? origAtan(x) * 180 / math.pi : origAtan(x); }
+  }, {override: true});
+
+  function sanitizeForEval(expr) {
+    let s = expr;
+    s = s.replace(/×/g, '*');
+    s = s.replace(/÷/g, '/');
+    s = s.replace(/−/g, '-');
+    s = s.replace(/π/g, 'pi');
+    s = s.replace(/√\(/g, 'sqrt(');
+    s = s.replace(/³√\(/g, 'cbrt(');
+    s = s.replace(/²/g, '^2');
+    s = s.replace(/³/g, '^3');
+    s = s.replace(/%/g, '*0.01');
+    s = s.replace(/Ans/g, `(${ansValue || 0})`);
+    return s;
+  }
+
+  function updateDisplay(val) {
+    if(!val) {
+      calcInput.textContent = '0';
+      return;
+    }
+    calcInput.textContent = val;
+    calcInput.scrollLeft = calcInput.scrollWidth;
+  }
+
+  function updateMemoryInd() {
+    indMem.textContent = memoryValue !== 0 ? 'M' : '';
+    indMem.classList.toggle('mem-active', memoryValue !== 0);
+  }
+
+  // Handle Memory Buttons
+  document.querySelectorAll('.btn-mem').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const action = btn.getAttribute('data-mem');
+      try {
+        let currentVal = currentExpr ? math.evaluate(sanitizeForEval(currentExpr)) : 0;
+        
+        if (action === 'MC') {
+          memoryValue = 0;
+        } else if (action === 'MR') {
+          if (evaluated) { currentExpr = ''; evaluated = false; }
+          currentExpr += memoryValue;
+          updateDisplay(currentExpr);
+        } else if (action === 'M+') {
+          memoryValue += currentVal;
+          evaluated = true; 
+        } else if (action === 'M-') {
+          memoryValue -= currentVal;
+          evaluated = true;
+        } else if (action === 'MS') {
+          memoryValue = currentVal;
+          evaluated = true;
+        }
+        updateMemoryInd();
+      } catch (e) {
+        calcInput.textContent = 'Mem Error';
+      }
+    });
+  });
+
+  // Handle Toggles
+  document.getElementById('btnInv').addEventListener('click', () => {
+    isInv = !isInv;
+    calcWrapper.classList.toggle('is-inv', isInv);
+  });
+  
+  document.getElementById('btnDegRad').addEventListener('click', (e) => {
+    isDeg = !isDeg;
+    e.target.textContent = isDeg ? 'DEG' : 'RAD';
+    indDeg.classList.toggle('ind-active', isDeg);
+    indRad.classList.toggle('ind-active', !isDeg);
+  });
+
+  // Handle Input Buttons
+  document.querySelectorAll('.calc-btn:not(.btn-toggle):not(.btn-mem)').forEach(btn => {
+    btn.addEventListener('click', () => {
+      let val = btn.getAttribute('data-val');
+      
+      if (isInv && btn.hasAttribute('data-inv')) {
+        val = btn.getAttribute('data-inv');
+      }
+      
+      if(val === 'AC') {
+        currentExpr = '';
+        calcHistory.textContent = '';
+        evaluated = false;
+        updateDisplay(currentExpr);
+      }
+      else if(val === 'DEL') {
+        if(evaluated) {
+          calcHistory.textContent = '';
+          evaluated = false;
+        }
+        // Handle removing multi-char words visually
+        if(currentExpr.endsWith('Ans')) currentExpr = currentExpr.slice(0, -3);
+        else if(currentExpr.endsWith('sin(') || currentExpr.endsWith('cos(') || currentExpr.endsWith('tan(') || currentExpr.endsWith('log(')) currentExpr = currentExpr.slice(0, -4);
+        else if(currentExpr.endsWith('sinh(') || currentExpr.endsWith('cosh(') || currentExpr.endsWith('tanh(') || currentExpr.endsWith('asin(') || currentExpr.endsWith('acos(') || currentExpr.endsWith('atan(') || currentExpr.endsWith('sqrt(') || currentExpr.endsWith('cbrt(')) currentExpr = currentExpr.slice(0, -5);
+        else currentExpr = currentExpr.slice(0, -1);
+        
+        updateDisplay(currentExpr);
+      }
+      else if(val === 'sign') {
+         if(currentExpr.startsWith('−')) {
+           currentExpr = currentExpr.substring(1);
+         } else if (currentExpr.startsWith('-')) {
+           currentExpr = currentExpr.substring(1);
+         } else {
+           currentExpr = currentExpr === '' ? '−' : '−' + currentExpr;
+         }
+         updateDisplay(currentExpr);
+      }
+      else if(val === '=') {
+        if(!currentExpr) return;
+        try {
+          const evalStr = sanitizeForEval(currentExpr);
+          const result = math.evaluate(evalStr);
+          calcHistory.textContent = calcInput.textContent + ' =';
+          
+          ansValue = result.toString();
+          currentExpr = math.format(result, {precision: 14}).replace(/"/g, '');
+          // ensure result minus uses hyphen-minus or unicode minus
+          currentExpr = currentExpr.replace(/-/g, '−');
+          updateDisplay(currentExpr);
+          evaluated = true;
+        } catch(e) {
+          calcInput.textContent = 'Error';
+          currentExpr = '';
+        }
+      }
+      else {
+        if(evaluated) {
+          if(!['+', '−', '×', '÷', '^', '!', '²', '³', '%'].includes(val) && val !== 'E') {
+             currentExpr = '';
+          }
+          calcHistory.textContent = '';
+          evaluated = false;
+        }
+        currentExpr += val;
+        updateDisplay(currentExpr);
+      }
+    });
+  });
+  
+  // Keyboard support mapping physical keys to visual keys
+  document.addEventListener('keydown', (e) => {
+    let key = e.key;
+    
+    // Map standard keyboard to visual symbols
+    if (key === '*') key = '×';
+    if (key === '/') key = '÷';
+    if (key === '-') key = '−';
+
+    const validKeys = '0123456789+−×÷.^()%!eE';
+    
+    if(validKeys.includes(key)) {
+      if(evaluated) {
+        if(!['+', '−', '×', '÷', '^', '%', '!', 'e', 'E'].includes(key)) {
+             currentExpr = '';
+        }
+        calcHistory.textContent = '';
+        evaluated = false;
+      }
+      currentExpr += key;
+      updateDisplay(currentExpr);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      document.querySelector('[data-val="="]').click();
+    } else if (e.key === 'Backspace') {
+      document.querySelector('[data-val="DEL"]').click();
+    } else if (e.key === 'Escape') {
+      document.querySelector('[data-val="AC"]').click();
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+<meta name="google-adsense-account" content="ca-pub-6758288522431201">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Pengaturan — BAJA</title>
+<meta name="description" content="Pengaturan bahasa dan preferensi akun BAJA."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="stylesheet" href="style.css"/>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="firebase.js"></script>
+<style>
+.settings-wrap { max-width: 520px; margin: 0 auto; padding: 100px 20px 60px; }
+.settings-card {
+  background: rgba(15,23,42,0.7); backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.08); border-radius: 24px;
+  padding: 32px; box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+}
+.settings-title { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+.settings-sub { color: var(--text-2); font-size: 14px; margin-bottom: 32px; }
+.section-label {
+  font-size: 11px; font-weight: 800; color: var(--text-3); letter-spacing: 1.5px;
+  text-transform: uppercase; margin-bottom: 12px; margin-top: 28px;
+}
+.section-label:first-child { margin-top: 0; }
+.lang-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.lang-btn {
+  padding: 14px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03); color: var(--text-1);
+  font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;
+  text-align: center; transition: all 0.2s;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.lang-btn:hover { background: rgba(255,255,255,0.07); }
+.lang-btn.selected {
+  background: rgba(139,92,246,0.15); border-color: var(--purple);
+  color: #c4b5fd; box-shadow: 0 0 20px rgba(139,92,246,0.2);
+}
+.lang-flag { font-size: 24px; }
+.lang-name { font-size: 14px; }
+.section-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 24px 0; }
+.btn-back {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: var(--text-2); font-size: 14px; font-weight: 600;
+  background: none; border: none; cursor: pointer; font-family: inherit;
+  padding: 0; transition: color 0.2s; text-decoration: none;
+}
+.btn-back:hover { color: var(--text-1); }
+.toast {
+  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.3);
+  color: #6ee7b7; padding: 12px 24px; border-radius: 40px;
+  font-weight: 700; font-size: 14px; transition: transform 0.3s; z-index: 9999;
+  backdrop-filter: blur(10px);
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="container nav-container">
+    <a href="index.html" class="nav-logo">
+      <div class="logo-badge">⚡</div>
+      <span class="logo-text">BAJA</span>
+    </a>
+    <div class="nav-actions">
+      <button class="btn-icon" id="langBtn"><span id="langLabel">🌐 ID</span></button>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="settings-wrap">
+  <div class="settings-card">
+    <a href="profile.html" class="btn-back">← Kembali ke Profil</a>
+    <div style="margin-top:24px">
+      <div class="settings-title">⚙️ Pengaturan</div>
+      <div class="settings-sub">Sesuaikan pengalaman BAJA Anda.</div>
+    </div>
+
+    <!-- Language Section -->
+    <div class="section-label">🌐 Pilih Bahasa</div>
+    <div class="lang-grid" id="langGrid">
+      <button class="lang-btn" data-lang="id" onclick="selectLang('id')">
+        <span class="lang-flag">🇮🇩</span>
+        <span class="lang-name">Indonesia</span>
+      </button>
+      <button class="lang-btn" data-lang="en" onclick="selectLang('en')">
+        <span class="lang-flag">🇬🇧</span>
+        <span class="lang-name">English</span>
+      </button>
+      <button class="lang-btn" data-lang="ms" onclick="selectLang('ms')">
+        <span class="lang-flag">🇲🇾</span>
+        <span class="lang-name">Melayu</span>
+      </button>
+      <button class="lang-btn" data-lang="ja" onclick="selectLang('ja')">
+        <span class="lang-flag">🇯🇵</span>
+        <span class="lang-name">日本語</span>
+      </button>
+      <button class="lang-btn" data-lang="ar" onclick="selectLang('ar')">
+        <span class="lang-flag">🇸🇦</span>
+        <span class="lang-name">العربية</span>
+      </button>
+      <button class="lang-btn" data-lang="zh" onclick="selectLang('zh')">
+        <span class="lang-flag">🇨🇳</span>
+        <span class="lang-name">中文</span>
+      </button>
+    </div>
+
+    <div class="section-divider"></div>
+    <div class="section-label">ℹ️ Tentang</div>
+    <div style="color:var(--text-2);font-size:14px;line-height:1.7">
+      <strong style="color:var(--text-1)">BAJA</strong> — Platform alat, finansial, dan tutorial berbasis browser.<br>
+      Versi: 2.0 | © 2025 BAJA
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<button id="scrollTop">↑</button>
+<script src="app.js"></script>
+<script>
+const LANG_LABELS = { id: 'Indonesia', en: 'English', ms: 'Melayu', ja: '日本語', ar: 'العربية', zh: '中文' };
+let currentUid = null;
+let currentLang = localStorage.getItem('baja-lang') || 'id';
+
+function highlightSelected(lang) {
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('selected', btn.dataset.lang === lang);
+  });
+}
+
+highlightSelected(currentLang);
+
+auth.onAuthStateChanged(async user => {
+  if (user) {
+    currentUid = user.uid;
+    const profile = await getUserProfile(user.uid);
+    if (profile?.lang) {
+      currentLang = profile.lang;
+      highlightSelected(currentLang);
+    }
+  }
+});
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+async function selectLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('baja-lang', lang);
+  highlightSelected(lang);
+  // Update label in navbar
+  const el = document.getElementById('langLabel');
+  if (el) el.textContent = '🌐 ' + lang.toUpperCase();
+
+  // Save to Firebase if logged in
+  if (currentUid) {
+    try {
+      await updateLang(currentUid, lang);
+    } catch(e) { console.warn('Could not save lang to DB', e); }
+  }
+  showToast('✅ Bahasa diubah ke ' + (LANG_LABELS[lang] || lang));
+
+  // Apply translations on current page
+  if (typeof BAJA !== 'undefined') BAJA.applyLang(lang);
+}
+</script>
+</body>
+</html>

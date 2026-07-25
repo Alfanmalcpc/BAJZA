@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<meta name="google-adsense-account" content="ca-pub-6758288522431201">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>BAJA PRO — All-in-One Utility, Finance & Learning Platform</title>
-<meta name="description" content="BAJA PRO: Your all-in-one web platform for developer tools, crypto & stock finance dashboard, and technical tutorials. Free, fast, and powerful."/>
+<title>BAJA — All-in-One Utility, Finance & Learning Platform</title>
+<meta name="description" content="BAJA: Your all-in-one web platform for developer tools, crypto & stock finance dashboard, and technical tutorials. Free, fast, and powerful."/>
 <meta name="keywords" content="web tools, crypto dashboard, bitcoin price, code beautifier, image compressor, arduino tutorial, react tutorial, firebase"/>
-<meta property="og:title" content="BAJA PRO — All-in-One Utility & Learning Platform"/>
+<meta property="og:title" content="BAJA — All-in-One Utility & Learning Platform"/>
 <meta property="og:description" content="Free developer tools, live crypto & stock dashboard, and technical tutorials all in one place."/>
 <meta property="og:type" content="website"/>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
@@ -35,7 +37,7 @@
     <a href="index.html" class="nav-logo">
       <div class="logo-badge">⚡</div>
       <span class="logo-text">BAJA</span>
-      <span class="logo-pro">PRO</span>
+      
     </a>
     <div class="nav-menu" id="navMenu">
       <a href="tools/index.html" class="nav-link"><span>🛠️</span> <span data-en="Tools" data-id="Utilitas">Tools</span></a>
@@ -44,7 +46,6 @@
     </div>
     <div class="nav-actions">
       <button class="btn-icon" id="langBtn"><span id="langLabel">🌐 EN</span></button>
-      <button class="btn-icon" id="themeBtn"><span id="themeIcon">☀️</span></button>
       <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -60,7 +61,7 @@
       <div class="hero-badge">⚡ <span data-en="All-in-One Platform" data-id="Platform Serba Bisa">All-in-One Platform</span></div>
       <h1 class="hero-title">
         <span data-en="Your Ultimate" data-id="Platform Terbaik">Your Ultimate</span><br/>
-        <span class="gradient-text">BAJA PRO</span><br/>
+        <span class="gradient-text">BAJA</span><br/>
         <span data-en="Workspace" data-id="Tempat Kerja">Workspace</span>
       </h1>
       <p class="hero-sub" data-en="Free developer tools, live crypto & stock dashboards, and in-depth technical tutorials. All in one powerful platform." data-id="Alat developer gratis, dashboard kripto & saham langsung, dan tutorial teknis mendalam. Semua dalam satu platform yang powerful.">
@@ -144,6 +145,12 @@
       <p class="section-sub" data-en="All processing happens in your browser. No files are ever uploaded to our servers." data-id="Semua pemrosesan terjadi di browser Anda. Tidak ada file yang diunggah ke server kami.">All processing happens in your browser. No files are ever uploaded to our servers.</p>
     </div>
     <div class="tools-preview">
+      <div class="tool-card">
+        <div class="tool-icon">🧮</div>
+        <div class="tool-name" data-en="Scientific Calculator" data-id="Kalkulator Saintifik">Scientific Calculator</div>
+        <div class="tool-desc" data-en="Evaluate complex math expressions directly in your browser." data-id="Evaluasi ekspresi matematika kompleks langsung di browser Anda.">Evaluate complex math expressions directly in your browser.</div>
+        <a href="tools/calculator.html" class="tool-btn" data-en="Calculate Now →" data-id="Hitung Sekarang →">Calculate Now →</a>
+      </div>
       <div class="tool-card">
         <div class="tool-icon">✨</div>
         <div class="tool-name" data-en="Code Beautifier" data-id="Perapih Kode">Code Beautifier</div>
@@ -244,7 +251,7 @@
 <section class="section cta-section">
   <div class="container">
     <div class="cta-inner">
-      <h2 data-en="Start Using BAJA PRO Today" data-id="Mulai Gunakan BAJA PRO Hari Ini">Start Using BAJA PRO Today</h2>
+      <h2 data-en="Start Using BAJA Today" data-id="Mulai Gunakan BAJA Hari Ini">Start Using BAJA Today</h2>
       <p data-en="No account needed. No signup required. 100% free, always." data-id="Tidak perlu akun. Tidak perlu mendaftar. 100% gratis, selamanya.">No account needed. No signup required. 100% free, always.</p>
       <div class="hero-cta">
         <a href="tools/index.html" class="btn-primary" data-en="🛠️ Open Toolbox" data-id="🛠️ Buka Toolbox">🛠️ Open Toolbox</a>
@@ -295,7 +302,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2025 <strong>BAJA PRO</strong>. <span data-en="All rights reserved." data-id="Hak cipta dilindungi.">All rights reserved.</span></span>
+      <span>© 2025 <strong>BAJA</strong>. <span data-en="All rights reserved." data-id="Hak cipta dilindungi.">All rights reserved.</span></span>
       <span data-en="Data for informational purposes only. Not financial advice." data-id="Data hanya untuk tujuan informasi. Bukan saran keuangan.">Data for informational purposes only. Not financial advice.</span>
     </div>
   </div>
@@ -303,6 +310,10 @@
 
 <button id="scrollTop" aria-label="Scroll to top">↑</button>
 
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="firebase.js"></script>
 <script src="app.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', async () => {

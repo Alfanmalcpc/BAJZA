@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+<meta name="google-adsense-account" content="ca-pub-6758288522431201">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Masuk / Daftar — BAJA</title>
+<meta name="description" content="Masuk atau buat akun BAJA untuk menyimpan preferensi dan profil Anda."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"/>
+<link rel="stylesheet" href="style.css"/>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="firebase.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #060b17;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Animated Background ── */
+.auth-bg {
+  position: fixed; inset: 0; z-index: 0; overflow: hidden;
+}
+.auth-bg::before {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 70%);
+  top: -100px; left: -100px;
+  animation: float1 8s ease-in-out infinite;
+}
+.auth-bg::after {
+  content: '';
+  position: absolute;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+  bottom: -80px; right: -80px;
+  animation: float2 10s ease-in-out infinite;
+}
+.auth-bg-orb {
+  position: absolute;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(6,182,212,0.1) 0%, transparent 70%);
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  animation: float3 12s ease-in-out infinite;
+}
+@keyframes float1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(40px,60px)} }
+@keyframes float2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-50px,-40px)} }
+@keyframes float3 { 0%,100%{transform:translate(-50%,-50%) scale(1)} 50%{transform:translate(-50%,-50%) scale(1.3)} }
+
+/* Grid lines overlay */
+.auth-grid {
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* ── Layout ── */
+.auth-page {
+  position: relative; z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+}
+
+/* ── Card ── */
+.auth-card {
+  width: 100%; max-width: 440px;
+  background: rgba(13, 20, 40, 0.85);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 28px;
+  box-shadow:
+    0 0 0 1px rgba(139,92,246,0.1),
+    0 32px 64px rgba(0,0,0,0.6),
+    0 0 80px rgba(139,92,246,0.06);
+  overflow: hidden;
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Header Banner ── */
+.auth-banner {
+  background: linear-gradient(135deg, #4c1d95 0%, #1e3a8a 50%, #0c4a6e 100%);
+  padding: 36px 40px 32px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.auth-banner::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h60v60H0z' fill='none'/%3E%3Ccircle cx='30' cy='30' r='1' fill='rgba(255,255,255,0.1)'/%3E%3C/svg%3E");
+}
+.auth-badge {
+  width: 64px; height: 64px;
+  background: rgba(255,255,255,0.12);
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; margin: 0 auto 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  position: relative; z-index: 1;
+}
+.auth-brand {
+  font-size: 32px; font-weight: 900; letter-spacing: 4px;
+  color: #fff; position: relative; z-index: 1;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+.auth-tagline {
+  font-size: 14px; color: rgba(255,255,255,0.6);
+  margin-top: 8px; position: relative; z-index: 1;
+  font-weight: 500;
+}
+
+/* ── Body ── */
+.auth-body { padding: 32px 36px 36px; }
+
+/* ── Tabs ── */
+.auth-tabs {
+  display: grid; grid-template-columns: 1fr 1fr;
+  background: rgba(255,255,255,0.04);
+  border-radius: 14px;
+  padding: 4px; gap: 4px;
+  margin-bottom: 28px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.auth-tab {
+  padding: 11px; border: none; border-radius: 10px;
+  background: transparent; color: rgba(255,255,255,0.4);
+  font-weight: 700; font-size: 14px; cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Inter', sans-serif; letter-spacing: 0.3px;
+}
+.auth-tab.active {
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(124,58,237,0.4);
+}
+
+/* ── Form ── */
+.auth-form { display: flex; flex-direction: column; gap: 18px; }
+.auth-form.hidden { display: none; }
+
+.form-group { display: flex; flex-direction: column; gap: 7px; }
+
+.form-label {
+  font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.45);
+  letter-spacing: 0.8px; text-transform: uppercase;
+}
+
+.input-wrap { position: relative; }
+.input-icon {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  font-size: 16px; pointer-events: none; opacity: 0.5;
+}
+.form-input {
+  width: 100%;
+  padding: 13px 16px 13px 42px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 15px;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.2s;
+  outline: none;
+}
+.form-input::placeholder { color: rgba(255,255,255,0.2); }
+.form-input:focus {
+  border-color: rgba(124,58,237,0.6);
+  background: rgba(124,58,237,0.06);
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.12), 0 0 20px rgba(124,58,237,0.05);
+}
+
+/* ── Buttons ── */
+.btn-auth {
+  width: 100%; padding: 14px; border: none; border-radius: 14px;
+  background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
+  color: #fff; font-size: 15px; font-weight: 700;
+  cursor: pointer; font-family: 'Inter', sans-serif;
+  box-shadow: 0 8px 24px rgba(124,58,237,0.35), 0 1px 0 rgba(255,255,255,0.1) inset;
+  transition: all 0.2s;
+  letter-spacing: 0.3px;
+  position: relative; overflow: hidden;
+}
+.btn-auth::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+  opacity: 0; transition: opacity 0.2s;
+}
+.btn-auth:hover::before { opacity: 1; }
+.btn-auth:hover { transform: translateY(-1px); box-shadow: 0 12px 28px rgba(124,58,237,0.5); }
+.btn-auth:active { transform: translateY(0); }
+.btn-auth:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+.divider {
+  display: flex; align-items: center; gap: 14px;
+  color: rgba(255,255,255,0.2); font-size: 12px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.divider::before, .divider::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+}
+
+.btn-google {
+  width: 100%; padding: 13px 16px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.8); font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: 'Inter', sans-serif;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  transition: all 0.2s;
+}
+.btn-google:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.18);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+
+/* ── Messages ── */
+.auth-msg {
+  border-radius: 12px; padding: 12px 16px;
+  font-size: 13px; font-weight: 500; line-height: 1.5;
+  display: none; align-items: flex-start; gap: 10px;
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+.auth-msg.error {
+  display: flex;
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.25);
+  color: #fca5a5;
+}
+.auth-msg.success {
+  display: flex;
+  background: rgba(52,211,153,0.1);
+  border: 1px solid rgba(52,211,153,0.2);
+  color: #6ee7b7;
+}
+
+/* ── Footer link ── */
+.auth-footer {
+  text-align: center; margin-top: 24px;
+  font-size: 13px; color: rgba(255,255,255,0.3);
+}
+.auth-footer a {
+  color: rgba(167,139,250,0.8); font-weight: 600;
+  transition: color 0.2s;
+}
+.auth-footer a:hover { color: #a78bfa; }
+
+/* ── Loading spinner ── */
+.spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block; vertical-align: middle; margin-right: 8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 480px) {
+  .auth-body { padding: 24px 24px 28px; }
+  .auth-banner { padding: 28px 24px 24px; }
+  .auth-brand { font-size: 26px; }
+}
+</style>
+</head>
+<body>
+<div class="auth-bg"><div class="auth-bg-orb"></div></div>
+<div class="auth-grid"></div>
+
+<div class="auth-page">
+  <div class="auth-card">
+
+    <!-- Banner -->
+    <div class="auth-banner">
+      <div class="auth-badge">⚡</div>
+      <div class="auth-brand">BAJA</div>
+      <div class="auth-tagline" id="authTagline">Selamat datang kembali!</div>
+    </div>
+
+    <!-- Body -->
+    <div class="auth-body">
+
+      <!-- Tabs -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLogin" onclick="switchTab('login')">Masuk</button>
+        <button class="auth-tab" id="tabRegister" onclick="switchTab('register')">Daftar</button>
+      </div>
+
+      <!-- Messages -->
+      <div class="auth-msg" id="authMsg"></div>
+
+      <!-- ── Login Form ── -->
+      <form class="auth-form" id="loginForm" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <div class="input-wrap">
+            <span class="input-icon">✉️</span>
+            <input type="email" id="loginEmail" class="form-input" placeholder="nama@email.com" required autocomplete="email"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kata Sandi</label>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required autocomplete="current-password"/>
+          </div>
+        </div>
+        <button type="submit" class="btn-auth" id="loginBtn">Masuk ke Akun</button>
+        <div class="divider">atau lanjutkan dengan</div>
+        <button type="button" class="btn-google" onclick="handleGoogle()">
+          <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          Google
+        </button>
+      </form>
+
+      <!-- ── Register Form ── -->
+      <form class="auth-form hidden" id="registerForm" onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label class="form-label">Nama Tampilan</label>
+          <div class="input-wrap">
+            <span class="input-icon">👤</span>
+            <input type="text" id="regName" class="form-input" placeholder="Nama Anda" required autocomplete="name" maxlength="40"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <div class="input-wrap">
+            <span class="input-icon">✉️</span>
+            <input type="email" id="regEmail" class="form-input" placeholder="nama@email.com" required autocomplete="email"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kata Sandi</label>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="regPassword" class="form-input" placeholder="Minimal 6 karakter" required minlength="6" autocomplete="new-password"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Konfirmasi Kata Sandi</label>
+          <div class="input-wrap">
+            <span class="input-icon">✅</span>
+            <input type="password" id="regConfirm" class="form-input" placeholder="Ulangi kata sandi" required autocomplete="new-password"/>
+          </div>
+        </div>
+        <button type="submit" class="btn-auth" id="registerBtn">Buat Akun Baru</button>
+        <div class="divider">atau lanjutkan dengan</div>
+        <button type="button" class="btn-google" onclick="handleGoogle()">
+          <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          Google
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        <a href="index.html">← Kembali ke Beranda tanpa login</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Redirect if already logged in
+auth.onAuthStateChanged(user => {
+  if (user) window.location.href = 'index.html';
+});
+
+function switchTab(tab) {
+  const isLogin = tab === 'login';
+  document.getElementById('loginForm').classList.toggle('hidden', !isLogin);
+  document.getElementById('registerForm').classList.toggle('hidden', isLogin);
+  document.getElementById('tabLogin').classList.toggle('active', isLogin);
+  document.getElementById('tabRegister').classList.toggle('active', !isLogin);
+  document.getElementById('authTagline').textContent = isLogin ? 'Selamat datang kembali!' : 'Buat akun gratis Anda';
+  clearMsg();
+}
+
+function showMsg(text, type) {
+  const el = document.getElementById('authMsg');
+  el.textContent = text;
+  el.className = 'auth-msg ' + type;
+}
+function clearMsg() {
+  const el = document.getElementById('authMsg');
+  el.className = 'auth-msg';
+}
+
+function friendlyError(code) {
+  const map = {
+    'auth/user-not-found':        'Email tidak terdaftar.',
+    'auth/wrong-password':        'Kata sandi salah.',
+    'auth/invalid-email':         'Format email tidak valid.',
+    'auth/email-already-in-use':  'Email sudah digunakan akun lain.',
+    'auth/weak-password':         'Kata sandi terlalu lemah (min. 6 karakter).',
+    'auth/popup-closed-by-user':  'Popup ditutup sebelum selesai. Coba lagi.',
+    'auth/network-request-failed':'Koneksi internet bermasalah. Periksa jaringan Anda.',
+    'auth/invalid-credential':    'Email atau kata sandi salah. Periksa kembali.',
+    'auth/too-many-requests':     'Terlalu banyak percobaan. Coba lagi beberapa saat.',
+  };
+  return map[code] || 'Terjadi kesalahan. Silakan coba lagi.';
+}
+
+function setLoading(btnId, loading, label) {
+  const btn = document.getElementById(btnId);
+  btn.disabled = loading;
+  btn.innerHTML = loading
+    ? `<span class="spinner"></span> Memproses...`
+    : label;
+}
+
+async function handleLogin(e) {
+  e.preventDefault();
+  clearMsg();
+  setLoading('loginBtn', true, 'Masuk ke Akun');
+  try {
+    await bajaSignIn(
+      document.getElementById('loginEmail').value.trim(),
+      document.getElementById('loginPassword').value
+    );
+    showMsg('✅ Berhasil masuk! Mengalihkan...', 'success');
+    setTimeout(() => window.location.href = 'index.html', 900);
+  } catch(err) {
+    showMsg('❌ ' + friendlyError(err.code), 'error');
+    setLoading('loginBtn', false, 'Masuk ke Akun');
+  }
+}
+
+async function handleRegister(e) {
+  e.preventDefault();
+  clearMsg();
+  const pass = document.getElementById('regPassword').value;
+  const conf = document.getElementById('regConfirm').value;
+  if (pass !== conf) { showMsg('❌ Kata sandi tidak cocok.', 'error'); return; }
+  setLoading('registerBtn', true, 'Buat Akun Baru');
+  try {
+    await bajaSignUp(
+      document.getElementById('regEmail').value.trim(),
+      pass,
+      document.getElementById('regName').value.trim()
+    );
+    showMsg('✅ Akun berhasil dibuat! Mengalihkan...', 'success');
+    setTimeout(() => window.location.href = 'index.html', 900);
+  } catch(err) {
+    showMsg('❌ ' + friendlyError(err.code), 'error');
+    setLoading('registerBtn', false, 'Buat Akun Baru');
+  }
+}
+
+async function handleGoogle() {
+  clearMsg();
+  try {
+    await bajaSignInGoogle();
+    showMsg('✅ Berhasil! Mengalihkan...', 'success');
+    setTimeout(() => window.location.href = 'index.html', 900);
+  } catch(err) {
+    showMsg('❌ ' + friendlyError(err.code), 'error');
+  }
+}
+</script>
+</body>
+</html>

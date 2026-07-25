@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<meta name="google-adsense-account" content="ca-pub-6758288522431201">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Universal File Converter — BAJA PRO</title>
+<title>Universal File Converter — BAJA</title>
 <meta name="description" content="Free Universal File Converter. Convert Videos (MP4, MOV), Images (PNG, JPG, SVG, WEBP) and PDF pages directly in your browser."/>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
 <link rel="stylesheet" href="../style.css"/>
@@ -32,7 +34,7 @@
 <body>
 <nav class="navbar" id="navbar">
   <div class="container nav-container">
-    <a href="../index.html" class="nav-logo"><div class="logo-badge">⚡</div><span class="logo-text">BAJA</span><span class="logo-pro">PRO</span></a>
+    <a href="../index.html" class="nav-logo"><div class="logo-badge">⚡</div><span class="logo-text">BAJA</span></a>
     <div class="nav-menu" id="navMenu">
       <a href="index.html" class="nav-link active">🛠️ <span data-en="Tools" data-id="Utilitas">Tools</span></a>
       <a href="../finance/index.html" class="nav-link">📈 Finance</a>
@@ -40,7 +42,6 @@
     </div>
     <div class="nav-actions">
       <button class="btn-icon" id="langBtn"><span id="langLabel">🌐 EN</span></button>
-      <button class="btn-icon" id="themeBtn"><span id="themeIcon">☀️</span></button>
       <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -303,101 +304,173 @@ doConvertBtn.addEventListener('click', async () => {
 });
 
 async function convertVideo(file, format) {
+  let videoEl = null;
+  let fileUrl = null;
+  let audioContext = null;
+  let frameId = null;
+
   try {
-    progressText.textContent = 'Preparing video...';
-    progressFill.style.width = '15%';
+    progressText.textContent = 'Loading video...';
+    progressFill.style.width = '10%';
 
-    if (format === 'mp3') {
-      await extractAudio(file);
-      return;
-    }
-    if (format === 'gif') {
-      await captureGif(file);
-      return;
+    if (format === 'mp3') { await extractAudio(file); return; }
+    if (format === 'gif') { await captureGif(file); return; }
+
+    // Determine best output MIME type
+    const outputMime = getSupportedVideoMime(format === 'mov' ? 'mp4' : format);
+    if (!outputMime) {
+      throw new Error('Your browser cannot record video.\n\nPlease use Chrome or Edge (desktop) and try WebM format.');
     }
 
-    const videoEl = document.createElement('video');
-    videoEl.src = URL.createObjectURL(file);
+    // Create and fully preload the video element (must be in DOM)
+    fileUrl = URL.createObjectURL(file);
+    videoEl = document.createElement('video');
+    videoEl.src = fileUrl;
     videoEl.muted = true;
     videoEl.playsInline = true;
+    videoEl.preload = 'auto';
+    videoEl.style.position = 'fixed';
+    videoEl.style.left = '-9999px';
+    videoEl.style.opacity = '0';
+    document.body.appendChild(videoEl);
 
+    // Wait for enough data to know dimensions & duration
     await new Promise((res, rej) => {
-      videoEl.onloadedmetadata = res;
-      videoEl.onerror = rej;
+      videoEl.onloadeddata = res;
+      videoEl.onerror = () => rej(new Error('Failed to load video. File may be corrupted or codec unsupported by browser.'));
+      videoEl.load();
     });
 
     const duration = videoEl.duration;
+    if (!duration || !isFinite(duration) || duration === 0) {
+      throw new Error('Cannot determine video duration. The file may be corrupted or in an unsupported format.');
+    }
+
+    progressText.textContent = 'Preparing canvas...';
+    progressFill.style.width = '20%';
+
     const canvas = document.createElement('canvas');
     canvas.width  = videoEl.videoWidth  || 1280;
     canvas.height = videoEl.videoHeight || 720;
     const ctx = canvas.getContext('2d');
 
-    const outputMime = format === 'mp4' || format === 'mov'
-      ? getSupportedVideoMime('mp4')
-      : getSupportedVideoMime('webm');
-
-    if (!outputMime) {
-      throw new Error('Your browser does not support MediaRecorder for video conversion. Please try Chrome or Firefox.');
-    }
-
-    const recordedChunks = [];
+    // Build the capture stream from canvas
     const stream = canvas.captureStream(30);
 
-    let audioContext, audioDest;
+    // Try to attach audio track
     try {
       audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioContext.state === 'suspended') await audioContext.resume();
       const source = audioContext.createMediaElementSource(videoEl);
-      audioDest = audioContext.createMediaStreamDestination();
+      const audioDest = audioContext.createMediaStreamDestination();
       source.connect(audioDest);
       source.connect(audioContext.destination);
       audioDest.stream.getAudioTracks().forEach(t => stream.addTrack(t));
-    } catch(e) {
-      console.warn('Audio capture not available:', e);
+    } catch (audioErr) {
+      console.warn('Audio capture skipped (video may be muted):', audioErr.message);
+      if (audioContext) { try { audioContext.close(); } catch(e){} audioContext = null; }
     }
 
-    const recorder = new MediaRecorder(stream, { mimeType: outputMime, videoBitsPerSecond: 4000000 });
-    recorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
+    // Setup MediaRecorder with fallback
+    const recordedChunks = [];
+    let recorder;
+    try {
+      recorder = new MediaRecorder(stream, { mimeType: outputMime, videoBitsPerSecond: 5000000 });
+    } catch(e) {
+      console.warn('Falling back to default MediaRecorder settings');
+      recorder = new MediaRecorder(stream);
+    }
+    recorder.ondataavailable = e => { if (e.data && e.data.size > 0) recordedChunks.push(e.data); };
 
     const recordingDone = new Promise(res => recorder.onstop = res);
-    recorder.start(100);
+    recorder.start(200); // collect every 200ms for reliability
 
+    // Seek to beginning before playing
     videoEl.currentTime = 0;
     await new Promise(res => { videoEl.onseeked = res; });
-    await videoEl.play();
 
-    const drawFrame = () => {
+    progressText.textContent = 'Converting (plays in real-time)...';
+    progressFill.style.width = '25%';
+
+    // Continuous draw loop
+    const drawLoop = () => {
       if (!videoEl.paused && !videoEl.ended) {
         ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
-        const pct = Math.min(90, 25 + Math.round((videoEl.currentTime / duration) * 65));
-        progressFill.style.width = pct + '%';
-        progressText.textContent = `Converting... ${Math.round(videoEl.currentTime)}s / ${Math.round(duration)}s`;
-        requestAnimationFrame(drawFrame);
       }
+      const pct = Math.min(90, 25 + Math.round(((videoEl.currentTime || 0) / duration) * 65));
+      progressFill.style.width = pct + '%';
+      progressText.textContent = `Converting... ${Math.round(videoEl.currentTime || 0)}s / ${Math.round(duration)}s`;
+      frameId = requestAnimationFrame(drawLoop);
     };
-    requestAnimationFrame(drawFrame);
+    frameId = requestAnimationFrame(drawLoop);
 
-    await new Promise(res => { videoEl.onended = res; });
+    // Play and wait for natural end (with safety timeout of 2x duration + 15s)
+    await videoEl.play();
+    await Promise.race([
+      new Promise(res => { videoEl.onended = res; }),
+      new Promise(res => setTimeout(res, (duration * 2 + 15) * 1000))
+    ]);
+
+    // Stop everything
+    cancelAnimationFrame(frameId); frameId = null;
     videoEl.pause();
     recorder.stop();
-    if (audioContext) audioContext.close();
+    if (audioContext) { try { audioContext.close(); } catch(e){} }
     await recordingDone;
 
     progressFill.style.width = '100%';
     progressText.textContent = 'Finalising...';
 
-    const ext = (format === 'mp4' || format === 'mov') && outputMime.startsWith('video/mp4') ? format : 'webm';
-    const blobMime = outputMime.split(';')[0];
-    const blob = new Blob(recordedChunks, { type: blobMime });
+    // Validate output
+    if (recordedChunks.length === 0) {
+      throw new Error('Recording produced no data.\n\nTry: Use WebM format in Chrome, or convert a shorter video clip.');
+    }
+
+    const actualMime = (recorder.mimeType && recorder.mimeType !== '') ? recorder.mimeType : outputMime;
+    const blob = new Blob(recordedChunks, { type: actualMime.split(';')[0] });
+
+    if (blob.size < 1024) {
+      throw new Error('Output file appears empty. Try WebM format or use a different browser (Chrome recommended).');
+    }
+
+    // Choose extension based on actual recorded MIME
+    let ext = 'webm';
+    if (actualMime.includes('mp4')) ext = (format === 'mov') ? 'mov' : 'mp4';
+
     const outUrl = URL.createObjectURL(blob);
 
-    showVideoResult(file, outUrl, format === 'mov' ? 'mov' : ext, blobMime, blob);
+    // Cleanup
+    document.body.removeChild(videoEl); videoEl = null;
+    URL.revokeObjectURL(fileUrl); fileUrl = null;
+
+    showVideoResult(file, outUrl, ext, actualMime.split(';')[0], blob);
 
   } catch (err) {
+    // Cleanup on error
+    if (frameId) cancelAnimationFrame(frameId);
+    if (videoEl && videoEl.parentNode) document.body.removeChild(videoEl);
+    if (fileUrl) URL.revokeObjectURL(fileUrl);
+    if (audioContext) { try { audioContext.close(); } catch(e){} }
+
     console.error('Video conversion error:', err);
     progressBar.style.display = 'none';
     progressText.style.display = 'none';
     configZone.style.display = 'block';
-    alert('❌ Video conversion failed:\n' + err.message + '\n\nTip: Try WebM format, or use Chrome/Firefox.');
+    configZone.innerHTML = `
+      <div style="text-align:center; padding:32px 24px">
+        <div style="font-size:56px; margin-bottom:16px">❌</div>
+        <h2 style="font-size:20px; font-weight:800; color:#f87171; margin-bottom:12px">Video Conversion Failed</h2>
+        <p style="color:var(--text-2); font-size:14px; line-height:1.7; margin-bottom:20px; white-space:pre-line">${err.message}</p>
+        <div style="background:rgba(139,92,246,0.08); border:1px solid rgba(139,92,246,0.2); border-radius:12px; padding:16px; text-align:left; font-size:13px; color:var(--text-2); margin-bottom:24px; line-height:1.8">
+          <strong style="color:var(--text-1); display:block; margin-bottom:8px">💡 Troubleshooting Tips:</strong>
+          • Use <strong style="color:#fff">Google Chrome</strong> or <strong style="color:#fff">Microsoft Edge</strong> (desktop version)<br>
+          • Choose <strong style="color:#fff">WebM</strong> format — highest browser compatibility<br>
+          • For audio extraction, use <strong style="color:#fff">MP3 (Extract Audio)</strong> instead<br>
+          • Try a <strong style="color:#fff">shorter video clip</strong> if memory runs out<br>
+          • Make sure the video file is <strong style="color:#fff">not DRM-protected</strong>
+        </div>
+        <button onclick="location.reload()" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9); color:#fff; border:none; padding:13px 32px; border-radius:var(--r-full); font-size:15px; font-weight:700; cursor:pointer; box-shadow:0 8px 20px -5px rgba(139,92,246,0.5)">🔄 Try Again</button>
+      </div>`;
   }
 }
 

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+<meta name="google-adsense-account" content="ca-pub-6758288522431201">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Profil Saya — BAJA</title>
+<meta name="description" content="Kelola profil akun BAJA Anda."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="stylesheet" href="style.css"/>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="firebase.js"></script>
+<style>
+.profile-wrap {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 100px 20px 60px;
+}
+.profile-card {
+  background: rgba(15,23,42,0.7);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+}
+.profile-header {
+  background: var(--grad-tools);
+  padding: 36px 32px 64px;
+  text-align: center;
+  position: relative;
+}
+.avatar-container {
+  position: relative;
+  display: inline-block;
+  margin-top: 16px;
+}
+.avatar-img {
+  width: 96px; height: 96px;
+  border-radius: 50%;
+  border: 4px solid rgba(255,255,255,0.3);
+  object-fit: cover;
+  background: rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.avatar-edit-btn {
+  position: absolute; bottom: 2px; right: 2px;
+  width: 28px; height: 28px;
+  background: #fff; border-radius: 50%; border: none;
+  cursor: pointer; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
+}
+.avatar-edit-btn:hover { transform: scale(1.1); }
+.profile-body { padding: 24px 32px 32px; }
+.field-group { margin-bottom: 20px; }
+.field-label { font-size: 12px; font-weight: 800; color: var(--text-3); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+.field-row {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 12px 16px;
+}
+.field-value { flex: 1; font-size: 16px; font-weight: 600; color: var(--text-1); word-break: break-all; }
+.field-edit-btn {
+  background: transparent; border: none; cursor: pointer;
+  font-size: 16px; opacity: 0.5; transition: opacity 0.2s; padding: 4px;
+}
+.field-edit-btn:hover { opacity: 1; }
+.field-input {
+  flex: 1; background: transparent; border: none;
+  color: var(--text-1); font-size: 16px; font-weight: 600;
+  outline: none; font-family: inherit;
+  border-bottom: 2px solid var(--purple);
+}
+.btn-save {
+  background: var(--grad-tools); color: #fff; border: none;
+  padding: 8px 16px; border-radius: 8px; font-size: 13px;
+  font-weight: 700; cursor: pointer; font-family: inherit;
+  transition: all 0.2s; white-space: nowrap;
+}
+.btn-save:hover { opacity: 0.85; }
+.section-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 24px 0; }
+.btn-danger {
+  width: 100%; padding: 13px; background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.25); border-radius: 12px;
+  color: #f87171; font-size: 15px; font-weight: 700; cursor: pointer;
+  font-family: inherit; transition: all 0.2s;
+}
+.btn-danger:hover { background: rgba(239,68,68,0.18); }
+.toast {
+  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.3);
+  color: #6ee7b7; padding: 12px 24px; border-radius: 40px;
+  font-weight: 700; font-size: 14px; transition: transform 0.3s; z-index: 9999;
+  backdrop-filter: blur(10px);
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.profile-name-display { font-size: 22px; font-weight: 800; color: #fff; margin-top: 12px; }
+.profile-email-display { font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 4px; }
+</style>
+</head>
+<body>
+<nav class="navbar" id="navbar">
+  <div class="container nav-container">
+    <a href="index.html" class="nav-logo">
+      <div class="logo-badge">⚡</div>
+      <span class="logo-text">BAJA</span>
+    </a>
+    <div class="nav-actions">
+      <button class="btn-icon" id="langBtn"><span id="langLabel">🌐 ID</span></button>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="profile-wrap">
+  <div id="loadingState" style="text-align:center;padding:80px 20px;color:var(--text-3)">
+    <div style="font-size:40px;margin-bottom:12px">⏳</div>
+    <p>Memuat profil...</p>
+  </div>
+
+  <div class="profile-card" id="profileCard" style="display:none">
+    <!-- Header with avatar -->
+    <div class="profile-header">
+      <div class="avatar-container">
+        <img id="avatarImg" class="avatar-img" src="" alt="Foto Profil" onerror="this.src='';this.style.display='none';document.getElementById('avatarFallback').style.display='flex'"/>
+        <div id="avatarFallback" class="avatar-img" style="display:none">👤</div>
+        <button class="avatar-edit-btn" onclick="document.getElementById('photoInput').click()" title="Ganti foto">📷</button>
+        <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(this)"/>
+      </div>
+      <div class="profile-name-display" id="headerName">-</div>
+      <div class="profile-email-display" id="headerEmail">-</div>
+    </div>
+
+    <!-- Body -->
+    <div class="profile-body">
+      <!-- Display Name -->
+      <div class="field-group">
+        <div class="field-label">Nama Tampilan</div>
+        <div class="field-row" id="nameRow">
+          <span class="field-value" id="nameValue">-</span>
+          <button class="field-edit-btn" onclick="startEditName()" title="Edit nama">✏️</button>
+        </div>
+      </div>
+
+      <!-- Email (read only) -->
+      <div class="field-group">
+        <div class="field-label">Email</div>
+        <div class="field-row">
+          <span class="field-value" id="emailValue" style="color:var(--text-2)">-</span>
+          <span style="font-size:13px;color:var(--text-3)">🔒</span>
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <!-- Language Settings shortcut -->
+      <div class="field-group">
+        <div class="field-label">Pengaturan Bahasa</div>
+        <a href="settings.html" style="display:block;text-decoration:none">
+          <div class="field-row" style="cursor:pointer">
+            <span class="field-value" id="langDisplay">Indonesia</span>
+            <span style="font-size:18px">→</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="section-divider"></div>
+
+      <button class="btn-danger" onclick="handleLogout()">🚪 Keluar dari Akun</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<button id="scrollTop">↑</button>
+<script src="app.js"></script>
+<script>
+let currentUid = null;
+
+const langNames = { id: 'Indonesia', en: 'English', ms: 'Melayu', ja: '日本語', ar: 'العربية' };
+
+auth.onAuthStateChanged(async user => {
+  document.getElementById('loadingState').style.display = 'none';
+  if (!user) {
+    window.location.href = 'auth.html';
+    return;
+  }
+  currentUid = user.uid;
+  const profile = await getUserProfile(user.uid) || {};
+
+  // Populate header
+  const name = profile.displayName || user.displayName || 'Pengguna';
+  const email = user.email || '';
+  const photo = profile.photoURL || user.photoURL || '';
+  const lang = profile.lang || 'id';
+
+  document.getElementById('headerName').textContent = name;
+  document.getElementById('headerEmail').textContent = email;
+  document.getElementById('nameValue').textContent = name;
+  document.getElementById('emailValue').textContent = email;
+  document.getElementById('langDisplay').textContent = langNames[lang] || lang;
+
+  // Avatar
+  if (photo) {
+    document.getElementById('avatarImg').src = photo;
+    document.getElementById('avatarImg').style.display = 'block';
+    document.getElementById('avatarFallback').style.display = 'none';
+  } else {
+    document.getElementById('avatarImg').style.display = 'none';
+    document.getElementById('avatarFallback').style.display = 'flex';
+  }
+
+  document.getElementById('profileCard').style.display = 'block';
+});
+
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = isError ? 'rgba(239,68,68,0.15)' : 'rgba(52,211,153,0.15)';
+  t.style.borderColor = isError ? 'rgba(239,68,68,0.3)' : 'rgba(52,211,153,0.3)';
+  t.style.color = isError ? '#fca5a5' : '#6ee7b7';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function startEditName() {
+  const row = document.getElementById('nameRow');
+  const current = document.getElementById('nameValue').textContent;
+  row.innerHTML = `
+    <input class="field-input" id="nameInput" value="${current}" maxlength="40" autofocus/>
+    <button class="btn-save" onclick="saveName()">Simpan</button>
+    <button class="field-edit-btn" onclick="cancelEditName('${current}')">✕</button>`;
+  document.getElementById('nameInput').focus();
+  document.getElementById('nameInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') saveName();
+    if (e.key === 'Escape') cancelEditName(current);
+  });
+}
+
+function cancelEditName(original) {
+  const row = document.getElementById('nameRow');
+  row.innerHTML = `<span class="field-value" id="nameValue">${original}</span><button class="field-edit-btn" onclick="startEditName()" title="Edit nama">✏️</button>`;
+}
+
+async function saveName() {
+  const input = document.getElementById('nameInput');
+  const newName = input.value.trim();
+  if (!newName) { showToast('❌ Nama tidak boleh kosong', true); return; }
+  try {
+    await updateDisplayName(currentUid, newName);
+    document.getElementById('headerName').textContent = newName;
+    cancelEditName(newName);
+    showToast('✅ Nama berhasil diperbarui');
+  } catch(e) {
+    showToast('❌ Gagal menyimpan: ' + e.message, true);
+  }
+}
+
+async function handlePhotoUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) {
+    showToast('❌ Foto terlalu besar (maks. 2MB)', true);
+    return;
+  }
+  showToast('⏳ Mengunggah foto...');
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const base64 = e.target.result;
+    try {
+      // Resize image to max 200x200 before storing
+      const resized = await resizeImage(base64, 200, 200);
+      await updatePhoto(currentUid, resized);
+      document.getElementById('avatarImg').src = resized;
+      document.getElementById('avatarImg').style.display = 'block';
+      document.getElementById('avatarFallback').style.display = 'none';
+      showToast('✅ Foto profil diperbarui');
+    } catch(err) {
+      showToast('❌ Gagal mengunggah foto', true);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function resizeImage(dataUrl, maxW, maxH) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(maxW / img.width, maxH / img.height, 1);
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/jpeg', 0.82));
+    };
+    img.src = dataUrl;
+  });
+}
+
+async function handleLogout() {
+  if (!confirm('Yakin ingin keluar dari akun?')) return;
+  await bajaSignOut();
+  window.location.href = 'index.html';
+}
+</script>
+</body>
+</html>
