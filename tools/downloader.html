@@ -671,27 +671,102 @@
 
 <script src="../app.js"></script>
 <script>
-// ─── CONFIG ────────────────────────────────────────────────────────────────
-// Cobalt.tools is a free, open-source video download API
-// Docs: https://github.com/imputnet/cobalt
-const COBALT_API = 'https://api.cobalt.tools';
-
-// ─── FORMAT OPTIONS ────────────────────────────────────────────────────────
-const FORMATS = {
+// ─── LAYANAN DOWNLOAD PER PLATFORM ─────────────────────────────────────────
+// Setiap platform punya beberapa layanan terpercaya yang bisa langsung dipakai
+const SERVICES = {
   tiktok: [
-    { name:'Video HD', icon:'🎬', desc:'Tanpa Watermark · Kualitas terbaik', quality:'1080', isAudio:false, supported:['No Watermark','HD','Auto'] },
-    { name:'Video SD', icon:'📹', desc:'Tanpa Watermark · File lebih kecil',  quality:'720',  isAudio:false, supported:['No Watermark','SD'] },
-    { name:'Audio MP3', icon:'🎵', desc:'Hanya suara · Format MP3',           quality:'mp3',  isAudio:true,  supported:['MP3','Audio only'] }
+    {
+      name: 'SSSTik',
+      icon: '🎵',
+      desc: 'Video tanpa watermark · Paling populer',
+      badge: 'No WM · HD',
+      color: '#010101',
+      getUrl: (v) => `https://ssstik.io/id#url=${encodeURIComponent(v)}`
+    },
+    {
+      name: 'SnapTik',
+      icon: '📹',
+      desc: 'Video & audio TikTok tanpa watermark',
+      badge: 'No WM · MP3',
+      color: '#fe2c55',
+      getUrl: (v) => `https://snaptik.app/id?url=${encodeURIComponent(v)}`
+    },
+    {
+      name: 'Cobalt.tools',
+      icon: '⚡',
+      desc: 'Open-source · Tanpa iklan',
+      badge: 'Open Source',
+      color: '#7c3aed',
+      getUrl: (v) => `https://cobalt.tools/?u=${encodeURIComponent(v)}`
+    }
   ],
   instagram: [
-    { name:'Video HD', icon:'🎬', desc:'Reels / Post Video · Kualitas terbaik', quality:'1080', isAudio:false, supported:['Reels','HD','Auto'] },
-    { name:'Audio MP3', icon:'🎵', desc:'Hanya suara dari video / Reels',       quality:'mp3',  isAudio:true,  supported:['MP3','Audio only'] }
+    {
+      name: 'SnapInsta',
+      icon: '📸',
+      desc: 'Reels, Post, & Foto Instagram',
+      badge: 'HD · Free',
+      color: '#c13584',
+      getUrl: (v) => `https://snapinsta.app/id?url=${encodeURIComponent(v)}`
+    },
+    {
+      name: 'SaveIG',
+      icon: '🎬',
+      desc: 'Unduh Reels & Story Instagram',
+      badge: 'Video · Foto',
+      color: '#f09433',
+      getUrl: (v) => `https://saveig.app/id?url=${encodeURIComponent(v)}`
+    },
+    {
+      name: 'Cobalt.tools',
+      icon: '⚡',
+      desc: 'Open-source · Tanpa iklan',
+      badge: 'Open Source',
+      color: '#7c3aed',
+      getUrl: (v) => `https://cobalt.tools/?u=${encodeURIComponent(v)}`
+    }
   ],
   youtube: [
-    { name:'Video 1080p', icon:'🎬', desc:'Full HD · MP4',                quality:'1080', isAudio:false, supported:['1080p','MP4'] },
-    { name:'Video 720p',  icon:'📹', desc:'HD · Ukuran lebih kecil',      quality:'720',  isAudio:false, supported:['720p','MP4'] },
-    { name:'Video 480p',  icon:'📺', desc:'SD · Ukuran kecil',            quality:'480',  isAudio:false, supported:['480p','MP4'] },
-    { name:'Audio MP3',   icon:'🎵', desc:'Hanya audio berkualitas tinggi',quality:'mp3',  isAudio:true,  supported:['MP3','Audio only'] }
+    {
+      name: 'Y2Mate',
+      icon: '▶️',
+      desc: 'Video MP4 hingga 1080p & konversi MP3',
+      badge: '1080p · MP3',
+      color: '#ff0000',
+      getUrl: (v) => `https://www.y2mate.com/youtube/${encodeURIComponent(v)}`
+    },
+    {
+      name: 'SSYouTube',
+      icon: '🎬',
+      desc: 'Tambahkan "ss" sebelum youtube.com',
+      badge: 'HD · MP4',
+      color: '#cc0000',
+      getUrl: (v) => v.replace('www.youtube.com','www.ssyoutube.com').replace('youtu.be','ssyoutu.be')
+    },
+    {
+      name: 'Cobalt.tools',
+      icon: '⚡',
+      desc: 'Open-source · Pilih kualitas bebas',
+      badge: 'Open Source',
+      color: '#7c3aed',
+      getUrl: (v) => `https://cobalt.tools/?u=${encodeURIComponent(v)}`
+    }
+  ]
+};
+
+// ─── FORMAT OPTIONS (untuk kartu pilihan di result card) ───────────────────
+const FORMATS = {
+  tiktok: [
+    { name:'Video (No WM)', icon:'🎬', desc:'Tanpa Watermark · HD', isAudio:false, supported:['No Watermark','HD'] },
+    { name:'Audio MP3',     icon:'🎵', desc:'Hanya suara · MP3',    isAudio:true,  supported:['MP3','Audio'] }
+  ],
+  instagram: [
+    { name:'Video / Reels', icon:'🎬', desc:'Video & Reels HD', isAudio:false, supported:['Reels','HD'] },
+    { name:'Audio MP3',     icon:'🎵', desc:'Hanya suara · MP3',isAudio:true,  supported:['MP3','Audio'] }
+  ],
+  youtube: [
+    { name:'Video HD',  icon:'🎬', desc:'Hingga 1080p MP4',          isAudio:false, supported:['1080p','MP4'] },
+    { name:'Audio MP3', icon:'🎵', desc:'Hanya audio berkualitas',    isAudio:true,  supported:['MP3','Audio'] }
   ]
 };
 
@@ -820,8 +895,8 @@ function showResults(url) {
 
 function triggerDownloadFromResult(idx) { triggerDownload(idx); }
 
-// ─── TRIGGER DOWNLOAD via Cobalt API ──────────────────────────────────────
-async function triggerDownload(idx) {
+// ─── TRIGGER DOWNLOAD — buka layanan terpilih ─────────────────────────────
+function triggerDownload(idx) {
   const url = window._currentDlUrl || document.getElementById('videoUrl').value.trim();
   if (!url) {
     showToast('⚠️ Tempel link video terlebih dahulu, lalu klik Download!');
@@ -831,69 +906,43 @@ async function triggerDownload(idx) {
     showToast('❌ Link tidak valid.');
     return;
   }
+  // Tampilkan modal pilihan layanan
+  showServiceModal(url, idx);
+}
 
-  const fmt = FORMATS[currentPlatform][idx];
-  openModal(fmt.icon, fmt.name, fmt.isAudio);
+// ─── MODAL PILIHAN LAYANAN ────────────────────────────────────────────────
+function showServiceModal(videoUrl, fmtIdx) {
+  const services = SERVICES[currentPlatform];
+  const fmt = FORMATS[currentPlatform][fmtIdx];
 
-  try {
-    setModalProgress(20, 'Menghubungi server Cobalt...');
+  document.getElementById('modalIcon').textContent = fmt.icon;
+  document.getElementById('modalTitle').textContent = `Pilih Layanan — ${fmt.name}`;
+  document.getElementById('modalBody').innerHTML =
+    `Klik salah satu layanan di bawah. Layanan akan terbuka di tab baru dengan link video sudah otomatis ter-isi.<br><br>
+    <span style="font-size:11px;color:rgba(255,255,255,.5);">⚡ Gratis & tanpa perlu login</span>`;
+  document.getElementById('modalUrl').style.display = 'none';
+  document.getElementById('modalProgress').style.display = 'none';
+  document.getElementById('modalError').style.display = 'none';
 
-    // Build cobalt API request body
-    const body = {
-      url: url,
-      downloadMode: fmt.isAudio ? 'audio' : 'auto',
-      filenameStyle: 'pretty',
-      tiktokFullAudio: false,
-      tiktokH265: false,
-      youtubeHLS: false
-    };
+  // Render service buttons inside download wrap
+  const wrap = document.getElementById('modalDownloadWrap');
+  wrap.style.display = 'block';
+  wrap.innerHTML = services.map(svc => `
+    <a href="${svc.getUrl(videoUrl)}" target="_blank" rel="noopener noreferrer"
+       class="dl-download-link"
+       style="background:${svc.color};margin-bottom:10px;"
+       onclick="showToast('🚀 Membuka ${svc.name}...')"
+    >
+      <span style="font-size:20px;">${svc.icon}</span>
+      <div style="text-align:left;">
+        <div style="font-size:14px;font-weight:700;">${svc.name}</div>
+        <div style="font-size:11px;opacity:.8;">${svc.desc}</div>
+      </div>
+      <span style="margin-left:auto;background:rgba(255,255,255,.2);padding:3px 10px;border-radius:99px;font-size:10px;font-weight:700;white-space:nowrap;">${svc.badge}</span>
+    </a>
+  `).join('');
 
-    // Add video quality if not audio
-    if (!fmt.isAudio && fmt.quality !== 'mp3') {
-      body.videoQuality = fmt.quality;
-    }
-    if (fmt.isAudio) {
-      body.audioFormat = 'mp3';
-      body.audioBitrate = '320';
-    }
-
-    setModalProgress(50, 'Mengambil link download...');
-
-    const resp = await fetch(COBALT_API, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(body)
-    });
-
-    setModalProgress(80, 'Mempersiapkan file...');
-
-    const data = await resp.json();
-
-    if (!resp.ok || data.status === 'error') {
-      throw new Error(data?.error?.code || data?.text || 'Gagal mendapatkan link download.');
-    }
-
-    // status: 'stream' = direct download, 'redirect' = redirect url, 'tunnel' = proxied
-    let dlUrl = data.url || (data.urls && data.urls[0]) || null;
-
-    if (!dlUrl) throw new Error('Tidak ada link download yang tersedia untuk URL ini.');
-
-    setModalProgress(100, 'Siap! Klik tombol di bawah untuk mengunduh.');
-
-    // Build a nice filename
-    const ext = fmt.isAudio ? 'mp3' : 'mp4';
-    const safeHost = currentPlatform;
-    const filename = `BAJA_${safeHost}_${Date.now()}.${ext}`;
-
-    showModalDownload(dlUrl, filename);
-
-  } catch(err) {
-    console.error('[BAJA Downloader]', err);
-    showModalError(err.message || 'Terjadi kesalahan. Coba lagi atau gunakan format lain.');
-  }
+  document.getElementById('dlModal').classList.add('open');
 }
 
 // ─── MODAL HELPERS ────────────────────────────────────────────────────────
@@ -918,52 +967,70 @@ function setModalProgress(pct, label) {
 function showModalDownload(url, filename) {
   document.getElementById('modalBody').textContent = '✅ Link berhasil didapatkan! Klik tombol di bawah untuk mulai mengunduh.';
   document.getElementById('modalProgress').style.display = 'none';
+
+  // Show the direct link clearly so user can also long-press / right-click
+  const urlEl = document.getElementById('modalUrl');
+  urlEl.textContent = url;
+  urlEl.style.display = 'block';
+
   const btn = document.getElementById('modalDownloadBtn');
-  btn.removeAttribute('href');
-  btn.removeAttribute('download');
+  // Use a real <a> tag approach: set href + download, open in same context
+  btn.href = url;
+  btn.download = filename;
+  btn.setAttribute('target', '_blank');
+  btn.setAttribute('rel', 'noopener noreferrer');
   btn.onclick = function(e) {
     e.preventDefault();
-    downloadFileLocally(url, filename);
+    downloadFileLocally(url, filename, btn);
   };
   btn.textContent = '⬇️ Download Sekarang — ' + filename;
   document.getElementById('modalDownloadWrap').style.display = 'block';
   showToast('✅ Link download siap!');
 }
 
-async function downloadFileLocally(url, filename) {
-  const btn = document.getElementById('modalDownloadBtn');
-  const originalText = btn.textContent;
-  btn.textContent = '⏳ Mengunduh file ke perangkat...';
-  btn.style.opacity = '0.7';
-  btn.style.pointerEvents = 'none';
+async function downloadFileLocally(url, filename, btn) {
+  const originalText = btn ? btn.textContent : '⬇️ Download Sekarang';
+  if (btn) { btn.textContent = '⏳ Memeriksa file...'; btn.style.opacity = '0.75'; btn.style.pointerEvents = 'none'; }
+
+  let downloaded = false;
+
+  // Method 1: blob fetch (works if Cobalt sends CORS headers)
   try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('Gagal mengambil file');
-    const blob = await res.blob();
-    const blobUrl = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = blobUrl;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
-    btn.textContent = '✅ Download Selesai!';
-  } catch (err) {
-    console.error(err);
-    // Fallback
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.target = '_blank';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    btn.textContent = '✅ Mengalihkan ke browser...';
+    const res = await fetch(url, { mode: 'cors' });
+    if (res.ok) {
+      const blob = await res.blob();
+      if (blob.size > 1000) { // sanity: at least 1KB means it's a real file
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+        downloaded = true;
+        if (btn) btn.textContent = '✅ File sedang diunduh!';
+        showToast('✅ Download dimulai!');
+      }
+    }
+  } catch(e) {
+    console.warn('[BAJA] Blob fetch gagal (CORS), fallback ke window.open:', e.message);
   }
-  btn.style.opacity = '1';
-  btn.style.pointerEvents = 'auto';
-  setTimeout(() => { if (btn.textContent.includes('Selesai') || btn.textContent.includes('Mengalihkan')) btn.textContent = originalText; }, 3000);
+
+  // Method 2: window.open – browser handles the download natively
+  if (!downloaded) {
+    window.open(url, '_blank', 'noopener,noreferrer');
+    if (btn) btn.textContent = '✅ Dibuka di tab baru — simpan dari sana!';
+    showToast('⬇️ Tab baru dibuka, simpan video dari sana!');
+    document.getElementById('modalBody').textContent =
+      '📂 File terbuka di tab baru. Klik kanan → "Simpan video sebagai..." untuk menyimpannya.';
+  }
+
+  if (btn) {
+    btn.style.opacity = '1';
+    btn.style.pointerEvents = 'auto';
+    setTimeout(() => { btn.textContent = originalText; }, 5000);
+  }
 }
 
 function showModalError(msg) {

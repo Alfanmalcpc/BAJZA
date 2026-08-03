@@ -13,6 +13,28 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script src="firebase.js"></script>
 <style>
+/* ── Fix: define missing variables for dark profile page ── */
+:root {
+  --grad-tools: linear-gradient(135deg, #7c3aed 0%, #4f46e5 50%, #06b6d4 100%);
+  --purple: #7c3aed;
+  --text-1: #f1f5f9;
+  --text-2: #94a3b8;
+  --text-3: #64748b;
+  --r-full: 99px;
+  --r-xl: 24px;
+  --r-lg: 14px;
+  --r-md: 8px;
+  --tr: .18s ease;
+}
+body {
+  background: #0a0f1e;
+  color: #f1f5f9;
+  font-family: 'Space Grotesk', 'Inter', sans-serif;
+  min-height: 100vh;
+  padding-bottom: 80px;
+  background-image: radial-gradient(ellipse at 20% 0%, rgba(124,58,237,.15) 0%, transparent 50%),
+                    radial-gradient(ellipse at 80% 100%, rgba(6,182,212,.1) 0%, transparent 50%);
+}
 .profile-wrap {
   max-width: 520px;
   margin: 0 auto;
@@ -103,6 +125,17 @@
 .toast.show { transform: translateX(-50%) translateY(0); }
 .profile-name-display { font-size: 22px; font-weight: 800; color: #fff; margin-top: 12px; }
 .profile-email-display { font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 4px; }
+
+/* ── Navbar fix for dark page ── */
+.navbar { background: rgba(10,15,30,.95) !important; border-bottom: 1px solid rgba(255,255,255,.08) !important; }
+.logo-text { color: #fff !important; -webkit-text-stroke: 0 !important; }
+.logo-badge { background: linear-gradient(135deg,#7c3aed,#06b6d4) !important; border: none !important; }
+.nav-clock, .clock-date, .clock-time { color: rgba(255,255,255,.7) !important; }
+.bottom-nav { background: rgba(10,15,30,.98) !important; border-top: 1px solid rgba(255,255,255,.08) !important; }
+.bottom-nav-link { color: rgba(255,255,255,.5) !important; }
+.bottom-nav-link.active, .bottom-nav-link:hover { color: #a78bfa !important; }
+.bottom-nav-link::before { background: #7c3aed !important; }
+#scrollTop { background: linear-gradient(135deg,#7c3aed,#06b6d4) !important; border: none !important; color: #fff !important; }
 </style>
 </head>
 <body>
