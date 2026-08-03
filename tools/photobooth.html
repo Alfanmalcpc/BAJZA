@@ -264,7 +264,7 @@
         🗑️ Hapus Watermark
       </button>
       <div id="wmScriptWrap" style="margin-top:8px; min-height:10px;">
-        <script type="text/javascript" src="/s_include.php?id=1907625"></script>
+        <!-- Script CPA telah dipindah ke bagian Head -->
       </div>
     </div>
   </div>
@@ -434,10 +434,26 @@
 
   // Fungsi menghapus watermark
   function removeWatermark() {
+    // 1. Panggil script CPA lewat IFrame agar tidak bentrok dengan dokumen utama
+    const iframe = document.createElement('iframe');
+    iframe.src = 'locker.html';
+    iframe.style.position = 'fixed';
+    iframe.style.top = '0';
+    iframe.style.left = '0';
+    iframe.style.width = '100vw';
+    iframe.style.height = '100vh';
+    iframe.style.zIndex = '999999';
+    iframe.style.border = 'none';
+    iframe.style.background = 'transparent';
+    document.body.appendChild(iframe);
+
+    // 2. Sembunyikan tombol task dan hilangkan watermark
     hasWatermark = false;
     document.getElementById('wmTaskContainer').style.display = 'none';
     renderStrip();
-    showToast('Watermark berhasil dihilangkan!', false);
+    
+    // 3. Beri notifikasi
+    showToast('Menampilkan tugas... Silakan selesaikan untuk membuka kunci!', false);
   }
 
   // Render the Photobooth Strip
