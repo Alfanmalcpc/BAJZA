@@ -228,7 +228,14 @@ auth.onAuthStateChanged(async user => {
     return;
   }
   currentUid = user.uid;
-  const profile = await getUserProfile(user.uid) || {};
+  
+  let profile = {};
+  try {
+    profile = await getUserProfile(user.uid) || {};
+  } catch(e) {
+    console.warn("Could not load extended profile from DB:", e);
+    // Continue with basic user info
+  }
 
   // Populate header
   const name = profile.displayName || user.displayName || 'Pengguna';

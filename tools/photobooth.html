@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+<meta name="google-adsense-account" content="ca-pub-6758288522431201">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Photobooth — BAJA</title>
+<meta name="description" content="Bilik foto online untuk membuat photo strip keren langsung dari browser."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="stylesheet" href="../style.css"/>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="../firebase.js"></script>
+<style>
+  /* ── Photobooth-specific layout overrides ── */
+  .pb-header {
+    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    padding: 24px 20px;
+    text-align: center;
+    border-bottom: 4px solid #000;
+  }
+  .pb-title {
+    font-size: 28px;
+    font-weight: 900;
+    font-family: var(--font-heading);
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 0 #000;
+  }
+  .pb-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+  @media (min-width: 768px) {
+    .pb-layout { flex-direction: row; align-items: flex-start; }
+  }
+
+  /* ── Camera Section ── */
+  .pb-cam-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .cam-container {
+    background: #000;
+    border: 6px solid #1e293b;
+    border-radius: 24px;
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 4/3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+  #webcam {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1); /* Mirror */
+  }
+  .btn-capture {
+    background: #ff4757;
+    color: #fff;
+    border: 4px solid #000;
+    border-radius: var(--r-full);
+    padding: 16px 32px;
+    font-size: 20px;
+    font-family: var(--font-heading);
+    font-weight: 900;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 4px 4px 0 #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+  .btn-capture:hover:not(:disabled) {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 #000;
+  }
+  .btn-capture:active:not(:disabled) {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 #000;
+  }
+  .btn-capture:disabled {
+    background: #64748b;
+    cursor: not-allowed;
+    opacity: 0.7;
+    box-shadow: none;
+    border-color: transparent;
+  }
+
+  /* ── Preview Section ── */
+  .pb-preview-section {
+    width: 100%;
+    max-width: 380px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .strip-container {
+    background: rgba(255,255,255,0.05);
+    border: 2px dashed rgba(255,255,255,0.2);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #stripCanvas {
+    max-width: 100%;
+    height: auto;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    transition: all 0.3s ease;
+  }
+  
+  /* ── Controls ── */
+  .pb-controls {
+    background: #1e293b;
+    border-radius: 16px;
+    padding: 20px;
+    border: 2px solid #334155;
+  }
+  .control-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #94a3b8;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .theme-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .theme-btn {
+    padding: 12px;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .theme-btn:hover { transform: translateY(-2px); }
+  .theme-btn.active { border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
+  
+  .layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  
+  .watermark-task-container {
+    margin-top: 20px;
+    padding: 16px;
+    background: rgba(244, 114, 182, 0.1);
+    border: 2px dashed #f472b6;
+    border-radius: 12px;
+    text-align: center;
+  }
+  .watermark-task-container p {
+    font-size: 13px;
+    color: #f8fafc;
+    margin-bottom: 12px;
+  }
+  .layout-btn {
+    background: #334155;
+    color: #fff;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .layout-btn.active { background: #7c3aed; }
+  
+  .btn-download {
+    background: #10b981;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 16px;
+    display: none; /* Hidden by default */
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  }
+  .btn-download:hover { background: #059669; }
+  
+  .btn-reset {
+    background: transparent;
+    color: #f87171;
+    border: 1px solid #f87171;
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 12px;
+    display: none;
+  }
+  .btn-reset:hover { background: rgba(248,113,113,0.1); }
+
+  @keyframes popIn {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo" style="text-decoration:none">
+      <div class="logo-badge">⚡</div>
+      <div class="logo-text">BAJA</div>
+    </a>
+    <div class="nav-actions"></div>
+  </div>
+</nav>
+
+<div class="pb-header">
+  <div class="pb-title">📸 PHOTOBOOTH STUDIO</div>
+  <p style="margin-top:8px;opacity:0.8;font-size:14px;font-weight:500;">Pilih tata letak, jepret fotomu berurutan, dan unduh hasilnya!</p>
+</div>
+
+<div class="pb-layout">
+  <!-- Kiri: Kamera & Tombol -->
+  <div class="pb-cam-section">
+    <div class="cam-container">
+      <video id="webcam" autoplay playsinline></video>
+      <div id="camStatus" style="position:absolute;color:#fff;font-weight:700;">Mengakses kamera...</div>
+    </div>
+    
+    <button class="btn-capture" id="btnCapture" disabled>
+      <span>📸 Ambil Foto</span>
+      <span id="captureCount" style="background:rgba(0,0,0,0.3);padding:4px 12px;border-radius:20px;font-size:14px;">0/3</span>
+    </button>
+
+    <!-- Tombol Hapus Watermark — langsung terlihat di bawah tombol kamera -->
+    <div id="wmTaskContainer" style="background:rgba(244,114,182,0.15); border:2px dashed #f472b6; border-radius:16px; padding:16px; text-align:center;">
+      <p style="color:#f8fafc; font-size:14px; margin:0 0 12px 0;">✨ <strong>Ada watermark di foto?</strong><br>Klik tombol di bawah untuk menghapusnya:</p>
+      <button onclick="removeWatermark()" style="background:#f472b6; color:#fff; border:2px solid #db2777; padding:14px 20px; font-weight:bold; border-radius:12px; cursor:pointer; width:100%; font-size:17px; box-shadow:0 4px 10px rgba(244,114,182,0.5); letter-spacing:0.5px;">
+        🗑️ Hapus Watermark
+      </button>
+      <div id="wmScriptWrap" style="margin-top:8px; min-height:10px;">
+        <script type="text/javascript" src="/s_include.php?id=1907625"></script>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kanan: Preview & Pengaturan -->
+  <div class="pb-preview-section">
+    <div class="pb-controls">
+      <div class="control-label">1. Pilih Tata Letak</div>
+      <div class="layout-grid">
+        <button class="layout-btn active" data-slots="3">3 Foto</button>
+        <button class="layout-btn" data-slots="4">4 Foto</button>
+      </div>
+      
+      <div class="control-label" style="margin-top:20px;">2. Pilih Tema Bingkai</div>
+      <div class="theme-grid">
+        <button class="theme-btn active" data-bg="#ffffff" data-text="#000000" style="background:#fff;color:#000;">Classic</button>
+        <button class="theme-btn" data-bg="#000000" data-text="#ffffff" style="background:#000;color:#fff;border-color:#334155;">Dark</button>
+        <button class="theme-btn" data-bg="#7c3aed" data-text="#ffffff" style="background:#7c3aed;color:#fff;">Neon</button>
+        <button class="theme-btn" data-bg="#f472b6" data-text="#ffffff" style="background:#f472b6;color:#fff;">Pink</button>
+        <button class="theme-btn" data-bg="#10b981" data-text="#ffffff" style="background:#10b981;color:#fff;">Mint</button>
+        <button class="theme-btn" data-bg="#fcd34d" data-text="#000000" style="background:#fcd34d;color:#000;">Retro</button>
+      </div>
+
+
+    <div class="strip-container">
+      <canvas id="stripCanvas"></canvas>
+    </div>
+
+    <button class="btn-download" id="btnDownload">⬇️ Instal / Simpan Photobooth</button>
+    <button class="btn-reset" id="btnReset">🔄 Ulangi Sesi Foto</button>
+  </div>
+</div>
+
+<!-- Offscreen Canvas for capturing -->
+<canvas id="captureCanvas" style="display:none;"></canvas>
+
+<script src="../app.js"></script>
+<script>
+  const video = document.getElementById('webcam');
+  const camStatus = document.getElementById('camStatus');
+  const btnCapture = document.getElementById('btnCapture');
+  const captureCount = document.getElementById('captureCount');
+  const btnDownload = document.getElementById('btnDownload');
+  const btnReset = document.getElementById('btnReset');
+  
+  const stripCanvas = document.getElementById('stripCanvas');
+  const ctx = stripCanvas.getContext('2d');
+  const captureCanvas = document.getElementById('captureCanvas');
+  const capCtx = captureCanvas.getContext('2d');
+
+  // State
+  let stream = null;
+  let photos = []; // Array of Image objects or DataURLs
+  let maxSlots = 3;
+  let currentTheme = { bg: '#ffffff', text: '#000000' };
+  let hasWatermark = true; // Status watermark
+
+  // Setup UI Listeners
+  document.querySelectorAll('.layout-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('.layout-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      const newSlots = parseInt(e.target.dataset.slots);
+      
+      if (newSlots < photos.length) {
+        // If downgrading slots and we have too many photos, slice them
+        photos = photos.slice(0, newSlots);
+      }
+      maxSlots = newSlots;
+      updateUI();
+      renderStrip();
+    });
+  });
+
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      currentTheme.bg = e.target.dataset.bg;
+      currentTheme.text = e.target.dataset.text;
+      renderStrip();
+    });
+  });
+
+  btnReset.addEventListener('click', () => {
+    photos = [];
+    updateUI();
+    renderStrip();
+  });
+
+  btnDownload.addEventListener('click', () => {
+    const link = document.createElement('a');
+    link.download = `BAJA_Photobooth_${Date.now()}.jpg`;
+    link.href = stripCanvas.toDataURL('image/jpeg', 0.9);
+    link.click();
+  });
+
+  // Camera Setup
+  async function startCamera() {
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 960 } }, 
+        audio: false 
+      });
+      video.srcObject = stream;
+      video.onloadedmetadata = () => {
+        video.play();
+        camStatus.style.display = 'none';
+        btnCapture.disabled = false;
+        
+        // Match capture canvas to video resolution
+        captureCanvas.width = video.videoWidth;
+        captureCanvas.height = video.videoHeight;
+        
+        renderStrip();
+      };
+    } catch (err) {
+      console.error(err);
+      camStatus.textContent = 'Gagal mengakses kamera. Izinkan akses di browser.';
+    }
+  }
+
+  // Capture Logic
+  btnCapture.addEventListener('click', () => {
+    if (photos.length >= maxSlots) return;
+
+    // Flash effect on video
+    video.style.opacity = '0';
+    setTimeout(() => video.style.opacity = '1', 100);
+
+    // Draw current video frame to hidden canvas
+    // Flip horizontally so the saved photo acts like a mirror
+    capCtx.save();
+    capCtx.scale(-1, 1);
+    capCtx.drawImage(video, -captureCanvas.width, 0, captureCanvas.width, captureCanvas.height);
+    capCtx.restore();
+
+    const dataUrl = captureCanvas.toDataURL('image/jpeg', 0.85);
+    
+    // Load it into an Image object for drawing later
+    const img = new Image();
+    img.onload = () => {
+      photos.push(img);
+      updateUI();
+      renderStrip();
+    };
+    img.src = dataUrl;
+  });
+
+  function updateUI() {
+    captureCount.textContent = `${photos.length}/${maxSlots}`;
+    const watermark = document.getElementById('taskWatermark');
+
+    
+    if (photos.length >= maxSlots) {
+      btnCapture.disabled = true;
+      btnCapture.innerHTML = '<span>✅ Frame Penuh</span>';
+      btnDownload.style.display = 'block';
+    } else {
+      btnCapture.disabled = false;
+      btnCapture.innerHTML = `<span>📸 Ambil Foto</span> <span style="background:rgba(0,0,0,0.3);padding:4px 12px;border-radius:20px;font-size:14px;">${photos.length}/${maxSlots}</span>`;
+      btnDownload.style.display = 'none';
+    }
+
+    btnReset.style.display = photos.length > 0 ? 'block' : 'none';
+  }
+
+  // Fungsi menghapus watermark
+  function removeWatermark() {
+    hasWatermark = false;
+    document.getElementById('wmTaskContainer').style.display = 'none';
+    renderStrip();
+    showToast('Watermark berhasil dihilangkan!', false);
+  }
+
+  // Render the Photobooth Strip
+  function renderStrip() {
+    // Canvas dimensions setup
+    const photoWidth = 600;
+    const photoHeight = 450; // 4:3 aspect ratio
+    const padding = 30;
+    const spacing = 20;
+    const bottomPadding = 120; // Space for logo/text
+
+    const stripWidth = photoWidth + (padding * 2);
+    const stripHeight = padding + (maxSlots * photoHeight) + ((maxSlots - 1) * spacing) + bottomPadding;
+
+    stripCanvas.width = stripWidth;
+    stripCanvas.height = stripHeight;
+
+    // Draw background
+    ctx.fillStyle = currentTheme.bg;
+    ctx.fillRect(0, 0, stripWidth, stripHeight);
+
+    // Draw placeholders or photos
+    for (let i = 0; i < maxSlots; i++) {
+      const yPos = padding + (i * (photoHeight + spacing));
+      
+      if (photos[i]) {
+        // Draw the captured photo
+        ctx.drawImage(photos[i], padding, yPos, photoWidth, photoHeight);
+      } else {
+        // Draw empty placeholder
+        ctx.fillStyle = currentTheme.bg === '#ffffff' ? '#f1f5f9' : 'rgba(255,255,255,0.1)';
+        ctx.fillRect(padding, yPos, photoWidth, photoHeight);
+        
+        ctx.fillStyle = currentTheme.bg === '#ffffff' ? '#cbd5e1' : 'rgba(255,255,255,0.2)';
+        ctx.font = 'bold 32px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`Slot ${i+1}`, padding + photoWidth/2, yPos + photoHeight/2);
+      }
+    }
+
+    // Draw Bottom Branding / Logo
+    ctx.fillStyle = currentTheme.text;
+    ctx.font = 'bold 40px sans-serif';
+    ctx.textAlign = 'center';
+    
+    // Draw lightning icon + BAJA text
+    const textY = stripHeight - 50;
+    ctx.fillText('⚡ BAJA', stripWidth / 2, textY);
+    
+    ctx.font = '500 20px sans-serif';
+    ctx.globalAlpha = 0.6;
+    const today = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+    ctx.fillText(today, stripWidth / 2, textY + 30);
+    
+    // Draw Watermark if active
+    if (hasWatermark) {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.fillRect(0, stripHeight - 160, stripWidth, 40);
+      ctx.fillStyle = '#000';
+      ctx.font = 'bold 24px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('⚡ Dibuat dengan BAJA WEB', stripWidth / 2, stripHeight - 132);
+    }
+    
+    ctx.globalAlpha = 1.0;
+  }
+
+  // Initialize
+  startCamera();
+
+</script>
+</body>
+</html>
