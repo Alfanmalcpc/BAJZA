@@ -377,17 +377,20 @@
 </head>
 <body>
 
-<nav class="navbar">
-  <div class="container nav-inner">
-    <a href="../index.html" class="logo">BAJA <span>PRO</span></a>
-    <div class="nav-links">
-      <a href="../index.html" data-en="Home" data-id="Beranda">Home</a>
-      <a href="index.html" class="active" data-en="Tools" data-id="Alat">Tools</a>
-      <a href="../finance/crypto.html" data-en="Finance" data-id="Keuangan">Finance</a>
-      <a href="../learn/index.html" data-en="Learn" data-id="Belajar">Learn</a>
+<!-- TOP NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo" style="text-decoration:none">
+      <div class="logo-badge">⚡</div>
+      <div class="logo-text">BAJA</div>
+    </a>
+    <div class="nav-actions">
+      <!-- navClock and navAuthSlot injected here -->
     </div>
   </div>
 </nav>
+
+
 
 </div>
 
@@ -445,6 +448,12 @@
 </div>
 
 <div class="toast" id="toast">✅ Photo saved!</div>
+<!-- Floating Back Button -->
+<a href="index.html" class="fab-back" id="fabBack" aria-label="Back to Tools">
+  <span class="fab-arrow">←</span>
+  <span>BACK</span>
+</a>
+
 <button id="scrollTop">↑</button>
 <script src="../app.js"></script>
 
@@ -940,5 +949,24 @@
     startCamera();
   });
 </script>
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+  <a href="../index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">🏠</span>
+    <span class="bottom-nav-text">Home</span>
+  </a>
+  <a href="index.html" class="bottom-nav-link active">
+    <span class="bottom-nav-icon">🛠️</span>
+    <span class="bottom-nav-text">Tools</span>
+  </a>
+  <a href="../finance/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">📈</span>
+    <span class="bottom-nav-text">Finance</span>
+  </a>
+  <a href="../tutorial/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">📚</span>
+    <span class="bottom-nav-text">Tutorial</span>
+  </a>
+</nav>
 </body>
 </html>

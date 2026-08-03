@@ -14,42 +14,43 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
 <link rel="stylesheet" href="style.css"/>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
-<style>
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:64px}
-.stat-item{text-align:center;padding:28px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg)}
-.stat-num{font-size:2.2rem;font-weight:900;background:var(--grad-tools);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
-.stat-label{font-size:13px;color:var(--text-2);margin-top:6px;font-weight:500}
-.finance-section{background:var(--bg-surface)}
-.view-all{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--blue-light);transition:gap var(--tr)}
-.view-all:hover{gap:10px}
-.cta-section{background:linear-gradient(135deg,rgba(59,130,246,.1) 0%,rgba(6,182,212,.08) 100%);border-top:1px solid rgba(59,130,246,.15);border-bottom:1px solid rgba(59,130,246,.15)}
-.cta-inner{text-align:center;max-width:560px;margin:0 auto}
-.cta-inner h2{font-size:2rem;font-weight:800;margin-bottom:14px}
-.cta-inner p{color:var(--text-2);margin-bottom:32px;font-size:16px}
-@media(max-width:768px){.stats-row{grid-template-columns:repeat(2,1fr)}}
-</style>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#000000"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="BAJA"/>
+
 </head>
 <body>
 
-<!-- Navbar -->
+<!-- TOP NAVBAR -->
 <nav class="navbar" id="navbar">
-  <div class="container nav-container">
-    <a href="index.html" class="nav-logo">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo" style="text-decoration:none">
       <div class="logo-badge">⚡</div>
-      <span class="logo-text">BAJA</span>
-      
+      <div class="logo-text">BAJA</div>
     </a>
-    <div class="nav-menu" id="navMenu">
-      <a href="tools/index.html" class="nav-link"><span>🛠️</span> <span data-en="Tools" data-id="Utilitas">Tools</span></a>
-      <a href="finance/index.html" class="nav-link"><span>📈</span> <span data-en="Finance" data-id="Finansial">Finance</span></a>
-      <a href="tutorial/index.html" class="nav-link"><span>📚</span> <span data-en="Tutorial" data-id="Tutorial">Tutorial</span></a>
-    </div>
     <div class="nav-actions">
-      <button class="btn-icon" id="langBtn"><span id="langLabel">🌐 EN</span></button>
-      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+      <!-- navClock and navAuthSlot injected here -->
     </div>
   </div>
 </nav>
+
+<!-- PWA Install Banner -->
+<div class="pwa-banner" id="pwaBanner" hidden>
+  <div class="pwa-banner-inner">
+    <div class="pwa-banner-icon">⚡</div>
+    <div class="pwa-banner-text">
+      <strong data-en="Install BAJA App" data-id="Pasang Aplikasi BAJA">Install BAJA App</strong>
+      <span data-en="Add to home screen — works offline!" data-id="Tambah ke layar utama — bisa offline!">Add to home screen — works offline!</span>
+    </div>
+    <div class="pwa-banner-actions">
+      <button class="pwa-btn-install" id="pwaInstall" data-en="Install" data-id="Pasang">Install</button>
+      <button class="pwa-btn-dismiss" id="pwaDismiss" aria-label="Close">&times;</button>
+    </div>
+  </div>
+</div>
 
 <!-- Hero -->
 <section class="hero">
@@ -81,8 +82,6 @@
   </div>
 </section>
 
-</div>
-
 <!-- Live Crypto Ticker -->
 <div class="ticker-wrap">
   <div class="ticker-inner" id="tickerTrack">
@@ -90,159 +89,198 @@
   </div>
 </div>
 
-<!-- 3 Pillars -->
-<section class="section">
+<!-- ═══ APP LAUNCHER ═══ -->
+
+<!-- TOOLS -->
+<section class="section appsec appsec--tools">
   <div class="container">
-    <div class="section-header">
-      <div class="section-badge">🏛️ <span data-en="Three Pillars" data-id="Tiga Pilar">Three Pillars</span></div>
-      <h2 class="section-title" data-en="Everything You Need, In One Place" data-id="Semua yang Anda Butuhkan, Dalam Satu Tempat">Everything You Need, In One Place</h2>
-      <p class="section-sub" data-en="From developer utilities to financial insights and technical knowledge." data-id="Dari utilitas developer hingga wawasan finansial dan pengetahuan teknis.">From developer utilities to financial insights and technical knowledge.</p>
+    <div class="appsec-header">
+      <div class="appsec-label"><span class="appsec-dot" style="background:#00e5ff"></span> 🛠️ <span data-en="Tools &amp; Utilities" data-id="Alat &amp; Utilitas">Tools &amp; Utilities</span></div>
+      <a href="tools/index.html" class="appsec-more" data-en="See all →" data-id="Lihat semua →">See all →</a>
     </div>
-    <div class="pillars-grid">
-      <a href="tools/index.html" class="pillar-card tools">
-        <div class="pillar-icon">🛠️</div>
-        <h3 class="pillar-title" data-en="Tools & Utilities" data-id="Tools & Utilitas">Tools & Utilities</h3>
-        <p class="pillar-desc" data-en="Practical browser-based tools: file converters, image compressor, code beautifier — no upload to server needed." data-id="Alat berbasis browser: konverter file, kompresor gambar, beautifier kode — tanpa upload ke server.">Practical browser-based tools: file converters, image compressor, code beautifier — no upload to server needed.</p>
-        <div class="pillar-tags">
-          <span class="tag tag-blue">PDF Converter</span>
-          <span class="tag tag-blue">Image Compress</span>
-          <span class="tag tag-blue">Code Beautifier</span>
+    <div class="app-grid">
+
+      <a href="tools/calculator.html" class="app-item">
+        <div class="app-icon" style="--ic-bg:#ff6b6b;--ic-bg2:#ff4757">
+          <div class="app-logo-calc">
+            <div class="calc-row"><span></span><span></span><span></span></div>
+            <div class="calc-row"><span></span><span></span><span></span></div>
+            <div class="calc-row calc-row--wide"><span></span></div>
+          </div>
         </div>
-        <div class="pillar-link">Explore Tools →</div>
+        <span class="app-label" data-en="Calculator" data-id="Kalkulator">Calculator</span>
       </a>
-      <a href="finance/index.html" class="pillar-card finance">
-        <div class="pillar-icon">📈</div>
-        <h3 class="pillar-title" data-en="Finance & Investment" data-id="Finansial & Investasi">Finance & Investment</h3>
-        <p class="pillar-desc" data-en="Live crypto & stock prices, RSI indicators, IPO calendar, and trading simulation calculator." data-id="Harga kripto & saham langsung, indikator RSI, kalender IPO, dan kalkulator simulasi trading.">Live crypto & stock prices, RSI indicators, IPO calendar, and trading simulation calculator.</p>
-        <div class="pillar-tags">
-          <span class="tag tag-green">BTC Live</span>
-          <span class="tag tag-green">RSI Chart</span>
-          <span class="tag tag-green">IPO Calendar</span>
+
+      <a href="tools/beautifier.html" class="app-item">
+        <div class="app-icon" style="--ic-bg:#a29bfe;--ic-bg2:#6c5ce7">
+          <div class="app-logo-code">
+            <div class="code-line" style="width:70%"></div>
+            <div class="code-line" style="width:50%;margin-left:20%"></div>
+            <div class="code-line" style="width:60%"></div>
+            <div class="code-line" style="width:40%;margin-left:10%"></div>
+          </div>
         </div>
-        <div class="pillar-link">Go to Finance →</div>
+        <span class="app-label" data-en="Beautifier" data-id="Perapih Kode">Beautifier</span>
       </a>
-      <a href="tutorial/index.html" class="pillar-card tutorial">
-        <div class="pillar-icon">📚</div>
-        <h3 class="pillar-title" data-en="Technical Tutorials" data-id="Tutorial Teknis">Technical Tutorials</h3>
-        <p class="pillar-desc" data-en="Web development (React, Firebase, Next.js) and electronics/IoT projects (Arduino, ESP32, sensors)." data-id="Web development (React, Firebase, Next.js) dan proyek elektronika/IoT (Arduino, ESP32, sensor).">Web development (React, Firebase, Next.js) and electronics/IoT projects (Arduino, ESP32, sensors).</p>
-        <div class="pillar-tags">
-          <span class="tag tag-purple">React</span>
-          <span class="tag tag-purple">Arduino</span>
-          <span class="tag tag-purple">Firebase</span>
+
+      <a href="tools/compressor.html" class="app-item">
+        <div class="app-icon" style="--ic-bg:#55efc4;--ic-bg2:#00b894">
+          <div class="app-logo-img">
+            <div class="img-frame">
+              <div class="img-mountain"></div>
+              <div class="img-arrow">↓</div>
+            </div>
+          </div>
         </div>
-        <div class="pillar-link">Read Tutorials →</div>
+        <span class="app-label" data-en="Compressor" data-id="Kompres Gambar">Compressor</span>
       </a>
+
+      <a href="tools/converter.html" class="app-item">
+        <div class="app-icon" style="--ic-bg:#fdcb6e;--ic-bg2:#e17055">
+          <div class="app-logo-file">
+            <div class="file-doc">
+              <div class="file-fold"></div>
+              <div class="file-lines"><span></span><span></span><span></span></div>
+            </div>
+            <div class="file-arrow">⇄</div>
+          </div>
+        </div>
+        <span class="app-label" data-en="File Convert" data-id="Konverter">File Convert</span>
+      </a>
+
+      <a href="tools/svg-to-xml.html" class="app-item">
+        <div class="app-icon" style="--ic-bg:#74b9ff;--ic-bg2:#0984e3">
+          <div class="app-logo-svg">
+            <svg viewBox="0 0 40 40" width="32" height="32" fill="none">
+              <path d="M8 32 Q20 8 32 32" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+              <circle cx="20" cy="18" r="4" fill="#fff"/>
+            </svg>
+          </div>
+        </div>
+        <span class="app-label">SVG to XML</span>
+      </a>
+
+      <a href="tools/camera-effects.html" class="app-item">
+        <div class="app-icon" style="--ic-bg:#fd79a8;--ic-bg2:#e84393">
+          <div class="app-logo-cam">
+            <div class="cam-body">
+              <div class="cam-lens"></div>
+              <div class="cam-flash"></div>
+            </div>
+          </div>
+        </div>
+        <span class="app-label" data-en="Camera FX" data-id="Efek Kamera">Camera FX</span>
+      </a>
+
     </div>
   </div>
 </section>
 
-<!-- Tools Preview -->
-<section class="section" style="padding-top:0">
+<!-- FINANCE -->
+<section class="section appsec appsec--finance">
   <div class="container">
-    <div class="section-header">
-      <div class="section-badge">🛠️ <span data-en="Popular Tools" data-id="Tools Populer">Popular Tools</span></div>
-      <h2 class="section-title" data-en="Browser-Powered Tools" data-id="Tools Berbasis Browser">Browser-Powered Tools</h2>
-      <p class="section-sub" data-en="All processing happens in your browser. No files are ever uploaded to our servers." data-id="Semua pemrosesan terjadi di browser Anda. Tidak ada file yang diunggah ke server kami.">All processing happens in your browser. No files are ever uploaded to our servers.</p>
+    <div class="appsec-header">
+      <div class="appsec-label"><span class="appsec-dot" style="background:#10b981"></span> 📈 <span data-en="Finance &amp; Invest" data-id="Finansial">Finance &amp; Invest</span></div>
+      <a href="finance/index.html" class="appsec-more" data-en="See all →" data-id="Lihat semua →">See all →</a>
     </div>
-    <div class="tools-preview">
-      <div class="tool-card">
-        <div class="tool-icon">🧮</div>
-        <div class="tool-name" data-en="Scientific Calculator" data-id="Kalkulator Saintifik">Scientific Calculator</div>
-        <div class="tool-desc" data-en="Evaluate complex math expressions directly in your browser." data-id="Evaluasi ekspresi matematika kompleks langsung di browser Anda.">Evaluate complex math expressions directly in your browser.</div>
-        <a href="tools/calculator.html" class="tool-btn" data-en="Calculate Now →" data-id="Hitung Sekarang →">Calculate Now →</a>
-      </div>
-      <div class="tool-card">
-        <div class="tool-icon">✨</div>
-        <div class="tool-name" data-en="Code Beautifier" data-id="Perapih Kode">Code Beautifier</div>
-        <div class="tool-desc" data-en="Format and prettify HTML, CSS, JavaScript, and JSON code instantly." data-id="Format dan rapikan kode HTML, CSS, JavaScript, dan JSON secara instan.">Format and prettify HTML, CSS, JavaScript, and JSON code instantly.</div>
-        <a href="tools/beautifier.html" class="tool-btn" data-en="Use Tool →" data-id="Gunakan →">Use Tool →</a>
-      </div>
-      <div class="tool-card">
-        <div class="tool-icon">🗜️</div>
-        <div class="tool-name" data-en="Image Compressor" data-id="Kompresor Gambar">Image Compressor</div>
-        <div class="tool-desc" data-en="Compress JPG, PNG, and WebP images up to 80% smaller without visible quality loss." data-id="Kompres gambar JPG, PNG, dan WebP hingga 80% lebih kecil tanpa kehilangan kualitas yang terlihat.">Compress JPG, PNG, and WebP images up to 80% smaller without visible quality loss.</div>
-        <a href="tools/compressor.html" class="tool-btn" data-en="Compress Now →" data-id="Kompres Sekarang →">Compress Now →</a>
-      </div>
-      <div class="tool-card">
-        <div class="tool-icon">📄</div>
-        <div class="tool-name" data-en="File Converter" data-id="Konverter File">File Converter</div>
-        <div class="tool-desc" data-en="Convert PDF pages to images directly in your browser. Fast and private." data-id="Konversi halaman PDF menjadi gambar langsung di browser Anda. Cepat dan privat.">Convert PDF pages to images directly in your browser. Fast and private.</div>
-        <a href="tools/converter.html" class="tool-btn" data-en="Convert Now →" data-id="Konversi Sekarang →">Convert Now →</a>
-      </div>
-      <div class="tool-card">
-        <div class="tool-icon">🔄</div>
-        <div class="tool-name">SVG to XML</div>
-        <div class="tool-desc">Convert SVG paths into XML format compatible with Alight Motion and Android Studio vectors.</div>
-        <a href="tools/svg-to-xml.html" class="tool-btn">Convert SVG →</a>
-      </div>
-      <div class="tool-card">
-        <div class="tool-icon">📸</div>
-        <div class="tool-name" data-en="Camera Effects" data-id="Efek Kamera">Camera Effects</div>
-        <div class="tool-desc" data-en="Apply live filters to your webcam and take awesome photos." data-id="Terapkan filter langsung ke webcam Anda dan ambil foto keren.">Apply live filters to your webcam and take awesome photos.</div>
-        <a href="tools/camera-effects.html" class="tool-btn" data-en="Open Studio →" data-id="Buka Studio →">Open Studio →</a>
-      </div>
-    </div>
-  </div>
-</section>
+    <div class="app-grid">
 
-<!-- Finance Preview -->
-<section class="section finance-section">
-  <div class="container">
-    <div class="section-header" style="margin-bottom:40px">
-      <div class="section-badge">📈 <span data-en="Live Market" data-id="Pasar Langsung">Live Market</span></div>
-      <h2 class="section-title" data-en="Crypto Price Monitor" data-id="Monitor Harga Kripto">Crypto Price Monitor</h2>
-      <p class="section-sub" data-en="Live prices powered by CoinGecko API. Updated every 60 seconds." data-id="Harga langsung didukung oleh API CoinGecko. Diperbarui setiap 60 detik.">Live prices powered by CoinGecko API. Updated every 60 seconds.</p>
+      <a href="finance/crypto.html" class="app-item">
+        <div class="app-icon" style="--ic-bg:#f9d924;--ic-bg2:#e67e22">
+          <div class="app-logo-crypto">
+            <span class="crypto-sym">₿</span>
+            <div class="crypto-bars">
+              <div style="height:60%"></div>
+              <div style="height:100%"></div>
+              <div style="height:75%"></div>
+              <div style="height:45%"></div>
+            </div>
+          </div>
+        </div>
+        <span class="app-label" data-en="Crypto" data-id="Kripto">Crypto</span>
+      </a>
+
+      <a href="finance/ipo.html" class="app-item">
+        <div class="app-icon" style="--ic-bg:#1dd1a1;--ic-bg2:#00b894">
+          <div class="app-logo-cal">
+            <div class="cal-header"></div>
+            <div class="cal-grid">
+              <span></span><span></span><span></span>
+              <span class="cal-mark"></span><span></span><span></span>
+            </div>
+          </div>
+        </div>
+        <span class="app-label" data-en="IPO Calendar" data-id="Kalender IPO">IPO Calendar</span>
+      </a>
+
+      <a href="finance/calculator.html" class="app-item">
+        <div class="app-icon" style="--ic-bg:#00cec9;--ic-bg2:#0984e3">
+          <div class="app-logo-trade">
+            <div class="trade-chart">
+              <div class="trade-line"></div>
+            </div>
+            <div class="trade-label">P&amp;L</div>
+          </div>
+        </div>
+        <span class="app-label" data-en="Trading Calc" data-id="Kalkulator">Trading Calc</span>
+      </a>
+
     </div>
-    <div class="crypto-mini-grid" id="cryptoGrid">
+
+    <!-- Live crypto ticker mini -->
+    <div class="crypto-mini-grid" id="cryptoGrid" style="margin-top:28px">
       <div class="crypto-mini-card"><div class="crypto-logo">₿</div><div class="crypto-symbol">BTC</div><div class="crypto-price" id="price-btc">—</div><div class="crypto-change" id="chg-btc">—</div></div>
       <div class="crypto-mini-card"><div class="crypto-logo">⟠</div><div class="crypto-symbol">ETH</div><div class="crypto-price" id="price-eth">—</div><div class="crypto-change" id="chg-eth">—</div></div>
       <div class="crypto-mini-card"><div class="crypto-logo">🔶</div><div class="crypto-symbol">BNB</div><div class="crypto-price" id="price-bnb">—</div><div class="crypto-change" id="chg-bnb">—</div></div>
       <div class="crypto-mini-card"><div class="crypto-logo">◎</div><div class="crypto-symbol">SOL</div><div class="crypto-price" id="price-sol">—</div><div class="crypto-change" id="chg-sol">—</div></div>
     </div>
-    <div style="text-align:center;margin-top:32px">
-      <a href="finance/crypto.html" class="btn-primary" data-en="📊 Full Dashboard →" data-id="📊 Dashboard Lengkap →">📊 Full Dashboard →</a>
-    </div>
   </div>
 </section>
 
-</div>
-
-<!-- Tutorial Preview -->
-<section class="section">
+<!-- TUTORIAL -->
+<section class="section appsec appsec--tutorial">
   <div class="container">
-    <div class="section-header">
-      <div class="section-badge">📚 <span data-en="Latest Tutorials" data-id="Tutorial Terbaru">Latest Tutorials</span></div>
-      <h2 class="section-title" data-en="Learn. Build. Deploy." data-id="Belajar. Bangun. Deploy.">Learn. Build. Deploy.</h2>
-      <p class="section-sub" data-en="Step-by-step guides for web development and IoT/electronics projects." data-id="Panduan langkah demi langkah untuk web development dan proyek IoT/elektronika.">Step-by-step guides for web development and IoT/electronics projects.</p>
+    <div class="appsec-header">
+      <div class="appsec-label"><span class="appsec-dot" style="background:#a29bfe"></span> 📚 <span data-en="Tutorials" data-id="Tutorial">Tutorials</span></div>
+      <a href="tutorial/index.html" class="appsec-more" data-en="See all →" data-id="Lihat semua →">See all →</a>
     </div>
-    <div class="tutorial-grid">
-      <a href="tutorial/web-dev.html" class="article-card">
-        <div class="article-thumb web">⚛️</div>
-        <div class="article-body">
-          <div class="article-meta"><span>Web Dev</span> · 8 min read</div>
-          <div class="article-title">Getting Started with React + Firebase Realtime Database</div>
-          <div class="article-excerpt">Build a real-time web app using React hooks and Firebase. Complete with auth, CRUD, and deployment to Netlify.</div>
+    <div class="app-grid">
+
+      <a href="tutorial/web-dev.html" class="app-item">
+        <div class="app-icon" style="--ic-bg:#74b9ff;--ic-bg2:#0984e3">
+          <div class="app-logo-react">
+            <div class="react-orbit react-orbit--1"></div>
+            <div class="react-orbit react-orbit--2"></div>
+            <div class="react-nucleus"></div>
+          </div>
         </div>
+        <span class="app-label">React &amp; Firebase</span>
       </a>
-      <a href="tutorial/iot-arduino.html" class="article-card">
-        <div class="article-thumb iot">🤖</div>
-        <div class="article-body">
-          <div class="article-meta"><span>IoT / Arduino</span> · 12 min read</div>
-          <div class="article-title">ESP32 + DHT22: Real-time Temperature Monitor with Web Dashboard</div>
-          <div class="article-excerpt">Connect ESP32 to a DHT22 sensor, send data over WiFi, and visualize it on a live web dashboard.</div>
+
+      <a href="tutorial/iot-arduino.html" class="app-item">
+        <div class="app-icon" style="--ic-bg:#55efc4;--ic-bg2:#00cec9">
+          <div class="app-logo-iot">
+            <div class="iot-board">
+              <div class="iot-pin"></div>
+              <div class="iot-pin"></div>
+              <div class="iot-chip"></div>
+              <div class="iot-pin"></div>
+              <div class="iot-pin"></div>
+            </div>
+          </div>
         </div>
+        <span class="app-label">IoT &amp; Arduino</span>
       </a>
-      <a href="tutorial/web-dev.html" class="article-card">
-        <div class="article-thumb react">🔥</div>
-        <div class="article-body">
-          <div class="article-meta"><span>Firebase</span> · 10 min read</div>
-          <div class="article-title">Firebase Authentication: Email, Google & GitHub Login in 30 Minutes</div>
-          <div class="article-excerpt">Implement multiple authentication providers in a React app using Firebase Auth SDK with protected routes.</div>
+
+      <a href="tutorial/web-dev.html" class="app-item">
+        <div class="app-icon" style="--ic-bg:#fd79a8;--ic-bg2:#e84393">
+          <div class="app-logo-fire">
+            <div class="fire-shape"></div>
+          </div>
         </div>
+        <span class="app-label">Firebase Auth</span>
       </a>
-    </div>
-    <div style="text-align:center;margin-top:40px">
-      <a href="tutorial/index.html" class="view-all" data-en="View All Tutorials →" data-id="Lihat Semua Tutorial →">View All Tutorials →</a>
+
     </div>
   </div>
 </section>
@@ -260,8 +298,6 @@
     </div>
   </div>
 </section>
-
-</div>
 
 <!-- Footer -->
 <footer class="footer">
@@ -310,6 +346,26 @@
 
 <button id="scrollTop" aria-label="Scroll to top">↑</button>
 
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+  <a href="index.html" class="bottom-nav-link active">
+    <span class="bottom-nav-icon">🏠</span>
+    <span class="bottom-nav-text" data-en="Home" data-id="Beranda">Home</span>
+  </a>
+  <a href="tools/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">🛠️</span>
+    <span class="bottom-nav-text" data-en="Tools" data-id="Alat">Tools</span>
+  </a>
+  <a href="finance/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">📈</span>
+    <span class="bottom-nav-text" data-en="Finance" data-id="Dana">Finance</span>
+  </a>
+  <a href="tutorial/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">📚</span>
+    <span class="bottom-nav-text" data-en="Tutorial" data-id="Tutor">Tutorial</span>
+  </a>
+</nav>
+
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
@@ -340,5 +396,87 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 </script>
+
+<script>
+/* ═══════════════════════════════════
+   PWA — Service Worker + Install
+   ═══════════════════════════════════ */
+(function() {
+  // Register Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').then((reg) => {
+        console.log('[BAJA SW] Registered, scope:', reg.scope);
+      }).catch((err) => {
+        console.warn('[BAJA SW] Registration failed:', err);
+      });
+    });
+  }
+
+  // PWA Install Banner Logic
+  let deferredPrompt = null;
+  const banner   = document.getElementById('pwaBanner');
+  const btnInstall  = document.getElementById('pwaInstall');
+  const btnDismiss  = document.getElementById('pwaDismiss');
+
+  // Catch the browser's install prompt
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+
+    // Don't show if user already dismissed
+    if (sessionStorage.getItem('pwa-dismissed')) return;
+
+    // Show banner with slide-in animation
+    banner.hidden = false;
+    requestAnimationFrame(() => banner.classList.add('pwa-banner--visible'));
+  });
+
+  // User clicked Install
+  if (btnInstall) {
+    btnInstall.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      banner.classList.remove('pwa-banner--visible');
+      setTimeout(() => { banner.hidden = true; }, 400);
+      if (outcome === 'accepted') {
+        console.log('[BAJA PWA] Installed!');
+      }
+    });
+  }
+
+  // User dismissed banner
+  if (btnDismiss) {
+    btnDismiss.addEventListener('click', () => {
+      banner.classList.remove('pwa-banner--visible');
+      setTimeout(() => { banner.hidden = true; }, 400);
+      sessionStorage.setItem('pwa-dismissed', '1');
+    });
+  }
+
+  // Hide banner once app is installed
+  window.addEventListener('appinstalled', () => {
+    banner.hidden = true;
+    deferredPrompt = null;
+    // Show a toast
+    showInstallToast();
+  });
+
+  function showInstallToast() {
+    const toast = document.createElement('div');
+    toast.className = 'pwa-toast';
+    toast.innerHTML = '✅ <strong>BAJA</strong> berhasil dipasang di layar utama!';
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add('pwa-toast--show'));
+    setTimeout(() => {
+      toast.classList.remove('pwa-toast--show');
+      setTimeout(() => toast.remove(), 400);
+    }, 3500);
+  }
+})();
+</script>
 </body>
 </html>
+

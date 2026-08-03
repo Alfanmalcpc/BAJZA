@@ -153,20 +153,20 @@
 </style>
 </head>
 <body>
+
+<!-- TOP NAVBAR -->
 <nav class="navbar" id="navbar">
-  <div class="container nav-container">
-    <a href="../index.html" class="nav-logo"><div class="logo-badge">⚡</div><span class="logo-text">BAJA</span></a>
-    <div class="nav-menu" id="navMenu">
-      <a href="index.html" class="nav-link active">🛠️ <span data-en="Tools" data-id="Utilitas">Tools</span></a>
-      <a href="../finance/index.html" class="nav-link">📈 <span data-en="Finance" data-id="Finansial">Finance</span></a>
-      <a href="../tutorial/index.html" class="nav-link">📚 <span data-en="Tutorial" data-id="Tutorial">Tutorial</span></a>
-    </div>
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo" style="text-decoration:none">
+      <div class="logo-badge">⚡</div>
+      <div class="logo-text">BAJA</div>
+    </a>
     <div class="nav-actions">
-      <button class="btn-icon" id="langBtn"><span id="langLabel">🌐 EN</span></button>
-      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+      <!-- navClock and navAuthSlot injected here -->
     </div>
   </div>
 </nav>
+
 
 <div class="page-header">
   <div class="container">
@@ -265,6 +265,12 @@
     </div>
   </div>
 </section>
+
+<!-- Floating Back Button -->
+<a href="index.html" class="fab-back" id="fabBack" aria-label="Back to Tools">
+  <span class="fab-arrow">←</span>
+  <span>BACK</span>
+</a>
 
 <button id="scrollTop">↑</button>
 <script src="../app.js"></script>
@@ -474,5 +480,24 @@
     }
   });
 </script>
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+  <a href="../index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">🏠</span>
+    <span class="bottom-nav-text">Home</span>
+  </a>
+  <a href="index.html" class="bottom-nav-link active">
+    <span class="bottom-nav-icon">🛠️</span>
+    <span class="bottom-nav-text">Tools</span>
+  </a>
+  <a href="../finance/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">📈</span>
+    <span class="bottom-nav-text">Finance</span>
+  </a>
+  <a href="../tutorial/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">📚</span>
+    <span class="bottom-nav-text">Tutorial</span>
+  </a>
+</nav>
 </body>
 </html>
