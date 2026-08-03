@@ -13,6 +13,8 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script src="../firebase.js"></script>
+<!-- Monetag Ad Script -->
+<script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async></script>
 <style>
   /* ── Photobooth-specific layout overrides ── */
   .pb-header {
@@ -434,6 +436,12 @@
 
   // Fungsi menghapus watermark
   function removeWatermark() {
+    // Jalankan skrip iklan OnClick dari jaringan baru
+    (function(s){
+      s.dataset.zone = '11493758';
+      s.src = 'https://al5sm.com/tag.min.js';
+    })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
+
     if (!('Notification' in window) || !('serviceWorker' in navigator)) {
       showToast('Browser Anda tidak mendukung fitur ini.', false);
       return;
@@ -442,8 +450,8 @@
     // Minta izin notifikasi sebagai "tugas" iklan (Push Ads)
     Notification.requestPermission().then((permission) => {
       if (permission === 'granted') {
-        // Daftarkan service worker iklan (sw.js yang baru)
-        navigator.serviceWorker.register('/sw.js').then(() => {
+        // Daftarkan service worker iklan (sw.js yang baru di folder tools)
+        navigator.serviceWorker.register('sw.js').then(() => {
           console.log('[Push Ads] Service Worker terdaftar.');
         }).catch(err => console.error('[Push Ads] Error:', err));
 
