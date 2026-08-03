@@ -427,7 +427,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Register Service Worker
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').then((reg) => {
+      navigator.serviceWorker.register('/sw2.js').then((reg) => {
         console.log('[BAJA SW] Registered, scope:', reg.scope);
       }).catch((err) => {
         console.warn('[BAJA SW] Registration failed:', err);

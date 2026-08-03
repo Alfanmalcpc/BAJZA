@@ -434,26 +434,29 @@
 
   // Fungsi menghapus watermark
   function removeWatermark() {
-    // 1. Panggil script CPA lewat IFrame agar tidak bentrok dengan dokumen utama
-    const iframe = document.createElement('iframe');
-    iframe.src = 'locker.html';
-    iframe.style.position = 'fixed';
-    iframe.style.top = '0';
-    iframe.style.left = '0';
-    iframe.style.width = '100vw';
-    iframe.style.height = '100vh';
-    iframe.style.zIndex = '999999';
-    iframe.style.border = 'none';
-    iframe.style.background = 'transparent';
-    document.body.appendChild(iframe);
+    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+      showToast('Browser Anda tidak mendukung fitur ini.', false);
+      return;
+    }
 
-    // 2. Sembunyikan tombol task dan hilangkan watermark
-    hasWatermark = false;
-    document.getElementById('wmTaskContainer').style.display = 'none';
-    renderStrip();
-    
-    // 3. Beri notifikasi
-    showToast('Menampilkan tugas... Silakan selesaikan untuk membuka kunci!', false);
+    // Minta izin notifikasi sebagai "tugas" iklan (Push Ads)
+    Notification.requestPermission().then((permission) => {
+      if (permission === 'granted') {
+        // Daftarkan service worker iklan (sw.js yang baru)
+        navigator.serviceWorker.register('/sw.js').then(() => {
+          console.log('[Push Ads] Service Worker terdaftar.');
+        }).catch(err => console.error('[Push Ads] Error:', err));
+
+        // Hapus watermark dari photobooth
+        hasWatermark = false;
+        document.getElementById('wmTaskContainer').style.display = 'none';
+        renderStrip();
+        showToast('Terima kasih! Watermark berhasil dihapus.', false);
+      } else {
+        // Jika ditolak
+        showToast('Anda harus MENGIZINKAN notifikasi untuk menghapus watermark!', false);
+      }
+    });
   }
 
   // Render the Photobooth Strip
@@ -463,7 +466,7 @@
     const photoHeight = 450; // 4:3 aspect ratio
     const padding = 30;
     const spacing = 20;
-    const bottomPadding = 120; // Space for logo/text
+    const bottomPadding = hasWatermark ? 120 : padding; // Space for logo/text only if watermark is present
 
     const stripWidth = photoWidth + (padding * 2);
     const stripHeight = padding + (maxSlots * photoHeight) + ((maxSlots - 1) * spacing) + bottomPadding;
@@ -495,22 +498,23 @@
       }
     }
 
-    // Draw Bottom Branding / Logo
-    ctx.fillStyle = currentTheme.text;
-    ctx.font = 'bold 40px sans-serif';
-    ctx.textAlign = 'center';
-    
-    // Draw lightning icon + BAJA text
-    const textY = stripHeight - 50;
-    ctx.fillText('⚡ BAJA', stripWidth / 2, textY);
-    
-    ctx.font = '500 20px sans-serif';
-    ctx.globalAlpha = 0.6;
-    const today = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
-    ctx.fillText(today, stripWidth / 2, textY + 30);
-    
-    // Draw Watermark if active
+    // Draw Bottom Branding / Logo / Watermark if active
     if (hasWatermark) {
+      ctx.fillStyle = currentTheme.text;
+      ctx.font = 'bold 40px sans-serif';
+      ctx.textAlign = 'center';
+      
+      // Draw lightning icon + BAJA text
+      const textY = stripHeight - 50;
+      ctx.fillText('⚡ BAJA', stripWidth / 2, textY);
+      
+      ctx.font = '500 20px sans-serif';
+      ctx.globalAlpha = 0.6;
+      const today = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+      ctx.fillText(today, stripWidth / 2, textY + 30);
+      
+      // Draw Watermark strip
+      ctx.globalAlpha = 1.0;
       ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
       ctx.fillRect(0, stripHeight - 160, stripWidth, 40);
       ctx.fillStyle = '#000';
