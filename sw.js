@@ -3,7 +3,7 @@
    Provides offline caching & fast loads
    ═══════════════════════════════════════ */
 
-const CACHE_NAME = 'baja-v1';
+const CACHE_NAME = 'baja-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -22,7 +22,7 @@ self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(STATIC_ASSETS).catch(() => {
-        // Ignore failed fetches (e.g., Google Fonts might be blocked)
+        // Ignore failed fetches
       });
     }).then(() => self.skipWaiting())
   );
@@ -37,14 +37,13 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-/* Fetch: cache-first for static, network-first for API */
+/* Fetch: Network-first strategy to prevent old version bugs */
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
 
-  // Skip non-GET requests
   if (e.request.method !== 'GET') return;
 
-  // Network-first for API calls (CoinGecko, Firebase, etc.)
+  // External APIs should never be cached
   if (url.hostname.includes('api.coingecko') ||
       url.hostname.includes('firebase') ||
       url.hostname.includes('googleapis.com/firebase') ||
@@ -55,19 +54,20 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // Cache-first for everything else
+  // Network-First (Jaringan duluan, kalau gagal baru ambil dari Cache)
+  // Ini memastikan pengguna SELALU melihat update terbaru setelah dipublish.
   e.respondWith(
-    caches.match(e.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(e.request).then((response) => {
-        // Cache successful responses
-        if (response && response.status === 200 && response.type === 'basic') {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(e.request, responseClone));
-        }
-        return response;
-      }).catch(() => {
-        // Return offline fallback for HTML pages
+    fetch(e.request).then((response) => {
+      if (response && response.status === 200 && response.type === 'basic') {
+        const responseClone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(e.request, responseClone));
+      }
+      return response;
+    }).catch(() => {
+      // Jika offline, ambil dari cache
+      return caches.match(e.request).then((cached) => {
+        if (cached) return cached;
+        // Fallback halaman utama jika HTML gagal
         if (e.request.destination === 'document') {
           return caches.match('/index.html');
         }
