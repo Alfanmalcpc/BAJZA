@@ -259,11 +259,12 @@
 
     <!-- Tombol Hapus Watermark — langsung terlihat di bawah tombol kamera -->
     <div id="wmTaskContainer" style="background:rgba(244,114,182,0.15); border:2px dashed #f472b6; border-radius:16px; padding:16px; text-align:center;">
-      <p style="color:#f8fafc; font-size:14px; margin:0 0 12px 0;">✨ <strong>Ada watermark di foto?</strong><br>Klik tombol di bawah untuk menghapusnya:</p>
-      <button onclick="removeWatermark()" style="background:#f472b6; color:#fff; border:2px solid #db2777; padding:14px 20px; font-weight:bold; border-radius:12px; cursor:pointer; width:100%; font-size:17px; box-shadow:0 4px 10px rgba(244,114,182,0.5); letter-spacing:0.5px;">
-        🗑️ Hapus Watermark
-      </button>
-      <div id="wmScriptWrap" style="margin-top:8px; min-height:10px;">
+        <p style="color:#f8fafc; font-size:14px; margin:0 0 12px 0;">✨ <strong>Ada watermark di foto?</strong><br>Klik tombol di bawah untuk menghapusnya:</p>
+        
+        <!-- Iframe Khusus untuk Tombol Iklan agar tidak membajak klik lain -->
+        <iframe src="monetag-btn.html" style="width:100%; height:55px; border:none; overflow:hidden; border-radius:12px;" scrolling="no"></iframe>
+
+        <div id="wmScriptWrap" style="margin-top:8px; min-height:10px;">
         <!-- Script CPA telah dipindah ke bagian Head -->
       </div>
     </div>
@@ -432,14 +433,15 @@
     btnReset.style.display = photos.length > 0 ? 'block' : 'none';
   }
 
+  // Event Listener untuk menerima pesan dari iframe tombol Monetag
+  window.addEventListener('message', function(event) {
+    if (event.data === 'remove_watermark_clicked') {
+      removeWatermark();
+    }
+  });
+
   // Fungsi menghapus watermark
   function removeWatermark() {
-    // Jalankan skrip iklan OnClick dari jaringan baru
-    (function(s){
-      s.dataset.zone = '11493758';
-      s.src = 'https://al5sm.com/tag.min.js';
-    })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
-
     if (!('Notification' in window) || !('serviceWorker' in navigator)) {
       showToast('Browser Anda tidak mendukung fitur ini.', false);
       return;
