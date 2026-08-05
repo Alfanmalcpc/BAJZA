@@ -14,6 +14,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script src="../firebase.js"></script>
+<script src="../firebase-multiplay.js"></script>
 <style>
   /* ── Photobooth-specific layout overrides ── */
   .pb-header {
@@ -252,14 +253,53 @@
 <div class="pb-header">
   <div class="pb-title">📸 PHOTOBOOTH STUDIO</div>
   <p style="margin-top:8px;opacity:0.8;font-size:14px;font-weight:500;">Pilih tata letak, jepret fotomu berurutan, dan unduh hasilnya!</p>
+  <button id="btnToggleMp" style="margin-top:16px; background:#fff; color:#000; font-family:'Bangers',cursive; font-size:18px; padding:8px 24px; border:3px solid #000; border-radius:8px; box-shadow:4px 4px 0 #000; cursor:pointer; transition:all 0.2s; letter-spacing:1px;">👥 MULTIPLAYER MODE</button>
+</div>
+
+<div id="mpPanel" class="mp-panel" style="max-width:600px; margin:24px auto 0;">
+  <div id="mpAuthBlock" style="text-align:center;">
+    <h3 style="font-family:'Bangers',cursive; font-size:24px; letter-spacing:1px;">🔒 Login Dibutuhkan</h3>
+    <p style="margin:12px 0;">Anda harus login untuk menggunakan fitur Multiplayer WebRTC.</p>
+    <a href="../auth.html" class="mp-btn-action" style="display:inline-block; text-decoration:none; width:auto; padding:12px 32px;">Ke Halaman Login</a>
+  </div>
+
+  <div id="mpRoomBlock" style="display:none;">
+    <div class="mp-tabs">
+      <button class="mp-tab-btn active" id="tabCreate">Buat Room</button>
+      <button class="mp-tab-btn" id="tabJoin">Gabung Room</button>
+    </div>
+
+    <div id="paneCreate">
+      <div class="mp-room-info">
+        <div>Bagikan ID ini ke temanmu:</div>
+        <div class="mp-room-id" id="txtRoomId">------</div>
+        <button id="btnCopyRoom" style="background:transparent; border:none; text-decoration:underline; font-weight:700; cursor:pointer;">Salin ID</button>
+      </div>
+      <button class="mp-btn-action" id="btnCreateRoom">🏠 Buka Room Baru</button>
+    </div>
+
+    <div id="paneJoin" style="display:none;">
+      <input type="text" class="mp-input" id="inpRoomId" placeholder="MASUKKAN 6 DIGIT ID" maxlength="6">
+      <button class="mp-btn-action" id="btnJoinRoom">🚀 Gabung ke Room</button>
+    </div>
+
+    <div class="mp-status" id="mpStatusMsg">Status: Menunggu aksi...</div>
+  </div>
 </div>
 
 <div class="pb-layout">
   <!-- Kiri: Kamera & Tombol -->
   <div class="pb-cam-section">
-    <div class="cam-container">
-      <video id="webcam" autoplay playsinline></video>
-      <div id="camStatus" style="position:absolute;color:#fff;font-weight:700;">Mengakses kamera...</div>
+    <div class="cam-container" id="camContainer">
+      <div class="mp-video-wrap" id="localVideoWrap" style="border:none; border-radius:0;">
+        <video id="webcam" autoplay playsinline></video>
+        <div class="mp-badge" id="badgeLocal" style="display:none;">KAMU</div>
+      </div>
+      <div class="mp-video-wrap" id="remoteVideoWrap" style="display:none;">
+        <video id="remoteVideo" autoplay playsinline></video>
+        <div class="mp-badge remote" id="badgeRemote">TEMANMU</div>
+      </div>
+      <div id="camStatus" style="position:absolute;color:#fff;font-weight:700;z-index:10;">Mengakses kamera...</div>
     </div>
     
     <button class="btn-capture" id="btnCapture" disabled>
@@ -319,6 +359,14 @@
   </div>
 </div>
 
+<!-- Multiplayer Animation Overlay -->
+<div id="mpAnimOverlay" class="mp-overlay">
+  <div class="mp-overlay-content">
+    <h2>🎉 TERHUBUNG!</h2>
+    <p style="font-weight:700; margin-top:10px;">Mulai berpose dengan temanmu!</p>
+  </div>
+</div>
+
 <!-- Offscreen Canvas for capturing -->
 <canvas id="captureCanvas" style="display:none;"></canvas>
 
@@ -339,6 +387,30 @@
   // State
   let stream = null;
   let photos = []; // Array of Image objects or DataURLs
+  let maxSlots = 3;
+  let currentTheme = { type: 'solid', bg: '#ffffff', text: '#000000' };
+  let hasWatermark = true; // Status watermark
+
+  // Multiplayer State
+  let isMultiplayer = false;
+  let isHost = false;
+  let currentRoomId = null;
+  let peerConnection = null;
+  let remoteStream = null;
+  
+  // DOM Elements for MP
+  const remoteVideo = document.getElementById('remoteVideo');
+  const camContainer = document.getElementById('camContainer');
+  const localVideoWrap = document.getElementById('localVideoWrap');
+  const remoteVideoWrap = document.getElementById('remoteVideoWrap');
+  const badgeLocal = document.getElementById('badgeLocal');
+  
+  const ICE_SERVERS = {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' }
+    ]
+  };
   let maxSlots = 3;
   let currentTheme = { type: 'solid', bg: '#ffffff', text: '#000000' };
   let hasWatermark = true; // Status watermark
@@ -415,13 +487,40 @@
 
     // Flash effect on video
     video.style.opacity = '0';
-    setTimeout(() => video.style.opacity = '1', 100);
+    if(isMultiplayer) remoteVideo.style.opacity = '0';
+    
+    setTimeout(() => {
+      video.style.opacity = '1';
+      if(isMultiplayer) remoteVideo.style.opacity = '1';
+    }, 100);
 
     // Draw current video frame to hidden canvas
-    // Flip horizontally so the saved photo acts like a mirror
     capCtx.save();
-    capCtx.scale(-1, 1);
-    capCtx.drawImage(video, -captureCanvas.width, 0, captureCanvas.width, captureCanvas.height);
+    
+    if (isMultiplayer) {
+      // Draw 2 players side-by-side
+      captureCanvas.width = video.videoWidth * 2;
+      captureCanvas.height = video.videoHeight;
+      
+      // Player 1 (Local)
+      capCtx.save();
+      capCtx.scale(-1, 1); // mirror
+      capCtx.drawImage(video, -video.videoWidth, 0, video.videoWidth, video.videoHeight);
+      capCtx.restore();
+      
+      // Player 2 (Remote)
+      capCtx.save();
+      capCtx.scale(-1, 1); // mirror
+      capCtx.drawImage(remoteVideo, -video.videoWidth * 2, 0, video.videoWidth, video.videoHeight);
+      capCtx.restore();
+    } else {
+      // Single player
+      captureCanvas.width = video.videoWidth;
+      captureCanvas.height = video.videoHeight;
+      capCtx.scale(-1, 1);
+      capCtx.drawImage(video, -captureCanvas.width, 0, captureCanvas.width, captureCanvas.height);
+    }
+    
     capCtx.restore();
 
     const dataUrl = captureCanvas.toDataURL('image/jpeg', 0.85);
@@ -492,7 +591,8 @@
   function renderStrip() {
     // Canvas dimensions setup
     const photoWidth = 600;
-    const photoHeight = 450; // 4:3 aspect ratio
+    // Jika multiplayer (2 kamera berdampingan), rasionya jadi lebih lebar, jadi kurangi tingginya agar muat
+    const photoHeight = isMultiplayer ? 300 : 450; 
     const padding = currentTheme.type === 'film' ? 50 : 30;
     const spacing = 20;
     const bottomPadding = hasWatermark ? 120 : padding; // Space for logo/text only if watermark is present
@@ -740,6 +840,215 @@
     
     ctx.globalAlpha = 1.0;
   }
+
+  // --- MULTIPLAYER LOGIC ---
+  const btnToggleMp = document.getElementById('btnToggleMp');
+  const mpPanel = document.getElementById('mpPanel');
+  const mpAuthBlock = document.getElementById('mpAuthBlock');
+  const mpRoomBlock = document.getElementById('mpRoomBlock');
+  
+  const tabCreate = document.getElementById('tabCreate');
+  const tabJoin = document.getElementById('tabJoin');
+  const paneCreate = document.getElementById('paneCreate');
+  const paneJoin = document.getElementById('paneJoin');
+  
+  const txtRoomId = document.getElementById('txtRoomId');
+  const btnCreateRoom = document.getElementById('btnCreateRoom');
+  const btnCopyRoom = document.getElementById('btnCopyRoom');
+  const inpRoomId = document.getElementById('inpRoomId');
+  const btnJoinRoom = document.getElementById('btnJoinRoom');
+  const mpStatusMsg = document.getElementById('mpStatusMsg');
+  const mpAnimOverlay = document.getElementById('mpAnimOverlay');
+
+  btnToggleMp.addEventListener('click', () => {
+    mpPanel.classList.toggle('active');
+  });
+
+  tabCreate.addEventListener('click', () => {
+    tabCreate.classList.add('active'); tabJoin.classList.remove('active');
+    paneCreate.style.display = 'block'; paneJoin.style.display = 'none';
+  });
+  tabJoin.addEventListener('click', () => {
+    tabJoin.classList.add('active'); tabCreate.classList.remove('active');
+    paneJoin.style.display = 'block'; paneCreate.style.display = 'none';
+  });
+
+  // Check auth
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      mpAuthBlock.style.display = 'none';
+      mpRoomBlock.style.display = 'block';
+    } else {
+      mpAuthBlock.style.display = 'block';
+      mpRoomBlock.style.display = 'none';
+    }
+  });
+
+  function generateRoomId() {
+    return Math.random().toString(36).substring(2, 8).toUpperCase();
+  }
+
+  function setupWebRTC() {
+    peerConnection = new RTCPeerConnection(ICE_SERVERS);
+    
+    // Add local stream
+    stream.getTracks().forEach(track => {
+      peerConnection.addTrack(track, stream);
+    });
+
+    // Listen for remote stream
+    peerConnection.ontrack = event => {
+      remoteVideo.srcObject = event.streams[0];
+    };
+
+    peerConnection.onconnectionstatechange = () => {
+      if (peerConnection.connectionState === 'connected') {
+        mpStatusMsg.textContent = '✅ Connected!';
+        isMultiplayer = true;
+        
+        // UI Changes
+        camContainer.classList.add('mp-cam-grid');
+        remoteVideoWrap.style.display = 'block';
+        badgeLocal.style.display = 'block';
+        
+        // Show Animation
+        mpAnimOverlay.classList.add('show');
+        setTimeout(() => mpAnimOverlay.classList.remove('show'), 3000);
+      } else if (peerConnection.connectionState === 'disconnected' || peerConnection.connectionState === 'failed') {
+        mpStatusMsg.textContent = '❌ Disconnected.';
+        resetMultiplayer();
+      }
+    };
+  }
+
+  function resetMultiplayer() {
+    isMultiplayer = false;
+    camContainer.classList.remove('mp-cam-grid');
+    remoteVideoWrap.style.display = 'none';
+    badgeLocal.style.display = 'none';
+    if(peerConnection) peerConnection.close();
+    if(currentRoomId) {
+      mpDb.ref(`rooms/${currentRoomId}`).remove();
+    }
+    currentRoomId = null;
+  }
+
+  // Create Room
+  btnCreateRoom.addEventListener('click', async () => {
+    isHost = true;
+    currentRoomId = generateRoomId();
+    txtRoomId.textContent = currentRoomId;
+    mpStatusMsg.textContent = 'Membuat room...';
+
+    const roomRef = mpDb.ref(`rooms/${currentRoomId}`);
+    
+    setupWebRTC();
+
+    // Listen for ICE candidates
+    peerConnection.onicecandidate = event => {
+      if (event.candidate) {
+        roomRef.child('callerCandidates').push(event.candidate.toJSON());
+      }
+    };
+
+    // Create Offer
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer);
+
+    const roomWithOffer = {
+      offer: { type: offer.type, sdp: offer.sdp },
+      host: auth.currentUser.uid,
+      theme: currentTheme.type
+    };
+    await roomRef.set(roomWithOffer);
+    
+    // Delete room when host disconnects
+    roomRef.onDisconnect().remove();
+
+    mpStatusMsg.textContent = 'Menunggu teman bergabung...';
+
+    // Listen for answer
+    roomRef.child('answer').on('value', snapshot => {
+      const data = snapshot.val();
+      if (!peerConnection.currentRemoteDescription && data) {
+        const answer = new RTCSessionDescription(data);
+        peerConnection.setRemoteDescription(answer);
+      }
+    });
+
+    // Listen for remote ICE candidates
+    roomRef.child('calleeCandidates').on('child_added', snapshot => {
+      const data = snapshot.val();
+      peerConnection.addIceCandidate(new RTCIceCandidate(data));
+    });
+
+    // Sync theme
+    roomRef.child('theme').on('value', snap => {
+      if(snap.val() && snap.val() !== currentTheme.type) {
+        const btn = document.querySelector(`.theme-btn[data-type="${snap.val()}"]`);
+        if(btn) btn.click();
+      }
+    });
+  });
+
+  btnCopyRoom.addEventListener('click', () => {
+    navigator.clipboard.writeText(currentRoomId);
+    btnCopyRoom.textContent = 'Tersalin!';
+    setTimeout(() => btnCopyRoom.textContent = 'Salin ID', 2000);
+  });
+
+  // Join Room
+  btnJoinRoom.addEventListener('click', async () => {
+    isHost = false;
+    currentRoomId = inpRoomId.value.trim().toUpperCase();
+    if (currentRoomId.length !== 6) return alert('ID Room harus 6 karakter!');
+    
+    mpStatusMsg.textContent = 'Bergabung ke room...';
+    
+    const roomRef = mpDb.ref(`rooms/${currentRoomId}`);
+    const roomSnapshot = await roomRef.once('value');
+    
+    if (!roomSnapshot.exists()) {
+      mpStatusMsg.textContent = 'Room tidak ditemukan!';
+      return;
+    }
+
+    setupWebRTC();
+
+    peerConnection.onicecandidate = event => {
+      if (event.candidate) {
+        roomRef.child('calleeCandidates').push(event.candidate.toJSON());
+      }
+    };
+
+    const offer = roomSnapshot.val().offer;
+    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+    const answer = await peerConnection.createAnswer();
+    await peerConnection.setLocalDescription(answer);
+
+    await roomRef.child('answer').set({ type: answer.type, sdp: answer.sdp });
+
+    roomRef.child('callerCandidates').on('child_added', snapshot => {
+      peerConnection.addIceCandidate(new RTCIceCandidate(snapshot.val()));
+    });
+    
+    // Sync theme
+    roomRef.child('theme').on('value', snap => {
+      if(snap.val() && snap.val() !== currentTheme.type) {
+        const btn = document.querySelector(`.theme-btn[data-type="${snap.val()}"]`);
+        if(btn) btn.click();
+      }
+    });
+  });
+
+  // Hook Theme Change for Multiplayer Sync
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      if(isMultiplayer && currentRoomId) {
+        mpDb.ref(`rooms/${currentRoomId}/theme`).set(currentTheme.type);
+      }
+    });
+  });
 
   // Initialize
   startCamera();

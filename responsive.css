@@ -551,3 +551,181 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.6rem); }
 
 
 
+
+/* ── Multiplayer Photobooth (Neo-Brutalist) ── */
+.mp-panel {
+  background: #fff;
+  border: 4px solid #000;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 6px 6px 0 #000;
+  display: none; /* hidden by default */
+  color: #000;
+}
+.mp-panel.active {
+  display: block;
+  animation: slideDown 0.3s ease-out;
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.mp-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.mp-tab-btn {
+  flex: 1;
+  padding: 12px;
+  font-family: var(--font-heading, 'Bangers', cursive);
+  font-size: 18px;
+  letter-spacing: 1px;
+  background: #f1f5f9;
+  border: 3px solid #000;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 #000;
+  transition: all 0.2s;
+}
+.mp-tab-btn.active {
+  background: var(--pink, #f472b6);
+  color: #000;
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #000;
+}
+
+.mp-room-info {
+  background: var(--yellow, #fde047);
+  border: 3px solid #000;
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+.mp-room-id {
+  font-size: 28px;
+  font-family: monospace;
+  letter-spacing: 4px;
+  margin: 8px 0;
+  background: #fff;
+  padding: 8px;
+  border: 2px dashed #000;
+}
+
+.mp-input {
+  width: 100%;
+  padding: 12px;
+  font-size: 18px;
+  border: 3px solid #000;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-family: monospace;
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 2px;
+}
+
+.mp-btn-action {
+  width: 100%;
+  padding: 14px;
+  background: var(--cyan, #00e5ff);
+  border: 3px solid #000;
+  border-radius: 8px;
+  font-family: var(--font-heading, 'Bangers', cursive);
+  font-size: 20px;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 #000;
+  transition: all 0.2s;
+}
+.mp-btn-action:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #000;
+}
+
+.mp-status {
+  text-align: center;
+  font-weight: 700;
+  margin-top: 12px;
+  font-size: 14px;
+  color: #333;
+}
+
+/* 2-Player Grid */
+.mp-cam-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+}
+.mp-video-wrap {
+  position: relative;
+  border: 3px solid #000;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #1e293b;
+  aspect-ratio: 3/4; /* Changed to portrait for side-by-side */
+}
+.mp-video-wrap video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+.mp-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: var(--pink, #f472b6);
+  color: #000;
+  font-weight: 900;
+  padding: 4px 8px;
+  border: 2px solid #000;
+  border-radius: 4px;
+  font-size: 12px;
+}
+.mp-badge.remote {
+  background: var(--cyan, #00e5ff);
+}
+
+.mp-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.mp-overlay.show {
+  opacity: 1;
+}
+.mp-overlay-content {
+  background: var(--yellow, #fde047);
+  padding: 40px;
+  border: 6px solid #000;
+  border-radius: 20px;
+  box-shadow: 10px 10px 0 #000;
+  text-align: center;
+  transform: scale(0.8);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.mp-overlay.show .mp-overlay-content {
+  transform: scale(1);
+}
+.mp-overlay h2 {
+  font-family: var(--font-heading, 'Bangers', cursive);
+  font-size: 48px;
+  margin: 0;
+  color: #000;
+  letter-spacing: 2px;
+}
