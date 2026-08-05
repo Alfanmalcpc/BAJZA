@@ -393,14 +393,7 @@
   let maxSlots = 3;
   let currentTheme = { type: 'solid', bg: '#ffffff', text: '#000000' };
   let hasWatermark = true; // Status watermark
-  let cameraRatio = 4/3; // Default ratio
-
-  // Listen for video metadata to adjust aspect ratio perfectly
-  video.addEventListener('loadedmetadata', () => {
-    cameraRatio = video.videoWidth / video.videoHeight;
-    camContainer.style.aspectRatio = isMultiplayer ? (cameraRatio * 2) : cameraRatio;
-    renderStrip(); // Re-render to fix placeholder shapes
-  });
+  let cameraRatio = 4/3; // Default format desktop (4:3)
 
   // Multiplayer State
   let isMultiplayer = false;
@@ -946,60 +939,75 @@
 
   // Create Room
   btnCreateRoom.addEventListener('click', async () => {
-    isHost = true;
-    currentRoomId = generateRoomId();
-    txtRoomId.textContent = currentRoomId;
-    mpStatusMsg.textContent = 'Membuat room...';
+    try {
+      isHost = true;
+      currentRoomId = generateRoomId();
+      txtRoomId.textContent = currentRoomId;
+      mpStatusMsg.textContent = 'Membuat room...';
 
-    const roomRef = mpDb.ref(`rooms/${currentRoomId}`);
-    
-    setupWebRTC();
+      const roomRef = mpDb.ref(`rooms/${currentRoomId}`);
+      
+      setupWebRTC();
 
-    // Listen for ICE candidates
-    peerConnection.onicecandidate = event => {
-      if (event.candidate) {
-        roomRef.child('callerCandidates').push(event.candidate.toJSON());
-      }
-    };
+      // Listen for ICE candidates
+      peerConnection.onicecandidate = event => {
+        if (event.candidate) {
+          roomRef.child('callerCandidates').push(event.candidate.toJSON());
+        }
+      };
 
-    // Create Offer
-    const offer = await peerConnection.createOffer();
-    await peerConnection.setLocalDescription(offer);
+      // Create Offer
+      const offer = await peerConnection.createOffer();
+      await peerConnection.setLocalDescription(offer);
 
-    const roomWithOffer = {
-      offer: { type: offer.type, sdp: offer.sdp },
-      host: auth.currentUser.uid,
-      theme: currentTheme.type
-    };
-    await roomRef.set(roomWithOffer);
-    
-    // Delete room when host disconnects
-    roomRef.onDisconnect().remove();
+      const roomWithOffer = {
+        offer: { type: offer.type, sdp: offer.sdp },
+        host: auth.currentUser.uid,
+        theme: currentTheme.type
+      };
+      
+      // Attempt to write to DB
+      await roomRef.set(roomWithOffer);
+      
+      // Delete room when host disconnects
+      roomRef.onDisconnect().remove();
 
-    mpStatusMsg.textContent = 'Menunggu teman bergabung...';
+      mpStatusMsg.textContent = 'Menunggu teman bergabung...';
 
-    // Listen for answer
-    roomRef.child('answer').on('value', snapshot => {
-      const data = snapshot.val();
-      if (!peerConnection.currentRemoteDescription && data) {
-        const answer = new RTCSessionDescription(data);
-        peerConnection.setRemoteDescription(answer);
-      }
-    });
+      // Listen for answer
+      roomRef.child('answer').on('value', snapshot => {
+        const data = snapshot.val();
+        if (!peerConnection.currentRemoteDescription && data) {
+          const answer = new RTCSessionDescription(data);
+          peerConnection.setRemoteDescription(answer);
+        }
+      });
 
-    // Listen for remote ICE candidates
-    roomRef.child('calleeCandidates').on('child_added', snapshot => {
-      const data = snapshot.val();
-      peerConnection.addIceCandidate(new RTCIceCandidate(data));
-    });
+      // Listen for remote ICE candidates
+      roomRef.child('calleeCandidates').on('child_added', snapshot => {
+        const data = snapshot.val();
+        if (peerConnection.remoteDescription) {
+          peerConnection.addIceCandidate(new RTCIceCandidate(data));
+        } else {
+          peerConnection.addEventListener('signalingstatechange', () => {
+            if (peerConnection.remoteDescription) {
+              peerConnection.addIceCandidate(new RTCIceCandidate(data));
+            }
+          });
+        }
+      });
 
-    // Sync theme
-    roomRef.child('theme').on('value', snap => {
-      if(snap.val() && snap.val() !== currentTheme.type) {
-        const btn = document.querySelector(`.theme-btn[data-type="${snap.val()}"]`);
-        if(btn) btn.click();
-      }
-    });
+      // Sync theme
+      roomRef.child('theme').on('value', snap => {
+        if(snap.val() && snap.val() !== currentTheme.type) {
+          const btn = document.querySelector(`.theme-btn[data-type="${snap.val()}"]`);
+          if(btn) btn.click();
+        }
+      });
+    } catch (err) {
+      mpStatusMsg.textContent = 'Error: ' + err.message;
+      console.error(err);
+    }
   });
 
   btnCopyRoom.addEventListener('click', () => {
@@ -1010,46 +1018,60 @@
 
   // Join Room
   btnJoinRoom.addEventListener('click', async () => {
-    isHost = false;
-    currentRoomId = inpRoomId.value.trim().toUpperCase();
-    if (currentRoomId.length !== 6) return alert('ID Room harus 6 karakter!');
-    
-    mpStatusMsg.textContent = 'Bergabung ke room...';
-    
-    const roomRef = mpDb.ref(`rooms/${currentRoomId}`);
-    const roomSnapshot = await roomRef.once('value');
-    
-    if (!roomSnapshot.exists()) {
-      mpStatusMsg.textContent = 'Room tidak ditemukan!';
-      return;
+    try {
+      isHost = false;
+      currentRoomId = inpRoomId.value.trim().toUpperCase();
+      if (currentRoomId.length !== 6) return alert('ID Room harus 6 karakter!');
+      
+      mpStatusMsg.textContent = 'Bergabung ke room...';
+      
+      const roomRef = mpDb.ref(`rooms/${currentRoomId}`);
+      const roomSnapshot = await roomRef.once('value');
+      
+      if (!roomSnapshot.exists()) {
+        mpStatusMsg.textContent = 'Room tidak ditemukan!';
+        return;
+      }
+
+      setupWebRTC();
+
+      peerConnection.onicecandidate = event => {
+        if (event.candidate) {
+          roomRef.child('calleeCandidates').push(event.candidate.toJSON());
+        }
+      };
+
+      const offer = roomSnapshot.val().offer;
+      await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+      const answer = await peerConnection.createAnswer();
+      await peerConnection.setLocalDescription(answer);
+
+      await roomRef.child('answer').set({ type: answer.type, sdp: answer.sdp });
+
+      roomRef.child('callerCandidates').on('child_added', snapshot => {
+        const data = snapshot.val();
+        if (peerConnection.remoteDescription) {
+          peerConnection.addIceCandidate(new RTCIceCandidate(data));
+        } else {
+          peerConnection.addEventListener('signalingstatechange', () => {
+            if (peerConnection.remoteDescription) {
+              peerConnection.addIceCandidate(new RTCIceCandidate(data));
+            }
+          });
+        }
+      });
+      
+      // Sync theme
+      roomRef.child('theme').on('value', snap => {
+        if(snap.val() && snap.val() !== currentTheme.type) {
+          const btn = document.querySelector(`.theme-btn[data-type="${snap.val()}"]`);
+          if(btn) btn.click();
+        }
+      });
+    } catch (err) {
+      mpStatusMsg.textContent = 'Error: ' + err.message;
+      console.error(err);
     }
-
-    setupWebRTC();
-
-    peerConnection.onicecandidate = event => {
-      if (event.candidate) {
-        roomRef.child('calleeCandidates').push(event.candidate.toJSON());
-      }
-    };
-
-    const offer = roomSnapshot.val().offer;
-    await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-    const answer = await peerConnection.createAnswer();
-    await peerConnection.setLocalDescription(answer);
-
-    await roomRef.child('answer').set({ type: answer.type, sdp: answer.sdp });
-
-    roomRef.child('callerCandidates').on('child_added', snapshot => {
-      peerConnection.addIceCandidate(new RTCIceCandidate(snapshot.val()));
-    });
-    
-    // Sync theme
-    roomRef.child('theme').on('value', snap => {
-      if(snap.val() && snap.val() !== currentTheme.type) {
-        const btn = document.querySelector(`.theme-btn[data-type="${snap.val()}"]`);
-        if(btn) btn.click();
-      }
-    });
   });
 
   // Hook Theme Change for Multiplayer Sync
