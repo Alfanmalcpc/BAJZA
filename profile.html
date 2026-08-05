@@ -229,36 +229,31 @@ btnSaveEdit.addEventListener('click', async () => {
   btnSaveEdit.textContent = 'Menyimpan...';
   btnSaveEdit.disabled = true;
 
-  // Use newly picked photo, or keep whatever is currently in DB
-  const newPhotoURL = selectedPhotoDataUrl || currentPhotoInDB || '';
-
   try {
-    // 1. Update Firebase Auth profile (displayName + photoURL)
-    await user.updateProfile({ displayName: newName, photoURL: newPhotoURL });
+    // 1. Update nama di Auth + DB menggunakan helper firebase.js
+    await updateDisplayName(user.uid, newName);
 
-    // 2. Always overwrite Realtime DB with latest values
-    await db.ref(`users/${user.uid}`).update({
-      displayName: newName,
-      photoURL:    newPhotoURL,
-      updatedAt:   Date.now()
-    });
+    // 2. Jika ada foto baru, simpan ke DB
+    if (selectedPhotoDataUrl) {
+      await updatePhoto(user.uid, selectedPhotoDataUrl);
+      currentPhotoInDB = selectedPhotoDataUrl;
+    }
 
-    // 3. Update UI immediately (no reload needed)
-    profName.textContent  = newName;
-    editName.value        = newName;
-    currentPhotoInDB      = newPhotoURL;
-    setAvatar(newPhotoURL);
+    // 3. Update UI
+    profName.textContent = newName;
+    editName.value       = newName;
+    setAvatar(currentPhotoInDB);
 
-    // 4. Reset modal state
-    editModal.style.display   = 'none';
-    selectedPhotoDataUrl       = null;
-    photoFileName.textContent  = 'Belum ada foto dipilih';
-    avatarFileInput.value      = '';
+    // 4. Reset modal
+    editModal.style.display  = 'none';
+    selectedPhotoDataUrl      = null;
+    photoFileName.textContent = 'Belum ada foto dipilih';
+    avatarFileInput.value     = '';
 
     alert('✅ Profil berhasil diperbarui!');
   } catch(err) {
     console.error('Save error:', err);
-    alert('Gagal menyimpan. Silakan coba lagi.');
+    alert('Gagal menyimpan:\n' + (err.message || err));
   } finally {
     btnSaveEdit.textContent = '💾 Simpan';
     btnSaveEdit.disabled    = false;
