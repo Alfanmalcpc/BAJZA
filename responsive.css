@@ -670,12 +670,14 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.6rem); }
   border-radius: 12px;
   overflow: hidden;
   background: #1e293b;
-  aspect-ratio: 3/4; /* Changed to portrait for side-by-side */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .mp-video-wrap video {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  display: block;
   transform: scaleX(-1);
 }
 .mp-badge {
