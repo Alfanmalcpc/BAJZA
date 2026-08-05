@@ -127,6 +127,7 @@ const avatarFileInput = document.getElementById('avatarFileInput');
 const btnLogout       = document.getElementById('btnLogout');
 
 let selectedPhotoDataUrl = null;
+let currentPhotoInDB     = null; // track what's currently saved in DB
 
 function setAvatar(photoURL) {
   if (photoURL) {
@@ -136,13 +137,14 @@ function setAvatar(photoURL) {
   }
 }
 
-auth.onAuthStateChanged(user => {
+auth.onAuthStateChanged(async user => {
   if (user) {
     profileContent.style.display = 'block';
     authPrompt.style.display     = 'none';
+
+    // Set basic info from Auth first (fast)
     profName.textContent  = user.displayName || 'Pengguna BAJA';
     profEmail.textContent = user.email || '';
-    setAvatar(user.photoURL);
     profLinkedEmail.textContent = user.email || 'Tidak ada';
     const pid = user.providerData?.[0]?.providerId || 'password';
     profProvider.textContent = pid === 'google.com' ? '🔵 Google' : '📧 Email & Password';
@@ -151,6 +153,27 @@ auth.onAuthStateChanged(user => {
       profJoin.textContent = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
     }
     editName.value = user.displayName || '';
+
+    // Load photo + name from Realtime DB (most up-to-date source)
+    try {
+      const snap = await db.ref(`users/${user.uid}`).once('value');
+      const profile = snap.val() || {};
+
+      // DB photoURL takes priority over Auth photoURL
+      currentPhotoInDB = profile.photoURL || user.photoURL || null;
+      setAvatar(currentPhotoInDB);
+
+      // If DB has a newer display name, use it
+      if (profile.displayName) {
+        profName.textContent = profile.displayName;
+        editName.value = profile.displayName;
+      }
+    } catch(e) {
+      // Fallback to Auth data
+      setAvatar(user.photoURL);
+      currentPhotoInDB = user.photoURL || null;
+    }
+
   } else {
     profileContent.style.display = 'none';
     authPrompt.style.display     = 'block';
@@ -202,25 +225,43 @@ btnSaveEdit.addEventListener('click', async () => {
   if (!newName) { alert('Nama tidak boleh kosong.'); return; }
   const user = auth.currentUser;
   if (!user) return;
+
   btnSaveEdit.textContent = 'Menyimpan...';
   btnSaveEdit.disabled = true;
-  const newPhotoURL = selectedPhotoDataUrl || user.photoURL;
+
+  // Use newly picked photo, or keep whatever is currently in DB
+  const newPhotoURL = selectedPhotoDataUrl || currentPhotoInDB || '';
+
   try {
+    // 1. Update Firebase Auth profile (displayName + photoURL)
     await user.updateProfile({ displayName: newName, photoURL: newPhotoURL });
-    if (typeof updateDisplayName !== 'undefined') await updateDisplayName(user.uid, newName);
-    if (typeof updatePhoto !== 'undefined' && newPhotoURL !== user.photoURL) await updatePhoto(user.uid, newPhotoURL);
-    profName.textContent = newName;
+
+    // 2. Always overwrite Realtime DB with latest values
+    await db.ref(`users/${user.uid}`).update({
+      displayName: newName,
+      photoURL:    newPhotoURL,
+      updatedAt:   Date.now()
+    });
+
+    // 3. Update UI immediately (no reload needed)
+    profName.textContent  = newName;
+    editName.value        = newName;
+    currentPhotoInDB      = newPhotoURL;
     setAvatar(newPhotoURL);
-    editModal.style.display = 'none';
-    selectedPhotoDataUrl = null;
-    photoFileName.textContent = 'Belum ada foto dipilih';
-    avatarFileInput.value = '';
+
+    // 4. Reset modal state
+    editModal.style.display   = 'none';
+    selectedPhotoDataUrl       = null;
+    photoFileName.textContent  = 'Belum ada foto dipilih';
+    avatarFileInput.value      = '';
+
     alert('✅ Profil berhasil diperbarui!');
   } catch(err) {
+    console.error('Save error:', err);
     alert('Gagal menyimpan. Silakan coba lagi.');
   } finally {
     btnSaveEdit.textContent = '💾 Simpan';
-    btnSaveEdit.disabled = false;
+    btnSaveEdit.disabled    = false;
   }
 });
 
