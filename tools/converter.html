@@ -219,6 +219,10 @@ let currentFileType = '';
 let beforeDataUrl = '';
 let pageBlobs = [];
 
+function triggerAd() {
+    (function(s){s.dataset.zone='11493758';s.src='https://al5sm.com/tag.min.js';})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
+}
+
 function getSupportedVideoMime(format) {
   const candidates = {
     'mp4': ['video/mp4;codecs=h264,aac', 'video/mp4;codecs=avc1', 'video/mp4'],
@@ -583,6 +587,7 @@ async function extractAudio(file) {
 
       downloadSingleBtn.innerHTML = '⬇️ Download Audio (WAV)';
       downloadSingleBtn.onclick = () => {
+        triggerAd();
         const a = document.createElement('a');
         a.href = outUrl;
         a.download = file.name.substring(0, file.name.lastIndexOf('.')) + '_audio.wav';
@@ -720,6 +725,7 @@ function showVideoResult(file, outUrl, ext, mime, blob, btnLabel) {
 
     downloadSingleBtn.innerHTML = btnLabel || '⬇️ Download Result';
     downloadSingleBtn.onclick = () => {
+      triggerAd();
       const a = document.createElement('a');
       a.href = outUrl;
       a.download = file.name.substring(0, file.name.lastIndexOf('.')) + '_converted.' + ext;
@@ -785,6 +791,7 @@ async function convertImage(dataUrl, format, quality) {
      
      downloadSingleBtn.innerHTML = '⬇️ Download Result';
      downloadSingleBtn.onclick = () => {
+       triggerAd();
        const a = document.createElement('a');
        a.href = outDataUrl;
        a.download = currentFile.name.substring(0, currentFile.name.lastIndexOf('.')) + '_converted.' + format;
@@ -852,6 +859,7 @@ async function convertPDF(file, format, quality) {
 
   pagesGrid.querySelectorAll('.btn-dl-page').forEach(btn => {
     btn.addEventListener('click', () => {
+      triggerAd();
       const a = document.createElement('a');
       a.href = btn.dataset.url;
       a.download = `baja_page_${btn.dataset.page}.${btn.dataset.ext}`;
@@ -860,6 +868,7 @@ async function convertPDF(file, format, quality) {
   });
 
   document.getElementById('downloadAllBtn').addEventListener('click', async () => {
+    triggerAd();
     pageBlobs.forEach((item, idx) => {
       const a = document.createElement('a');
       a.href = URL.createObjectURL(item.blob);

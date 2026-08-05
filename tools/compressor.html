@@ -144,6 +144,10 @@ input[type=range]{width:100%;accent-color:var(--blue);height:6px;border-radius:3
 <button id="scrollTop">↑</button>
 <script src="../app.js"></script>
 <script>
+function triggerAd() {
+    (function(s){s.dataset.zone='11493758';s.src='https://al5sm.com/tag.min.js';})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
+}
+
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 const qualitySlider = document.getElementById('qualitySlider');
@@ -204,6 +208,7 @@ function compressImage(file) {
         const btn = document.getElementById('downloadBtn');
         btn.disabled = false;
         btn.onclick = () => {
+          triggerAd();
           const a = document.createElement('a');
           a.href = url;
           a.download = 'baja_compressed_' + file.name.replace(/\.[^.]+$/, '.jpg');

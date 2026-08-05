@@ -58,6 +58,35 @@
   text-decoration: none; display: inline-block; transition: opacity 0.2s;
 }
 .btn-login:hover { opacity: 0.9; }
+
+.info-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;
+  background: rgba(0,0,0,0.2); padding: 16px; border-radius: 16px;
+  text-align: left;
+}
+.info-item { display: flex; flex-direction: column; gap: 4px; }
+.info-label { font-size: 11px; font-weight: 800; color: var(--text-3); text-transform: uppercase; letter-spacing: 1px; }
+.info-val { font-size: 13px; color: var(--text-1); font-weight: 600; word-break: break-all; }
+
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+  display: none; align-items: center; justify-content: center; z-index: 9999;
+}
+.modal-content {
+  background: #1e293b; border: 1px solid rgba(255,255,255,0.1);
+  padding: 24px; border-radius: 24px; width: 90%; max-width: 400px;
+}
+.modal-content h3 { margin-bottom: 20px; font-size: 20px; text-align: center; }
+.form-group { margin-bottom: 16px; text-align: left; }
+.form-group label { display: block; font-size: 13px; color: var(--text-2); margin-bottom: 6px; }
+.input-text {
+  width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.2); color: #fff; font-size: 14px; box-sizing: border-box;
+}
+.modal-actions { display: flex; gap: 12px; margin-top: 24px; }
+.btn-save { flex: 1; padding: 12px; border-radius: 12px; background: linear-gradient(135deg, #8B5CF6, #6D28D9); color: #fff; font-weight: 700; border: none; cursor: pointer; }
+.btn-cancel { flex: 1; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.05); color: #fff; font-weight: 700; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
 </style>
 </head>
 <body>
@@ -82,7 +111,23 @@
     <div class="profile-name" id="profName">Memuat...</div>
     <div class="profile-email" id="profEmail">Memuat...</div>
 
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="info-label">Penyedia Akun</span>
+        <span class="info-val" id="profProvider">-</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Bergabung Sejak</span>
+        <span class="info-val" id="profJoin">-</span>
+      </div>
+      <div class="info-item" style="grid-column: span 2;">
+        <span class="info-label">Email Tertaut</span>
+        <span class="info-val" id="profLinkedEmail">-</span>
+      </div>
+    </div>
+
     <div class="profile-actions">
+      <button class="btn-action" id="btnEditProfile" data-en="✏️ Edit Profile" data-id="✏️ Ubah Profil">✏️ Ubah Profil</button>
       <a href="settings.html" class="btn-action" data-en="⚙️ Settings" data-id="⚙️ Pengaturan">⚙️ Pengaturan</a>
       <button class="btn-action btn-logout" id="btnLogout" data-en="🚪 Log Out" data-id="🚪 Keluar">🚪 Keluar</button>
     </div>
@@ -97,6 +142,24 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="editModal">
+  <div class="modal-content">
+    <h3 data-en="Edit Profile" data-id="Ubah Profil">Ubah Profil</h3>
+    <div class="form-group">
+      <label data-en="Username" data-id="Nama Pengguna">Nama Pengguna</label>
+      <input type="text" id="editName" class="input-text" />
+    </div>
+    <div class="form-group">
+      <label data-en="Profile Photo URL (Optional)" data-id="URL Foto Profil (Opsional)">URL Foto Profil (Opsional)</label>
+      <input type="text" id="editPhoto" class="input-text" placeholder="https://..." />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="btnCancelEdit" data-en="Cancel" data-id="Batal">Batal</button>
+      <button class="btn-save" id="btnSaveEdit" data-en="Save" data-id="Simpan">Simpan</button>
+    </div>
+  </div>
+</div>
+
 <button id="scrollTop">↑</button>
 
 <script src="app.js"></script>
@@ -106,7 +169,17 @@ const authPrompt = document.getElementById('authPrompt');
 const profName = document.getElementById('profName');
 const profEmail = document.getElementById('profEmail');
 const profAvatar = document.getElementById('profAvatar');
+const profProvider = document.getElementById('profProvider');
+const profJoin = document.getElementById('profJoin');
+const profLinkedEmail = document.getElementById('profLinkedEmail');
+
 const btnLogout = document.getElementById('btnLogout');
+const btnEditProfile = document.getElementById('btnEditProfile');
+const editModal = document.getElementById('editModal');
+const editName = document.getElementById('editName');
+const editPhoto = document.getElementById('editPhoto');
+const btnCancelEdit = document.getElementById('btnCancelEdit');
+const btnSaveEdit = document.getElementById('btnSaveEdit');
 
 auth.onAuthStateChanged(user => {
   if (user) {
@@ -121,10 +194,50 @@ auth.onAuthStateChanged(user => {
     } else {
       profAvatar.innerHTML = '👤';
     }
+
+    profLinkedEmail.textContent = user.email || 'Tidak ada';
+    profProvider.textContent = (user.providerData && user.providerData[0] && user.providerData[0].providerId) ? user.providerData[0].providerId : 'Email/Password';
+    
+    if (user.metadata && user.metadata.creationTime) {
+       const d = new Date(user.metadata.creationTime);
+       profJoin.textContent = d.toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'});
+    } else {
+       profJoin.textContent = '-';
+    }
+    
+    editName.value = user.displayName || '';
+    editPhoto.value = user.photoURL || '';
+
   } else {
     profileContent.style.display = 'none';
     authPrompt.style.display = 'block';
   }
+});
+
+btnEditProfile.addEventListener('click', () => { editModal.style.display = 'flex'; });
+btnCancelEdit.addEventListener('click', () => { editModal.style.display = 'none'; });
+
+btnSaveEdit.addEventListener('click', async () => {
+    const newName = editName.value.trim();
+    const newPhoto = editPhoto.value.trim();
+    if (!newName) return alert('Nama tidak boleh kosong');
+    
+    const user = auth.currentUser;
+    if (user) {
+       btnSaveEdit.textContent = 'Menyimpan...';
+       try {
+           await user.updateProfile({ displayName: newName, photoURL: newPhoto });
+           if (typeof updateDisplayName !== 'undefined') await updateDisplayName(user.uid, newName);
+           if (typeof updatePhoto !== 'undefined' && newPhoto) await updatePhoto(user.uid, newPhoto);
+           
+           alert('Profil berhasil diperbarui!');
+           location.reload();
+       } catch (err) {
+           console.error(err);
+           alert('Gagal menyimpan profil.');
+           btnSaveEdit.textContent = 'Simpan';
+       }
+    }
 });
 
 btnLogout.addEventListener('click', async () => {
