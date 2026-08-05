@@ -61,7 +61,7 @@
 
 .info-grid {
   display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;
-  background: rgba(0,0,0,0.2); padding: 16px; border-radius: 16px;
+  background: #0f172a; padding: 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);
   text-align: left;
 }
 .info-item { display: flex; flex-direction: column; gap: 4px; }
@@ -74,8 +74,9 @@
   display: none; align-items: center; justify-content: center; z-index: 9999;
 }
 .modal-content {
-  background: #1e293b; border: 1px solid rgba(255,255,255,0.1);
+  background: #0f172a; border: 1px solid rgba(255,255,255,0.1);
   padding: 24px; border-radius: 24px; width: 90%; max-width: 400px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.8);
 }
 .modal-content h3 { margin-bottom: 20px; font-size: 20px; text-align: center; }
 .form-group { margin-bottom: 16px; text-align: left; }
@@ -150,8 +151,9 @@
       <input type="text" id="editName" class="input-text" />
     </div>
     <div class="form-group">
-      <label data-en="Profile Photo URL (Optional)" data-id="URL Foto Profil (Opsional)">URL Foto Profil (Opsional)</label>
-      <input type="text" id="editPhoto" class="input-text" placeholder="https://..." />
+      <label data-en="Profile Photo" data-id="Foto Profil">Pilih Foto Profil Baru (Opsional)</label>
+      <input type="file" id="editPhotoFile" class="input-text" accept="image/*" style="background:#1e293b; cursor:pointer;" />
+      <small style="color:var(--text-3);font-size:11px;display:block;margin-top:6px;">Maksimal 2MB. Gambar akan dioptimalkan otomatis.</small>
     </div>
     <div class="modal-actions">
       <button class="btn-cancel" id="btnCancelEdit" data-en="Cancel" data-id="Batal">Batal</button>
@@ -177,7 +179,7 @@ const btnLogout = document.getElementById('btnLogout');
 const btnEditProfile = document.getElementById('btnEditProfile');
 const editModal = document.getElementById('editModal');
 const editName = document.getElementById('editName');
-const editPhoto = document.getElementById('editPhoto');
+const editPhotoFile = document.getElementById('editPhotoFile');
 const btnCancelEdit = document.getElementById('btnCancelEdit');
 const btnSaveEdit = document.getElementById('btnSaveEdit');
 
@@ -206,7 +208,6 @@ auth.onAuthStateChanged(user => {
     }
     
     editName.value = user.displayName || '';
-    editPhoto.value = user.photoURL || '';
 
   } else {
     profileContent.style.display = 'none';
@@ -219,16 +220,55 @@ btnCancelEdit.addEventListener('click', () => { editModal.style.display = 'none'
 
 btnSaveEdit.addEventListener('click', async () => {
     const newName = editName.value.trim();
-    const newPhoto = editPhoto.value.trim();
     if (!newName) return alert('Nama tidak boleh kosong');
     
     const user = auth.currentUser;
     if (user) {
        btnSaveEdit.textContent = 'Menyimpan...';
+       btnSaveEdit.disabled = true;
+       
+       let newPhotoDataUrl = user.photoURL; // default to existing
+
+       // If user selected a file, compress and convert to base64
+       if (editPhotoFile.files && editPhotoFile.files[0]) {
+          const file = editPhotoFile.files[0];
+          try {
+             newPhotoDataUrl = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = e => {
+                   const img = new Image();
+                   img.onload = () => {
+                      const canvas = document.createElement('canvas');
+                      const maxDim = 250; // profile pictures don't need to be huge
+                      let w = img.width, h = img.height;
+                      if (w > maxDim || h > maxDim) {
+                          if (w > h) { h = h * (maxDim / w); w = maxDim; } 
+                          else { w = w * (maxDim / h); h = maxDim; }
+                      }
+                      canvas.width = w; canvas.height = h;
+                      const ctx = canvas.getContext('2d');
+                      ctx.drawImage(img, 0, 0, w, h);
+                      resolve(canvas.toDataURL('image/jpeg', 0.8));
+                   };
+                   img.onerror = reject;
+                   img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+             });
+          } catch(e) {
+             console.error("Image processing error", e);
+             alert("Gagal memproses gambar.");
+             btnSaveEdit.textContent = 'Simpan';
+             btnSaveEdit.disabled = false;
+             return;
+          }
+       }
+
        try {
-           await user.updateProfile({ displayName: newName, photoURL: newPhoto });
+           await user.updateProfile({ displayName: newName, photoURL: newPhotoDataUrl });
            if (typeof updateDisplayName !== 'undefined') await updateDisplayName(user.uid, newName);
-           if (typeof updatePhoto !== 'undefined' && newPhoto) await updatePhoto(user.uid, newPhoto);
+           if (typeof updatePhoto !== 'undefined' && newPhotoDataUrl !== user.photoURL) await updatePhoto(user.uid, newPhotoDataUrl);
            
            alert('Profil berhasil diperbarui!');
            location.reload();
@@ -236,6 +276,7 @@ btnSaveEdit.addEventListener('click', async () => {
            console.error(err);
            alert('Gagal menyimpan profil.');
            btnSaveEdit.textContent = 'Simpan';
+           btnSaveEdit.disabled = false;
        }
     }
 });
