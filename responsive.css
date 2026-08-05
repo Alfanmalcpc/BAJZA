@@ -1,0 +1,258 @@
+/* ════════════════════════════════════
+   RESPONSIVE — COMPREHENSIVE SYSTEM
+   Covers: Desktop → Tablet → Mobile → Small Phone
+   ════════════════════════════════════ */
+
+/* ── Page Header (Tool pages) ── */
+.page-header {
+  padding-top: calc(var(--nav-h) + 32px);
+  padding-bottom: 40px;
+  padding-left: 20px;
+  padding-right: 20px;
+  text-align: center;
+}
+.page-header h1 {
+  font-size: clamp(1.6rem, 5vw, 3rem);
+  line-height: 1.15;
+}
+.page-header p {
+  font-size: clamp(13px, 2vw, 16px);
+  max-width: 560px;
+  margin: 12px auto 0;
+}
+
+/* ── Large Desktop (≥1200px) ── */
+@media (min-width: 1200px) {
+  .container { padding: 0 32px; }
+  .app-grid  { grid-template-columns: repeat(7, 1fr); }
+}
+
+/* ── Tablet landscape (≤1024px) ── */
+@media (max-width: 1024px) {
+  .hero-content { max-width: 680px; padding: 48px 28px; }
+  .footer-grid  { grid-template-columns: 1fr 1fr 1fr; }
+}
+
+/* ── Tablet portrait (≤900px) ── */
+@media (max-width: 900px) {
+  .pillars-grid      { grid-template-columns: 1fr; }
+  .tools-preview     { grid-template-columns: repeat(2, 1fr); }
+  .crypto-mini-grid  { grid-template-columns: repeat(2, 1fr); }
+  .tutorial-grid     { grid-template-columns: repeat(2, 1fr); }
+  .footer-grid       { grid-template-columns: 1fr 1fr; }
+  .stats-row         { grid-template-columns: repeat(2, 1fr); }
+  .app-grid          { grid-template-columns: repeat(4, 1fr); }
+  /* Tool pages */
+  .beautifier-layout { grid-template-columns: 1fr !important; }
+  .editor-split      { grid-template-columns: 1fr !important; }
+}
+
+/* ── Mobile (≤768px) ── */
+@media (max-width: 768px) {
+  :root {
+    --nav-h:    56px;
+    --bottom-h: 60px;
+  }
+
+  /* Layout */
+  .container { padding: 0 16px; }
+  .section   { padding: 48px 0; }
+
+  /* Hero */
+  .hero-content {
+    padding: 32px 18px;
+    border-radius: var(--r-lg);
+    box-shadow: 8px 8px 0 #000;
+    transform: rotate(0);
+  }
+  .hero-cta { flex-direction: column; align-items: stretch; }
+  .btn-primary, .btn-secondary {
+    text-align: center;
+    justify-content: center;
+    padding: 13px 24px;
+    font-size: 15px;
+  }
+
+  /* Grids */
+  .tools-preview    { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .tutorial-grid    { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .app-grid         { grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .stats-row        { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .footer-grid      { grid-template-columns: 1fr; }
+  .footer-bottom    { flex-direction: column; gap: 10px; text-align: center; }
+
+  /* Navbar */
+  .logo-text  { font-size: 24px; }
+  .logo-badge { width: 34px; height: 34px; font-size: 18px; }
+  .nav-clock  { display: none; }
+
+  /* Bottom nav */
+  .bottom-nav-text { display: none; }
+  .bottom-nav-icon { font-size: 24px; }
+
+  /* Scroll top */
+  #scrollTop { width: 44px; height: 44px; font-size: 22px; right: 14px; }
+
+  /* Cards */
+  .pillar-card  { padding: 24px 16px; }
+  .tool-card    { padding: 18px 14px; }
+
+  /* Tool pages inline */
+  .drop-zone { padding: 44px 20px !important; }
+  .drop-icon { font-size: 48px !important; }
+  .drop-title { font-size: 18px !important; }
+  .action-bar { flex-wrap: wrap !important; gap: 8px !important; }
+
+  /* CTA */
+  .cta-inner { padding: 36px 20px; transform: rotate(0); border-radius: var(--r-lg); }
+  .cta-inner h2 { font-size: 2rem; }
+
+  /* Section header */
+  .section-badge { font-size: 13px; }
+  .section-sub   { font-size: 14px; padding: 8px 14px; }
+}
+
+/* ── Small phone (≤480px) ── */
+@media (max-width: 480px) {
+  :root {
+    --nav-h:    54px;
+    --bottom-h: 58px;
+  }
+
+  .container { padding: 0 12px; }
+  .section   { padding: 40px 0; }
+
+  /* Hero */
+  .hero-content { padding: 28px 14px; }
+  .hero-badge   { font-size: 12px; padding: 4px 14px; }
+
+  /* Grids */
+  .tools-preview    { grid-template-columns: 1fr; }
+  .tutorial-grid    { grid-template-columns: 1fr; }
+  .crypto-mini-grid { grid-template-columns: 1fr 1fr; }
+  .app-grid         { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .app-icon         { width: 64px; height: 64px; }
+  .app-label        { font-size: 11px; max-width: 68px; }
+
+  /* Navbar */
+  .logo-text  { font-size: 22px; letter-spacing: 2px; }
+  .logo-badge { width: 32px; height: 32px; font-size: 16px; }
+  .nav-actions { gap: 6px; }
+
+  /* Bottom nav */
+  .bottom-nav-icon { font-size: 22px; }
+  .bottom-nav-link { gap: 0; }
+
+  /* Scroll top */
+  #scrollTop { width: 40px; height: 40px; font-size: 20px; right: 10px; bottom: calc(var(--bottom-h) + 10px); }
+
+  /* Typography */
+  .stat-num     { font-size: 2.2rem; }
+  .pillar-title { font-size: 22px; }
+  .tool-name    { font-size: 18px; }
+  .article-title { font-size: 15px; }
+
+  /* CTA */
+  .cta-inner { padding: 28px 14px; }
+  .cta-inner h2 { font-size: 1.7rem; }
+  .cta-inner p  { font-size: 14px; }
+
+  /* Tool pages */
+  .page-header { padding-top: calc(var(--nav-h) + 20px); padding-bottom: 28px; }
+  .converter-wrap { padding: 0 4px; }
+  .drop-zone  { padding: 36px 14px !important; border-radius: var(--r-lg) !important; }
+  .drop-icon  { font-size: 40px !important; }
+  .drop-title { font-size: 16px !important; }
+  .drop-sub   { font-size: 12px !important; }
+  .btn-file   { padding: 10px 22px !important; font-size: 13px !important; }
+
+  /* Result grid in converter → stack */
+  #singleResultContainer > div { grid-template-columns: 1fr !important; }
+
+  /* Format select */
+  select { font-size: 14px !important; padding: 10px 12px !important; }
+
+  /* Pages grid (PDF) */
+  .pages-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* Footer */
+  .footer { padding: 40px 0 20px; }
+  .footer-grid { gap: 24px; }
+  .footer-bottom { font-size: 12px; }
+
+  /* PWA Banner */
+  .pwa-banner-inner  { padding: 10px 12px; gap: 8px; }
+  .pwa-banner-icon   { width: 44px; height: 44px; font-size: 22px; }
+  .pwa-btn-install   { padding: 6px 14px; font-size: 13px; }
+}
+
+/* ── Extra small (≤360px) — covers small Android ── */
+@media (max-width: 360px) {
+  .container { padding: 0 10px; }
+
+  .app-grid  { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .app-icon  { width: 56px; height: 56px; border-radius: 14px; }
+  .app-label { font-size: 10px; max-width: 60px; }
+
+  .logo-text  { font-size: 20px; }
+  .logo-badge { width: 30px; height: 30px; font-size: 15px; }
+
+  .bottom-nav-icon { font-size: 20px; }
+
+  .hero-content { padding: 22px 12px; border-radius: var(--r-md); }
+  .hero-badge   { font-size: 11px; }
+
+  .drop-zone  { padding: 28px 10px !important; }
+  .drop-icon  { font-size: 36px !important; }
+  .drop-title { font-size: 14px !important; }
+  .drop-sub   { font-size: 11px !important; }
+}
+
+/* ── Landscape phone — prevent content cut ── */
+@media (max-width: 768px) and (orientation: landscape) {
+  .hero { min-height: auto; padding-top: calc(var(--nav-h) + 16px); padding-bottom: 32px; }
+  .hero-content { padding: 24px 20px; }
+  .page-header { padding-top: calc(var(--nav-h) + 16px); padding-bottom: 20px; }
+}
+
+/* ── iOS Safe Area (notch/home indicator) ── */
+@supports (padding: max(0px)) {
+  .navbar {
+    padding-left:  max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+  .bottom-nav {
+    padding-bottom: max(env(safe-area-inset-bottom), 4px);
+    height: calc(var(--bottom-h) + env(safe-area-inset-bottom));
+  }
+  body { padding-bottom: calc(var(--bottom-h) + env(safe-area-inset-bottom)); }
+}
+
+/* ── Touch UX improvements (all mobile) ── */
+@media (hover: none) {
+  /* Disable hover transform effects on touch (no hover flicker) */
+  .tool-card:hover,
+  .pillar-card:hover,
+  .article-card:hover,
+  .crypto-mini-card:hover { transform: none; box-shadow: var(--shadow-md); }
+
+  /* Bigger tap targets */
+  .bottom-nav-link { min-height: 48px; }
+  .btn-primary, .btn-secondary { min-height: 48px; }
+  .btn-file { min-height: 48px !important; }
+  .appsec-more { min-height: 44px; }
+  a, button { -webkit-tap-highlight-color: transparent; }
+}
+
+/* ── Fluid font size utility ── */
+h1 { font-size: clamp(1.8rem, 5vw, 4rem); }
+h2 { font-size: clamp(1.4rem, 3.5vw, 2.4rem); }
+h3 { font-size: clamp(1.1rem, 2.5vw, 1.6rem); }
+
+/* ── Scrollbar (desktop only) ── */
+@media (min-width: 769px) {
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: #f1f1f1; }
+  ::-webkit-scrollbar-thumb { background: #000; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--pink); }
+}

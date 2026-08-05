@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Space+Grotesk:wght@400;500;700;900&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Space+Grotesk:wght@400;500;700;900&display=swap');
 
-/* ════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    ROOT TOKENS
-   ════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 :root {
   --bg-base:    #f9d924;
   --bg-surface: #fff;
@@ -31,9 +31,9 @@
   --tr:           .18s ease;
 }
 
-/* ════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    RESET & BASE
-   ════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html  { scroll-behavior: smooth; font-size: 16px; background: #111; }
 body  {
@@ -51,9 +51,9 @@ a      { color: inherit; text-decoration: none; }
 button { cursor: pointer; font-family: var(--font); border: none; outline: none; }
 ul     { list-style: none; }
 
-/* ════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    LAYOUT HELPERS
-   ════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .container {
   width: 100%;
   max-width: 1200px;
@@ -79,9 +79,9 @@ ul     { list-style: none; }
 .section:nth-of-type(4)  { background-color: #feca57; }
 .section:nth-of-type(4)::before { background-image: radial-gradient(circle,#000 14%,transparent 15%); background-size: 14px 14px; }
 
-/* ════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    TOP APP BAR  (Android-style)
-   ════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .navbar {
   position: fixed;
   top: 0; left: 0; right: 0;
@@ -172,9 +172,9 @@ ul     { list-style: none; }
   .nav-clock { display: none; }
 }
 
-/* ════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    BOTTOM NAVIGATION  (Android-style)
-   ════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .bottom-nav {
   position: fixed;
   bottom: 0; left: 0; right: 0;
@@ -234,9 +234,9 @@ ul     { list-style: none; }
   text-transform: uppercase;
 }
 
-/* ════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    HERO
-   ════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .hero {
   min-height: 100vh;
   display: flex; align-items: center;
@@ -322,7 +322,7 @@ ul     { list-style: none; }
 }
 .btn-secondary:hover { transform: translate(4px,4px); box-shadow: none; background: var(--bg-base); }
 
-/* ── Stats row ── */
+/* â”€â”€ Stats row â”€â”€ */
 .stats-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -347,9 +347,9 @@ ul     { list-style: none; }
 }
 .stat-label { font-size: 13px; font-weight: 900; color: #000; text-transform: uppercase; }
 
-/* ════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    TICKER TAPE
-   ════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .ticker-wrap {
   background: #000; color: #fff;
   overflow: hidden;
@@ -367,9 +367,9 @@ ul     { list-style: none; }
 .ticker-coin  { color: var(--bg-base); }
 .ticker-price { margin-left: 10px; color: #fff; }
 
-/* ════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    SECTION HEADER
-   ════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .section-header { text-align: center; margin-bottom: 56px; }
 .section-badge {
   display: inline-flex; align-items: center; gap: 8px;
@@ -404,9 +404,9 @@ ul     { list-style: none; }
   transform: rotate(-0.7deg);
 }
 
-/* ════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    PILLAR CARDS
-   ════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .pillars-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -451,9 +451,9 @@ ul     { list-style: none; }
 }
 .pillar-card:hover .pillar-link { background: var(--bg-base); box-shadow: 5px 5px 0 #000; transform: translate(-2px,-2px); }
 
-/* ════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    TOOLS PREVIEW GRID
-   ════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .tools-preview {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -484,9 +484,9 @@ ul     { list-style: none; }
 }
 .tool-btn:hover { background: var(--pink); color: #000; box-shadow: 4px 4px 0 #000; transform: translate(-2px,-2px); }
 
-/* ════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    FINANCE / CRYPTO PREVIEW
-   ════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .finance-section { background: #1dd1a1; }
 .crypto-mini-grid {
   display: grid;
@@ -511,9 +511,9 @@ ul     { list-style: none; }
 .up   { color: var(--green); }
 .down { color: var(--red); }
 
-/* ════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    TUTORIAL CARDS
-   ════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .tutorial-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -553,9 +553,9 @@ ul     { list-style: none; }
 .article-title   { font-size: 17px; font-weight: 900; line-height: 1.3; margin-bottom: 10px; }
 .article-excerpt { font-size: 13px; font-weight: 700; color: var(--text-3); line-height: 1.5; border-top: 2px solid #000; padding-top: 10px; }
 
-/* ════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    CTA SECTION
-   ════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .cta-section {
   background: var(--pink);
   border-top: 4px solid #000; border-bottom: 4px solid #000;
@@ -575,9 +575,9 @@ ul     { list-style: none; }
 .cta-inner h2 { font-family: var(--font-heading); font-size: 2.4rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; -webkit-text-stroke: 1px #fff; }
 .cta-inner p  { font-size: 16px; font-weight: 700; margin-bottom: 28px; }
 
-/* ════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    FOOTER
-   ════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .footer { background: #000; color: #fff; padding: 56px 0 28px; border-top: 4px solid #fff; }
 .footer-grid {
   display: grid;
@@ -611,7 +611,7 @@ ul     { list-style: none; }
   transition: all var(--tr); position: relative; padding-left: 16px;
 }
 .footer-links a::before {
-  content: '►'; position: absolute; left: 0; top: 2px;
+  content: 'â–º'; position: absolute; left: 0; top: 2px;
   font-size: 11px; color: var(--pink); opacity: 0;
   transform: translateX(-8px); transition: all var(--tr);
 }
@@ -624,9 +624,9 @@ ul     { list-style: none; }
 }
 .footer-bottom a { color: var(--cyan); }
 
-/* ════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    UTILITIES
-   ════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .view-all {
   display: inline-flex; align-items: center; justify-content: center;
   font-family: var(--font-heading); font-size: 18px;
@@ -657,9 +657,9 @@ ul     { list-style: none; }
 .ad-leaderboard  { width:100%; height:90px; }
 .ad-responsive   { width:100%; height:120px; }
 
-/* ════════════════════════════════════
-   RESPONSIVE — Tablet (≤900px)
-   ════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   RESPONSIVE â€” Tablet (â‰¤900px)
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 @media (max-width: 900px) {
   .pillars-grid      { grid-template-columns: 1fr; }
   .tools-preview     { grid-template-columns: repeat(2, 1fr); }
@@ -669,9 +669,9 @@ ul     { list-style: none; }
   .stats-row         { grid-template-columns: repeat(2, 1fr); }
 }
 
-/* ════════════════════════════════════
-   RESPONSIVE — Mobile (≤600px)
-   ════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   RESPONSIVE â€” Mobile (â‰¤600px)
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 @media (max-width: 600px) {
   :root { --nav-h: 58px; --bottom-h: 62px; }
 
@@ -702,9 +702,9 @@ ul     { list-style: none; }
   .app-label { font-size: 10px; }
 }
 
-/* ════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    APP SECTION (category headers)
-   ════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .appsec { padding: 48px 0 40px; }
 .appsec--tools   { background-color: #f0f9ff; }
 .appsec--tools::before   { background-image: radial-gradient(circle,rgba(0,180,255,.12) 18%,transparent 19%); background-size: 14px 14px; }
@@ -751,9 +751,9 @@ ul     { list-style: none; }
 }
 .appsec-more:hover { transform: translate(2px,2px); box-shadow: 1px 1px 0 #000; background: var(--bg-base); }
 
-/* ════════════════════════════════════
-   APP GRID — Android launcher style
-   ════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   APP GRID â€” Android launcher style
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .app-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
@@ -809,9 +809,9 @@ ul     { list-style: none; }
   max-width: 80px;
 }
 
-/* ────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    CSS LOGO: Calculator
-   ────────────────────────────────────*/
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€*/
 .app-logo-calc {
   display: flex; flex-direction: column; gap: 4px;
   padding: 6px;
@@ -831,9 +831,9 @@ ul     { list-style: none; }
   height: 10px;
 }
 
-/* ────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    CSS LOGO: Code Beautifier
-   ────────────────────────────────────*/
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€*/
 .app-logo-code {
   display: flex; flex-direction: column; gap: 5px;
   padding: 8px;
@@ -845,9 +845,9 @@ ul     { list-style: none; }
   border-radius: 3px;
 }
 
-/* ────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    CSS LOGO: Image Compressor
-   ────────────────────────────────────*/
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€*/
 .app-logo-img {
   display: flex; align-items: center; justify-content: center;
 }
@@ -874,9 +874,9 @@ ul     { list-style: none; }
   z-index: 1;
 }
 
-/* ────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    CSS LOGO: File Converter
-   ────────────────────────────────────*/
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€*/
 .app-logo-file {
   display: flex; align-items: center; gap: 5px;
 }
@@ -904,14 +904,14 @@ ul     { list-style: none; }
   text-shadow: 1px 1px 0 rgba(0,0,0,.3);
 }
 
-/* ────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    CSS LOGO: SVG
-   ────────────────────────────────────*/
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€*/
 .app-logo-svg { display:flex; align-items:center; justify-content:center; }
 
-/* ────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    CSS LOGO: Camera
-   ────────────────────────────────────*/
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€*/
 .app-logo-cam {
   display: flex; align-items: center; justify-content: center;
 }
@@ -938,9 +938,9 @@ ul     { list-style: none; }
   border: 1px solid rgba(0,0,0,.15);
 }
 
-/* ────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    CSS LOGO: Crypto
-   ────────────────────────────────────*/
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€*/
 .app-logo-crypto {
   display: flex; align-items: center; gap: 4px;
   padding: 6px;
@@ -960,9 +960,9 @@ ul     { list-style: none; }
   border-radius: 2px 2px 0 0;
 }
 
-/* ────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    CSS LOGO: Calendar (IPO)
-   ────────────────────────────────────*/
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€*/
 .app-logo-cal {
   width: 46px; height: 42px;
   background: rgba(255,255,255,.9);
@@ -986,9 +986,9 @@ ul     { list-style: none; }
 }
 .cal-mark { background: #e84393 !important; }
 
-/* ────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    CSS LOGO: Trade / P&L
-   ────────────────────────────────────*/
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€*/
 .app-logo-trade {
   display: flex; flex-direction: column; align-items: center; gap: 4px;
   padding: 6px;
@@ -1014,9 +1014,9 @@ ul     { list-style: none; }
   text-shadow: 1px 1px 0 rgba(0,0,0,.3);
 }
 
-/* ────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    CSS LOGO: React atom
-   ────────────────────────────────────*/
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€*/
 .app-logo-react {
   width: 52px; height: 52px;
   position: relative;
@@ -1038,9 +1038,9 @@ ul     { list-style: none; }
   z-index: 1;
 }
 
-/* ────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    CSS LOGO: IoT Board
-   ────────────────────────────────────*/
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€*/
 .app-logo-iot {
   display: flex; align-items: center; justify-content: center;
 }
@@ -1065,9 +1065,9 @@ ul     { list-style: none; }
   border-radius: 3px;
 }
 
-/* ────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    CSS LOGO: Firebase flame
-   ────────────────────────────────────*/
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€*/
 .app-logo-fire {
   display: flex; align-items: center; justify-content: center;
 }
@@ -1087,16 +1087,16 @@ ul     { list-style: none; }
   border-radius: 50% 50% 40% 40% / 60% 60% 40% 40%;
 }
 
-/* ════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    APP GRID RESPONSIVE
-   ════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 @media (max-width: 900px) {
   .app-grid { grid-template-columns: repeat(4, 1fr); }
 }
 
-/* ════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    PWA INSTALL BANNER
-   ════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .pwa-banner {
   position: fixed;
   bottom: calc(var(--bottom-h) + 12px);
@@ -1191,7 +1191,7 @@ ul     { list-style: none; }
 }
 .pwa-btn-dismiss:hover { background: #ff4757; color: #fff; }
 
-/* ────── Installed Toast ────── */
+/* â”€â”€â”€â”€â”€â”€ Installed Toast â”€â”€â”€â”€â”€â”€ */
 .pwa-toast {
   position: fixed;
   bottom: calc(var(--bottom-h) + 80px);
@@ -1215,9 +1215,9 @@ ul     { list-style: none; }
   transform: translateX(-50%) translateY(0);
 }
 
-/* ════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    STICKY CATEGORY TABS BAR
-   ════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .cat-bar-sticky {
   position: sticky;
   top: var(--nav-h);
@@ -1240,9 +1240,9 @@ ul     { list-style: none; }
 }
 .cat-bar-sticky .cat-tabs::-webkit-scrollbar { display: none; }
 
-/* ════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    FLOATING BACK BUTTON
-   ════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .fab-back {
   position: fixed;
   bottom: calc(var(--bottom-h) + 16px);
@@ -1283,9 +1283,9 @@ ul     { list-style: none; }
 /* hide FAB on home page (no back button needed) */
 body.is-home .fab-back { display: none; }
 
-/* ════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    STICKY CATEGORY TABS BAR (MOVED TO BOTTOM)
-   ════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .cat-bar-sticky {
   position: fixed;
   bottom: var(--bottom-h);
@@ -1308,9 +1308,9 @@ body.is-home .fab-back { display: none; }
 }
 .cat-bar-sticky .cat-tabs::-webkit-scrollbar { display: none; }
 
-/* ════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    BOTTOM NAVIGATION
-   ════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -1342,8 +1342,4 @@ body.is-home .fab-back { display: none; }
 .bottom-nav-icon {
   font-size: 20px;
 }
-.bottom-nav-text {
-  font-size: 11px;
-  font-weight: 700;
-  font-family: var(--font-heading);
-}
+.bottom-nav-text {\n  font-size: 11px;\n  font-weight: 700;\n  font-family: var(--font-heading);\n}\n\n/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\n   RESPONSIVE â€” COMPREHENSIVE SYSTEM\n   Covers: Desktop â†’ Tablet â†’ Mobile â†’ Small Phone\n   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */\n\n/* â”€â”€ Page Header (Tool pages) â”€â”€ */\n.page-header {\n  padding-top: calc(var(--nav-h) + 32px);\n  padding-bottom: 40px;\n  padding-left: 20px;\n  padding-right: 20px;\n  text-align: center;\n}\n.page-header h1 {\n  font-size: clamp(1.6rem, 5vw, 3rem);\n  line-height: 1.15;\n}\n.page-header p {\n  font-size: clamp(13px, 2vw, 16px);\n  max-width: 560px;\n  margin: 12px auto 0;\n}\n\n/* â”€â”€ Large Desktop (â‰¥1200px) â”€â”€ */\n@media (min-width: 1200px) {\n  .container { padding: 0 32px; }\n  .app-grid  { grid-template-columns: repeat(7, 1fr); }\n}\n\n/* â”€â”€ Tablet landscape (â‰¤1024px) â”€â”€ */\n@media (max-width: 1024px) {\n  .hero-content { max-width: 680px; padding: 48px 28px; }\n  .footer-grid  { grid-template-columns: 1fr 1fr 1fr; }\n}\n\n/* â”€â”€ Tablet portrait (â‰¤900px) â”€â”€ */\n@media (max-width: 900px) {\n  .pillars-grid      { grid-template-columns: 1fr; }\n  .tools-preview     { grid-template-columns: repeat(2, 1fr); }\n  .crypto-mini-grid  { grid-template-columns: repeat(2, 1fr); }\n  .tutorial-grid     { grid-template-columns: repeat(2, 1fr); }\n  .footer-grid       { grid-template-columns: 1fr 1fr; }\n  .stats-row         { grid-template-columns: repeat(2, 1fr); }\n  .app-grid          { grid-template-columns: repeat(4, 1fr); }\n  /* Tool pages */\n  .beautifier-layout { grid-template-columns: 1fr !important; }\n  .editor-split      { grid-template-columns: 1fr !important; }\n}\n\n/* â”€â”€ Mobile (â‰¤768px) â”€â”€ */\n@media (max-width: 768px) {\n  :root {\n    --nav-h:    56px;\n    --bottom-h: 60px;\n  }\n\n  /* Layout */\n  .container { padding: 0 16px; }\n  .section   { padding: 48px 0; }\n\n  /* Hero */\n  .hero-content {\n    padding: 32px 18px;\n    border-radius: var(--r-lg);\n    box-shadow: 8px 8px 0 #000;\n    transform: rotate(0);\n  }\n  .hero-cta { flex-direction: column; align-items: stretch; }\n  .btn-primary, .btn-secondary {\n    text-align: center;\n    justify-content: center;\n    padding: 13px 24px;\n    font-size: 15px;\n  }\n\n  /* Grids */\n  .tools-preview    { grid-template-columns: repeat(2, 1fr); gap: 14px; }\n  .tutorial-grid    { grid-template-columns: repeat(2, 1fr); gap: 14px; }\n  .app-grid         { grid-template-columns: repeat(4, 1fr); gap: 16px; }\n  .stats-row        { grid-template-columns: repeat(2, 1fr); gap: 10px; }\n  .footer-grid      { grid-template-columns: 1fr; }\n  .footer-bottom    { flex-direction: column; gap: 10px; text-align: center; }\n\n  /* Navbar */\n  .logo-text  { font-size: 24px; }\n  .logo-badge { width: 34px; height: 34px; font-size: 18px; }\n  .nav-clock  { display: none; }\n\n  /* Bottom nav */\n  .bottom-nav-text { display: none; }\n  .bottom-nav-icon { font-size: 24px; }\n\n  /* Scroll top */\n  #scrollTop { width: 44px; height: 44px; font-size: 22px; right: 14px; }\n\n  /* Cards */\n  .pillar-card  { padding: 24px 16px; }\n  .tool-card    { padding: 18px 14px; }\n\n  /* Tool pages inline */\n  .drop-zone { padding: 44px 20px !important; }\n  .drop-icon { font-size: 48px !important; }\n  .drop-title { font-size: 18px !important; }\n  .action-bar { flex-wrap: wrap !important; gap: 8px !important; }\n\n  /* CTA */\n  .cta-inner { padding: 36px 20px; transform: rotate(0); border-radius: var(--r-lg); }\n  .cta-inner h2 { font-size: 2rem; }\n\n  /* Section header */\n  .section-badge { font-size: 13px; }\n  .section-sub   { font-size: 14px; padding: 8px 14px; }\n}\n\n/* â”€â”€ Small phone (â‰¤480px) â”€â”€ */\n@media (max-width: 480px) {\n  :root {\n    --nav-h:    54px;\n    --bottom-h: 58px;\n  }\n\n  .container { padding: 0 12px; }\n  .section   { padding: 40px 0; }\n\n  /* Hero */\n  .hero-content { padding: 28px 14px; }\n  .hero-badge   { font-size: 12px; padding: 4px 14px; }\n\n  /* Grids */\n  .tools-preview    { grid-template-columns: 1fr; }\n  .tutorial-grid    { grid-template-columns: 1fr; }\n  .crypto-mini-grid { grid-template-columns: 1fr 1fr; }\n  .app-grid         { grid-template-columns: repeat(3, 1fr); gap: 12px; }\n  .app-icon         { width: 64px; height: 64px; }\n  .app-label        { font-size: 11px; max-width: 68px; }\n\n  /* Navbar */\n  .logo-text  { font-size: 22px; letter-spacing: 2px; }\n  .logo-badge { width: 32px; height: 32px; font-size: 16px; }\n  .nav-actions { gap: 6px; }\n\n  /* Bottom nav */\n  .bottom-nav-icon { font-size: 22px; }\n  .bottom-nav-link { gap: 0; }\n\n  /* Scroll top */\n  #scrollTop { width: 40px; height: 40px; font-size: 20px; right: 10px; bottom: calc(var(--bottom-h) + 10px); }\n\n  /* Typography */\n  .stat-num     { font-size: 2.2rem; }\n  .pillar-title { font-size: 22px; }\n  .tool-name    { font-size: 18px; }\n  .article-title { font-size: 15px; }\n\n  /* CTA */\n  .cta-inner { padding: 28px 14px; }\n  .cta-inner h2 { font-size: 1.7rem; }\n  .cta-inner p  { font-size: 14px; }\n\n  /* Tool pages */\n  .page-header { padding-top: calc(var(--nav-h) + 20px); padding-bottom: 28px; }\n  .converter-wrap { padding: 0 4px; }\n  .drop-zone  { padding: 36px 14px !important; border-radius: var(--r-lg) !important; }\n  .drop-icon  { font-size: 40px !important; }\n  .drop-title { font-size: 16px !important; }\n  .drop-sub   { font-size: 12px !important; }\n  .btn-file   { padding: 10px 22px !important; font-size: 13px !important; }\n\n  /* Result grid in converter â†’ stack */\n  #singleResultContainer > div { grid-template-columns: 1fr !important; }\n\n  /* Format select */\n  select { font-size: 14px !important; padding: 10px 12px !important; }\n\n  /* Pages grid (PDF) */\n  .pages-grid { grid-template-columns: repeat(2, 1fr) !important; }\n\n  /* Footer */\n  .footer { padding: 40px 0 20px; }\n  .footer-grid { gap: 24px; }\n  .footer-bottom { font-size: 12px; }\n\n  /* PWA Banner */\n  .pwa-banner-inner  { padding: 10px 12px; gap: 8px; }\n  .pwa-banner-icon   { width: 44px; height: 44px; font-size: 22px; }\n  .pwa-btn-install   { padding: 6px 14px; font-size: 13px; }\n}\n\n/* â”€â”€ Extra small (â‰¤360px) â€” covers small Android â”€â”€ */\n@media (max-width: 360px) {\n  .container { padding: 0 10px; }\n\n  .app-grid  { grid-template-columns: repeat(3, 1fr); gap: 8px; }\n  .app-icon  { width: 56px; height: 56px; border-radius: 14px; }\n  .app-label { font-size: 10px; max-width: 60px; }\n\n  .logo-text  { font-size: 20px; }\n  .logo-badge { width: 30px; height: 30px; font-size: 15px; }\n\n  .bottom-nav-icon { font-size: 20px; }\n\n  .hero-content { padding: 22px 12px; border-radius: var(--r-md); }\n  .hero-badge   { font-size: 11px; }\n\n  .drop-zone  { padding: 28px 10px !important; }\n  .drop-icon  { font-size: 36px !important; }\n  .drop-title { font-size: 14px !important; }\n  .drop-sub   { font-size: 11px !important; }\n}\n\n/* â”€â”€ Landscape phone â€” prevent content cut â”€â”€ */\n@media (max-width: 768px) and (orientation: landscape) {\n  .hero { min-height: auto; padding-top: calc(var(--nav-h) + 16px); padding-bottom: 32px; }\n  .hero-content { padding: 24px 20px; }\n  .page-header { padding-top: calc(var(--nav-h) + 16px); padding-bottom: 20px; }\n}\n\n/* â”€â”€ iOS Safe Area (notch/home indicator) â”€â”€ */\n@supports (padding: max(0px)) {\n  .navbar {\n    padding-left:  max(0px, env(safe-area-inset-left));\n    padding-right: max(0px, env(safe-area-inset-right));\n  }\n  .bottom-nav {\n    padding-bottom: max(env(safe-area-inset-bottom), 4px);\n    height: calc(var(--bottom-h) + env(safe-area-inset-bottom));\n  }\n  body { padding-bottom: calc(var(--bottom-h) + env(safe-area-inset-bottom)); }\n}\n\n/* â”€â”€ Touch UX improvements (all mobile) â”€â”€ */\n@media (hover: none) {\n  /* Disable hover transform effects on touch (no hover flicker) */\n  .tool-card:hover,\n  .pillar-card:hover,\n  .article-card:hover,\n  .crypto-mini-card:hover { transform: none; box-shadow: var(--shadow-md); }\n\n  /* Bigger tap targets */\n  .bottom-nav-link { min-height: 48px; }\n  .btn-primary, .btn-secondary { min-height: 48px; }\n  .btn-file { min-height: 48px !important; }\n  .appsec-more { min-height: 44px; }\n  a, button { -webkit-tap-highlight-color: transparent; }\n}\n\n/* â”€â”€ Fluid font size utility â”€â”€ */\nh1 { font-size: clamp(1.8rem, 5vw, 4rem); }\nh2 { font-size: clamp(1.4rem, 3.5vw, 2.4rem); }\nh3 { font-size: clamp(1.1rem, 2.5vw, 1.6rem); }\n\n/* â”€â”€ Scrollbar (desktop only) â”€â”€ */\n@media (min-width: 769px) {\n  ::-webkit-scrollbar { width: 8px; }\n  ::-webkit-scrollbar-track { background: #f1f1f1; }\n  ::-webkit-scrollbar-thumb { background: #000; border-radius: 4px; }\n  ::-webkit-scrollbar-thumb:hover { background: var(--pink); }\n}\n
