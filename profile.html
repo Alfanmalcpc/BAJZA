@@ -1,1 +1,164 @@
-﻿
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+<meta name="google-adsense-account" content="ca-pub-6758288522431201">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Profil Saya — BAJA</title>
+<meta name="description" content="Profil pengguna BAJA."/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="stylesheet" href="style.css"/>
+<link rel="stylesheet" href="responsive.css"/>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="firebase.js"></script>
+<style>
+.profile-wrap { max-width: 520px; margin: 0 auto; padding: 100px 20px 60px; }
+.profile-card {
+  background: rgba(15,23,42,0.7); backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.08); border-radius: 24px;
+  padding: 32px; box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+  text-align: center;
+}
+.profile-avatar {
+  width: 100px; height: 100px; border-radius: 50%;
+  margin: 0 auto 20px; background: rgba(255,255,255,0.1);
+  border: 3px solid var(--purple); object-fit: cover;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40px; color: #fff;
+}
+.profile-name { font-size: 24px; font-weight: 800; margin-bottom: 8px; color: var(--text-1); }
+.profile-email { color: var(--text-2); font-size: 14px; margin-bottom: 32px; }
+.profile-actions {
+  display: flex; flex-direction: column; gap: 12px;
+}
+.btn-action {
+  background: rgba(255,255,255,0.05); color: var(--text-1);
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+  padding: 16px; font-size: 15px; font-weight: 600; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  transition: all 0.2s; text-decoration: none;
+}
+.btn-action:hover {
+  background: rgba(255,255,255,0.1); transform: translateY(-2px);
+}
+.btn-logout {
+  background: rgba(239,68,68,0.1); color: #f87171; border-color: rgba(239,68,68,0.2);
+}
+.btn-logout:hover {
+  background: rgba(239,68,68,0.2); color: #fca5a5;
+}
+.auth-prompt { display: none; padding: 40px 20px; text-align: center; }
+.auth-prompt h2 { font-size: 22px; margin-bottom: 12px; }
+.auth-prompt p { color: var(--text-2); margin-bottom: 24px; }
+.btn-login {
+  background: linear-gradient(135deg, #8B5CF6, #6D28D9); color: #fff;
+  padding: 14px 32px; border-radius: var(--r-full); font-size: 15px; font-weight: 700;
+  text-decoration: none; display: inline-block; transition: opacity 0.2s;
+}
+.btn-login:hover { opacity: 0.9; }
+</style>
+</head>
+<body>
+
+<!-- TOP NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="index.html" class="nav-logo" style="text-decoration:none">
+      <div class="logo-badge">⚡</div>
+      <div class="logo-text">BAJA</div>
+    </a>
+    <div class="nav-actions">
+      <!-- navClock and navAuthSlot injected here -->
+    </div>
+  </div>
+</nav>
+
+<div class="profile-wrap">
+  <!-- Content for logged in user -->
+  <div class="profile-card" id="profileContent" style="display:none">
+    <div class="profile-avatar" id="profAvatar">👤</div>
+    <div class="profile-name" id="profName">Memuat...</div>
+    <div class="profile-email" id="profEmail">Memuat...</div>
+
+    <div class="profile-actions">
+      <a href="settings.html" class="btn-action" data-en="⚙️ Settings" data-id="⚙️ Pengaturan">⚙️ Pengaturan</a>
+      <button class="btn-action btn-logout" id="btnLogout" data-en="🚪 Log Out" data-id="🚪 Keluar">🚪 Keluar</button>
+    </div>
+  </div>
+  
+  <!-- Content for logged out user -->
+  <div class="profile-card auth-prompt" id="authPrompt">
+    <div style="font-size:48px; margin-bottom:16px">🔒</div>
+    <h2 data-en="Not Logged In" data-id="Belum Masuk">Belum Masuk</h2>
+    <p data-en="Please log in to view your profile." data-id="Silakan masuk ke akun Anda untuk melihat profil.">Silakan masuk ke akun Anda untuk melihat profil.</p>
+    <a href="auth.html" class="btn-login" data-en="Log In Now" data-id="Masuk Sekarang">Masuk Sekarang</a>
+  </div>
+</div>
+
+<button id="scrollTop">↑</button>
+
+<script src="app.js"></script>
+<script>
+const profileContent = document.getElementById('profileContent');
+const authPrompt = document.getElementById('authPrompt');
+const profName = document.getElementById('profName');
+const profEmail = document.getElementById('profEmail');
+const profAvatar = document.getElementById('profAvatar');
+const btnLogout = document.getElementById('btnLogout');
+
+auth.onAuthStateChanged(user => {
+  if (user) {
+    profileContent.style.display = 'block';
+    authPrompt.style.display = 'none';
+    
+    profName.textContent = user.displayName || 'Pengguna BAJA';
+    profEmail.textContent = user.email || '';
+    
+    if (user.photoURL) {
+      profAvatar.innerHTML = `<img src="${user.photoURL}" style="width:100%;height:100%;border-radius:50%;object-fit:cover" alt="Profile" />`;
+    } else {
+      profAvatar.innerHTML = '👤';
+    }
+  } else {
+    profileContent.style.display = 'none';
+    authPrompt.style.display = 'block';
+  }
+});
+
+btnLogout.addEventListener('click', async () => {
+  if(confirm('Apakah Anda yakin ingin keluar?')) {
+    try {
+      await auth.signOut();
+      window.location.href = 'index.html';
+    } catch(e) {
+      console.error(e);
+      alert('Gagal keluar.');
+    }
+  }
+});
+</script>
+
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+  <a href="index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">🏠</span>
+    <span class="bottom-nav-text">Home</span>
+  </a>
+  <a href="tools/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">🛠️</span>
+    <span class="bottom-nav-text">Tools</span>
+  </a>
+  <a href="finance/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">📈</span>
+    <span class="bottom-nav-text">Finance</span>
+  </a>
+  <a href="tutorial/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">📚</span>
+    <span class="bottom-nav-text">Tutorial</span>
+  </a>
+</nav>
+
+</body>
+</html>

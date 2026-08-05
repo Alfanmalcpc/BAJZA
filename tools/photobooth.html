@@ -141,12 +141,21 @@
     letter-spacing: 1px;
   }
   .theme-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    display: flex;
+    overflow-x: auto;
+    gap: 12px;
     margin-bottom: 20px;
+    padding-bottom: 12px;
+    scroll-snap-type: x mandatory;
   }
+  .theme-grid::-webkit-scrollbar { height: 8px; }
+  .theme-grid::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
+  .theme-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+  
   .theme-btn {
+    flex: 0 0 calc(33.333% - 8px);
+    min-width: 100px;
+    scroll-snap-align: start;
     padding: 12px;
     border-radius: 12px;
     border: 2px solid transparent;
@@ -280,14 +289,24 @@
         <button class="layout-btn" data-slots="4">4 Foto</button>
       </div>
       
-      <div class="control-label" style="margin-top:20px;">2. Pilih Tema Bingkai</div>
+      <div class="control-label" style="margin-top:20px;">2. Pilih Tema Bingkai (Geser)</div>
       <div class="theme-grid">
-        <button class="theme-btn active" data-bg="#ffffff" data-text="#000000" style="background:#fff;color:#000;">Classic</button>
-        <button class="theme-btn" data-bg="#000000" data-text="#ffffff" style="background:#000;color:#fff;border-color:#334155;">Dark</button>
-        <button class="theme-btn" data-bg="#7c3aed" data-text="#ffffff" style="background:#7c3aed;color:#fff;">Neon</button>
-        <button class="theme-btn" data-bg="#f472b6" data-text="#ffffff" style="background:#f472b6;color:#fff;">Pink</button>
-        <button class="theme-btn" data-bg="#10b981" data-text="#ffffff" style="background:#10b981;color:#fff;">Mint</button>
-        <button class="theme-btn" data-bg="#fcd34d" data-text="#000000" style="background:#fcd34d;color:#000;">Retro</button>
+        <button class="theme-btn active" data-type="solid" data-bg="#ffffff" data-text="#000000" style="background:#fff;color:#000;">Classic</button>
+        <button class="theme-btn" data-type="solid" data-bg="#000000" data-text="#ffffff" style="background:#000;color:#fff;border-color:#334155;">Dark</button>
+        <button class="theme-btn" data-type="film" data-bg="#111111" data-text="#ffffff" style="background:repeating-linear-gradient(0deg, #111, #111 8px, #fff 8px, #fff 12px); border-color:#334155; color:#fff; text-shadow:0 1px 2px #000;">Film</button>
+        <button class="theme-btn" data-type="netflix" data-bg="#141414" data-text="#e50914" style="background:#141414;color:#e50914;border:1px solid #e50914;">Netflix</button>
+        <button class="theme-btn" data-type="batik" data-bg="#5c3a21" data-text="#fcd34d" style="background:#5c3a21;color:#fcd34d;border:1px solid #8b5a2b;">Batik</button>
+        <button class="theme-btn" data-type="checker" data-bg="#ffffff" data-text="#000000" style="background:repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 50% / 20px 20px; color:#fff; text-shadow:0 0 4px #000;">Checker</button>
+        <button class="theme-btn" data-type="vaporwave" data-bg="#2e0854" data-text="#00ffcc" style="background:linear-gradient(180deg, #2e0854, #ff007f); color:#00ffcc;">Vaporwave</button>
+        <button class="theme-btn" data-type="hearts" data-bg="#ffe4e6" data-text="#be123c" style="background:#ffe4e6; color:#be123c;">Hearts</button>
+        <button class="theme-btn" data-type="clouds" data-bg="#bae6fd" data-text="#0ea5e9" style="background:#bae6fd; color:#0ea5e9;">Clouds ☁️</button>
+        <button class="theme-btn" data-type="stars" data-bg="#fdf4ff" data-text="#c026d3" style="background:#fdf4ff; color:#c026d3;">Stars ✨</button>
+        <button class="theme-btn" data-type="paws" data-bg="#ffedd5" data-text="#ea580c" style="background:#ffedd5; color:#ea580c;">Paws 🐾</button>
+        <button class="theme-btn" data-type="daisy" data-bg="#dcfce7" data-text="#16a34a" style="background:#dcfce7; color:#16a34a;">Daisy 🌼</button>
+        <button class="theme-btn" data-type="candy" data-bg="#fbcfe8" data-text="#db2777" style="background:repeating-linear-gradient(45deg, #fbcfe8, #fbcfe8 20px, #ffffff 20px, #ffffff 40px); border-color:#f9a8d4; color:#db2777;">Candy 🍭</button>
+        <button class="theme-btn" data-type="matrix" data-bg="#000000" data-text="#00ff00" style="background:#000; color:#0f0; font-family:monospace;">Matrix</button>
+        <button class="theme-btn" data-type="blueprint" data-bg="#1e3a8a" data-text="#ffffff" style="background:#1e3a8a; background-image:linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px); background-size:8px 8px; color:#fff; text-shadow:0 1px 2px #000;">Blueprint</button>
+        <button class="theme-btn" data-type="dots" data-bg="#fcd34d" data-text="#000000" style="background:#fcd34d; background-image:radial-gradient(rgba(0,0,0,0.2) 15%, transparent 16%); background-size:10px 10px; color:#000;">Polkadot</button>
       </div>
 
 
@@ -321,7 +340,7 @@
   let stream = null;
   let photos = []; // Array of Image objects or DataURLs
   let maxSlots = 3;
-  let currentTheme = { bg: '#ffffff', text: '#000000' };
+  let currentTheme = { type: 'solid', bg: '#ffffff', text: '#000000' };
   let hasWatermark = true; // Status watermark
 
   // Setup UI Listeners
@@ -345,6 +364,7 @@
     btn.addEventListener('click', (e) => {
       document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
       e.target.classList.add('active');
+      currentTheme.type = e.target.dataset.type || 'solid';
       currentTheme.bg = e.target.dataset.bg;
       currentTheme.text = e.target.dataset.text;
       renderStrip();
@@ -473,7 +493,7 @@
     // Canvas dimensions setup
     const photoWidth = 600;
     const photoHeight = 450; // 4:3 aspect ratio
-    const padding = 30;
+    const padding = currentTheme.type === 'film' ? 50 : 30;
     const spacing = 20;
     const bottomPadding = hasWatermark ? 120 : padding; // Space for logo/text only if watermark is present
 
@@ -484,8 +504,177 @@
     stripCanvas.height = stripHeight;
 
     // Draw background
-    ctx.fillStyle = currentTheme.bg;
+    if (currentTheme.type === 'holo') {
+      const grad = ctx.createLinearGradient(0, 0, stripWidth, stripHeight);
+      grad.addColorStop(0, '#ff9a9e');
+      grad.addColorStop(0.3, '#fecfef');
+      grad.addColorStop(0.7, '#a1c4fd');
+      grad.addColorStop(1, '#c2e9fb');
+      ctx.fillStyle = grad;
+    } else if (currentTheme.type === 'vaporwave') {
+      const grad = ctx.createLinearGradient(0, 0, 0, stripHeight);
+      grad.addColorStop(0, '#2e0854');
+      grad.addColorStop(1, '#ff007f');
+      ctx.fillStyle = grad;
+    } else {
+      ctx.fillStyle = currentTheme.bg;
+    }
     ctx.fillRect(0, 0, stripWidth, stripHeight);
+    
+    // Draw pattern overlays
+    if (currentTheme.type === 'film') {
+      ctx.fillStyle = '#ffffff';
+      const holeW = 28;
+      const holeH = 40;
+      const edgePadding = 10;
+      const spacingHole = 64;
+      for (let y = 14; y < stripHeight; y += spacingHole) {
+         ctx.fillRect(edgePadding, y, holeW, holeH);
+         ctx.fillRect(stripWidth - edgePadding - holeW, y, holeW, holeH);
+      }
+    } else if (currentTheme.type === 'blueprint') {
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < stripWidth; x += 20) {
+         ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, stripHeight); ctx.stroke();
+      }
+      for (let y = 0; y < stripHeight; y += 20) {
+         ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(stripWidth, y); ctx.stroke();
+      }
+    } else if (currentTheme.type === 'dots') {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      for (let x = 10; x < stripWidth; x += 20) {
+         for (let y = 10; y < stripHeight; y += 20) {
+            ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI*2); ctx.fill();
+         }
+      }
+    } else if (currentTheme.type === 'netflix') {
+      // Red borders and simple netflix style bars
+      ctx.fillStyle = '#e50914';
+      ctx.fillRect(0, 0, stripWidth, 8); // top border
+      ctx.fillRect(0, stripHeight - 8, stripWidth, 8); // bottom border
+      // subtle red glow behind
+      ctx.fillStyle = 'rgba(229, 9, 20, 0.05)';
+      ctx.fillRect(padding, padding, photoWidth, stripHeight - padding*2);
+    } else if (currentTheme.type === 'batik') {
+      // Simple Batik Kawung/Diamond Pattern
+      ctx.strokeStyle = 'rgba(252, 211, 77, 0.3)'; // Gold lines
+      ctx.lineWidth = 2;
+      for (let y = 0; y < stripHeight + 50; y += 40) {
+        for (let x = 0; x < stripWidth + 50; x += 40) {
+          ctx.beginPath();
+          ctx.moveTo(x, y - 20);
+          ctx.lineTo(x + 20, y);
+          ctx.lineTo(x, y + 20);
+          ctx.lineTo(x - 20, y);
+          ctx.closePath();
+          ctx.stroke();
+          
+          ctx.fillStyle = 'rgba(252, 211, 77, 0.15)';
+          ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI*2); ctx.fill();
+        }
+      }
+    } else if (currentTheme.type === 'checker') {
+      ctx.fillStyle = '#000000';
+      const size = 30;
+      for (let y = 0; y < stripHeight; y += size) {
+        for (let x = 0; x < stripWidth; x += size) {
+          if ((x / size + y / size) % 2 === 0) {
+            ctx.fillRect(x, y, size, size);
+          }
+        }
+      }
+    } else if (currentTheme.type === 'vaporwave') {
+      // Grid for vaporwave
+      ctx.strokeStyle = 'rgba(0, 255, 204, 0.4)';
+      ctx.lineWidth = 2;
+      for (let x = 0; x < stripWidth; x += 40) {
+         ctx.beginPath(); ctx.moveTo(x, stripHeight/2); ctx.lineTo(x, stripHeight); ctx.stroke();
+      }
+      for (let y = stripHeight/2; y < stripHeight; y += 30) {
+         ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(stripWidth, y); ctx.stroke();
+      }
+      // Simple Sun
+      ctx.fillStyle = '#ffcc00';
+      ctx.beginPath(); ctx.arc(stripWidth/2, stripHeight/2, 80, 0, Math.PI, true); ctx.fill();
+    } else if (currentTheme.type === 'hearts') {
+      ctx.fillStyle = 'rgba(190, 18, 60, 0.2)';
+      for(let i=0; i<30; i++) {
+         const hx = Math.random() * stripWidth;
+         const hy = Math.random() * stripHeight;
+         const size = 10 + Math.random() * 20;
+         ctx.font = `${size}px sans-serif`;
+         ctx.fillText('❤', hx, hy);
+      }
+    } else if (currentTheme.type === 'clouds') {
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+      for(let i=0; i<15; i++) {
+         const cx = Math.random() * stripWidth;
+         const cy = Math.random() * stripHeight;
+         ctx.font = '60px sans-serif';
+         ctx.fillText('☁️', cx, cy);
+      }
+    } else if (currentTheme.type === 'stars') {
+      ctx.fillStyle = 'rgba(255, 215, 0, 0.8)';
+      for(let i=0; i<25; i++) {
+         const cx = Math.random() * stripWidth;
+         const cy = Math.random() * stripHeight;
+         const size = 20 + Math.random() * 30;
+         ctx.font = `${size}px sans-serif`;
+         ctx.fillText(Math.random() > 0.5 ? '✨' : '⭐', cx, cy);
+      }
+    } else if (currentTheme.type === 'paws') {
+      for(let i=0; i<20; i++) {
+         const cx = Math.random() * stripWidth;
+         const cy = Math.random() * stripHeight;
+         ctx.font = '40px sans-serif';
+         ctx.save();
+         ctx.translate(cx, cy);
+         ctx.rotate(Math.random() * Math.PI * 2);
+         ctx.fillText('🐾', 0, 0);
+         ctx.restore();
+      }
+    } else if (currentTheme.type === 'daisy') {
+      for(let i=0; i<25; i++) {
+         const cx = Math.random() * stripWidth;
+         const cy = Math.random() * stripHeight;
+         const r = 8 + Math.random() * 8;
+         ctx.fillStyle = '#ffffff';
+         for(let angle=0; angle < Math.PI*2; angle += Math.PI/4) {
+            ctx.beginPath();
+            ctx.arc(cx + Math.cos(angle)*r*1.2, cy + Math.sin(angle)*r*1.2, r*0.8, 0, Math.PI*2);
+            ctx.fill();
+         }
+         ctx.fillStyle = '#fef08a';
+         ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.fill();
+      }
+    } else if (currentTheme.type === 'candy') {
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, stripWidth, stripHeight);
+      ctx.fillStyle = '#fbcfe8';
+      for(let i = -stripHeight; i < stripWidth; i += 40) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i + 20, 0);
+        ctx.lineTo(i + stripHeight + 20, stripHeight);
+        ctx.lineTo(i + stripHeight, stripHeight);
+        ctx.fill();
+      }
+      for(let i=0; i<15; i++) {
+         const cx = Math.random() * stripWidth;
+         const cy = Math.random() * stripHeight;
+         ctx.font = '50px sans-serif';
+         ctx.fillText(Math.random() > 0.5 ? '🍬' : '🍭', cx, cy);
+      }
+    } else if (currentTheme.type === 'matrix') {
+      ctx.fillStyle = 'rgba(0, 255, 0, 0.3)';
+      ctx.font = '16px monospace';
+      for(let i=0; i<100; i++) {
+         const mx = Math.random() * stripWidth;
+         const my = Math.random() * stripHeight;
+         ctx.fillText(Math.random() > 0.5 ? '1' : '0', mx, my);
+      }
+    }
 
     // Draw placeholders or photos
     for (let i = 0; i < maxSlots; i++) {
