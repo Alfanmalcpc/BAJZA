@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Space+Grotesk:wght@400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bangers&family=Space+Grotesk:wght@400;500;700;900&display=swap');
 
 /* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    ROOT TOKENS
@@ -1342,4 +1342,345 @@ body.is-home .fab-back { display: none; }
 .bottom-nav-icon {
   font-size: 20px;
 }
-.bottom-nav-text {\n  font-size: 11px;\n  font-weight: 700;\n  font-family: var(--font-heading);\n}\n\n/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•\n   RESPONSIVE â€” COMPREHENSIVE SYSTEM\n   Covers: Desktop â†’ Tablet â†’ Mobile â†’ Small Phone\n   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */\n\n/* â”€â”€ Page Header (Tool pages) â”€â”€ */\n.page-header {\n  padding-top: calc(var(--nav-h) + 32px);\n  padding-bottom: 40px;\n  padding-left: 20px;\n  padding-right: 20px;\n  text-align: center;\n}\n.page-header h1 {\n  font-size: clamp(1.6rem, 5vw, 3rem);\n  line-height: 1.15;\n}\n.page-header p {\n  font-size: clamp(13px, 2vw, 16px);\n  max-width: 560px;\n  margin: 12px auto 0;\n}\n\n/* â”€â”€ Large Desktop (â‰¥1200px) â”€â”€ */\n@media (min-width: 1200px) {\n  .container { padding: 0 32px; }\n  .app-grid  { grid-template-columns: repeat(7, 1fr); }\n}\n\n/* â”€â”€ Tablet landscape (â‰¤1024px) â”€â”€ */\n@media (max-width: 1024px) {\n  .hero-content { max-width: 680px; padding: 48px 28px; }\n  .footer-grid  { grid-template-columns: 1fr 1fr 1fr; }\n}\n\n/* â”€â”€ Tablet portrait (â‰¤900px) â”€â”€ */\n@media (max-width: 900px) {\n  .pillars-grid      { grid-template-columns: 1fr; }\n  .tools-preview     { grid-template-columns: repeat(2, 1fr); }\n  .crypto-mini-grid  { grid-template-columns: repeat(2, 1fr); }\n  .tutorial-grid     { grid-template-columns: repeat(2, 1fr); }\n  .footer-grid       { grid-template-columns: 1fr 1fr; }\n  .stats-row         { grid-template-columns: repeat(2, 1fr); }\n  .app-grid          { grid-template-columns: repeat(4, 1fr); }\n  /* Tool pages */\n  .beautifier-layout { grid-template-columns: 1fr !important; }\n  .editor-split      { grid-template-columns: 1fr !important; }\n}\n\n/* â”€â”€ Mobile (â‰¤768px) â”€â”€ */\n@media (max-width: 768px) {\n  :root {\n    --nav-h:    56px;\n    --bottom-h: 60px;\n  }\n\n  /* Layout */\n  .container { padding: 0 16px; }\n  .section   { padding: 48px 0; }\n\n  /* Hero */\n  .hero-content {\n    padding: 32px 18px;\n    border-radius: var(--r-lg);\n    box-shadow: 8px 8px 0 #000;\n    transform: rotate(0);\n  }\n  .hero-cta { flex-direction: column; align-items: stretch; }\n  .btn-primary, .btn-secondary {\n    text-align: center;\n    justify-content: center;\n    padding: 13px 24px;\n    font-size: 15px;\n  }\n\n  /* Grids */\n  .tools-preview    { grid-template-columns: repeat(2, 1fr); gap: 14px; }\n  .tutorial-grid    { grid-template-columns: repeat(2, 1fr); gap: 14px; }\n  .app-grid         { grid-template-columns: repeat(4, 1fr); gap: 16px; }\n  .stats-row        { grid-template-columns: repeat(2, 1fr); gap: 10px; }\n  .footer-grid      { grid-template-columns: 1fr; }\n  .footer-bottom    { flex-direction: column; gap: 10px; text-align: center; }\n\n  /* Navbar */\n  .logo-text  { font-size: 24px; }\n  .logo-badge { width: 34px; height: 34px; font-size: 18px; }\n  .nav-clock  { display: none; }\n\n  /* Bottom nav */\n  .bottom-nav-text { display: none; }\n  .bottom-nav-icon { font-size: 24px; }\n\n  /* Scroll top */\n  #scrollTop { width: 44px; height: 44px; font-size: 22px; right: 14px; }\n\n  /* Cards */\n  .pillar-card  { padding: 24px 16px; }\n  .tool-card    { padding: 18px 14px; }\n\n  /* Tool pages inline */\n  .drop-zone { padding: 44px 20px !important; }\n  .drop-icon { font-size: 48px !important; }\n  .drop-title { font-size: 18px !important; }\n  .action-bar { flex-wrap: wrap !important; gap: 8px !important; }\n\n  /* CTA */\n  .cta-inner { padding: 36px 20px; transform: rotate(0); border-radius: var(--r-lg); }\n  .cta-inner h2 { font-size: 2rem; }\n\n  /* Section header */\n  .section-badge { font-size: 13px; }\n  .section-sub   { font-size: 14px; padding: 8px 14px; }\n}\n\n/* â”€â”€ Small phone (â‰¤480px) â”€â”€ */\n@media (max-width: 480px) {\n  :root {\n    --nav-h:    54px;\n    --bottom-h: 58px;\n  }\n\n  .container { padding: 0 12px; }\n  .section   { padding: 40px 0; }\n\n  /* Hero */\n  .hero-content { padding: 28px 14px; }\n  .hero-badge   { font-size: 12px; padding: 4px 14px; }\n\n  /* Grids */\n  .tools-preview    { grid-template-columns: 1fr; }\n  .tutorial-grid    { grid-template-columns: 1fr; }\n  .crypto-mini-grid { grid-template-columns: 1fr 1fr; }\n  .app-grid         { grid-template-columns: repeat(3, 1fr); gap: 12px; }\n  .app-icon         { width: 64px; height: 64px; }\n  .app-label        { font-size: 11px; max-width: 68px; }\n\n  /* Navbar */\n  .logo-text  { font-size: 22px; letter-spacing: 2px; }\n  .logo-badge { width: 32px; height: 32px; font-size: 16px; }\n  .nav-actions { gap: 6px; }\n\n  /* Bottom nav */\n  .bottom-nav-icon { font-size: 22px; }\n  .bottom-nav-link { gap: 0; }\n\n  /* Scroll top */\n  #scrollTop { width: 40px; height: 40px; font-size: 20px; right: 10px; bottom: calc(var(--bottom-h) + 10px); }\n\n  /* Typography */\n  .stat-num     { font-size: 2.2rem; }\n  .pillar-title { font-size: 22px; }\n  .tool-name    { font-size: 18px; }\n  .article-title { font-size: 15px; }\n\n  /* CTA */\n  .cta-inner { padding: 28px 14px; }\n  .cta-inner h2 { font-size: 1.7rem; }\n  .cta-inner p  { font-size: 14px; }\n\n  /* Tool pages */\n  .page-header { padding-top: calc(var(--nav-h) + 20px); padding-bottom: 28px; }\n  .converter-wrap { padding: 0 4px; }\n  .drop-zone  { padding: 36px 14px !important; border-radius: var(--r-lg) !important; }\n  .drop-icon  { font-size: 40px !important; }\n  .drop-title { font-size: 16px !important; }\n  .drop-sub   { font-size: 12px !important; }\n  .btn-file   { padding: 10px 22px !important; font-size: 13px !important; }\n\n  /* Result grid in converter â†’ stack */\n  #singleResultContainer > div { grid-template-columns: 1fr !important; }\n\n  /* Format select */\n  select { font-size: 14px !important; padding: 10px 12px !important; }\n\n  /* Pages grid (PDF) */\n  .pages-grid { grid-template-columns: repeat(2, 1fr) !important; }\n\n  /* Footer */\n  .footer { padding: 40px 0 20px; }\n  .footer-grid { gap: 24px; }\n  .footer-bottom { font-size: 12px; }\n\n  /* PWA Banner */\n  .pwa-banner-inner  { padding: 10px 12px; gap: 8px; }\n  .pwa-banner-icon   { width: 44px; height: 44px; font-size: 22px; }\n  .pwa-btn-install   { padding: 6px 14px; font-size: 13px; }\n}\n\n/* â”€â”€ Extra small (â‰¤360px) â€” covers small Android â”€â”€ */\n@media (max-width: 360px) {\n  .container { padding: 0 10px; }\n\n  .app-grid  { grid-template-columns: repeat(3, 1fr); gap: 8px; }\n  .app-icon  { width: 56px; height: 56px; border-radius: 14px; }\n  .app-label { font-size: 10px; max-width: 60px; }\n\n  .logo-text  { font-size: 20px; }\n  .logo-badge { width: 30px; height: 30px; font-size: 15px; }\n\n  .bottom-nav-icon { font-size: 20px; }\n\n  .hero-content { padding: 22px 12px; border-radius: var(--r-md); }\n  .hero-badge   { font-size: 11px; }\n\n  .drop-zone  { padding: 28px 10px !important; }\n  .drop-icon  { font-size: 36px !important; }\n  .drop-title { font-size: 14px !important; }\n  .drop-sub   { font-size: 11px !important; }\n}\n\n/* â”€â”€ Landscape phone â€” prevent content cut â”€â”€ */\n@media (max-width: 768px) and (orientation: landscape) {\n  .hero { min-height: auto; padding-top: calc(var(--nav-h) + 16px); padding-bottom: 32px; }\n  .hero-content { padding: 24px 20px; }\n  .page-header { padding-top: calc(var(--nav-h) + 16px); padding-bottom: 20px; }\n}\n\n/* â”€â”€ iOS Safe Area (notch/home indicator) â”€â”€ */\n@supports (padding: max(0px)) {\n  .navbar {\n    padding-left:  max(0px, env(safe-area-inset-left));\n    padding-right: max(0px, env(safe-area-inset-right));\n  }\n  .bottom-nav {\n    padding-bottom: max(env(safe-area-inset-bottom), 4px);\n    height: calc(var(--bottom-h) + env(safe-area-inset-bottom));\n  }\n  body { padding-bottom: calc(var(--bottom-h) + env(safe-area-inset-bottom)); }\n}\n\n/* â”€â”€ Touch UX improvements (all mobile) â”€â”€ */\n@media (hover: none) {\n  /* Disable hover transform effects on touch (no hover flicker) */\n  .tool-card:hover,\n  .pillar-card:hover,\n  .article-card:hover,\n  .crypto-mini-card:hover { transform: none; box-shadow: var(--shadow-md); }\n\n  /* Bigger tap targets */\n  .bottom-nav-link { min-height: 48px; }\n  .btn-primary, .btn-secondary { min-height: 48px; }\n  .btn-file { min-height: 48px !important; }\n  .appsec-more { min-height: 44px; }\n  a, button { -webkit-tap-highlight-color: transparent; }\n}\n\n/* â”€â”€ Fluid font size utility â”€â”€ */\nh1 { font-size: clamp(1.8rem, 5vw, 4rem); }\nh2 { font-size: clamp(1.4rem, 3.5vw, 2.4rem); }\nh3 { font-size: clamp(1.1rem, 2.5vw, 1.6rem); }\n\n/* â”€â”€ Scrollbar (desktop only) â”€â”€ */\n@media (min-width: 769px) {\n  ::-webkit-scrollbar { width: 8px; }\n  ::-webkit-scrollbar-track { background: #f1f1f1; }\n  ::-webkit-scrollbar-thumb { background: #000; border-radius: 4px; }\n  ::-webkit-scrollbar-thumb:hover { background: var(--pink); }\n}\n
+.bottom-nav-text {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-heading);
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE — COMPREHENSIVE SYSTEM
+   Covers: Desktop → Tablet → Mobile → Small Phone
+   ══════════════════════════════════════ */
+
+/* ── Page Header (Tool pages) ── */
+.page-header {
+  padding-top: calc(var(--nav-h) + 32px);
+  padding-bottom: 40px;
+  padding-left: 20px;
+  padding-right: 20px;
+  text-align: center;
+}
+.page-header h1 {
+  font-size: clamp(1.6rem, 5vw, 3rem);
+  line-height: 1.15;
+}
+.page-header p {
+  font-size: clamp(13px, 2vw, 16px);
+  max-width: 560px;
+  margin: 12px auto 0;
+}
+
+/* ── Large Desktop (≥1200px) ── */
+@media (min-width: 1200px) {
+  .container { padding: 0 32px; }
+  .app-grid  { grid-template-columns: repeat(7, 1fr); }
+}
+
+/* ── Tablet landscape (≤1024px) ── */
+@media (max-width: 1024px) {
+  .hero-content { max-width: 680px; padding: 48px 28px; }
+  .footer-grid  { grid-template-columns: 1fr 1fr 1fr; }
+}
+
+/* ── Tablet portrait (≤900px) ── */
+@media (max-width: 900px) {
+  .pillars-grid      { grid-template-columns: 1fr; }
+  .tools-preview     { grid-template-columns: repeat(2, 1fr); }
+  .crypto-mini-grid  { grid-template-columns: repeat(2, 1fr); }
+  .tutorial-grid     { grid-template-columns: repeat(2, 1fr); }
+  .footer-grid       { grid-template-columns: 1fr 1fr; }
+  .stats-row         { grid-template-columns: repeat(2, 1fr); }
+  .app-grid          { grid-template-columns: repeat(4, 1fr); }
+  /* Tool pages */
+  .beautifier-layout { grid-template-columns: 1fr !important; }
+  .editor-split      { grid-template-columns: 1fr !important; }
+}
+
+/* ── Mobile (≤768px) ── */
+@media (max-width: 768px) {
+  :root {
+    --nav-h:    56px;
+    --bottom-h: 60px;
+  }
+
+  /* Layout */
+  .container { padding: 0 16px; }
+  .section   { padding: 48px 0; }
+
+  /* Hero */
+  .hero-content {
+    padding: 32px 18px;
+    border-radius: var(--r-lg);
+    box-shadow: 8px 8px 0 #000;
+    transform: rotate(0);
+  }
+  .hero-cta { flex-direction: column; align-items: stretch; }
+  .btn-primary, .btn-secondary {
+    text-align: center;
+    justify-content: center;
+    padding: 13px 24px;
+    font-size: 15px;
+  }
+
+  /* Grids */
+  .tools-preview    { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .tutorial-grid    { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .app-grid         { grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .stats-row        { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .footer-grid      { grid-template-columns: 1fr; }
+  .footer-bottom    { flex-direction: column; gap: 10px; text-align: center; }
+
+  /* Navbar */
+  .logo-text  { font-size: 24px; }
+  .logo-badge { width: 34px; height: 34px; font-size: 18px; }
+  .nav-clock  { display: none; }
+
+  /* Bottom nav */
+  .bottom-nav-text { display: none; }
+  .bottom-nav-icon { font-size: 24px; }
+
+  /* Scroll top */
+  #scrollTop { width: 44px; height: 44px; font-size: 22px; right: 14px; }
+
+  /* Cards */
+  .pillar-card  { padding: 24px 16px; }
+  .tool-card    { padding: 18px 14px; }
+
+  /* Tool pages inline */
+  .drop-zone { padding: 44px 20px !important; }
+  .drop-icon { font-size: 48px !important; }
+  .drop-title { font-size: 18px !important; }
+  .action-bar { flex-wrap: wrap !important; gap: 8px !important; }
+
+  /* CTA */
+  .cta-inner { padding: 36px 20px; transform: rotate(0); border-radius: var(--r-lg); }
+  .cta-inner h2 { font-size: 2rem; }
+
+  /* Section header */
+  .section-badge { font-size: 13px; }
+  .section-sub   { font-size: 14px; padding: 8px 14px; }
+}
+
+/* ── Small phone (≤480px) ── */
+@media (max-width: 480px) {
+  :root {
+    --nav-h:    54px;
+    --bottom-h: 58px;
+  }
+
+  .container { padding: 0 12px; }
+  .section   { padding: 40px 0; }
+
+  /* Hero */
+  .hero-content { padding: 28px 14px; }
+  .hero-badge   { font-size: 12px; padding: 4px 14px; }
+
+  /* Grids */
+  .tools-preview    { grid-template-columns: 1fr; }
+  .tutorial-grid    { grid-template-columns: 1fr; }
+  .crypto-mini-grid { grid-template-columns: 1fr 1fr; }
+  .app-grid         { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .app-icon         { width: 64px; height: 64px; }
+  .app-label        { font-size: 11px; max-width: 68px; }
+
+  /* Navbar */
+  .logo-text  { font-size: 22px; letter-spacing: 2px; }
+  .logo-badge { width: 32px; height: 32px; font-size: 16px; }
+  .nav-actions { gap: 6px; }
+
+  /* Bottom nav */
+  .bottom-nav-icon { font-size: 22px; }
+  .bottom-nav-link { gap: 0; }
+
+  /* Scroll top */
+  #scrollTop { width: 40px; height: 40px; font-size: 20px; right: 10px; bottom: calc(var(--bottom-h) + 10px); }
+
+  /* Typography */
+  .stat-num     { font-size: 2.2rem; }
+  .pillar-title { font-size: 22px; }
+  .tool-name    { font-size: 18px; }
+  .article-title { font-size: 15px; }
+
+  /* CTA */
+  .cta-inner { padding: 28px 14px; }
+  .cta-inner h2 { font-size: 1.7rem; }
+  .cta-inner p  { font-size: 14px; }
+
+  /* Tool pages */
+  .page-header { padding-top: calc(var(--nav-h) + 20px); padding-bottom: 28px; }
+  .converter-wrap { padding: 0 4px; }
+  .drop-zone  { padding: 36px 14px !important; border-radius: var(--r-lg) !important; }
+  .drop-icon  { font-size: 40px !important; }
+  .drop-title { font-size: 16px !important; }
+  .drop-sub   { font-size: 12px !important; }
+  .btn-file   { padding: 10px 22px !important; font-size: 13px !important; }
+
+  /* Result grid in converter → stack */
+  #singleResultContainer > div { grid-template-columns: 1fr !important; }
+
+  /* Format select */
+  select { font-size: 14px !important; padding: 10px 12px !important; }
+
+  /* Pages grid (PDF) */
+  .pages-grid { grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* Footer */
+  .footer { padding: 40px 0 20px; }
+  .footer-grid { gap: 24px; }
+  .footer-bottom { font-size: 12px; }
+
+  /* PWA Banner */
+  .pwa-banner-inner  { padding: 10px 12px; gap: 8px; }
+  .pwa-banner-icon   { width: 44px; height: 44px; font-size: 22px; }
+  .pwa-btn-install   { padding: 6px 14px; font-size: 13px; }
+}
+
+/* ── Extra small (≤360px) — covers small Android ── */
+@media (max-width: 360px) {
+  .container { padding: 0 10px; }
+
+  .app-grid  { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .app-icon  { width: 56px; height: 56px; border-radius: 14px; }
+  .app-label { font-size: 10px; max-width: 60px; }
+
+  .logo-text  { font-size: 20px; }
+  .logo-badge { width: 30px; height: 30px; font-size: 15px; }
+
+  .bottom-nav-icon { font-size: 20px; }
+
+  .hero-content { padding: 22px 12px; border-radius: var(--r-md); }
+  .hero-badge   { font-size: 11px; }
+
+  .drop-zone  { padding: 28px 10px !important; }
+  .drop-icon  { font-size: 36px !important; }
+  .drop-title { font-size: 14px !important; }
+  .drop-sub   { font-size: 11px !important; }
+}
+
+/* ── Landscape phone — prevent content cut ── */
+@media (max-width: 768px) and (orientation: landscape) {
+  .hero { min-height: auto; padding-top: calc(var(--nav-h) + 16px); padding-bottom: 32px; }
+  .hero-content { padding: 24px 20px; }
+  .page-header { padding-top: calc(var(--nav-h) + 16px); padding-bottom: 20px; }
+}
+
+/* ── iOS Safe Area (notch/home indicator) ── */
+@supports (padding: max(0px)) {
+  .navbar {
+    padding-left:  max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+  .bottom-nav {
+    padding-bottom: max(env(safe-area-inset-bottom), 4px);
+    height: calc(var(--bottom-h) + env(safe-area-inset-bottom));
+  }
+  body { padding-bottom: calc(var(--bottom-h) + env(safe-area-inset-bottom)); }
+}
+
+/* ── Touch UX improvements (all mobile) ── */
+@media (hover: none) {
+  /* Disable hover transform effects on touch (no hover flicker) */
+  .tool-card:hover,
+  .pillar-card:hover,
+  .article-card:hover,
+  .crypto-mini-card:hover { transform: none; box-shadow: var(--shadow-md); }
+
+  /* Bigger tap targets */
+  .bottom-nav-link { min-height: 48px; }
+  .btn-primary, .btn-secondary { min-height: 48px; }
+  .btn-file { min-height: 48px !important; }
+  .appsec-more { min-height: 44px; }
+  a, button { -webkit-tap-highlight-color: transparent; }
+}
+
+/* ── Fluid font size utility ── */
+h1 { font-size: clamp(1.8rem, 5vw, 4rem); }
+h2 { font-size: clamp(1.4rem, 3.5vw, 2.4rem); }
+h3 { font-size: clamp(1.1rem, 2.5vw, 1.6rem); }
+
+/* ── Scrollbar (desktop only) ── */
+@media (min-width: 769px) {
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: #f1f1f1; }
+  ::-webkit-scrollbar-thumb { background: #000; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--pink); }
+}
+
+/* =========================================================================
+   PROFILE PAGE
+   ========================================================================= */
+.profile-wrap { max-width: 520px; margin: 0 auto; padding: 100px 20px 60px; }
+.profile-card {
+  background: #0f172a;
+  border: 1px solid rgba(255,255,255,0.08); border-radius: 24px;
+  padding: 32px; box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+  text-align: center;
+}
+.profile-avatar {
+  width: 100px; height: 100px; border-radius: 50%;
+  margin: 0 auto 20px; background: rgba(255,255,255,0.1);
+  border: 3px solid var(--purple); object-fit: cover;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40px; color: #fff;
+}
+.profile-name { font-size: 24px; font-weight: 800; margin-bottom: 8px; color: var(--text-1); }
+.profile-email { color: var(--text-2); font-size: 14px; margin-bottom: 32px; }
+.profile-actions {
+  display: flex; flex-direction: column; gap: 12px;
+}
+.btn-action {
+  background: rgba(255,255,255,0.05); color: var(--text-1);
+  border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+  padding: 16px; font-size: 15px; font-weight: 600; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  transition: all 0.2s; text-decoration: none;
+}
+.btn-action:hover {
+  background: rgba(255,255,255,0.1); transform: translateY(-2px);
+}
+.btn-logout {
+  background: rgba(239,68,68,0.1); color: #f87171; border-color: rgba(239,68,68,0.2);
+}
+.btn-logout:hover {
+  background: rgba(239,68,68,0.2); color: #fca5a5;
+}
+.auth-prompt { display: none; padding: 40px 20px; text-align: center; }
+.auth-prompt h2 { font-size: 22px; margin-bottom: 12px; }
+.auth-prompt p { color: var(--text-2); margin-bottom: 24px; }
+.btn-login {
+  background: linear-gradient(135deg, #8B5CF6, #6D28D9); color: #fff;
+  padding: 14px 32px; border-radius: var(--r-full); font-size: 15px; font-weight: 700;
+  text-decoration: none; display: inline-block; transition: opacity 0.2s;
+}
+.btn-login:hover { opacity: 0.9; }
+
+.info-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px;
+  background: #0f172a; padding: 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);
+  text-align: left;
+}
+.info-item { display: flex; flex-direction: column; gap: 4px; }
+.info-label { font-size: 11px; font-weight: 800; color: var(--text-3); text-transform: uppercase; letter-spacing: 1px; }
+.info-val { font-size: 13px; color: var(--text-1); font-weight: 600; word-break: break-all; }
+
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+  display: none; align-items: center; justify-content: center; z-index: 9999;
+}
+.modal-content {
+  background: #0f172a; border: 1px solid rgba(255,255,255,0.1);
+  padding: 24px; border-radius: 24px; width: 90%; max-width: 400px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+}
+.modal-content h3 { margin-bottom: 20px; font-size: 20px; text-align: center; }
+.form-group { margin-bottom: 16px; text-align: left; }
+.form-group label { display: block; font-size: 13px; color: var(--text-2); margin-bottom: 6px; }
+.input-text {
+  width: 100%; padding: 12px 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(0,0,0,0.2); color: #fff; font-size: 14px; box-sizing: border-box;
+}
+.modal-actions { display: flex; gap: 12px; margin-top: 24px; }
+.btn-save { flex: 1; padding: 12px; border-radius: 12px; background: linear-gradient(135deg, #8B5CF6, #6D28D9); color: #fff; font-weight: 700; border: none; cursor: pointer; }
+.btn-cancel { flex: 1; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.05); color: #fff; font-weight: 700; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
