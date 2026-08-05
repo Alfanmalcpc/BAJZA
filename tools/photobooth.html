@@ -368,7 +368,7 @@
   async function startCamera() {
     try {
       stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 960 } }, 
+        video: { facingMode: 'user', width: { ideal: 1280 } }, 
         audio: false 
       });
       video.srcObject = stream;
@@ -492,8 +492,25 @@
       const yPos = padding + (i * (photoHeight + spacing));
       
       if (photos[i]) {
-        // Draw the captured photo
-        ctx.drawImage(photos[i], padding, yPos, photoWidth, photoHeight);
+        // Draw the captured photo (object-fit: cover equivalent)
+        const img = photos[i];
+        const imgRatio = img.width / img.height;
+        const targetRatio = photoWidth / photoHeight;
+        
+        let srcW = img.width;
+        let srcH = img.height;
+        let srcX = 0;
+        let srcY = 0;
+        
+        if (imgRatio > targetRatio) {
+           srcW = img.height * targetRatio;
+           srcX = (img.width - srcW) / 2;
+        } else {
+           srcH = img.width / targetRatio;
+           srcY = (img.height - srcH) / 2;
+        }
+        
+        ctx.drawImage(img, srcX, srcY, srcW, srcH, padding, yPos, photoWidth, photoHeight);
       } else {
         // Draw empty placeholder
         ctx.fillStyle = currentTheme.bg === '#ffffff' ? '#f1f5f9' : 'rgba(255,255,255,0.1)';

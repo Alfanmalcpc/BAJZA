@@ -86,10 +86,26 @@
           
           <div style="width:100%; max-width:320px; text-align:left; margin-top:12px">
             <label style="font-size:14px; font-weight:600; color:var(--text-2); display:block; margin-bottom:8px" data-en="Convert to Format:" data-id="Konversi ke Format:">Convert to Format:</label>
-            <select id="formatSelect" style="width:100%; padding:12px 16px; border-radius:8px; border:1px solid var(--border); background:var(--bg-surface); color:var(--text); font-size:15px; font-weight:600; cursor:pointer; outline:none">
+            <select id="formatSelect" style="width:100%; padding:12px 16px; border-radius:8px; border:1px solid var(--border); background:var(--bg-surface); color:var(--text); font-size:15px; font-weight:600; cursor:pointer; outline:none; margin-bottom: 12px">
                <!-- Populated dynamically -->
             </select>
-            <div id="formatNote" class="format-note" style="display:none"></div>
+
+            <label style="font-size:14px; font-weight:600; color:var(--text-2); display:block; margin-bottom:8px" data-en="Quality:" data-id="Kualitas:">Quality:</label>
+            <select id="qualitySelect" style="width:100%; padding:12px 16px; border-radius:8px; border:1px solid var(--border); background:var(--bg-surface); color:var(--text); font-size:15px; font-weight:600; cursor:pointer; outline:none">
+               <option value="uhd" data-en="📺 4K UHD (Highest)" data-id="📺 4K UHD (Kualitas Tertinggi)">📺 4K UHD (Highest)</option>
+               <option value="qhd" data-en="📺 2K QHD (Very High)" data-id="📺 2K QHD (Sangat Tinggi)">📺 2K QHD (Very High)</option>
+               <option value="fhd" data-en="📺 1080p FHD (High)" data-id="📺 1080p FHD (Tinggi)">📺 1080p FHD (High)</option>
+               <option value="hd" data-en="720p HD (Balanced)" data-id="720p HD (Seimbang)" selected>720p HD (Balanced)</option>
+               <option value="sd" data-en="480p SD (Standard)" data-id="480p SD (Standar)">480p SD (Standard)</option>
+               <option value="low" data-en="360p Low (Smallest Size)" data-id="360p Rendah (Ukuran Terkecil)">360p Low (Smallest Size)</option>
+            </select>
+
+            <div id="adUnlockBadge" style="display:none; margin-top:12px; padding:12px; background:rgba(234,179,8,0.1); border:1px solid #eab308; border-radius:8px; cursor:pointer; color:#eab308; font-weight:bold; font-size:14px; align-items:center; justify-content:center; gap:8px">
+              <span style="display:inline-block; background:#eab308; color:#000; padding:2px 6px; border-radius:4px; font-size:11px; font-weight:900; letter-spacing:1px">AD</span>
+              <span data-en="Click to Unlock High Resolution" data-id="Klik untuk Membuka Resolusi Tinggi">Click to Unlock High Resolution</span>
+            </div>
+
+            <div id="formatNote" class="format-note" style="display:none; margin-top:12px"></div>
           </div>
 
           <button id="doConvertBtn" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9); color:#fff; border:none; padding:14px 32px; border-radius:var(--r-full); font-size:16px; font-weight:700; cursor:pointer; width:100%; max-width:320px; margin-top:24px; transition:all var(--tr); box-shadow:0 10px 25px -5px rgba(139,92,246,0.4)">
@@ -176,6 +192,8 @@ const videoBeforePreview = document.getElementById('videoBeforePreview');
 const pdfIconPreview = document.getElementById('pdfIconPreview');
 const fileNameDisplay = document.getElementById('fileNameDisplay');
 const formatSelect = document.getElementById('formatSelect');
+const qualitySelect = document.getElementById('qualitySelect');
+const adUnlockBadge = document.getElementById('adUnlockBadge');
 const formatNote = document.getElementById('formatNote');
 const doConvertBtn = document.getElementById('doConvertBtn');
 
@@ -229,6 +247,44 @@ function updateFormatNote() {
   formatNote.textContent = notes[fmt] || '';
   formatNote.style.display = 'block';
 }
+
+let highResUnlocked = false;
+
+function checkQualityAd() {
+   const q = qualitySelect.value;
+   if ((q === 'uhd' || q === 'qhd' || q === 'fhd') && !highResUnlocked) {
+      adUnlockBadge.style.display = 'flex';
+      doConvertBtn.disabled = true;
+      doConvertBtn.style.opacity = '0.5';
+      doConvertBtn.style.cursor = 'not-allowed';
+   } else {
+      adUnlockBadge.style.display = 'none';
+      doConvertBtn.disabled = false;
+      doConvertBtn.style.opacity = '1';
+      doConvertBtn.style.cursor = 'pointer';
+   }
+}
+
+qualitySelect.addEventListener('change', checkQualityAd);
+
+adUnlockBadge.addEventListener('click', () => {
+    // Inject ad script
+    (function(s){
+        s.dataset.zone='11493758';
+        s.src='https://al5sm.com/tag.min.js';
+    })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
+    
+    // Unlock
+    highResUnlocked = true;
+    checkQualityAd();
+    
+    // Remove TV/Ad icon from text
+    Array.from(qualitySelect.options).forEach(opt => {
+       if (opt.value === 'uhd' || opt.value === 'qhd' || opt.value === 'fhd') {
+           opt.text = opt.text.replace('📺 ', '');
+       }
+    });
+});
 
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
@@ -301,17 +357,18 @@ doConvertBtn.addEventListener('click', async () => {
   progressFill.style.width = '10%';
   
   const targetFormat = formatSelect.value;
+  const targetQuality = qualitySelect.value;
   
   if (currentFileType === 'pdf') {
-     await convertPDF(currentFile, targetFormat);
+     await convertPDF(currentFile, targetFormat, targetQuality);
   } else if (currentFileType === 'video') {
-     await convertVideo(currentFile, targetFormat);
+     await convertVideo(currentFile, targetFormat, targetQuality);
   } else {
-     await convertImage(beforeDataUrl, targetFormat);
+     await convertImage(beforeDataUrl, targetFormat, targetQuality);
   }
 });
 
-async function convertVideo(file, format) {
+async function convertVideo(file, format, quality) {
   let videoEl = null;
   let fileUrl = null;
   let audioContext = null;
@@ -322,7 +379,7 @@ async function convertVideo(file, format) {
     progressFill.style.width = '10%';
 
     if (format === 'mp3') { await extractAudio(file); return; }
-    if (format === 'gif') { await captureGif(file); return; }
+    if (format === 'gif') { await captureGif(file, quality); return; }
 
     // Determine best output MIME type
     const outputMime = getSupportedVideoMime(format === 'mov' ? 'mp4' : format);
@@ -379,11 +436,19 @@ async function convertVideo(file, format) {
       if (audioContext) { try { audioContext.close(); } catch(e){} audioContext = null; }
     }
 
+    let bitrate = 2500000;
+    if (quality === 'low') bitrate = 500000;
+    else if (quality === 'sd') bitrate = 1000000;
+    else if (quality === 'hd') bitrate = 2500000;
+    else if (quality === 'fhd') bitrate = 5000000;
+    else if (quality === 'qhd') bitrate = 10000000;
+    else if (quality === 'uhd') bitrate = 20000000;
+
     // Setup MediaRecorder with fallback
     const recordedChunks = [];
     let recorder;
     try {
-      recorder = new MediaRecorder(stream, { mimeType: outputMime, videoBitsPerSecond: 5000000 });
+      recorder = new MediaRecorder(stream, { mimeType: outputMime, videoBitsPerSecond: bitrate });
     } catch(e) {
       console.warn('Falling back to default MediaRecorder settings');
       recorder = new MediaRecorder(stream);
@@ -568,7 +633,7 @@ function audioBufferToWav(buffer) {
   return new Blob([wavBuffer], { type: 'audio/wav' });
 }
 
-async function captureGif(file) {
+async function captureGif(file, quality) {
   progressText.textContent = 'Capturing frames for GIF...';
   progressFill.style.width = '20%';
 
@@ -580,10 +645,17 @@ async function captureGif(file) {
   await new Promise((res, rej) => { videoEl.onloadedmetadata = res; videoEl.onerror = rej; });
 
   const duration = Math.min(videoEl.duration, 10);
-  const fps = 8;
+  let fps = 8;
+  let scale = 0.5;
+  if (quality === 'low') { fps = 5; scale = 0.2; }
+  else if (quality === 'sd') { fps = 6; scale = 0.3; }
+  else if (quality === 'hd') { fps = 8; scale = 0.5; }
+  else if (quality === 'fhd') { fps = 12; scale = 0.7; }
+  else if (quality === 'qhd') { fps = 15; scale = 0.85; }
+  else if (quality === 'uhd') { fps = 20; scale = 1.0; }
+
   const totalFrames = Math.floor(duration * fps);
   const canvas = document.createElement('canvas');
-  const scale = 0.5;
   canvas.width  = Math.round((videoEl.videoWidth  || 640) * scale);
   canvas.height = Math.round((videoEl.videoHeight || 360) * scale);
   const ctx = canvas.getContext('2d');
@@ -656,7 +728,7 @@ function showVideoResult(file, outUrl, ext, mime, blob, btnLabel) {
   }, 400);
 }
 
-async function convertImage(dataUrl, format) {
+async function convertImage(dataUrl, format, quality) {
    progressText.textContent = "Processing image...";
    progressFill.style.width = '50%';
    
@@ -681,7 +753,16 @@ async function convertImage(dataUrl, format) {
      
      ctx.drawImage(img, 0, 0);
      const mime = format === 'jpg' ? 'image/jpeg' : `image/${format}`;
-     outDataUrl = canvas.toDataURL(mime, 0.92);
+     
+     let qualityNum = 0.8;
+     if (quality === 'low') qualityNum = 0.4;
+     else if (quality === 'sd') qualityNum = 0.6;
+     else if (quality === 'hd') qualityNum = 0.8;
+     else if (quality === 'fhd') qualityNum = 0.9;
+     else if (quality === 'qhd') qualityNum = 0.95;
+     else if (quality === 'uhd') qualityNum = 1.0;
+     
+     outDataUrl = canvas.toDataURL(mime, qualityNum);
    }
    
    progressFill.style.width = '100%';
@@ -712,7 +793,7 @@ async function convertImage(dataUrl, format) {
    }, 500);
 }
 
-async function convertPDF(file, format) {
+async function convertPDF(file, format, quality) {
   pageBlobs = [];
   pagesGrid.innerHTML = '';
   const mime = format === 'jpg' ? 'image/jpeg' : 'image/png';
@@ -723,9 +804,17 @@ async function convertPDF(file, format) {
   const total = pdf.numPages;
   document.getElementById('pageCount').textContent = `${total} page${total>1?'s':''} converted`;
 
+  let scale = 2;
+  let qualityNum = 0.8;
+  if (quality === 'low') { scale = 1.0; qualityNum = 0.5; }
+  else if (quality === 'sd') { scale = 1.5; qualityNum = 0.6; }
+  else if (quality === 'hd') { scale = 2.0; qualityNum = 0.8; }
+  else if (quality === 'fhd') { scale = 2.5; qualityNum = 0.9; }
+  else if (quality === 'qhd') { scale = 3.5; qualityNum = 0.95; }
+  else if (quality === 'uhd') { scale = 5.0; qualityNum = 1.0; }
+
   for (let i = 1; i <= total; i++) {
     const page = await pdf.getPage(i);
-    const scale = 2;
     const vp = page.getViewport({ scale });
     const canvas = document.createElement('canvas');
     canvas.width = vp.width;
@@ -737,7 +826,7 @@ async function convertPDF(file, format) {
     
     await page.render({ canvasContext: ctx, viewport: vp }).promise;
 
-    const blob = await new Promise(res => canvas.toBlob(res, mime, 0.92));
+    const blob = await new Promise(res => canvas.toBlob(res, mime, qualityNum));
     pageBlobs.push({ blob, ext });
     const url = URL.createObjectURL(blob);
 
