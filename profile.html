@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id">
 <head>
 <meta name="google-adsense-account" content="ca-pub-6758288522431201">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Profil Saya — BAJA</title>
-<meta name="description" content="Profil pengguna BAJA."/>
+<meta name="description" content="Halaman profil pengguna BAJA."/>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
 <link rel="stylesheet" href="style.css"/>
 <link rel="stylesheet" href="responsive.css"/>
@@ -13,7 +13,292 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script src="firebase.js"></script>
+<style>
+/* ===== PAGE BACKGROUND ===== */
+body { background: #0a0f1e !important; }
 
+/* ===== PROFILE WRAP ===== */
+.profile-wrap {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: calc(var(--nav-h, 64px) + 24px) 20px calc(var(--bottom-h, 66px) + 24px);
+}
+
+/* ===== PROFILE CARD ===== */
+.profile-card {
+  background: #131929;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+}
+
+/* ===== CARD HEADER BANNER ===== */
+.profile-banner {
+  height: 100px;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
+  position: relative;
+}
+.profile-banner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23fff' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ===== AVATAR (clickable) ===== */
+.avatar-wrapper {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin: -50px auto 0;
+  cursor: pointer;
+  z-index: 2;
+}
+.profile-avatar-img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 4px solid #131929;
+  background: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  color: #fff;
+  overflow: hidden;
+  transition: filter 0.2s;
+}
+.profile-avatar-img img { width: 100%; height: 100%; object-fit: cover; }
+
+/* hover overlay on avatar */
+.avatar-edit-overlay {
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+  gap: 2px;
+}
+.avatar-wrapper:hover .avatar-edit-overlay,
+.avatar-wrapper:active .avatar-edit-overlay { opacity: 1; }
+.avatar-edit-overlay span { font-size: 18px; }
+.avatar-edit-overlay small { font-size: 10px; color: #fff; font-weight: 700; }
+
+/* ===== CARD BODY ===== */
+.profile-body {
+  padding: 14px 24px 28px;
+  text-align: center;
+}
+.profile-name {
+  font-size: 22px;
+  font-weight: 800;
+  color: #f1f5f9;
+  margin-bottom: 4px;
+  margin-top: 10px;
+}
+.profile-email {
+  font-size: 14px;
+  color: #94a3b8;
+  margin-bottom: 20px;
+}
+
+/* ===== INFO GRID ===== */
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.info-item {
+  background: #0f172a;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 12px 14px;
+  text-align: left;
+}
+.info-item.full { grid-column: span 2; }
+.info-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+.info-val {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #e2e8f0;
+  word-break: break-all;
+}
+
+/* ===== ACTION BUTTONS ===== */
+.profile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.btn-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05);
+  color: #e2e8f0;
+}
+.btn-action:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+.btn-action.primary {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  border-color: transparent;
+  color: #fff;
+}
+.btn-action.primary:hover { opacity: 0.9; }
+.btn-logout {
+  background: rgba(239,68,68,0.08);
+  color: #fca5a5;
+  border-color: rgba(239,68,68,0.2);
+}
+.btn-logout:hover { background: rgba(239,68,68,0.16); }
+
+/* ===== AUTH PROMPT ===== */
+.auth-prompt-card {
+  background: #131929;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 24px;
+  padding: 48px 28px;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+}
+.auth-prompt-card h2 { font-size: 22px; font-weight: 800; color: #f1f5f9; margin-bottom: 10px; }
+.auth-prompt-card p { color: #94a3b8; margin-bottom: 28px; font-size: 14px; line-height: 1.6; }
+.btn-login {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #fff;
+  padding: 14px 36px;
+  border-radius: 99px;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-block;
+  transition: opacity 0.2s;
+}
+.btn-login:hover { opacity: 0.85; }
+
+/* ===== EDIT MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(8px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+.modal-box {
+  background: #131929;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 24px;
+  padding: 28px 24px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.9);
+}
+.modal-box h3 {
+  font-size: 20px;
+  font-weight: 800;
+  color: #f1f5f9;
+  text-align: center;
+  margin-bottom: 24px;
+}
+.form-group { margin-bottom: 18px; }
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+.input-text {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: #0f172a;
+  color: #f1f5f9;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+.input-text:focus {
+  outline: none;
+  border-color: #7c3aed;
+}
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+.btn-save {
+  flex: 1; padding: 13px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #fff; font-weight: 700; font-size: 15px;
+  border: none; cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-save:hover { opacity: 0.9; }
+.btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-cancel {
+  flex: 1; padding: 13px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  color: #94a3b8; font-weight: 700; font-size: 15px;
+  border: 1px solid rgba(255,255,255,0.1);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-cancel:hover { background: rgba(255,255,255,0.1); }
+
+/* ===== FILE INPUT CUSTOM ===== */
+.file-pick-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  border-radius: 12px;
+  border: 1px dashed rgba(255,255,255,0.2);
+  background: #0f172a;
+  color: #94a3b8;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  width: 100%;
+  text-align: left;
+}
+.file-pick-btn:hover { border-color: #7c3aed; background: rgba(124,58,237,0.08); color: #f1f5f9; }
+.file-pick-btn span { font-size: 20px; }
+#photoFileName { font-size: 12px; color: #64748b; margin-top: 6px; padding-left: 4px; }
+</style>
 </head>
 <body>
 
@@ -25,64 +310,84 @@
       <div class="logo-text">BAJA</div>
     </a>
     <div class="nav-actions">
-      <!-- navClock and navAuthSlot injected here -->
+      <!-- injected by app.js -->
     </div>
   </div>
 </nav>
 
+<!-- hidden file input -->
+<input type="file" id="avatarFileInput" accept="image/*" style="display:none"/>
+
 <div class="profile-wrap">
-  <!-- Content for logged in user -->
-  <div class="profile-card" id="profileContent" style="display:none">
-    <div class="profile-avatar" id="profAvatar">👤</div>
-    <div class="profile-name" id="profName">Memuat...</div>
-    <div class="profile-email" id="profEmail">Memuat...</div>
+  <!-- Logged In -->
+  <div id="profileContent" style="display:none">
+    <div class="profile-card">
+      <div class="profile-banner"></div>
 
-    <div class="info-grid">
-      <div class="info-item">
-        <span class="info-label">Penyedia Akun</span>
-        <span class="info-val" id="profProvider">-</span>
+      <!-- Clickable Avatar -->
+      <div class="avatar-wrapper" id="avatarWrapper" title="Klik untuk ganti foto">
+        <div class="profile-avatar-img" id="profAvatar">👤</div>
+        <div class="avatar-edit-overlay">
+          <span>📷</span>
+          <small>Ubah Foto</small>
+        </div>
       </div>
-      <div class="info-item">
-        <span class="info-label">Bergabung Sejak</span>
-        <span class="info-val" id="profJoin">-</span>
-      </div>
-      <div class="info-item" style="grid-column: span 2;">
-        <span class="info-label">Email Tertaut</span>
-        <span class="info-val" id="profLinkedEmail">-</span>
-      </div>
-    </div>
 
-    <div class="profile-actions">
-      <button class="btn-action" id="btnEditProfile" data-en="✏️ Edit Profile" data-id="✏️ Ubah Profil">✏️ Ubah Profil</button>
-      <a href="settings.html" class="btn-action" data-en="⚙️ Settings" data-id="⚙️ Pengaturan">⚙️ Pengaturan</a>
-      <button class="btn-action btn-logout" id="btnLogout" data-en="🚪 Log Out" data-id="🚪 Keluar">🚪 Keluar</button>
+      <div class="profile-body">
+        <div class="profile-name" id="profName">Memuat...</div>
+        <div class="profile-email" id="profEmail">Memuat...</div>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Penyedia Akun</span>
+            <span class="info-val" id="profProvider">-</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Bergabung Sejak</span>
+            <span class="info-val" id="profJoin">-</span>
+          </div>
+          <div class="info-item full">
+            <span class="info-label">Email Tertaut</span>
+            <span class="info-val" id="profLinkedEmail">-</span>
+          </div>
+        </div>
+
+        <div class="profile-actions">
+          <button class="btn-action primary" id="btnEditProfile">✏️ Ubah Profil & Username</button>
+          <a href="settings.html" class="btn-action">⚙️ Pengaturan</a>
+          <button class="btn-action btn-logout" id="btnLogout">🚪 Keluar</button>
+        </div>
+      </div>
     </div>
   </div>
-  
-  <!-- Content for logged out user -->
-  <div class="profile-card auth-prompt" id="authPrompt">
-    <div style="font-size:48px; margin-bottom:16px">🔒</div>
-    <h2 data-en="Not Logged In" data-id="Belum Masuk">Belum Masuk</h2>
-    <p data-en="Please log in to view your profile." data-id="Silakan masuk ke akun Anda untuk melihat profil.">Silakan masuk ke akun Anda untuk melihat profil.</p>
-    <a href="auth.html" class="btn-login" data-en="Log In Now" data-id="Masuk Sekarang">Masuk Sekarang</a>
+
+  <!-- Logged Out -->
+  <div class="auth-prompt-card" id="authPrompt" style="display:none">
+    <div style="font-size:56px; margin-bottom:18px">🔒</div>
+    <h2>Belum Masuk</h2>
+    <p>Silakan masuk ke akun BAJA Anda untuk melihat dan mengelola profil.</p>
+    <a href="auth.html" class="btn-login">Masuk Sekarang →</a>
   </div>
 </div>
 
+<!-- Edit Profile Modal -->
 <div class="modal-overlay" id="editModal">
-  <div class="modal-content">
-    <h3 data-en="Edit Profile" data-id="Ubah Profil">Ubah Profil</h3>
+  <div class="modal-box">
+    <h3>✏️ Ubah Profil</h3>
     <div class="form-group">
-      <label data-en="Username" data-id="Nama Pengguna">Nama Pengguna</label>
-      <input type="text" id="editName" class="input-text" />
+      <label>Nama Pengguna / Username</label>
+      <input type="text" id="editName" class="input-text" placeholder="Masukkan nama Anda..." />
     </div>
     <div class="form-group">
-      <label data-en="Profile Photo" data-id="Foto Profil">Pilih Foto Profil Baru (Opsional)</label>
-      <input type="file" id="editPhotoFile" class="input-text" accept="image/*" style="background:#1e293b; cursor:pointer;" />
-      <small style="color:var(--text-3);font-size:11px;display:block;margin-top:6px;">Maksimal 2MB. Gambar akan dioptimalkan otomatis.</small>
+      <label>Foto Profil (Opsional)</label>
+      <button class="file-pick-btn" id="btnPickPhoto" type="button">
+        <span>📷</span> Pilih Foto dari Perangkat
+      </button>
+      <div id="photoFileName">Belum ada foto dipilih</div>
     </div>
     <div class="modal-actions">
-      <button class="btn-cancel" id="btnCancelEdit" data-en="Cancel" data-id="Batal">Batal</button>
-      <button class="btn-save" id="btnSaveEdit" data-en="Save" data-id="Simpan">Simpan</button>
+      <button class="btn-cancel" id="btnCancelEdit">Batal</button>
+      <button class="btn-save" id="btnSaveEdit">Simpan</button>
     </div>
   </div>
 </div>
@@ -92,127 +397,163 @@
 <script src="app.js"></script>
 <script>
 const profileContent = document.getElementById('profileContent');
-const authPrompt = document.getElementById('authPrompt');
-const profName = document.getElementById('profName');
-const profEmail = document.getElementById('profEmail');
-const profAvatar = document.getElementById('profAvatar');
-const profProvider = document.getElementById('profProvider');
-const profJoin = document.getElementById('profJoin');
-const profLinkedEmail = document.getElementById('profLinkedEmail');
+const authPrompt     = document.getElementById('authPrompt');
+const profAvatar     = document.getElementById('profAvatar');
+const profName       = document.getElementById('profName');
+const profEmail      = document.getElementById('profEmail');
+const profProvider   = document.getElementById('profProvider');
+const profJoin       = document.getElementById('profJoin');
+const profLinkedEmail= document.getElementById('profLinkedEmail');
 
-const btnLogout = document.getElementById('btnLogout');
 const btnEditProfile = document.getElementById('btnEditProfile');
-const editModal = document.getElementById('editModal');
-const editName = document.getElementById('editName');
-const editPhotoFile = document.getElementById('editPhotoFile');
-const btnCancelEdit = document.getElementById('btnCancelEdit');
-const btnSaveEdit = document.getElementById('btnSaveEdit');
+const editModal      = document.getElementById('editModal');
+const editName       = document.getElementById('editName');
+const btnCancelEdit  = document.getElementById('btnCancelEdit');
+const btnSaveEdit    = document.getElementById('btnSaveEdit');
+const btnPickPhoto   = document.getElementById('btnPickPhoto');
+const photoFileName  = document.getElementById('photoFileName');
+const avatarFileInput= document.getElementById('avatarFileInput');
+const avatarWrapper  = document.getElementById('avatarWrapper');
+const btnLogout      = document.getElementById('btnLogout');
+
+let selectedPhotoDataUrl = null;
+
+function setAvatar(photoURL) {
+  if (photoURL) {
+    profAvatar.innerHTML = `<img src="${photoURL}" alt="Foto Profil" style="width:100%;height:100%;object-fit:cover;display:block;" />`;
+  } else {
+    profAvatar.innerHTML = '👤';
+  }
+}
 
 auth.onAuthStateChanged(user => {
   if (user) {
     profileContent.style.display = 'block';
-    authPrompt.style.display = 'none';
-    
+    authPrompt.style.display     = 'none';
+
     profName.textContent = user.displayName || 'Pengguna BAJA';
     profEmail.textContent = user.email || '';
-    
-    if (user.photoURL) {
-      profAvatar.innerHTML = `<img src="${user.photoURL}" style="width:100%;height:100%;border-radius:50%;object-fit:cover" alt="Profile" />`;
-    } else {
-      profAvatar.innerHTML = '👤';
-    }
+    setAvatar(user.photoURL);
 
     profLinkedEmail.textContent = user.email || 'Tidak ada';
-    profProvider.textContent = (user.providerData && user.providerData[0] && user.providerData[0].providerId) ? user.providerData[0].providerId : 'Email/Password';
-    
-    if (user.metadata && user.metadata.creationTime) {
-       const d = new Date(user.metadata.creationTime);
-       profJoin.textContent = d.toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'});
-    } else {
-       profJoin.textContent = '-';
-    }
-    
-    editName.value = user.displayName || '';
+    const pid = user.providerData?.[0]?.providerId || 'password';
+    profProvider.textContent = pid === 'google.com' ? 'Google' : 'Email & Password';
 
+    if (user.metadata?.creationTime) {
+      const d = new Date(user.metadata.creationTime);
+      profJoin.textContent = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    editName.value = user.displayName || '';
   } else {
     profileContent.style.display = 'none';
-    authPrompt.style.display = 'block';
+    authPrompt.style.display     = 'block';
   }
 });
 
-btnEditProfile.addEventListener('click', () => { editModal.style.display = 'flex'; });
-btnCancelEdit.addEventListener('click', () => { editModal.style.display = 'none'; });
+// Clicking avatar also opens file picker directly
+avatarWrapper.addEventListener('click', () => {
+  avatarFileInput.click();
+});
+
+// "Pilih Foto" button inside modal
+btnPickPhoto.addEventListener('click', () => {
+  avatarFileInput.click();
+});
+
+// When file is selected
+avatarFileInput.addEventListener('change', async () => {
+  const file = avatarFileInput.files?.[0];
+  if (!file) return;
+  photoFileName.textContent = `📎 ${file.name}`;
+
+  try {
+    selectedPhotoDataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const maxDim = 300;
+          let w = img.width, h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+            else       { w = Math.round(w * maxDim / h); h = maxDim; }
+          }
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', 0.82));
+        };
+        img.onerror = reject;
+        img.src = e.target.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    // Preview immediately on avatar
+    setAvatar(selectedPhotoDataUrl);
+    // If modal is closed, open it so user can also change name
+    if (editModal.style.display !== 'flex') {
+      editModal.style.display = 'flex';
+    }
+  } catch(err) {
+    console.error(err);
+    alert('Gagal memproses gambar.');
+  }
+});
+
+btnEditProfile.addEventListener('click', () => {
+  editModal.style.display = 'flex';
+});
+btnCancelEdit.addEventListener('click', () => {
+  editModal.style.display = 'none';
+  selectedPhotoDataUrl = null;
+  photoFileName.textContent = 'Belum ada foto dipilih';
+  avatarFileInput.value = '';
+  // Restore original avatar
+  const u = auth.currentUser;
+  if (u) setAvatar(u.photoURL);
+});
 
 btnSaveEdit.addEventListener('click', async () => {
-    const newName = editName.value.trim();
-    if (!newName) return alert('Nama tidak boleh kosong');
-    
-    const user = auth.currentUser;
-    if (user) {
-       btnSaveEdit.textContent = 'Menyimpan...';
-       btnSaveEdit.disabled = true;
-       
-       let newPhotoDataUrl = user.photoURL; // default to existing
+  const newName = editName.value.trim();
+  if (!newName) { alert('Nama tidak boleh kosong.'); return; }
 
-       // If user selected a file, compress and convert to base64
-       if (editPhotoFile.files && editPhotoFile.files[0]) {
-          const file = editPhotoFile.files[0];
-          try {
-             newPhotoDataUrl = await new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = e => {
-                   const img = new Image();
-                   img.onload = () => {
-                      const canvas = document.createElement('canvas');
-                      const maxDim = 250; // profile pictures don't need to be huge
-                      let w = img.width, h = img.height;
-                      if (w > maxDim || h > maxDim) {
-                          if (w > h) { h = h * (maxDim / w); w = maxDim; } 
-                          else { w = w * (maxDim / h); h = maxDim; }
-                      }
-                      canvas.width = w; canvas.height = h;
-                      const ctx = canvas.getContext('2d');
-                      ctx.drawImage(img, 0, 0, w, h);
-                      resolve(canvas.toDataURL('image/jpeg', 0.8));
-                   };
-                   img.onerror = reject;
-                   img.src = e.target.result;
-                };
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-             });
-          } catch(e) {
-             console.error("Image processing error", e);
-             alert("Gagal memproses gambar.");
-             btnSaveEdit.textContent = 'Simpan';
-             btnSaveEdit.disabled = false;
-             return;
-          }
-       }
+  const user = auth.currentUser;
+  if (!user) return;
 
-       try {
-           await user.updateProfile({ displayName: newName, photoURL: newPhotoDataUrl });
-           if (typeof updateDisplayName !== 'undefined') await updateDisplayName(user.uid, newName);
-           if (typeof updatePhoto !== 'undefined' && newPhotoDataUrl !== user.photoURL) await updatePhoto(user.uid, newPhotoDataUrl);
-           
-           alert('Profil berhasil diperbarui!');
-           location.reload();
-       } catch (err) {
-           console.error(err);
-           alert('Gagal menyimpan profil.');
-           btnSaveEdit.textContent = 'Simpan';
-           btnSaveEdit.disabled = false;
-       }
-    }
+  btnSaveEdit.textContent = 'Menyimpan...';
+  btnSaveEdit.disabled = true;
+
+  const newPhotoURL = selectedPhotoDataUrl || user.photoURL;
+
+  try {
+    await user.updateProfile({ displayName: newName, photoURL: newPhotoURL });
+    if (typeof updateDisplayName !== 'undefined') await updateDisplayName(user.uid, newName);
+    if (typeof updatePhoto !== 'undefined' && newPhotoURL !== user.photoURL) await updatePhoto(user.uid, newPhotoURL);
+
+    editModal.style.display = 'none';
+    profName.textContent = newName;
+    setAvatar(newPhotoURL);
+    selectedPhotoDataUrl = null;
+    photoFileName.textContent = 'Belum ada foto dipilih';
+    avatarFileInput.value = '';
+    alert('✅ Profil berhasil diperbarui!');
+  } catch(err) {
+    console.error(err);
+    alert('Gagal menyimpan. Silakan coba lagi.');
+  } finally {
+    btnSaveEdit.textContent = 'Simpan';
+    btnSaveEdit.disabled = false;
+  }
 });
 
 btnLogout.addEventListener('click', async () => {
-  if(confirm('Apakah Anda yakin ingin keluar?')) {
+  if (confirm('Apakah Anda yakin ingin keluar?')) {
     try {
       await auth.signOut();
       window.location.href = 'index.html';
     } catch(e) {
-      console.error(e);
       alert('Gagal keluar.');
     }
   }
