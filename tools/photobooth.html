@@ -421,6 +421,8 @@
   let currentRoomId = null;
   let peerConnection = null;
   let remoteStream = null;
+  let iceCandidateQueue = []; // Queue ICE candidates until remote description is set
+  let heartbeatInterval = null; // Keep room alive
   
   // DOM Elements for MP
   const remoteVideo = document.getElementById('remoteVideo');
@@ -922,6 +924,7 @@
     iceServers: [
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun2.l.google.com:19302' },
       {
         urls: 'turn:openrelay.metered.ca:80',
         username: 'openrelayproject',
@@ -931,12 +934,18 @@
         urls: 'turn:openrelay.metered.ca:443',
         username: 'openrelayproject',
         credential: 'openrelayproject'
+      },
+      {
+        urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
       }
     ]
   };
 
   function setupWebRTC() {
     if (peerConnection) { peerConnection.close(); peerConnection = null; }
+    iceCandidateQueue = []; // Reset queue
     if (!stream) {
       mpStatusMsg.textContent = '❌ Kamera belum siap! Tunggu sebentar lalu coba lagi.';
       return false;
@@ -945,15 +954,30 @@
     stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
 
     peerConnection.ontrack = event => {
-      console.log('[MP] ontrack fired! streams:', event.streams);
+      console.log('[MP] ontrack fired! track kind:', event.track.kind, 'streams:', event.streams.length);
       const rs = event.streams && event.streams[0] ? event.streams[0] : new MediaStream([event.track]);
       remoteVideo.srcObject = rs;
       remoteVideo.play().catch(e => console.warn('[MP] remoteVideo play error:', e));
-      // Tampilkan remoteVideoWrap begitu stream masuk (tidak perlu tunggu 'connected')
+      // Tampilkan remoteVideoWrap begitu stream masuk
       remoteVideoWrap.style.display = '';
       remoteVideoWrap.style.flex = '1';
       remoteVideoWrap.style.width = '';
       remoteVideoWrap.style.overflow = '';
+    };
+
+    // Helper: flush queued ICE candidates ke peerConnection
+    async function flushIceCandidates() {
+      while (iceCandidateQueue.length > 0) {
+        const c = iceCandidateQueue.shift();
+        try { await peerConnection.addIceCandidate(new RTCIceCandidate(c)); }
+        catch(e) { console.warn('[MP] flush ICE error:', e); }
+      }
+    }
+
+    peerConnection.onicecandidate = null; // Diset per-room di bawah
+
+    peerConnection.oniceconnectionstatechange = () => {
+      console.log('[MP] iceConnectionState:', peerConnection.iceConnectionState);
     };
 
     peerConnection.onconnectionstatechange = () => {
@@ -962,7 +986,6 @@
       if (state === 'connected') {
         mpStatusMsg.textContent = '✅ Terhubung! Siap berpose bersama!';
         isMultiplayer = true;
-        // Tambah class mp-active agar container jadi flex dua kolom
         camContainer.classList.add('mp-active');
         camContainer.style.aspectRatio = cameraRatio;
         badgeLocal.style.display = 'block';
@@ -974,6 +997,9 @@
         resetMultiplayer();
       }
     };
+
+    // Expose flushIceCandidates agar bisa dipanggil dari createRoom/joinRoom
+    peerConnection._flushIce = flushIceCandidates;
     return true;
   }
 
@@ -987,9 +1013,13 @@
     remoteVideoWrap.style.overflow = 'hidden';
     badgeLocal.style.display = 'none';
     remoteVideo.srcObject = null;
+    iceCandidateQueue = [];
+    if (heartbeatInterval) { clearInterval(heartbeatInterval); heartbeatInterval = null; }
     if (peerConnection) { peerConnection.close(); peerConnection = null; }
-    if (currentRoomId) mpDb.ref(`rooms/${currentRoomId}`).remove();
+    // Hapus room dari Firebase HANYA saat host keluar
+    if (currentRoomId && isHost) mpDb.ref(`rooms/${currentRoomId}`).remove();
     currentRoomId = null;
+    isHost = false;
   }
 
   // ─── CREATE ROOM ───
@@ -1005,6 +1035,7 @@
       mpStatusMsg.textContent = '⚙️ [1/4] Menyiapkan koneksi...';
       if (!setupWebRTC()) { btnCreateRoom.disabled = false; return; }
 
+      // Simpan ICE candidate ke Firebase
       peerConnection.onicecandidate = event => {
         if (event.candidate) roomRef.child('callerCandidates').push(event.candidate.toJSON());
       };
@@ -1017,9 +1048,19 @@
       await roomRef.set({
         offer: { type: offer.type, sdp: offer.sdp },
         host: auth.currentUser.uid,
-        theme: currentTheme.type
+        theme: currentTheme.type,
+        alive: Date.now() // timestamp awal
       });
-      roomRef.onDisconnect().remove();
+      // ⚠️ JANGAN pakai onDisconnect().remove() — itu menyebabkan room terhapus sendiri
+      // Gunakan heartbeat setiap 20 detik untuk menjaga room tetap ada
+      if (heartbeatInterval) clearInterval(heartbeatInterval);
+      heartbeatInterval = setInterval(() => {
+        if (currentRoomId) {
+          mpDb.ref(`rooms/${currentRoomId}/alive`).set(Date.now());
+        } else {
+          clearInterval(heartbeatInterval);
+        }
+      }, 20000);
 
       mpStatusMsg.textContent = `⏳ [4/4] Menunggu teman... (ID: ${currentRoomId})`;
 
@@ -1027,18 +1068,27 @@
       roomRef.child('answer').on('value', async snapshot => {
         const data = snapshot.val();
         if (data && peerConnection && !peerConnection.currentRemoteDescription) {
-          try { await peerConnection.setRemoteDescription(new RTCSessionDescription(data)); }
+          try {
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(data));
+            console.log('[MP] remoteDescription set (host side)');
+            // Flush queued ICE candidates setelah remote description siap
+            if (peerConnection._flushIce) await peerConnection._flushIce();
+          }
           catch(e) { console.warn('[MP] setRemoteDesc error:', e); }
         }
       });
 
-      // Listen for callee ICE candidates
+      // Listen for callee ICE candidates — queue jika remoteDesc belum siap
       roomRef.child('calleeCandidates').on('child_added', async snapshot => {
         const data = snapshot.val();
         if (!data || !peerConnection) return;
-        try {
-          if (peerConnection.remoteDescription) await peerConnection.addIceCandidate(new RTCIceCandidate(data));
-        } catch(e) { console.warn('[MP] addIce (caller side) error:', e); }
+        if (peerConnection.remoteDescription) {
+          try { await peerConnection.addIceCandidate(new RTCIceCandidate(data)); }
+          catch(e) { console.warn('[MP] addIce (caller) error:', e); }
+        } else {
+          iceCandidateQueue.push(data);
+          console.log('[MP] ICE queued (caller), queue size:', iceCandidateQueue.length);
+        }
       });
 
     } catch (err) {
@@ -1081,23 +1131,33 @@
       mpStatusMsg.textContent = '⚙️ [2/3] Menyiapkan koneksi...';
       if (!setupWebRTC()) { btnJoinRoom.disabled = false; return; }
 
+      // Simpan ICE candidate ke Firebase
       peerConnection.onicecandidate = event => {
         if (event.candidate) roomRef.child('calleeCandidates').push(event.candidate.toJSON());
       };
 
       await peerConnection.setRemoteDescription(new RTCSessionDescription(roomData.offer));
+      console.log('[MP] remoteDescription set (joiner side)');
+      // Flush queued ICE candidates setelah remote description siap
+      if (peerConnection._flushIce) await peerConnection._flushIce();
+
       const answer = await peerConnection.createAnswer();
       await peerConnection.setLocalDescription(answer);
 
       mpStatusMsg.textContent = '🤝 [3/3] Menyambung ke host...';
       await roomRef.child('answer').set({ type: answer.type, sdp: answer.sdp });
 
-      // Listen for host's ICE candidates
+      // Listen for host's ICE candidates — queue jika remoteDesc belum siap
       roomRef.child('callerCandidates').on('child_added', async snapshot => {
         const data = snapshot.val();
         if (!data) return;
-        try { await peerConnection.addIceCandidate(new RTCIceCandidate(data)); }
-        catch(e) { console.warn('[MP] addIceCandidate (callee) error:', e); }
+        if (peerConnection && peerConnection.remoteDescription) {
+          try { await peerConnection.addIceCandidate(new RTCIceCandidate(data)); }
+          catch(e) { console.warn('[MP] addIceCandidate (callee) error:', e); }
+        } else {
+          iceCandidateQueue.push(data);
+          console.log('[MP] ICE queued (callee), queue size:', iceCandidateQueue.length);
+        }
       });
 
       // Sync theme from host
