@@ -890,38 +890,53 @@
     return Math.random().toString(36).substring(2, 8).toUpperCase();
   }
 
+  // ICE Servers — STUN Google + free TURN via OpenRelay
+  const ICE_SERVERS_CONFIG = {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+      {
+        urls: 'turn:openrelay.metered.ca:80',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      },
+      {
+        urls: 'turn:openrelay.metered.ca:443',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      }
+    ]
+  };
+
   function setupWebRTC() {
-    peerConnection = new RTCPeerConnection(ICE_SERVERS);
-    
-    // Add local stream
-    stream.getTracks().forEach(track => {
-      peerConnection.addTrack(track, stream);
-    });
-
-    // Listen for remote stream
+    if (peerConnection) { peerConnection.close(); peerConnection = null; }
+    if (!stream) {
+      mpStatusMsg.textContent = '❌ Kamera belum siap! Tunggu sebentar lalu coba lagi.';
+      return false;
+    }
+    peerConnection = new RTCPeerConnection(ICE_SERVERS_CONFIG);
+    stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
     peerConnection.ontrack = event => {
-      remoteVideo.srcObject = event.streams[0];
+      if (event.streams && event.streams[0]) remoteVideo.srcObject = event.streams[0];
     };
-
     peerConnection.onconnectionstatechange = () => {
-      if (peerConnection.connectionState === 'connected') {
-        mpStatusMsg.textContent = '✅ Connected!';
+      const state = peerConnection.connectionState;
+      console.log('[MP] connectionState:', state);
+      if (state === 'connected') {
+        mpStatusMsg.textContent = '✅ Terhubung! Siap berpose bersama!';
         isMultiplayer = true;
-        
-        // UI Changes
         camContainer.classList.add('mp-cam-grid');
         camContainer.style.aspectRatio = (cameraRatio * 2);
         remoteVideoWrap.style.display = 'block';
         badgeLocal.style.display = 'block';
-        
-        // Show Animation
         mpAnimOverlay.classList.add('show');
         setTimeout(() => mpAnimOverlay.classList.remove('show'), 3000);
-      } else if (peerConnection.connectionState === 'disconnected' || peerConnection.connectionState === 'failed') {
-        mpStatusMsg.textContent = '❌ Disconnected.';
+      } else if (state === 'disconnected' || state === 'failed') {
+        mpStatusMsg.textContent = `❌ Koneksi terputus (${state}).`;
         resetMultiplayer();
       }
     };
+    return true;
   }
 
   function resetMultiplayer() {
@@ -930,154 +945,139 @@
     camContainer.style.aspectRatio = cameraRatio;
     remoteVideoWrap.style.display = 'none';
     badgeLocal.style.display = 'none';
-    if(peerConnection) peerConnection.close();
-    if(currentRoomId) {
-      mpDb.ref(`rooms/${currentRoomId}`).remove();
-    }
+    if (peerConnection) { peerConnection.close(); peerConnection = null; }
+    if (currentRoomId) mpDb.ref(`rooms/${currentRoomId}`).remove();
     currentRoomId = null;
   }
 
-  // Create Room
+  // ─── CREATE ROOM ───
   btnCreateRoom.addEventListener('click', async () => {
+    if (!auth.currentUser) { mpStatusMsg.textContent = '❌ Anda belum login!'; return; }
+    btnCreateRoom.disabled = true;
     try {
       isHost = true;
       currentRoomId = generateRoomId();
       txtRoomId.textContent = currentRoomId;
-      mpStatusMsg.textContent = 'Membuat room...';
-
       const roomRef = mpDb.ref(`rooms/${currentRoomId}`);
-      
-      setupWebRTC();
 
-      // Listen for ICE candidates
+      mpStatusMsg.textContent = '⚙️ [1/4] Menyiapkan koneksi...';
+      if (!setupWebRTC()) { btnCreateRoom.disabled = false; return; }
+
       peerConnection.onicecandidate = event => {
-        if (event.candidate) {
-          roomRef.child('callerCandidates').push(event.candidate.toJSON());
-        }
+        if (event.candidate) roomRef.child('callerCandidates').push(event.candidate.toJSON());
       };
 
-      // Create Offer
+      mpStatusMsg.textContent = '📡 [2/4] Membuat offer...';
       const offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(offer);
 
-      const roomWithOffer = {
+      mpStatusMsg.textContent = '💾 [3/4] Menyimpan ke database...';
+      await roomRef.set({
         offer: { type: offer.type, sdp: offer.sdp },
         host: auth.currentUser.uid,
         theme: currentTheme.type
-      };
-      
-      // Attempt to write to DB
-      await roomRef.set(roomWithOffer);
-      
-      // Delete room when host disconnects
+      });
       roomRef.onDisconnect().remove();
 
-      mpStatusMsg.textContent = 'Menunggu teman bergabung...';
+      mpStatusMsg.textContent = `⏳ [4/4] Menunggu teman... (ID: ${currentRoomId})`;
 
       // Listen for answer
-      roomRef.child('answer').on('value', snapshot => {
+      roomRef.child('answer').on('value', async snapshot => {
         const data = snapshot.val();
-        if (!peerConnection.currentRemoteDescription && data) {
-          const answer = new RTCSessionDescription(data);
-          peerConnection.setRemoteDescription(answer);
+        if (data && peerConnection && !peerConnection.currentRemoteDescription) {
+          try { await peerConnection.setRemoteDescription(new RTCSessionDescription(data)); }
+          catch(e) { console.warn('[MP] setRemoteDesc error:', e); }
         }
       });
 
-      // Listen for remote ICE candidates
-      roomRef.child('calleeCandidates').on('child_added', snapshot => {
+      // Listen for callee ICE candidates
+      roomRef.child('calleeCandidates').on('child_added', async snapshot => {
         const data = snapshot.val();
-        if (peerConnection.remoteDescription) {
-          peerConnection.addIceCandidate(new RTCIceCandidate(data));
-        } else {
-          peerConnection.addEventListener('signalingstatechange', () => {
-            if (peerConnection.remoteDescription) {
-              peerConnection.addIceCandidate(new RTCIceCandidate(data));
-            }
-          });
-        }
+        if (!data || !peerConnection) return;
+        try {
+          if (peerConnection.remoteDescription) await peerConnection.addIceCandidate(new RTCIceCandidate(data));
+        } catch(e) { console.warn('[MP] addIce (caller side) error:', e); }
       });
 
-      // Sync theme
-      roomRef.child('theme').on('value', snap => {
-        if(snap.val() && snap.val() !== currentTheme.type) {
-          const btn = document.querySelector(`.theme-btn[data-type="${snap.val()}"]`);
-          if(btn) btn.click();
-        }
-      });
     } catch (err) {
-      mpStatusMsg.textContent = 'Error: ' + err.message;
-      console.error(err);
+      mpStatusMsg.textContent = '❌ Error: ' + err.message;
+      console.error('[MP] createRoom error:', err);
     }
+    btnCreateRoom.disabled = false;
   });
 
   btnCopyRoom.addEventListener('click', () => {
-    navigator.clipboard.writeText(currentRoomId);
-    btnCopyRoom.textContent = 'Tersalin!';
-    setTimeout(() => btnCopyRoom.textContent = 'Salin ID', 2000);
+    if (!currentRoomId) { mpStatusMsg.textContent = '⚠️ Buat room dulu!'; return; }
+    navigator.clipboard.writeText(currentRoomId).then(() => {
+      btnCopyRoom.textContent = '✅ Tersalin!';
+      setTimeout(() => btnCopyRoom.textContent = 'Salin ID', 2000);
+    });
   });
 
-  // Join Room
+  // ─── JOIN ROOM ───
   btnJoinRoom.addEventListener('click', async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) { mpStatusMsg.textContent = '❌ Anda belum login!'; return; }
+
+    const roomId = inpRoomId.value.trim().toUpperCase();
+    if (roomId.length !== 6) { mpStatusMsg.textContent = '❌ ID Room harus 6 karakter!'; return; }
+
+    btnJoinRoom.disabled = true;
     try {
       isHost = false;
-      currentRoomId = inpRoomId.value.trim().toUpperCase();
-      if (currentRoomId.length !== 6) return alert('ID Room harus 6 karakter!');
-      
-      mpStatusMsg.textContent = 'Bergabung ke room...';
-      
+      currentRoomId = roomId;
       const roomRef = mpDb.ref(`rooms/${currentRoomId}`);
-      const roomSnapshot = await roomRef.once('value');
-      
-      if (!roomSnapshot.exists()) {
-        mpStatusMsg.textContent = 'Room tidak ditemukan!';
-        return;
-      }
 
-      setupWebRTC();
+      mpStatusMsg.textContent = '🔍 [1/3] Mencari room...';
+      const roomSnapshot = await roomRef.once('value');
+      if (!roomSnapshot.exists()) {
+        mpStatusMsg.textContent = '❌ Room tidak ditemukan! Pastikan ID benar.';
+        btnJoinRoom.disabled = false; return;
+      }
+      const roomData = roomSnapshot.val();
+
+      mpStatusMsg.textContent = '⚙️ [2/3] Menyiapkan koneksi...';
+      if (!setupWebRTC()) { btnJoinRoom.disabled = false; return; }
 
       peerConnection.onicecandidate = event => {
-        if (event.candidate) {
-          roomRef.child('calleeCandidates').push(event.candidate.toJSON());
-        }
+        if (event.candidate) roomRef.child('calleeCandidates').push(event.candidate.toJSON());
       };
 
-      const offer = roomSnapshot.val().offer;
-      await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+      await peerConnection.setRemoteDescription(new RTCSessionDescription(roomData.offer));
       const answer = await peerConnection.createAnswer();
       await peerConnection.setLocalDescription(answer);
 
+      mpStatusMsg.textContent = '🤝 [3/3] Menyambung ke host...';
       await roomRef.child('answer').set({ type: answer.type, sdp: answer.sdp });
 
-      roomRef.child('callerCandidates').on('child_added', snapshot => {
+      // Listen for host's ICE candidates
+      roomRef.child('callerCandidates').on('child_added', async snapshot => {
         const data = snapshot.val();
-        if (peerConnection.remoteDescription) {
-          peerConnection.addIceCandidate(new RTCIceCandidate(data));
-        } else {
-          peerConnection.addEventListener('signalingstatechange', () => {
-            if (peerConnection.remoteDescription) {
-              peerConnection.addIceCandidate(new RTCIceCandidate(data));
-            }
-          });
-        }
+        if (!data) return;
+        try { await peerConnection.addIceCandidate(new RTCIceCandidate(data)); }
+        catch(e) { console.warn('[MP] addIceCandidate (callee) error:', e); }
       });
-      
-      // Sync theme
+
+      // Sync theme from host
       roomRef.child('theme').on('value', snap => {
-        if(snap.val() && snap.val() !== currentTheme.type) {
-          const btn = document.querySelector(`.theme-btn[data-type="${snap.val()}"]`);
-          if(btn) btn.click();
+        const themeType = snap.val();
+        if (themeType && themeType !== currentTheme.type) {
+          const btn = document.querySelector(`.theme-btn[data-type="${themeType}"]`);
+          if (btn) btn.click();
         }
       });
+
     } catch (err) {
-      mpStatusMsg.textContent = 'Error: ' + err.message;
-      console.error(err);
+      mpStatusMsg.textContent = '❌ Error: ' + err.message;
+      console.error('[MP] joinRoom error:', err);
     }
+    btnJoinRoom.disabled = false;
   });
 
-  // Hook Theme Change for Multiplayer Sync
+  // Sync theme to Firebase when host changes it
   document.querySelectorAll('.theme-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      if(isMultiplayer && currentRoomId) {
+    btn.addEventListener('click', () => {
+      if (isMultiplayer && currentRoomId && isHost) {
         mpDb.ref(`rooms/${currentRoomId}/theme`).set(currentTheme.type);
       }
     });
