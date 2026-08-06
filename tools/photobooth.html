@@ -63,6 +63,20 @@
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     transition: aspect-ratio 0.3s;
   }
+  .cam-container.mp-cam-grid {
+    display: grid !important;
+    gap: 0px !important;
+  }
+  .cam-container.mp-cam-grid .mp-video-wrap {
+    border: none !important;
+    border-radius: 0 !important;
+    height: 100%;
+  }
+  .cam-container.mp-cam-grid .mp-video-wrap video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
   #webcam {
     width: 100%;
     height: 100%;
@@ -499,20 +513,33 @@
     capCtx.save();
     
     if (isMultiplayer) {
-      // Draw 2 players side-by-side
-      captureCanvas.width = video.videoWidth * 2;
+      // Draw 2 players side-by-side keeping total ratio same as video (split screen)
+      captureCanvas.width = video.videoWidth;
       captureCanvas.height = video.videoHeight;
+      
+      const halfW = captureCanvas.width / 2;
+      const cropW = video.videoWidth / 2;
+      const cropH = video.videoHeight;
+      const cropX = (video.videoWidth - cropW) / 2;
+      const cropY = 0;
       
       // Player 1 (Local)
       capCtx.save();
       capCtx.scale(-1, 1); // mirror
-      capCtx.drawImage(video, -video.videoWidth, 0, video.videoWidth, video.videoHeight);
+      capCtx.drawImage(video, cropX, cropY, cropW, cropH, -halfW, 0, halfW, captureCanvas.height);
       capCtx.restore();
       
       // Player 2 (Remote)
+      const rvW = remoteVideo.videoWidth || video.videoWidth;
+      const rvH = remoteVideo.videoHeight || video.videoHeight;
+      const rCropW = rvW / 2;
+      const rCropH = rvH;
+      const rCropX = (rvW - rCropW) / 2;
+      const rCropY = 0;
+
       capCtx.save();
       capCtx.scale(-1, 1); // mirror
-      capCtx.drawImage(remoteVideo, -video.videoWidth * 2, 0, video.videoWidth, video.videoHeight);
+      capCtx.drawImage(remoteVideo, rCropX, rCropY, rCropW, rCropH, -captureCanvas.width, 0, halfW, captureCanvas.height);
       capCtx.restore();
     } else {
       // Single player
@@ -593,7 +620,7 @@
     // Canvas dimensions setup
     const photoWidth = 600;
     // Gunakan cameraRatio secara konsisten untuk placeholder maupun foto agar tidak berubah bentuk
-    let currentRatio = isMultiplayer ? (cameraRatio * 2) : cameraRatio;
+    let currentRatio = cameraRatio; // Tetap 4:3 meskipun multiplayer
     let photoHeight = photoWidth / currentRatio;
     const padding = currentTheme.type === 'film' ? 50 : 30;
     const spacing = 20;
@@ -926,7 +953,7 @@
         mpStatusMsg.textContent = '✅ Terhubung! Siap berpose bersama!';
         isMultiplayer = true;
         camContainer.classList.add('mp-cam-grid');
-        camContainer.style.aspectRatio = (cameraRatio * 2);
+        camContainer.style.aspectRatio = cameraRatio;
         remoteVideoWrap.style.display = 'block';
         badgeLocal.style.display = 'block';
         mpAnimOverlay.classList.add('show');
