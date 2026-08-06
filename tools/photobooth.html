@@ -55,34 +55,40 @@
     border-radius: 24px;
     overflow: hidden;
     position: relative;
-    aspect-ratio: 4 / 3; /* Fallback sementara */
+    aspect-ratio: 4 / 3;
     width: 100%;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    align-items: stretch;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     transition: aspect-ratio 0.3s;
   }
-  .cam-container.mp-cam-grid {
-    display: grid !important;
-    gap: 0px !important;
+  /* Wrapper video lokal/remote — default: penuh lebar */
+  .mp-video-wrap {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    background: #111;
+    display: flex;
+    align-items: stretch;
+    min-height: 0;
   }
-  .cam-container.mp-cam-grid .mp-video-wrap {
-    border: none !important;
-    border-radius: 0 !important;
-    height: 100%;
-  }
-  .cam-container.mp-cam-grid .mp-video-wrap video {
+  .mp-video-wrap video {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
+    transform: scaleX(-1);
+  }
+  /* Saat multiplayer aktif — dua kolom setengah-setengah */
+  .cam-container.mp-active {
+    gap: 4px;
   }
   #webcam {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
-    transform: scaleX(-1); /* Mirror */
+    transform: scaleX(-1);
   }
   .btn-capture {
     background: #ff4757;
@@ -308,11 +314,11 @@
   <!-- Kiri: Kamera & Tombol -->
   <div class="pb-cam-section">
     <div class="cam-container" id="camContainer">
-      <div class="mp-video-wrap" id="localVideoWrap" style="border:none; border-radius:0;">
-        <video id="webcam" autoplay playsinline></video>
+      <div class="mp-video-wrap" id="localVideoWrap">
+        <video id="webcam" autoplay playsinline muted></video>
         <div class="mp-badge" id="badgeLocal" style="display:none;">KAMU</div>
       </div>
-      <div class="mp-video-wrap" id="remoteVideoWrap" style="display:none;">
+      <div class="mp-video-wrap" id="remoteVideoWrap" style="display:none; flex:0; width:0; overflow:hidden;">
         <video id="remoteVideo" autoplay playsinline></video>
         <div class="mp-badge remote" id="badgeRemote">TEMANMU</div>
       </div>
@@ -513,33 +519,27 @@
     capCtx.save();
     
     if (isMultiplayer) {
-      // Draw 2 players side-by-side keeping total ratio same as video (split screen)
-      captureCanvas.width = video.videoWidth;
-      captureCanvas.height = video.videoHeight;
-      
-      const halfW = captureCanvas.width / 2;
-      const cropW = video.videoWidth / 2;
-      const cropH = video.videoHeight;
-      const cropX = (video.videoWidth - cropW) / 2;
-      const cropY = 0;
-      
-      // Player 1 (Local)
-      capCtx.save();
-      capCtx.scale(-1, 1); // mirror
-      capCtx.drawImage(video, cropX, cropY, cropW, cropH, -halfW, 0, halfW, captureCanvas.height);
-      capCtx.restore();
-      
-      // Player 2 (Remote)
-      const rvW = remoteVideo.videoWidth || video.videoWidth;
-      const rvH = remoteVideo.videoHeight || video.videoHeight;
-      const rCropW = rvW / 2;
-      const rCropH = rvH;
-      const rCropX = (rvW - rCropW) / 2;
-      const rCropY = 0;
+      // Gambar 2 pemain berdampingan: masing-masing setengah frame
+      // Canvas tetap 4:3 (sama dengan satu kamera)
+      const vW = video.videoWidth  || 1280;
+      const vH = video.videoHeight || 720;
+      captureCanvas.width  = vW;
+      captureCanvas.height = vH;
+      const halfW = vW / 2;
 
+      // Kiri — Player 1 (Local), mirror
       capCtx.save();
-      capCtx.scale(-1, 1); // mirror
-      capCtx.drawImage(remoteVideo, rCropX, rCropY, rCropW, rCropH, -captureCanvas.width, 0, halfW, captureCanvas.height);
+      capCtx.scale(-1, 1);
+      capCtx.drawImage(video, 0, 0, vW, vH, -halfW, 0, halfW, vH);
+      capCtx.restore();
+
+      // Kanan — Player 2 (Remote), mirror
+      const rvW = remoteVideo.videoWidth  || vW;
+      const rvH = remoteVideo.videoHeight || vH;
+      capCtx.save();
+      capCtx.translate(halfW, 0);
+      capCtx.scale(-1, 1);
+      capCtx.drawImage(remoteVideo, 0, 0, rvW, rvH, -halfW, 0, halfW, vH);
       capCtx.restore();
     } else {
       // Single player
@@ -943,21 +943,32 @@
     }
     peerConnection = new RTCPeerConnection(ICE_SERVERS_CONFIG);
     stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+
     peerConnection.ontrack = event => {
-      if (event.streams && event.streams[0]) remoteVideo.srcObject = event.streams[0];
+      console.log('[MP] ontrack fired! streams:', event.streams);
+      const rs = event.streams && event.streams[0] ? event.streams[0] : new MediaStream([event.track]);
+      remoteVideo.srcObject = rs;
+      remoteVideo.play().catch(e => console.warn('[MP] remoteVideo play error:', e));
+      // Tampilkan remoteVideoWrap begitu stream masuk (tidak perlu tunggu 'connected')
+      remoteVideoWrap.style.display = '';
+      remoteVideoWrap.style.flex = '1';
+      remoteVideoWrap.style.width = '';
+      remoteVideoWrap.style.overflow = '';
     };
+
     peerConnection.onconnectionstatechange = () => {
       const state = peerConnection.connectionState;
       console.log('[MP] connectionState:', state);
       if (state === 'connected') {
         mpStatusMsg.textContent = '✅ Terhubung! Siap berpose bersama!';
         isMultiplayer = true;
-        camContainer.classList.add('mp-cam-grid');
+        // Tambah class mp-active agar container jadi flex dua kolom
+        camContainer.classList.add('mp-active');
         camContainer.style.aspectRatio = cameraRatio;
-        remoteVideoWrap.style.display = 'block';
         badgeLocal.style.display = 'block';
         mpAnimOverlay.classList.add('show');
         setTimeout(() => mpAnimOverlay.classList.remove('show'), 3000);
+        renderStrip();
       } else if (state === 'disconnected' || state === 'failed') {
         mpStatusMsg.textContent = `❌ Koneksi terputus (${state}).`;
         resetMultiplayer();
@@ -968,10 +979,14 @@
 
   function resetMultiplayer() {
     isMultiplayer = false;
-    camContainer.classList.remove('mp-cam-grid');
+    camContainer.classList.remove('mp-active');
     camContainer.style.aspectRatio = cameraRatio;
     remoteVideoWrap.style.display = 'none';
+    remoteVideoWrap.style.flex = '0';
+    remoteVideoWrap.style.width = '0';
+    remoteVideoWrap.style.overflow = 'hidden';
     badgeLocal.style.display = 'none';
+    remoteVideo.srcObject = null;
     if (peerConnection) { peerConnection.close(); peerConnection = null; }
     if (currentRoomId) mpDb.ref(`rooms/${currentRoomId}`).remove();
     currentRoomId = null;
