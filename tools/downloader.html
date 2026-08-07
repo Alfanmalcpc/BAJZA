@@ -8,7 +8,7 @@
 <title>Video Downloader — BAJA</title>
 <meta name="description" content="Download video dan audio dari TikTok, Instagram, dan YouTube secara gratis. Tanpa watermark, cepat, dan mudah digunakan."/>
 <meta name="keywords" content="download video tiktok, download video instagram, download youtube, video downloader, audio downloader, tanpa watermark"/>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="icon" href="../Logo.svg"/>
 <link rel="stylesheet" href="../style.css"/>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
 <style>
@@ -387,7 +387,7 @@
 <nav class="navbar" id="navbar" style="background:#0f0f1a;border-bottom:1px solid rgba(255,255,255,.1);">
   <div class="nav-container">
     <a href="../index.html" class="nav-logo" style="text-decoration:none">
-      <div class="logo-badge" style="background:linear-gradient(135deg,#7c3aed,#06b6d4);">⚡</div>
+      <div class="logo-badge" style="background:linear-gradient(135deg,#7c3aed,#06b6d4);"><img src="../Logo.svg" alt="BAJA"></div>
       <div class="logo-text" style="color:#fff;">BAJA</div>
     </a>
     <div class="nav-actions">
@@ -623,6 +623,13 @@
     <div class="dl-modal-url" id="modalUrl" style="display:none;"></div>
     <!-- progress -->
     <div id="modalProgress" style="margin-bottom:16px;display:none;">
+      <div class="iso-loader-wrap" style="padding: 10px 0 30px;">
+        <div class="iso-loader" style="transform: scale(0.8) rotateX(60deg) rotateZ(45deg);">
+          <div class="iso-layer iso-layer-3"></div>
+          <div class="iso-layer iso-layer-2"></div>
+          <div class="iso-layer iso-layer-1"></div>
+        </div>
+      </div>
       <div class="dl-progress-bar-bg"><div class="dl-progress-bar-fill" id="modalProgressBar" style="width:0%"></div></div>
       <div class="dl-progress-label" id="modalProgressLabel">Menghubungi server...</div>
     </div>

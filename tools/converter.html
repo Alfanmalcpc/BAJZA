@@ -7,7 +7,7 @@
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Universal File Converter — BAJA</title>
 <meta name="description" content="Free Universal File Converter. Convert Videos (MP4, MOV), Images (PNG, JPG, SVG, WEBP) and PDF pages directly in your browser."/>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="icon" href="../Logo.svg"/>
 <link rel="stylesheet" href="../style.css"/>
 <link rel="stylesheet" href="../responsive.css"/>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
@@ -39,7 +39,7 @@
 <nav class="navbar" id="navbar">
   <div class="nav-container">
     <a href="../index.html" class="nav-logo" style="text-decoration:none">
-      <div class="logo-badge">⚡</div>
+      <div class="logo-badge"><img src="../Logo.svg" alt="BAJA"></div>
       <div class="logo-text">BAJA</div>
     </a>
     <div class="nav-actions">
@@ -117,6 +117,13 @@
       </div>
 
       <!-- LOADING STATE -->
+      <div class="iso-loader-wrap" id="isoLoader" style="display:none; padding: 20px 0 0;">
+        <div class="iso-loader">
+          <div class="iso-layer iso-layer-3"></div>
+          <div class="iso-layer iso-layer-2"></div>
+          <div class="iso-layer iso-layer-1"></div>
+        </div>
+      </div>
       <div class="progress-bar" id="progressBar">
         <div class="progress-fill" id="progressFill"></div>
       </div>
@@ -201,6 +208,7 @@ const adUnlockBadge = document.getElementById('adUnlockBadge');
 const formatNote = document.getElementById('formatNote');
 const doConvertBtn = document.getElementById('doConvertBtn');
 
+const isoLoader = document.getElementById('isoLoader');
 const progressBar = document.getElementById('progressBar');
 const progressFill = document.getElementById('progressFill');
 const progressText = document.getElementById('progressText');
@@ -360,6 +368,7 @@ function loadFile(file) {
 
 doConvertBtn.addEventListener('click', async () => {
   configZone.style.display = 'none';
+  isoLoader.style.display = 'flex';
   progressBar.style.display = 'block';
   progressText.style.display = 'block';
   progressFill.style.width = '10%';
@@ -535,6 +544,7 @@ async function convertVideo(file, format, quality) {
 
     console.error('Video conversion error:', err);
     progressBar.style.display = 'none';
+    isoLoader.style.display = 'none';
     progressText.style.display = 'none';
     configZone.style.display = 'block';
     configZone.innerHTML = `
@@ -575,7 +585,10 @@ async function extractAudio(file) {
 
     setTimeout(() => {
       progressBar.style.display = 'none';
+    isoLoader.style.display = 'none';
       progressText.style.display = 'none';
+      isoLoader.style.display = 'none';
+      isoLoader.style.display = 'none';
       resultZone.style.display = 'block';
       singleResultContainer.style.display = 'flex';
       pdfResultContainer.style.display = 'none';
@@ -713,6 +726,7 @@ async function captureGif(file, quality) {
 function showVideoResult(file, outUrl, ext, mime, blob, btnLabel) {
   setTimeout(() => {
     progressBar.style.display = 'none';
+    isoLoader.style.display = 'none';
     progressText.style.display = 'none';
     resultZone.style.display = 'block';
     singleResultContainer.style.display = 'flex';
@@ -779,6 +793,7 @@ async function convertImage(dataUrl, format, quality) {
    
    setTimeout(() => {
      progressBar.style.display = 'none';
+    isoLoader.style.display = 'none';
      progressText.style.display = 'none';
      resultZone.style.display = 'block';
      singleResultContainer.style.display = 'flex';

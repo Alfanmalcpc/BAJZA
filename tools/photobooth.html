@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Photobooth — BAJA</title>
 <meta name="description" content="Bilik foto online untuk membuat photo strip keren langsung dari browser."/>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="icon" href="../Logo.svg"/>
 <link rel="stylesheet" href="../style.css"/>
 <link rel="stylesheet" href="../responsive.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -266,7 +266,7 @@
 <nav class="navbar" id="navbar">
   <div class="nav-container">
     <a href="../index.html" class="nav-logo" style="text-decoration:none">
-      <div class="logo-badge">⚡</div>
+      <div class="logo-badge"><img src="../Logo.svg" alt="BAJA"></div>
       <div class="logo-text">BAJA</div>
     </a>
     <div class="nav-actions"></div>
@@ -414,6 +414,11 @@
   let currentTheme = { type: 'solid', bg: '#ffffff', text: '#000000' };
   let hasWatermark = true; // Status watermark
   let cameraRatio = 4/3; // Default format desktop (4:3)
+
+  const logoImg = new Image();
+  logoImg.src = '../Logo.svg';
+  let isLogoLoaded = false;
+  logoImg.onload = () => { isLogoLoaded = true; if(photos.length > 0) renderStrip(); };
 
   // Multiplayer State
   let isMultiplayer = false;
@@ -626,7 +631,8 @@
     let photoHeight = photoWidth / currentRatio;
     const padding = currentTheme.type === 'film' ? 50 : 30;
     const spacing = 20;
-    const bottomPadding = hasWatermark ? 120 : padding; // Space for logo/text only if watermark is present
+    // We extend the bottom empty space from 120 to 180 so it's longer when printed
+    const bottomPadding = hasWatermark ? 180 : padding; 
 
     const stripWidth = photoWidth + (padding * 2);
     const stripHeight = padding + (maxSlots * photoHeight) + ((maxSlots - 1) * spacing) + bottomPadding;
@@ -846,27 +852,61 @@
 
     // Draw Bottom Branding / Logo / Watermark if active
     if (hasWatermark) {
+      // We explicitly set textBaseline to middle so our math is precise
+      ctx.textBaseline = 'middle';
+      
+      // Draw Watermark strip first (so it's behind if anything overlaps)
+      // This strip overlays the bottom 40px of the last photo
+      const photoBottom = stripHeight - bottomPadding;
+      ctx.globalAlpha = 1.0;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.fillRect(0, photoBottom - 40, stripWidth, 40);
+      
+      // Draw "Dibuat dengan BAJA WEB" inside the white strip
+      ctx.fillStyle = '#000';
+      ctx.font = 'bold 24px sans-serif';
+      const stripCenterY = photoBottom - 20; // Geometric center of the white strip
+      
+      if (isLogoLoaded) {
+        const logoSize2 = 28; // Increased from 24
+        const gap2 = 12;
+        const textStr = 'Dibuat dengan BAJA WEB';
+        const tWidth2 = ctx.measureText(textStr).width;
+        const totalW2 = logoSize2 + gap2 + tWidth2;
+        const startX2 = (stripWidth - totalW2) / 2;
+        ctx.drawImage(logoImg, startX2, stripCenterY - (logoSize2 / 2), logoSize2, logoSize2);
+        ctx.textAlign = 'left';
+        ctx.fillText(textStr, startX2 + logoSize2 + gap2, stripCenterY);
+      } else {
+        ctx.textAlign = 'center';
+        ctx.fillText('⚡ Dibuat dengan BAJA WEB', stripWidth / 2, stripCenterY);
+      }
+      
+      // Draw Logo + BAJA text at the bottom area (from photoBottom to stripHeight)
       ctx.fillStyle = currentTheme.text;
       ctx.font = 'bold 40px sans-serif';
+      const textY = photoBottom + (bottomPadding / 2) - 15; // Center of the bottom area slightly shifted up
+      
+      if (isLogoLoaded) {
+        const logoSize = 64; // Increased from 40
+        const gap = 16;
+        const tWidth = ctx.measureText('BAJA').width;
+        const totalW = logoSize + gap + tWidth; 
+        const startX = (stripWidth - totalW) / 2;
+        ctx.drawImage(logoImg, startX, textY - (logoSize / 2), logoSize, logoSize);
+        ctx.textAlign = 'left';
+        ctx.fillText('BAJA', startX + logoSize + gap, textY);
+      } else {
+        ctx.textAlign = 'center';
+        ctx.fillText('⚡ BAJA', stripWidth / 2, textY);
+      }
+      
+      // Draw Date
       ctx.textAlign = 'center';
-      
-      // Draw lightning icon + BAJA text
-      const textY = stripHeight - 50;
-      ctx.fillText('⚡ BAJA', stripWidth / 2, textY);
-      
       ctx.font = '500 20px sans-serif';
       ctx.globalAlpha = 0.6;
       const today = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
-      ctx.fillText(today, stripWidth / 2, textY + 30);
-      
-      // Draw Watermark strip
-      ctx.globalAlpha = 1.0;
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-      ctx.fillRect(0, stripHeight - 160, stripWidth, 40);
-      ctx.fillStyle = '#000';
-      ctx.font = 'bold 24px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('⚡ Dibuat dengan BAJA WEB', stripWidth / 2, stripHeight - 132);
+      ctx.fillText(today, stripWidth / 2, textY + 50); // Placed nicely below the logo
     }
     
     ctx.globalAlpha = 1.0;

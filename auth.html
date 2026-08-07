@@ -6,7 +6,7 @@
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Masuk / Daftar — BAJA</title>
 <meta name="description" content="Masuk atau buat akun BAJA untuk menyimpan preferensi dan profil Anda."/>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="icon" href="Logo.svg"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"/>
 <link rel="stylesheet" href="style.css"/>
@@ -109,13 +109,12 @@ body {
 }
 .auth-badge {
   width: 64px; height: 64px;
-  background: rgba(255,255,255,0.12);
-  border: 2px solid rgba(255,255,255,0.2);
-  border-radius: 20px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 32px; margin: 0 auto 16px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  margin: 0 auto 16px;
   position: relative; z-index: 1;
+}
+.auth-badge img {
+  width: 100%; height: 100%; object-fit: contain;
 }
 .auth-brand {
   font-size: 32px; font-weight: 900; letter-spacing: 4px;
@@ -293,7 +292,7 @@ body {
 <nav class="navbar" id="navbar">
   <div class="nav-container">
     <a href="index.html" class="nav-logo" style="text-decoration:none">
-      <div class="logo-badge">⚡</div>
+      <div class="logo-badge"><img src="Logo.svg" alt="BAJA"></div>
       <div class="logo-text">BAJA</div>
     </a>
     <div class="nav-actions">
@@ -309,7 +308,7 @@ body {
 
     <!-- Banner -->
     <div class="auth-banner">
-      <div class="auth-badge">⚡</div>
+      <div class="auth-badge"><img src="Logo.svg" alt="BAJA"></div>
       <div class="auth-brand">BAJA</div>
       <div class="auth-tagline" id="authTagline">Selamat datang kembali!</div>
     </div>

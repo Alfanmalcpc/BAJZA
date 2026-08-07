@@ -110,14 +110,11 @@ ul     { list-style: none; }
 }
 .logo-badge {
   width: 40px; height: 40px;
-  background: var(--pink);
-  border: 3px solid var(--border);
-  border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 22px;
-  box-shadow: var(--shadow-sm);
-  transform: rotate(-10deg);
   transition: transform var(--tr);
+}
+.logo-badge img {
+  width: 100%; height: 100%; object-fit: contain;
 }
 .nav-logo:hover .logo-badge { transform: rotate(0deg) scale(1.1); }
 .logo-text {
@@ -1127,12 +1124,10 @@ ul     { list-style: none; }
 .pwa-banner-icon {
   width: 52px; height: 52px;
   flex-shrink: 0;
-  background: linear-gradient(145deg, #f9d924, #ff9f43);
-  border: 3px solid #000;
-  border-radius: 14px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 26px;
-  box-shadow: 3px 3px 0 #000;
+}
+.pwa-banner-icon img {
+  width: 100%; height: 100%; object-fit: contain;
 }
 .pwa-banner-text {
   flex: 1;
@@ -1684,3 +1679,18 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.6rem); }
 .modal-actions { display: flex; gap: 12px; margin-top: 24px; }
 .btn-save { flex: 1; padding: 12px; border-radius: 12px; background: linear-gradient(135deg, #8B5CF6, #6D28D9); color: #fff; font-weight: 700; border: none; cursor: pointer; }
 .btn-cancel { flex: 1; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.05); color: #fff; font-weight: 700; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
+
+/* =========================================================================
+   ISOMETRIC LOADER
+   ========================================================================= */
+.iso-loader-wrap { display: flex; align-items: center; justify-content: center; padding: 40px 0; }
+.iso-loader { position: relative; width: 50px; height: 50px; transform: rotateX(60deg) rotateZ(45deg); transform-style: preserve-3d; }
+.iso-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px; animation: isoDrop 2s infinite ease-out; }
+.iso-layer-1 { background: #55efc4; --z: 0px; animation-delay: 0s; box-shadow: -8px 8px 16px rgba(0,0,0,0.15); }
+.iso-layer-2 { background: #00b894; --z: 20px; animation-delay: 0.2s; box-shadow: -8px 8px 16px rgba(0,0,0,0.15); }
+.iso-layer-3 { background: #0984e3; --z: 40px; animation-delay: 0.4s; box-shadow: -8px 8px 16px rgba(0,0,0,0.15); }
+
+@keyframes isoDrop {
+  0%, 100% { transform: translateZ(var(--z)) translateY(-40px); opacity: 0; }
+  15%, 85% { transform: translateZ(var(--z)) translateY(0); opacity: 1; }
+}

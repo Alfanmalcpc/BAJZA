@@ -7,7 +7,7 @@
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Image Compressor — BAJA</title>
 <meta name="description" content="Free online image compressor. Reduce JPG, PNG, WebP file size up to 80% without quality loss."/>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+<link rel="icon" href="../Logo.svg"/>
 <link rel="stylesheet" href="../style.css"/>
 <link rel="stylesheet" href="../responsive.css"/>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
@@ -46,7 +46,7 @@ input[type=range]{width:100%;accent-color:var(--blue);height:6px;border-radius:3
 <nav class="navbar" id="navbar">
   <div class="nav-container">
     <a href="../index.html" class="nav-logo" style="text-decoration:none">
-      <div class="logo-badge">⚡</div>
+      <div class="logo-badge"><img src="../Logo.svg" alt="BAJA"></div>
       <div class="logo-text">BAJA</div>
     </a>
     <div class="nav-actions">
@@ -89,6 +89,14 @@ input[type=range]{width:100%;accent-color:var(--blue);height:6px;border-radius:3
           <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);margin-top:4px">
             <span data-en="Smallest (10%)" data-id="Terkecil (10%)">Smallest</span>
             <span data-en="Best Quality (100%)" data-id="Kualitas Terbaik (100%)">Best Quality</span>
+          </div>
+        </div>
+
+        <div class="iso-loader-wrap" id="isoLoader" style="display:none; padding: 20px 0;">
+          <div class="iso-loader">
+            <div class="iso-layer iso-layer-3"></div>
+            <div class="iso-layer iso-layer-2"></div>
+            <div class="iso-layer iso-layer-1"></div>
           </div>
         </div>
 
@@ -186,35 +194,41 @@ function formatSize(bytes) {
 }
 
 function compressImage(file) {
+  document.getElementById('isoLoader').style.display = 'flex';
   const quality = parseInt(qualitySlider.value) / 100;
   const reader = new FileReader();
   reader.onload = e => {
     const img = new Image();
     img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0);
-      canvas.toBlob(blob => {
-        compressedBlob = blob;
-        const url = URL.createObjectURL(blob);
-        document.getElementById('compImg').src = url;
-        document.getElementById('compBox').classList.add('show');
-        document.getElementById('compSize').textContent = formatSize(blob.size);
-        const saved = Math.round((1 - blob.size/file.size) * 100);
-        document.getElementById('savingBadge').textContent = `💾 Saved ${Math.max(0,saved)}%`;
-        document.getElementById('resultInfo').style.display = 'block';
-        const btn = document.getElementById('downloadBtn');
-        btn.disabled = false;
-        btn.onclick = () => {
-          triggerAd();
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'baja_compressed_' + file.name.replace(/\.[^.]+$/, '.jpg');
-          a.click();
-        };
-      }, 'image/jpeg', quality);
+      setTimeout(() => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        canvas.toBlob(blob => {
+          compressedBlob = blob;
+          const url = URL.createObjectURL(blob);
+          document.getElementById('compImg').src = url;
+          document.getElementById('compBox').classList.add('show');
+          document.getElementById('compSize').textContent = formatSize(blob.size);
+          const saved = Math.round((1 - blob.size/file.size) * 100);
+          document.getElementById('savingBadge').textContent = `💾 Saved ${Math.max(0,saved)}%`;
+          document.getElementById('resultInfo').style.display = 'block';
+          
+          document.getElementById('isoLoader').style.display = 'none';
+          
+          const btn = document.getElementById('downloadBtn');
+          btn.disabled = false;
+          btn.onclick = () => {
+            triggerAd();
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'baja_compressed_' + file.name.replace(/\.[^.]+$/, '.jpg');
+            a.click();
+          };
+        }, 'image/jpeg', quality);
+      }, 800); // Wait 800ms to show the animation
     };
     img.src = e.target.result;
   };

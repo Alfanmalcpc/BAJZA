@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+<meta name="google-adsense-account" content="ca-pub-6758288522431201">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Twibbon Gerak — BAJA</title>
+<meta name="description" content="Buat twibbon animasi berformat video, bagikan, dan gunakan templat dari pengguna lain secara gratis."/>
+<link rel="icon" href="../Logo.svg"/>
+<link rel="stylesheet" href="../style.css"/>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
+<script src="../firebase.js"></script>
+<script src="../firebase-twibbon.js"></script>
+
+<style>
+.view { display: none; }
+.view.active { display: block; animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Gallery */
+.gallery-header { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
+.search-box { flex: 1; min-width: 250px; position: relative; }
+.search-input { width: 100%; padding: 12px 16px 12px 40px; border-radius: var(--r-full); border: 1px solid var(--border); background: var(--bg-card); color: var(--text-1); outline: none; transition: all var(--tr); }
+.search-input:focus { border-color: var(--blue); box-shadow: var(--glow-blue); }
+.search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); opacity: 0.5; }
+.btn-new { background: var(--grad-tools); color: #fff; border: none; padding: 12px 24px; border-radius: var(--r-full); font-weight: 700; cursor: pointer; transition: all var(--tr); white-space: nowrap; font-family: inherit; }
+.btn-new:hover { transform: translateY(-2px); box-shadow: var(--glow-blue); }
+
+.gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+.tpl-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; cursor: pointer; transition: all var(--tr); display: flex; flex-direction: column;}
+.tpl-card:hover { transform: translateY(-4px); border-color: var(--blue); }
+.tpl-video-wrap { width: 100%; aspect-ratio: 1; background: #000; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.tpl-video-wrap video { width: 100%; height: 100%; object-fit: contain; }
+.tpl-info { padding: 12px; }
+.tpl-title { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+.tpl-author { font-size: 12px; color: var(--text-3); }
+
+/* Maker & Editor common */
+.panel-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 32px; max-width: 600px; margin: 0 auto; width: 100%; }
+.form-group { margin-bottom: 20px; }
+.form-label { display: block; font-size: 13px; font-weight: 700; color: var(--text-2); margin-bottom: 8px; }
+.form-input { width: 100%; padding: 12px 16px; border-radius: var(--r-lg); border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-1); font-family: inherit; }
+.file-upload-box { border: 2px dashed var(--border); border-radius: var(--r-lg); padding: 32px; text-align: center; cursor: pointer; transition: all var(--tr); background: rgba(255,255,255,0.02); display: block; }
+.file-upload-box:hover { border-color: var(--blue); background: rgba(59,130,246,0.05); }
+.file-upload-box input[type="file"] { display: none; }
+.file-name { margin-top: 12px; font-size: 13px; color: var(--blue); font-weight: 600; word-break: break-all; }
+
+/* Editor */
+.editor-workspace { display: flex; flex-direction: column; gap: 24px; align-items: center; width: 100%; }
+.canvas-container { position: relative; max-width: 100%; width: 400px; aspect-ratio: 1; background: #111; border-radius: var(--r-lg); overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+canvas { width: 100%; height: 100%; display: block; }
+.controls { width: 100%; background: var(--bg-surface); padding: 20px; border-radius: var(--r-lg); border: 1px solid var(--border); }
+.control-row { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+.control-row:last-child { margin-bottom: 0; }
+.control-row label { width: 60px; font-size: 13px; font-weight: 600; color: var(--text-2); }
+.control-row input[type="range"] { flex: 1; cursor: pointer;}
+
+.btn-primary { background: var(--grad-tools); color: #fff; border: none; padding: 14px 0; width: 100%; border-radius: var(--r-full); font-weight: 700; cursor: pointer; transition: all var(--tr); font-size: 15px; font-family: inherit; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text-2); padding: 10px 20px; border-radius: var(--r-full); font-size: 13px; font-weight: 600; cursor: pointer; transition: all var(--tr); margin-bottom: 20px; display: inline-flex; align-items: center; gap: 6px; font-family: inherit;}
+.btn-secondary:hover { background: var(--bg-surface); color: var(--text-1); }
+
+/* Progress Overlay */
+#progressOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; color: #fff; }
+.spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.2); border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+#progressText { font-weight: 600; font-size: 16px; }
+
+.alert-box { padding: 12px 16px; border-radius: var(--r-md); background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; font-size: 13px; margin-bottom: 16px; display: none; }
+
+@media (max-width: 600px) {
+  .panel-card { padding: 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="../index.html" class="nav-logo" style="text-decoration:none">
+      <div class="logo-badge"><img src="../Logo.svg" alt="BAJA"></div>
+      <div class="logo-text">BAJA</div>
+    </a>
+    <div class="nav-actions">
+      <!-- navClock and navAuthSlot injected here -->
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="container">
+    <div class="section-badge">🎬 Twibbon Gerak</div>
+    <h1>Animated Twibbon Maker</h1>
+    <p>Buat, bagikan, dan gabungkan foto Anda dengan twibbon video keren. Langsung di browser.</p>
+  </div>
+</div>
+
+<section class="section" style="padding-top:20px; min-height: 60vh;">
+  <div class="container">
+    
+    <!-- VIEW: GALLERY -->
+    <div id="view-gallery" class="view active">
+      <div class="gallery-header">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" class="search-input" id="searchInput" placeholder="Cari judul twibbon...">
+        </div>
+        <button class="btn-new" onclick="goToMaker()">+ Buat Templat Baru</button>
+      </div>
+      <div id="galleryLoading" style="text-align:center; padding: 40px; color: var(--text-3);">Memuat galeri...</div>
+      <div class="gallery-grid" id="galleryGrid">
+        <!-- Cards injected via JS -->
+      </div>
+    </div>
+
+    <!-- VIEW: MAKER (Upload Video) -->
+    <div id="view-maker" class="view">
+      <button class="btn-secondary" onclick="goToGallery()">← Kembali ke Galeri</button>
+      <div class="panel-card">
+        <h2 style="margin-bottom: 24px; font-size: 20px;">Buat Templat Baru</h2>
+        <div id="makerAlert" class="alert-box"></div>
+        
+        <div class="form-group">
+          <label class="form-label">Judul Twibbon</label>
+          <input type="text" id="makerTitle" class="form-input" placeholder="Contoh: Twibbon Kemerdekaan 2025" maxlength="50">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">File Video (.webm transparan disarankan)</label>
+          <label class="file-upload-box" id="dropAreaVideo">
+            <div style="font-size: 24px; margin-bottom: 8px;">📁</div>
+            <div style="font-weight: 600; color: var(--text-2);">Pilih file video (Max 100MB, 30 detik)</div>
+            <input type="file" id="makerVideoFile" accept="video/webm, video/mp4, video/quicktime">
+            <div class="file-name" id="makerFileName">Belum ada file dipilih</div>
+          </label>
+        </div>
+        
+        <button class="btn-primary" id="btnUploadTemplate" onclick="uploadTemplate()">Unggah & Bagikan</button>
+        <p style="font-size: 12px; color: var(--text-3); text-align: center; margin-top: 16px;">* Anda harus login untuk membuat templat.</p>
+      </div>
+    </div>
+
+    <!-- VIEW: EDITOR (Combine Photo & Video) -->
+    <div id="view-editor" class="view">
+      <button class="btn-secondary" onclick="goToGallery()">← Kembali ke Galeri</button>
+      
+      <div class="editor-workspace">
+        <div id="editorAlert" class="alert-box" style="width: 100%; max-width: 400px;"></div>
+        
+        <!-- Canvas for preview -->
+        <div class="canvas-container">
+          <canvas id="twibbonCanvas" width="720" height="720"></canvas>
+        </div>
+        
+        <div class="panel-card" style="width: 100%; max-width: 400px; padding: 24px;">
+          <h3 id="editorTitleDisplay" style="margin-bottom: 16px; font-size: 18px; text-align: center;">Judul Templat</h3>
+          
+          <div class="form-group">
+            <label class="file-upload-box" style="padding: 16px;">
+              <div style="font-weight: 600; color: var(--text-2);">📸 Unggah Foto (Max 10MB)</div>
+              <input type="file" id="editorPhotoFile" accept="image/png, image/jpeg, image/webp">
+            </label>
+          </div>
+          
+          <div class="controls" id="editorControls" style="opacity: 0.5; pointer-events: none;">
+            <div class="control-row">
+              <label>Zoom</label>
+              <input type="range" id="ctrlScale" min="0.1" max="3" step="0.05" value="1">
+            </div>
+            <div class="control-row">
+              <label>Geser X</label>
+              <input type="range" id="ctrlX" min="-500" max="500" value="0">
+            </div>
+            <div class="control-row">
+              <label>Geser Y</label>
+              <input type="range" id="ctrlY" min="-500" max="500" value="0">
+            </div>
+          </div>
+          
+          <button class="btn-primary" id="btnProcess" style="margin-top: 20px;" onclick="processAndDownload()" disabled>Proses & Unduh Video</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Progress Overlay -->
+<div id="progressOverlay">
+  <div class="spinner"></div>
+  <div id="progressText">Memproses... 0%</div>
+</div>
+
+<!-- Hidden Elements for Video Processing -->
+<video id="hiddenVideo" style="display:none;" crossorigin="anonymous" playsinline muted></video>
+<img id="hiddenWatermark" style="display:none;" src="../Logo.svg">
+
+<script src="../app.js"></script>
+<script>
+// --- GLOBAL STATE ---
+const dbTemplates = twibbonDB.ref('twibbon_templates');
+let storageRef;
+if (twibbonStorage) {
+  storageRef = twibbonStorage.ref('twibbon_videos');
+} else {
+  console.warn("Storage not initialized properly, might fail on upload.");
+}
+
+let allTemplates = [];
+let currentTemplate = null;
+
+// Editor State
+let photoImg = null;
+let videoEl = document.getElementById('hiddenVideo');
+let canvas = document.getElementById('twibbonCanvas');
+let ctx = canvas.getContext('2d');
+let animFrameId;
+let mediaRecorder;
+let recordedChunks = [];
+let isRecording = false;
+
+// --- VIEW NAVIGATION ---
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  
+  // Stop any playing preview videos in gallery when leaving
+  if(id !== 'view-gallery'){
+    document.querySelectorAll('.tpl-video-wrap video').forEach(v => { v.pause(); });
+  }
+}
+
+function goToGallery() {
+  showView('view-gallery');
+  const url = new URL(window.location);
+  url.searchParams.delete('template');
+  window.history.pushState({}, '', url);
+  stopEditor();
+}
+
+function goToMaker() {
+  if (!auth.currentUser) {
+    alert("Harap masuk (login) terlebih dahulu untuk membuat templat.");
+    window.location.href = '../auth.html';
+    return;
+  }
+  showView('view-maker');
+  document.getElementById('makerTitle').value = '';
+  document.getElementById('makerFileName').textContent = 'Belum ada file dipilih';
+  document.getElementById('makerVideoFile').value = '';
+  document.getElementById('makerAlert').style.display = 'none';
+}
+
+async function loadEditorWithTemplate(tplId) {
+  showProgress('Memuat Templat...');
+  try {
+    const snap = await dbTemplates.child(tplId).once('value');
+    if (!snap.exists()) throw new Error("Templat tidak ditemukan!");
+    currentTemplate = snap.val();
+    
+    document.getElementById('editorTitleDisplay').textContent = currentTemplate.title;
+    document.getElementById('editorPhotoFile').value = '';
+    document.getElementById('btnProcess').disabled = true;
+    document.getElementById('editorControls').style.opacity = '0.5';
+    document.getElementById('editorControls').style.pointerEvents = 'none';
+    photoImg = null;
+    
+    // Load video
+    videoEl.src = currentTemplate.videoUrl;
+    videoEl.crossOrigin = "anonymous";
+    await new Promise((resolve, reject) => {
+      videoEl.onloadedmetadata = resolve;
+      videoEl.onerror = reject;
+    });
+    
+    // Setup Canvas dimension to match video (max 1080 to prevent memory issues)
+    const MAX_DIM = 1080;
+    let w = videoEl.videoWidth;
+    let h = videoEl.videoHeight;
+    if (w > MAX_DIM || h > MAX_DIM) {
+      const ratio = Math.min(MAX_DIM/w, MAX_DIM/h);
+      w = Math.floor(w * ratio);
+      h = Math.floor(h * ratio);
+    }
+    // Prevent 0 size 
+    canvas.width = w || 720;
+    canvas.height = h || 720;
+    
+    // Start preview loop
+    videoEl.loop = true;
+    videoEl.play();
+    startPreviewLoop();
+    
+    showView('view-editor');
+  } catch (err) {
+    alert(err.message);
+    goToGallery();
+  } finally {
+    hideProgress();
+  }
+}
+
+// --- GALLERY LOGIC ---
+async function fetchGallery() {
+  document.getElementById('galleryLoading').style.display = 'block';
+  document.getElementById('galleryGrid').innerHTML = '';
+  try {
+    const snap = await dbTemplates.orderByChild('createdAt').limitToLast(30).once('value');
+    allTemplates = [];
+    snap.forEach(child => {
+      allTemplates.push({ id: child.key, ...child.val() });
+    });
+    allTemplates.reverse(); // Newest first
+    renderGallery(allTemplates);
+  } catch (err) {
+    console.error("Error fetching templates:", err);
+  } finally {
+    document.getElementById('galleryLoading').style.display = 'none';
+  }
+}
+
+function renderGallery(templates) {
+  const grid = document.getElementById('galleryGrid');
+  grid.innerHTML = '';
+  if (templates.length === 0) {
+    grid.innerHTML = '<div style="color:var(--text-3); grid-column: 1/-1;">Belum ada templat atau tidak ditemukan.</div>';
+    return;
+  }
+  
+  templates.forEach(tpl => {
+    const card = document.createElement('div');
+    card.className = 'tpl-card';
+    card.onclick = () => {
+      const url = new URL(window.location);
+      url.searchParams.set('template', tpl.id);
+      window.history.pushState({}, '', url);
+      loadEditorWithTemplate(tpl.id);
+    };
+    
+    card.innerHTML = `
+      <div class="tpl-video-wrap">
+        <video src="${tpl.videoUrl}" muted autoplay loop playsinline crossorigin="anonymous"></video>
+      </div>
+      <div class="tpl-info">
+        <div class="tpl-title">${escapeHTML(tpl.title)}</div>
+        <div class="tpl-author">oleh ${escapeHTML(tpl.authorName || 'Anonim')}</div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+document.getElementById('searchInput').addEventListener('input', (e) => {
+  const q = e.target.value.toLowerCase();
+  const filtered = allTemplates.filter(t => t.title.toLowerCase().includes(q));
+  renderGallery(filtered);
+});
+
+// --- MAKER LOGIC ---
+document.getElementById('makerVideoFile').addEventListener('change', async function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  document.getElementById('makerFileName').textContent = file.name;
+  document.getElementById('makerAlert').style.display = 'none';
+  
+  // Validate Size (100MB)
+  if (file.size > 100 * 1024 * 1024) {
+    showMakerAlert("Ukuran file video terlalu besar! Maksimal 100MB.");
+    e.target.value = '';
+    document.getElementById('makerFileName').textContent = 'Belum ada file dipilih';
+    return;
+  }
+  
+  // Validate Duration (30s)
+  try {
+    const duration = await getVideoDuration(file);
+    if (duration > 30) {
+      showMakerAlert(`Durasi video terlalu panjang (${Math.round(duration)}s). Maksimal 30 detik.`);
+      e.target.value = '';
+      document.getElementById('makerFileName').textContent = 'Belum ada file dipilih';
+    }
+  } catch (err) {
+    console.error("Could not read duration", err);
+  }
+});
+
+function showMakerAlert(msg) {
+  const box = document.getElementById('makerAlert');
+  box.textContent = msg;
+  box.style.display = 'block';
+}
+
+function getVideoDuration(file) {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.onloadedmetadata = function() {
+      window.URL.revokeObjectURL(video.src);
+      resolve(video.duration);
+    };
+    video.onerror = reject;
+    video.src = URL.createObjectURL(file);
+  });
+}
+
+async function uploadTemplate() {
+  const title = document.getElementById('makerTitle').value.trim();
+  const file = document.getElementById('makerVideoFile').files[0];
+  
+  if (!title) { showMakerAlert("Judul wajib diisi."); return; }
+  if (!file) { showMakerAlert("Pilih file video terlebih dahulu."); return; }
+  if (!auth.currentUser) { showMakerAlert("Harap login kembali."); return; }
+  if (!storageRef) { showMakerAlert("Firebase Storage tidak terkonfigurasi."); return; }
+  
+  const ext = file.name.split('.').pop();
+  const tplId = 'twb_' + Date.now();
+  const fileName = `${tplId}.${ext}`;
+  const fileRef = storageRef.child(fileName);
+  
+  showProgress('Mengunggah 0%...');
+  
+  const task = fileRef.put(file);
+  task.on('state_changed', 
+    (snapshot) => {
+      const p = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      updateProgress(`Mengunggah ${Math.round(p)}%...`);
+    },
+    (error) => {
+      hideProgress();
+      showMakerAlert("Gagal mengunggah: " + error.message);
+    },
+    async () => {
+      updateProgress('Menyimpan data...');
+      try {
+        const url = await fileRef.getDownloadURL();
+        await dbTemplates.child(tplId).set({
+          title: title,
+          videoUrl: url,
+          authorUid: auth.currentUser.uid,
+          authorName: auth.currentUser.displayName || 'Anonim',
+          createdAt: Date.now()
+        });
+        hideProgress();
+        alert("Berhasil diunggah dan dibagikan!");
+        
+        // Force refresh gallery & open editor
+        await fetchGallery();
+        const navUrl = new URL(window.location);
+        navUrl.searchParams.set('template', tplId);
+        window.history.pushState({}, '', navUrl);
+        loadEditorWithTemplate(tplId);
+      } catch (err) {
+        hideProgress();
+        showMakerAlert("Error menyimpan data: " + err.message);
+      }
+    }
+  );
+}
+
+// --- EDITOR LOGIC ---
+document.getElementById('editorPhotoFile').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const alertBox = document.getElementById('editorAlert');
+  alertBox.style.display = 'none';
+  
+  if (file.size > 10 * 1024 * 1024) {
+    alertBox.textContent = "Ukuran foto terlalu besar! Maksimal 10MB.";
+    alertBox.style.display = 'block';
+    e.target.value = '';
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    photoImg = new Image();
+    photoImg.onload = () => {
+      // Auto adjust sliders to center
+      document.getElementById('ctrlX').max = canvas.width;
+      document.getElementById('ctrlX').min = -canvas.width;
+      document.getElementById('ctrlY').max = canvas.height;
+      document.getElementById('ctrlY').min = -canvas.height;
+      document.getElementById('ctrlX').value = 0;
+      document.getElementById('ctrlY').value = 0;
+      
+      // Calculate initial scale to fit at least the height of canvas
+      const scale = canvas.height / photoImg.height;
+      document.getElementById('ctrlScale').value = scale;
+      
+      document.getElementById('editorControls').style.opacity = '1';
+      document.getElementById('editorControls').style.pointerEvents = 'auto';
+      document.getElementById('btnProcess').disabled = false;
+    };
+    photoImg.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+function drawFrame() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // 1. Draw Photo (Bottom Layer)
+  if (photoImg) {
+    const scale = parseFloat(document.getElementById('ctrlScale').value);
+    const tx = parseFloat(document.getElementById('ctrlX').value);
+    const ty = parseFloat(document.getElementById('ctrlY').value);
+    
+    ctx.save();
+    ctx.translate(canvas.width / 2 + tx, canvas.height / 2 + ty);
+    ctx.scale(scale, scale);
+    ctx.drawImage(photoImg, -photoImg.width / 2, -photoImg.height / 2);
+    ctx.restore();
+  } else {
+    // Checkerboard placeholder
+    ctx.fillStyle = '#222';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#333';
+    ctx.font = '20px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText("Area Foto", canvas.width/2, canvas.height/2);
+  }
+  
+  // 2. Draw Video (Top Layer)
+  if (!videoEl.paused && !videoEl.ended) {
+    ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+  } else if (videoEl.readyState >= 2) {
+      // if paused, still draw the current frame
+      ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+  }
+  
+  // 3. Draw Watermark
+  const wm = document.getElementById('hiddenWatermark');
+  if (wm.complete && wm.naturalHeight !== 0) {
+    const wmSize = canvas.width * 0.1;
+    ctx.globalAlpha = 0.8;
+    ctx.drawImage(wm, canvas.width - wmSize - 20, canvas.height - wmSize - 20, wmSize, wmSize);
+    ctx.globalAlpha = 1.0;
+  }
+}
+
+function previewLoop() {
+  drawFrame();
+  animFrameId = requestAnimationFrame(previewLoop);
+}
+
+function startPreviewLoop() {
+  if (animFrameId) cancelAnimationFrame(animFrameId);
+  previewLoop();
+}
+
+function stopEditor() {
+  if (animFrameId) cancelAnimationFrame(animFrameId);
+  videoEl.pause();
+  photoImg = null;
+}
+
+// Media Recorder Export
+async function processAndDownload() {
+  if (!photoImg) return;
+  document.getElementById('btnProcess').disabled = true;
+  showProgress('Menyiapkan perekaman...');
+  
+  videoEl.pause();
+  videoEl.currentTime = 0;
+  videoEl.loop = false; // We want it to end
+  
+  const stream = canvas.captureStream(30); // 30 FPS
+  recordedChunks = [];
+  
+  try {
+    // Try webm vp9 or vp8
+    let mimeType = 'video/webm;codecs=vp9';
+    if (!MediaRecorder.isTypeSupported(mimeType)) {
+      mimeType = 'video/webm;codecs=vp8';
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        mimeType = 'video/webm'; // Fallback
+      }
+    }
+    
+    mediaRecorder = new MediaRecorder(stream, { mimeType: mimeType });
+    
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data.size > 0) recordedChunks.push(e.data);
+    };
+    
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(recordedChunks, { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Twibbon_${Date.now()}.webm`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      
+      hideProgress();
+      document.getElementById('btnProcess').disabled = false;
+      videoEl.loop = true; // restore loop for preview
+      videoEl.play();
+      alert("Video berhasil disimpan!");
+    };
+    
+    // Wait for video to be ready at time 0
+    await new Promise(r => {
+      videoEl.onseeked = r;
+      // In case onseeked doesn't fire if already at 0
+      setTimeout(r, 200); 
+    });
+    
+    mediaRecorder.start();
+    videoEl.play();
+    
+    // Update progress text based on time
+    const duration = videoEl.duration;
+    const progressInterval = setInterval(() => {
+      if (videoEl.ended || videoEl.paused) {
+        clearInterval(progressInterval);
+        return;
+      }
+      const p = (videoEl.currentTime / duration) * 100;
+      updateProgress(`Merekam video... ${Math.round(p)}%`);
+    }, 500);
+    
+    videoEl.onended = () => {
+      clearInterval(progressInterval);
+      mediaRecorder.stop();
+      videoEl.onended = null;
+    };
+    
+  } catch (err) {
+    hideProgress();
+    document.getElementById('btnProcess').disabled = false;
+    alert("Browser Anda tidak mendukung perekaman video ini: " + err.message);
+  }
+}
+
+// --- UTILS ---
+function showProgress(text) {
+  document.getElementById('progressOverlay').style.display = 'flex';
+  document.getElementById('progressText').textContent = text;
+}
+function updateProgress(text) {
+  document.getElementById('progressText').textContent = text;
+}
+function hideProgress() {
+  document.getElementById('progressOverlay').style.display = 'none';
+}
+function escapeHTML(str) {
+  const p = document.createElement('p');
+  p.appendChild(document.createTextNode(str));
+  return p.innerHTML;
+}
+
+// --- INIT ---
+window.addEventListener('DOMContentLoaded', () => {
+  // Wait for firebase auth to settle before we allow uploading, but gallery can load immediately
+  const urlParams = new URLSearchParams(window.location.search);
+  const tplId = urlParams.get('template');
+  
+  if (tplId) {
+    loadEditorWithTemplate(tplId);
+  } else {
+    showView('view-gallery');
+    fetchGallery();
+  }
+  
+  // Realtime updates for sliders to force redraw immediately if video is paused
+  const sliders = ['ctrlScale', 'ctrlX', 'ctrlY'];
+  sliders.forEach(id => {
+    document.getElementById(id).addEventListener('input', drawFrame);
+  });
+});
+</script>
+
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+  <a href="../index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">🏠</span>
+    <span class="bottom-nav-text">Home</span>
+  </a>
+  <a href="index.html" class="bottom-nav-link active">
+    <span class="bottom-nav-icon">🛠️</span>
+    <span class="bottom-nav-text">Tools</span>
+  </a>
+  <a href="../finance/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">📈</span>
+    <span class="bottom-nav-text">Finance</span>
+  </a>
+  <a href="../tutorial/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">📚</span>
+    <span class="bottom-nav-text">Tutorial</span>
+  </a>
+</nav>
+</body>
+</html>
