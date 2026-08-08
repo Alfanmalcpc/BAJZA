@@ -142,7 +142,7 @@ canvas { width: 100%; height: 100%; display: block; }
         </div>
         
         <button class="btn-primary" id="btnUploadTemplate" onclick="uploadTemplate()">Unggah & Bagikan</button>
-        <p style="font-size: 12px; color: var(--text-3); text-align: center; margin-top: 16px;">* Anda harus login untuk membuat templat.</p>
+        <p style="font-size: 12px; color: var(--text-3); text-align: center; margin-top: 16px;">* Anda harus login dan memiliki nama profil untuk membuat templat.</p>
       </div>
     </div>
 
@@ -206,10 +206,12 @@ canvas { width: 100%; height: 100%; display: block; }
 // --- GLOBAL STATE ---
 const dbTemplates = twibbonDB.ref('twibbon_templates');
 let storageRef;
-if (twibbonStorage) {
-  storageRef = twibbonStorage.ref('twibbon_videos');
-} else {
-  console.warn("Storage not initialized properly, might fail on upload.");
+try {
+  // Menggunakan STORAGE utama (baja-account) agar bebas masalah CORS dan terautentikasi,
+  // namun DATABASE tetap tersimpan di baja-twibon sesuai permintaan Anda.
+  storageRef = firebase.storage().ref('twibbon_videos');
+} catch (e) {
+  console.warn("Storage not initialized properly on main app.", e);
 }
 
 let allTemplates = [];
@@ -224,6 +226,16 @@ let animFrameId;
 let mediaRecorder;
 let recordedChunks = [];
 let isRecording = false;
+
+// Authenticated User Data
+let currentUserData = null;
+auth.onAuthStateChanged(user => {
+  if (user) {
+    currentUserData = user;
+  } else {
+    currentUserData = null;
+  }
+});
 
 // --- VIEW NAVIGATION ---
 function showView(id) {
@@ -245,9 +257,14 @@ function goToGallery() {
 }
 
 function goToMaker() {
-  if (!auth.currentUser) {
+  if (!currentUserData) {
     alert("Harap masuk (login) terlebih dahulu untuk membuat templat.");
     window.location.href = '../auth.html';
+    return;
+  }
+  if (!currentUserData.displayName) {
+    alert("Anda belum mengatur Nama Akun. Silakan atur nama di halaman Profil terlebih dahulu.");
+    window.location.href = '../profile.html';
     return;
   }
   showView('view-maker');
@@ -414,9 +431,12 @@ async function uploadTemplate() {
   const title = document.getElementById('makerTitle').value.trim();
   const file = document.getElementById('makerVideoFile').files[0];
   
+  if (!currentUserData) { showMakerAlert("Harap login kembali."); return; }
+  const authorName = currentUserData.displayName;
+  if (!authorName) { showMakerAlert("Akun Anda belum memiliki nama. Silakan atur di halaman Profil."); return; }
+  
   if (!title) { showMakerAlert("Judul wajib diisi."); return; }
   if (!file) { showMakerAlert("Pilih file video terlebih dahulu."); return; }
-  if (!auth.currentUser) { showMakerAlert("Harap login kembali."); return; }
   if (!storageRef) { showMakerAlert("Firebase Storage tidak terkonfigurasi."); return; }
   
   const ext = file.name.split('.').pop();
@@ -443,8 +463,8 @@ async function uploadTemplate() {
         await dbTemplates.child(tplId).set({
           title: title,
           videoUrl: url,
-          authorUid: auth.currentUser.uid,
-          authorName: auth.currentUser.displayName || 'Anonim',
+          authorUid: currentUserData.uid,
+          authorName: authorName,
           createdAt: Date.now()
         });
         hideProgress();
