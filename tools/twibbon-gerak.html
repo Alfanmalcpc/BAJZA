@@ -5,6 +5,8 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Twibbon Gerak — BAJA</title>
+<!-- Library for HEIC support -->
+<script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
 <meta name="description" content="Buat twibbon animasi berformat video, bagikan, dan gunakan templat dari pengguna lain secara gratis."/>
 <link rel="icon" href="../Logo.svg"/>
 <link rel="stylesheet" href="../style.css"/>
@@ -179,12 +181,15 @@ canvas { width: 100%; height: 100%; display: block; }
         </div>
         
         <div class="panel-card" style="width: 100%; max-width: 400px; padding: 24px;">
-          <h3 id="editorTitleDisplay" style="margin-bottom: 16px; font-size: 18px; text-align: center;">Judul Templat</h3>
+          <h3 id="editorTitleDisplay" style="margin-bottom: 8px; font-size: 18px; text-align: center;">Judul Templat</h3>
+          <div style="text-align: center; margin-bottom: 20px;">
+             <button class="btn-secondary" style="padding: 6px 16px; font-size: 14px; border-radius: 20px;" onclick="copyTemplateLink()">🔗 Salin Link Templat</button>
+          </div>
           
           <div class="form-group">
             <label class="file-upload-box" style="padding: 16px;">
               <div style="font-weight: 600; color: var(--text-2);">📸 Unggah Foto (Max 10MB)</div>
-              <input type="file" id="editorPhotoFile" accept="image/png, image/jpeg, image/webp">
+              <input type="file" id="editorPhotoFile" accept="image/*, .heic, .heif">
             </label>
           </div>
           
@@ -600,18 +605,57 @@ async function uploadTemplate() {
   reader.readAsDataURL(file);
 }
 
+function copyTemplateLink() {
+  const url = window.location.href;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.querySelector('button[onclick="copyTemplateLink()"]');
+    const oldText = btn.innerHTML;
+    btn.innerHTML = '✅ Link Tersalin!';
+    btn.style.background = '#4CAF50';
+    btn.style.color = '#fff';
+    btn.style.borderColor = '#4CAF50';
+    setTimeout(() => {
+      btn.innerHTML = oldText;
+      btn.style.background = '';
+      btn.style.color = '';
+      btn.style.borderColor = '';
+    }, 2000);
+  }).catch(err => {
+    alert("Gagal menyalin link. Silakan salin URL di browser Anda secara manual.");
+  });
+}
+
 // --- EDITOR LOGIC ---
-document.getElementById('editorPhotoFile').addEventListener('change', function(e) {
+document.getElementById('editorPhotoFile').addEventListener('change', async function(e) {
   const file = e.target.files[0];
   if (!file) return;
   const alertBox = document.getElementById('editorAlert');
   alertBox.style.display = 'none';
   
-  if (file.size > 10 * 1024 * 1024) {
-    alertBox.textContent = "Ukuran foto terlalu besar! Maksimal 10MB.";
+  if (file.size > 15 * 1024 * 1024) {
+    alertBox.textContent = "Ukuran foto terlalu besar! Maksimal 15MB.";
     alertBox.style.display = 'block';
     e.target.value = '';
     return;
+  }
+  
+  let imageBlob = file;
+  const fileName = file.name.toLowerCase();
+  if (fileName.endsWith('.heic') || fileName.endsWith('.heif')) {
+    alertBox.textContent = "Sedang memproses foto HEIC (iPhone), mohon tunggu sebentar...";
+    alertBox.style.display = 'block';
+    try {
+      const convertedBlob = await heic2any({
+        blob: file,
+        toType: "image/jpeg",
+        quality: 0.8
+      });
+      imageBlob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+      alertBox.style.display = 'none';
+    } catch (err) {
+      alertBox.textContent = "Gagal memproses foto HEIC. Pastikan file tidak rusak.";
+      return;
+    }
   }
   
   const reader = new FileReader();
@@ -636,7 +680,7 @@ document.getElementById('editorPhotoFile').addEventListener('change', function(e
     };
     photoImg.src = event.target.result;
   };
-  reader.readAsDataURL(file);
+  reader.readAsDataURL(imageBlob);
 });
 
 function drawFrame() {
@@ -700,9 +744,40 @@ function drawFrame() {
   // 3. Draw Watermark
   const wm = document.getElementById('hiddenWatermark');
   if (wm.complete && wm.naturalHeight !== 0) {
-    const wmSize = canvas.width * 0.1;
+    const wmSize = canvas.width * 0.08; // Ukuran logo sedikit disesuaikan
     ctx.globalAlpha = 0.8;
-    ctx.drawImage(wm, canvas.width - wmSize - 20, canvas.height - wmSize - 20, wmSize, wmSize);
+    
+    // Setup teks BAJA
+    const text = "BAJA";
+    ctx.font = `bold ${wmSize * 0.7}px 'Segoe UI', Arial, sans-serif`;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    
+    // Tambahkan shadow tipis agar terbaca di latar belakang terang
+    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    ctx.shadowBlur = 4;
+    ctx.shadowOffsetX = 1;
+    ctx.shadowOffsetY = 1;
+    
+    // Koordinat teks di kanan bawah
+    const textX = canvas.width - 20;
+    const textY = canvas.height - 20 - (wmSize / 2);
+    ctx.fillText(text, textX, textY);
+    
+    // Matikan shadow untuk logo
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    
+    // Hitung lebar teks untuk menaruh logo di sebelah kirinya
+    const textWidth = ctx.measureText(text).width;
+    const logoX = textX - textWidth - 10 - wmSize;
+    const logoY = canvas.height - 20 - wmSize;
+    
+    // Gambar Logo
+    ctx.drawImage(wm, logoX, logoY, wmSize, wmSize);
+    
     ctx.globalAlpha = 1.0;
   }
 }
@@ -737,16 +812,29 @@ async function processAndDownload() {
   recordedChunks = [];
   
   try {
-    // Try webm vp9 or vp8
-    let mimeType = 'video/webm;codecs=vp9';
+    // 1. Coba format MP4 (H.264) yang didukung browser modern (Chrome 107+, Safari)
+    let mimeType = 'video/mp4; codecs="avc1.42E01E"';
+    let ext = 'mp4';
+    
     if (!MediaRecorder.isTypeSupported(mimeType)) {
-      mimeType = 'video/webm;codecs=vp8';
+      mimeType = 'video/mp4';
       if (!MediaRecorder.isTypeSupported(mimeType)) {
-        mimeType = 'video/webm'; // Fallback
+        // Fallback ke WebM Kualitas Tinggi
+        mimeType = 'video/webm; codecs=vp9';
+        ext = 'webm';
+        if (!MediaRecorder.isTypeSupported(mimeType)) {
+          mimeType = 'video/webm'; 
+        }
       }
     }
     
-    mediaRecorder = new MediaRecorder(stream, { mimeType: mimeType });
+    // Paksa Bitrate super tinggi (10 Mbps) agar resolusi asli terjaga dan FPS tidak drop
+    const options = { 
+      mimeType: mimeType,
+      videoBitsPerSecond: 10000000 
+    };
+    
+    mediaRecorder = new MediaRecorder(stream, options);
     
     mediaRecorder.ondataavailable = (e) => {
       if (e.data.size > 0) recordedChunks.push(e.data);
@@ -757,7 +845,7 @@ async function processAndDownload() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Twibbon_${Date.now()}.webm`;
+      a.download = `Twibbon_${Date.now()}.${ext}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
