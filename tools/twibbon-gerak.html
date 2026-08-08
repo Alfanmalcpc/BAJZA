@@ -207,11 +207,10 @@ canvas { width: 100%; height: 100%; display: block; }
 const dbTemplates = twibbonDB.ref('twibbon_templates');
 let storageRef;
 try {
-  // Menggunakan STORAGE utama (baja-account) agar bebas masalah CORS dan terautentikasi,
-  // namun DATABASE tetap tersimpan di baja-twibon sesuai permintaan Anda.
-  storageRef = firebase.storage().ref('twibbon_videos');
+  // Kembali menggunakan baja-twibon karena bucket baja-account ternyata tidak ada/belum dibuat
+  storageRef = twibbonStorage.ref('twibbon_videos');
 } catch (e) {
-  console.warn("Storage not initialized properly on main app.", e);
+  console.warn("Storage not initialized properly on twibbon app.", e);
 }
 
 let allTemplates = [];
@@ -652,7 +651,11 @@ async function processAndDownload() {
     videoEl.play();
     
     // Update progress text based on time
-    const duration = videoEl.duration;
+    let duration = videoEl.duration;
+    if (!duration || duration === Infinity) {
+      duration = 30; // Fallback jika browser gagal membaca durasi asli video
+    }
+    
     const progressInterval = setInterval(() => {
       if (videoEl.ended || videoEl.paused) {
         clearInterval(progressInterval);
