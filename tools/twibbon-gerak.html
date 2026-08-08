@@ -482,7 +482,7 @@ async function uploadTemplate() {
       document.getElementById('makerFileName').textContent = 'Belum ada file dipilih';
       
       // Load gallery and open editor
-      loadTemplates();
+      fetchGallery();
       showView('view-gallery');
     } catch (error) {
       hideProgress();
