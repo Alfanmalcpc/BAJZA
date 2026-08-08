@@ -5,8 +5,8 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Twibbon Gerak — BAJA</title>
-<!-- Library for HEIC support -->
 <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap" rel="stylesheet">
 <meta name="description" content="Buat twibbon animasi berformat video, bagikan, dan gunakan templat dari pengguna lain secara gratis."/>
 <link rel="icon" href="../Logo.svg"/>
 <link rel="stylesheet" href="../style.css"/>
@@ -744,38 +744,39 @@ function drawFrame() {
   // 3. Draw Watermark
   const wm = document.getElementById('hiddenWatermark');
   if (wm.complete && wm.naturalHeight !== 0) {
-    const wmSize = canvas.width * 0.08; // Ukuran logo sedikit disesuaikan
-    ctx.globalAlpha = 0.8;
+    const wmSize = canvas.width * 0.07; // Ukuran logo sedikit dikecilkan agar elegan
+    const padding = 24;
+    ctx.globalAlpha = 0.85;
     
-    // Setup teks BAJA
+    // Setup teks BAJA dengan font premium
     const text = "BAJA";
-    ctx.font = `bold ${wmSize * 0.7}px 'Segoe UI', Arial, sans-serif`;
+    ctx.font = `800 ${wmSize * 0.8}px 'Montserrat', sans-serif`;
     ctx.fillStyle = '#FFFFFF';
     ctx.textAlign = 'right';
-    ctx.textBaseline = 'middle';
+    ctx.textBaseline = 'bottom'; // Rata bawah agar sejajar dengan logo
     
-    // Tambahkan shadow tipis agar terbaca di latar belakang terang
-    ctx.shadowColor = 'rgba(0,0,0,0.6)';
-    ctx.shadowBlur = 4;
+    // Shadow lembut untuk kontras
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = 6;
     ctx.shadowOffsetX = 1;
     ctx.shadowOffsetY = 1;
     
-    // Koordinat teks di kanan bawah
-    const textX = canvas.width - 20;
-    const textY = canvas.height - 20 - (wmSize / 2);
+    // Koordinat teks
+    const textX = canvas.width - padding;
+    // Tambah sedikit offset (Y + 2) agar secara visual benar-benar sejajar dengan logo
+    const textY = canvas.height - padding + (wmSize * 0.05); 
     ctx.fillText(text, textX, textY);
     
-    // Matikan shadow untuk logo
+    // Matikan shadow
     ctx.shadowBlur = 0;
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
     
-    // Hitung lebar teks untuk menaruh logo di sebelah kirinya
+    // Hitung posisi logo agar jaraknya pas
     const textWidth = ctx.measureText(text).width;
-    const logoX = textX - textWidth - 10 - wmSize;
-    const logoY = canvas.height - 20 - wmSize;
+    const logoX = textX - textWidth - 12 - wmSize;
+    const logoY = canvas.height - padding - wmSize;
     
-    // Gambar Logo
     ctx.drawImage(wm, logoX, logoY, wmSize, wmSize);
     
     ctx.globalAlpha = 1.0;
