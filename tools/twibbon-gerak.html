@@ -288,12 +288,16 @@ async function loadEditorWithTemplate(tplId) {
     photoImg = null;
     
     // Load video
-    videoEl.src = currentTemplate.videoUrl;
-    videoEl.crossOrigin = "anonymous";
-    await new Promise((resolve, reject) => {
-      videoEl.onloadedmetadata = resolve;
-      videoEl.onerror = reject;
-    });
+    if (currentTemplate) {
+      const fullUrl = currentTemplate.videoUrl || ((currentTemplate.videoUrl_chunk1 || '') + (currentTemplate.videoUrl_chunk2 || ''));
+      videoEl.src = fullUrl;
+      videoEl.crossOrigin = "anonymous";
+      videoEl.play();
+      await new Promise((resolve, reject) => {
+        videoEl.onloadedmetadata = resolve;
+        videoEl.onerror = reject;
+      });
+    }
     
     // Setup Canvas dimension to match video (max 1080 to prevent memory issues)
     const MAX_DIM = 1080;
@@ -351,6 +355,7 @@ function renderGallery(templates) {
   }
   
   templates.forEach(tpl => {
+    const fullUrl = tpl.videoUrl || ((tpl.videoUrl_chunk1 || '') + (tpl.videoUrl_chunk2 || ''));
     const card = document.createElement('div');
     card.className = 'tpl-card';
     card.onclick = () => {
@@ -362,7 +367,7 @@ function renderGallery(templates) {
     
     card.innerHTML = `
       <div class="tpl-video-wrap">
-        <video src="${tpl.videoUrl}" muted autoplay loop playsinline crossorigin="anonymous"></video>
+        <video src="${fullUrl}" muted autoplay loop playsinline crossorigin="anonymous"></video>
       </div>
       <div class="tpl-info">
         <div class="tpl-title">${escapeHTML(tpl.title)}</div>
@@ -446,20 +451,24 @@ async function uploadTemplate() {
   reader.onload = async function(e) {
     const base64Video = e.target.result;
     
-    // Pastikan ukuran tidak terlalu raksasa (batas aman RTDB sekitar 10MB)
-    // base64 size is roughly 1.33x the file size.
-    if (base64Video.length > 15000000) {
+    // Firebase RTDB memiliki batas 10MB per baris teks. Kita bagi jadi 2 bagian jika lebih besar.
+    // Batas maksimal total sekitar 18MB (sekitar 13MB ukuran video asli).
+    if (base64Video.length > 18000000) {
       hideProgress();
-      showMakerAlert("Ukuran video terlalu besar untuk sistem ini. Harap perkecil ukuran/durasi video.");
+      showMakerAlert("Ukuran video terlalu raksasa (lebih dari 13MB). Harap perkecil/kompres ukuran video Anda.");
       return;
     }
+
+    const chunk1 = base64Video.slice(0, 9000000);
+    const chunk2 = base64Video.slice(9000000);
 
     updateProgress('Mengunggah ke Database...');
     
     try {
       await dbTemplates.child(tplId).set({
         title: title,
-        videoUrl: base64Video,
+        videoUrl_chunk1: chunk1,
+        videoUrl_chunk2: chunk2,
         authorUid: currentUserData.uid,
         authorName: authorName,
         createdAt: Date.now()
