@@ -447,8 +447,18 @@ async function uploadTemplate() {
   showProgress('Mengunggah 0%...');
   
   const task = fileRef.put(file);
+  
+  // Timer untuk mendeteksi apabila stuck di 0% (kemungkinan besar masalah CORS)
+  let uploadTimeout = setTimeout(() => {
+    hideProgress();
+    task.cancel();
+    alert("Upload gagal berjalan (Stuck di 0%).\n\nIni BUKAN masalah kode, melainkan Server Firebase Anda menolak koneksi dari browser (CORS Error).\n\nAnda WAJIB menjalankan konfigurasi cors.json di Google Cloud Shell seperti panduan sebelumnya agar browser diizinkan mengunggah file.");
+  }, 10000); // 10 detik
+
   task.on('state_changed', 
     (snapshot) => {
+      // Jika ada progress masuk, berarti CORS aman, matikan timer error
+      if (snapshot.bytesTransferred > 0) clearTimeout(uploadTimeout);
       const p = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
       updateProgress(`Mengunggah ${Math.round(p)}%...`);
     },
