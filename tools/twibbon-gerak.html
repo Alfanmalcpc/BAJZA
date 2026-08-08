@@ -436,65 +436,57 @@ async function uploadTemplate() {
   
   if (!title) { showMakerAlert("Judul wajib diisi."); return; }
   if (!file) { showMakerAlert("Pilih file video terlebih dahulu."); return; }
-  if (!storageRef) { showMakerAlert("Firebase Storage tidak terkonfigurasi."); return; }
   
-  const ext = file.name.split('.').pop();
   const tplId = 'twb_' + Date.now();
-  const fileName = `${tplId}.${ext}`;
-  const fileRef = storageRef.child(fileName);
-  
-  showProgress('Mengunggah 0%...');
-  
-  const task = fileRef.put(file);
-  
-  // Debugging UI: tampilkan pesan debug di alert jika stuck
-  let uploadTimeout = setTimeout(() => {
-    task.cancel();
-    hideProgress();
-    showMakerAlert("Stuck Timeout. Koneksi terputus atau ditolak oleh server (CORS / Firewall).");
-  }, 15000); // 15 detik
 
-  task.on('state_changed', 
-    (snapshot) => {
-      // Jangan matikan timer sampai 100% agar tidak stuck jika berhenti di tengah jalan
-      const p = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-      updateProgress(`Mengunggah ${Math.round(p)}% (${snapshot.bytesTransferred} dari ${snapshot.totalBytes} bytes)`);
-      if (snapshot.bytesTransferred === snapshot.totalBytes && snapshot.totalBytes > 0) {
-        clearTimeout(uploadTimeout);
-      }
-    },
-    (error) => {
-      clearTimeout(uploadTimeout);
+  showProgress('Mengkonversi video (Mohon tunggu)...');
+  
+  const reader = new FileReader();
+  
+  reader.onload = async function(e) {
+    const base64Video = e.target.result;
+    
+    // Pastikan ukuran tidak terlalu raksasa (batas aman RTDB sekitar 10MB)
+    // base64 size is roughly 1.33x the file size.
+    if (base64Video.length > 15000000) {
       hideProgress();
-      showMakerAlert("Gagal mengunggah: " + error.code + " - " + error.message);
-    },
-    async () => {
-      clearTimeout(uploadTimeout);
-      updateProgress('Menyimpan data...');
-      try {
-        const url = await fileRef.getDownloadURL();
-        await dbTemplates.child(tplId).set({
-          title: title,
-          videoUrl: url,
-          authorUid: currentUserData.uid,
-          authorName: authorName,
-          createdAt: Date.now()
-        });
-        hideProgress();
-        alert("Berhasil diunggah dan dibagikan!");
-        
-        // Force refresh gallery & open editor
-        await fetchGallery();
-        const navUrl = new URL(window.location);
-        navUrl.searchParams.set('template', tplId);
-        window.history.pushState({}, '', navUrl);
-        loadEditorWithTemplate(tplId);
-      } catch (err) {
-        hideProgress();
-        showMakerAlert("Error menyimpan data: " + err.message);
-      }
+      showMakerAlert("Ukuran video terlalu besar untuk sistem ini. Harap perkecil ukuran/durasi video.");
+      return;
     }
-  );
+
+    updateProgress('Mengunggah ke Database...');
+    
+    try {
+      await dbTemplates.child(tplId).set({
+        title: title,
+        videoUrl: base64Video,
+        authorUid: currentUserData.uid,
+        authorName: authorName,
+        createdAt: Date.now()
+      });
+      
+      hideProgress();
+      alert("Berhasil diunggah dan dibagikan!");
+      
+      document.getElementById('makerTitle').value = '';
+      document.getElementById('makerVideoFile').value = '';
+      document.getElementById('makerFileName').textContent = 'Belum ada file dipilih';
+      
+      // Load gallery and open editor
+      loadTemplates();
+      showView('view-gallery');
+    } catch (error) {
+      hideProgress();
+      showMakerAlert("Gagal mengunggah ke database: " + error.message);
+    }
+  };
+
+  reader.onerror = function() {
+    hideProgress();
+    showMakerAlert("Gagal membaca file video di browser Anda.");
+  };
+
+  reader.readAsDataURL(file);
 }
 
 // --- EDITOR LOGIC ---
