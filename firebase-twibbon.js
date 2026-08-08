@@ -6,7 +6,7 @@ const twibbonFirebaseConfig = {
   authDomain: "baja-twibon.firebaseapp.com",
   databaseURL: "https://baja-twibon-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "baja-twibon",
-  storageBucket: "baja-twibon.appspot.com",
+  storageBucket: "baja-twibon.firebasestorage.app",
   messagingSenderId: "1059954321037",
   appId: "1:1059954321037:web:38fef987b795e0f4a124c4",
   measurementId: "G-BQT2CL8KVX"
