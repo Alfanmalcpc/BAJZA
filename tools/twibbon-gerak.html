@@ -52,7 +52,7 @@
 
 /* Editor */
 .editor-workspace { display: flex; flex-direction: column; gap: 24px; align-items: center; width: 100%; }
-.canvas-container { position: relative; max-width: 100%; width: 400px; aspect-ratio: 1; background: #111; border-radius: var(--r-lg); overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+.canvas-container { position: relative; max-width: 100%; width: 400px; background: #111; border-radius: var(--r-lg); overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
 canvas { width: 100%; height: 100%; display: block; }
 .controls { width: 100%; background: var(--bg-surface); padding: 20px; border-radius: var(--r-lg); border: 1px solid var(--border); }
 .control-row { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
@@ -291,6 +291,7 @@ async function loadEditorWithTemplate(tplId) {
     // Prevent 0 size 
     canvas.width = w || 720;
     canvas.height = h || 720;
+    document.querySelector('.canvas-container').style.aspectRatio = `${canvas.width} / ${canvas.height}`;
     
     // Start preview loop
     videoEl.loop = true;

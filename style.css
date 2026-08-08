@@ -16,6 +16,16 @@
   --pink:       #ff007f;
   --orange:     #ff5e00;
   --red:        #e53935;
+  --blue:       #3b82f6;
+  --purple:     #8b5cf6;
+  --gold:       #f59e0b;
+  --bg-card-hover: #f3f4f6;
+
+  --grad-tools:    linear-gradient(135deg, #3B82F6, #2563EB);
+  --grad-tutorial: linear-gradient(135deg, #8B5CF6, #6D28D9);
+  
+  --glow-blue:     0 8px 24px rgba(59,130,246,0.3);
+  --glow-purple:   0 8px 24px rgba(139,92,246,0.3);
 
   --shadow-sm:    3px 3px 0px #000;
   --shadow-md:    5px 5px 0px #000;
