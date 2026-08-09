@@ -108,6 +108,20 @@ async function updateDisplayName(uid, name) {
   if (auth.currentUser) {
     await auth.currentUser.updateProfile({ displayName: name });
   }
+  
+  // Sinkronisasi nama pembuat di semua karya Twibbon-nya
+  try {
+    const snap = await db.ref('twibbonTemplates').orderByChild('authorUid').equalTo(uid).once('value');
+    if (snap.exists()) {
+      const updates = {};
+      snap.forEach(child => {
+        updates[`twibbonTemplates/${child.key}/authorName`] = name;
+      });
+      await db.ref().update(updates);
+    }
+  } catch (err) {
+    console.warn("Gagal sinkronisasi nama ke karya:", err);
+  }
 }
 
 async function updatePhoto(uid, base64DataUrl) {
