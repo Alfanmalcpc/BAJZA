@@ -847,13 +847,17 @@ async function processAndDownload() {
       console.warn("Gagal mengekstrak audio, merender tanpa suara.", e);
     }
     
+    // Pastikan resolusi bernilai genap (wajib untuk VideoEncoder H.264)
+    const encWidth = canvas.width % 2 === 0 ? canvas.width : canvas.width - 1;
+    const encHeight = canvas.height % 2 === 0 ? canvas.height : canvas.height - 1;
+
     // Create muxer
     let muxer = new Mp4Muxer.Muxer({
       target: new Mp4Muxer.ArrayBufferTarget(),
       video: {
         codec: 'avc',
-        width: canvas.width,
-        height: canvas.height
+        width: encWidth,
+        height: encHeight
       },
       audio: audioBuffer ? {
         codec: 'aac',
@@ -869,9 +873,9 @@ async function processAndDownload() {
     });
     
     videoEncoder.configure({
-      codec: 'avc1.42E01E', // Baseline profile for maximum compatibility
-      width: canvas.width,
-      height: canvas.height,
+      codec: 'avc1.4D002A', // Main profile, Level 4.2 (mendukung resolusi 1080p+)
+      width: encWidth,
+      height: encHeight,
       bitrate: 10000000, // 10 Mbps for original pristine quality
       framerate: fps
     });
