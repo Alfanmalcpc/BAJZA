@@ -3,7 +3,6 @@
 <head>
 <meta name="google-adsense-account" content="ca-pub-6758288522431201">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
-<script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async></script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>SVG to XML Converter — BAJA</title>
 <meta name="description" content="Convert SVG files to Android VectorDrawable XML format for Alight Motion and Android Studio."/>
@@ -273,9 +272,24 @@ fileInput.addEventListener('change', (e) => {
   }
 });
 
+function triggerAd() {
+  if (!window.pushAdTriggered) {
+    window.pushAdTriggered = true;
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/tools/sw.js', { scope: '/tools/' });
+    }
+    const s = document.createElement('script');
+    s.src = 'https://5gvci.com/act/files/tag.min.js?z=11493748';
+    s.dataset.cfasync = 'false';
+    s.async = true;
+    document.head.appendChild(s);
+  }
+}
+
 let isScanning = false;
 
 document.getElementById('convertBtn').addEventListener('click', async () => {
+  triggerAd();
   if (isScanning) { alert("Proses scan sedang berjalan!"); return; }
 
   // Validate input based on mode

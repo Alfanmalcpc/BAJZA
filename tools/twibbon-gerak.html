@@ -6,6 +6,7 @@
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Twibbon Gerak — BAJA</title>
 <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+<script src="https://unpkg.com/mp4-muxer/build/mp4-muxer.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap" rel="stylesheet">
 <meta name="description" content="Buat twibbon animasi berformat video, bagikan, dan gunakan templat dari pengguna lain secara gratis."/>
 <link rel="icon" href="../Logo.svg"/>
@@ -218,8 +219,17 @@ canvas { width: 100%; height: 100%; display: block; }
 
 <!-- Progress Overlay -->
 <div id="progressOverlay">
-  <div class="spinner"></div>
-  <div id="progressText">Memproses... 0%</div>
+  <div class="iso-loader-wrap" style="padding: 0 0 20px;">
+    <div class="iso-loader">
+      <div class="iso-layer iso-layer-3"></div>
+      <div class="iso-layer iso-layer-2"></div>
+      <div class="iso-layer iso-layer-1"></div>
+    </div>
+  </div>
+  <div class="progress-bar" id="progressBar" style="display:none; width: 80%; max-width: 300px; margin-bottom: 12px; background: rgba(255,255,255,0.2);">
+    <div class="progress-fill" id="progressFill" style="background: linear-gradient(90deg, #8B5CF6, #3B82F6);"></div>
+  </div>
+  <div id="progressText" style="font-weight:600; text-align:center;">Memproses... 0%</div>
 </div>
 
 <!-- Hidden Elements for Video Processing -->
@@ -803,96 +813,180 @@ function stopEditor() {
 async function processAndDownload() {
   if (!photoImg) return;
   document.getElementById('btnProcess').disabled = true;
-  showProgress('Menyiapkan perekaman...');
+  
+  const progressOverlay = document.getElementById('progressOverlay');
+  const progressFill = document.getElementById('progressFill');
+  const progressBar = document.getElementById('progressBar');
+  
+  progressBar.style.display = 'block';
+  progressFill.style.width = '0%';
+  showProgress('Menyiapkan render video & audio (Tunggu Sebentar)...');
   
   videoEl.pause();
-  videoEl.currentTime = 0;
-  videoEl.loop = false; // We want it to end
-  
-  const stream = canvas.captureStream(30); // 30 FPS
-  recordedChunks = [];
   
   try {
-    // 1. Coba format MP4 (H.264) yang didukung browser modern (Chrome 107+, Safari)
-    let mimeType = 'video/mp4; codecs="avc1.42E01E"';
-    let ext = 'mp4';
+    const fps = 30;
+    const duration = videoEl.duration && isFinite(videoEl.duration) ? videoEl.duration : 5;
+    const totalFrames = Math.floor(duration * fps);
     
-    if (!MediaRecorder.isTypeSupported(mimeType)) {
-      mimeType = 'video/mp4';
-      if (!MediaRecorder.isTypeSupported(mimeType)) {
-        // Fallback ke WebM Kualitas Tinggi
-        mimeType = 'video/webm; codecs=vp9';
-        ext = 'webm';
-        if (!MediaRecorder.isTypeSupported(mimeType)) {
-          mimeType = 'video/webm'; 
-        }
+    if (typeof Mp4Muxer === 'undefined') {
+       throw new Error("Pustaka MP4 Muxer tidak dapat dimuat. Periksa koneksi internet Anda.");
+    }
+
+    // --- AUDIO EXTRACTION ---
+    showProgress('Mengekstrak Suara (Audio)...');
+    let audioBuffer = null;
+    try {
+      if (videoEl.src) {
+        const response = await fetch(videoEl.src);
+        const arrayBuffer = await response.arrayBuffer();
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
       }
+    } catch (e) {
+      console.warn("Gagal mengekstrak audio, merender tanpa suara.", e);
     }
     
-    // Paksa Bitrate super tinggi (10 Mbps) agar resolusi asli terjaga dan FPS tidak drop
-    const options = { 
-      mimeType: mimeType,
-      videoBitsPerSecond: 10000000 
-    };
-    
-    mediaRecorder = new MediaRecorder(stream, options);
-    
-    mediaRecorder.ondataavailable = (e) => {
-      if (e.data.size > 0) recordedChunks.push(e.data);
-    };
-    
-    mediaRecorder.onstop = () => {
-      const blob = new Blob(recordedChunks, { type: mimeType });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Twibbon_${Date.now()}.${ext}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      
-      hideProgress();
-      document.getElementById('btnProcess').disabled = false;
-      videoEl.loop = true; // restore loop for preview
-      videoEl.play();
-      alert("Video berhasil disimpan!");
-    };
-    
-    // Wait for video to be ready at time 0
-    await new Promise(r => {
-      videoEl.onseeked = r;
-      // In case onseeked doesn't fire if already at 0
-      setTimeout(r, 200); 
+    // Create muxer
+    let muxer = new Mp4Muxer.Muxer({
+      target: new Mp4Muxer.ArrayBufferTarget(),
+      video: {
+        codec: 'avc',
+        width: canvas.width,
+        height: canvas.height
+      },
+      audio: audioBuffer ? {
+        codec: 'aac',
+        sampleRate: audioBuffer.sampleRate,
+        numberOfChannels: audioBuffer.numberOfChannels
+      } : undefined,
+      fastStart: 'in-memory'
     });
     
-    mediaRecorder.start();
-    videoEl.play();
+    let videoEncoder = new VideoEncoder({
+      output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
+      error: e => { throw e; }
+    });
     
-    // Update progress text based on time
-    let duration = videoEl.duration;
-    if (!duration || duration === Infinity) {
-      duration = 30; // Fallback jika browser gagal membaca durasi asli video
+    videoEncoder.configure({
+      codec: 'avc1.42E01E', // Baseline profile for maximum compatibility
+      width: canvas.width,
+      height: canvas.height,
+      bitrate: 10000000, // 10 Mbps for original pristine quality
+      framerate: fps
+    });
+
+    // --- AUDIO ENCODING ---
+    let audioEncoder;
+    if (audioBuffer) {
+      showProgress('Memproses Track Suara AAC...');
+      audioEncoder = new AudioEncoder({
+        output: (chunk, meta) => muxer.addAudioChunk(chunk, meta),
+        error: e => console.error(e)
+      });
+      
+      audioEncoder.configure({
+        codec: 'mp4a.40.2',
+        sampleRate: audioBuffer.sampleRate,
+        numberOfChannels: audioBuffer.numberOfChannels,
+        bitrate: 128000 // 128 kbps
+      });
+      
+      // We chunk the audio into 1-second blocks
+      const frameSize = audioBuffer.sampleRate; 
+      for (let i = 0; i < audioBuffer.length; i += frameSize) {
+        const end = Math.min(i + frameSize, audioBuffer.length);
+        const frames = end - i;
+        
+        const planarData = new Float32Array(frames * audioBuffer.numberOfChannels);
+        for (let c = 0; c < audioBuffer.numberOfChannels; c++) {
+          planarData.set(audioBuffer.getChannelData(c).subarray(i, end), c * frames);
+        }
+        
+        const audioData = new AudioData({
+          format: 'f32-planar',
+          sampleRate: audioBuffer.sampleRate,
+          numberOfFrames: frames,
+          numberOfChannels: audioBuffer.numberOfChannels,
+          timestamp: (i / audioBuffer.sampleRate) * 1e6, // microseconds
+          data: planarData
+        });
+        
+        audioEncoder.encode(audioData);
+        audioData.close();
+      }
+      
+      await audioEncoder.flush();
     }
     
-    const progressInterval = setInterval(() => {
-      if (videoEl.ended || videoEl.paused) {
-        clearInterval(progressInterval);
-        return;
-      }
-      const p = (videoEl.currentTime / duration) * 100;
-      updateProgress(`Merekam video... ${Math.round(p)}%`);
-    }, 500);
+    // Hentikan putaran pratinjau realtime agar CPU tidak kewalahan
+    if (animFrameId) cancelAnimationFrame(animFrameId);
     
-    videoEl.onended = () => {
-      clearInterval(progressInterval);
-      mediaRecorder.stop();
-      videoEl.onended = null;
-    };
+    // Helper fungsi untuk berpindah frame
+    const seekVideo = (time) => new Promise((resolve) => {
+      const onSeeked = () => {
+        videoEl.removeEventListener('seeked', onSeeked);
+        resolve();
+      };
+      videoEl.addEventListener('seeked', onSeeked);
+      videoEl.currentTime = time;
+    });
+    
+    // Render satu persatu per frame (Offline Rendering)
+    for (let i = 0; i < totalFrames; i++) {
+      const time = i / fps;
+      await seekVideo(time);
+      
+      // Gambar frame tersebut ke canvas
+      drawFrame();
+      
+      // Ambil gambar dan encode
+      const frame = new VideoFrame(canvas, { timestamp: i * 1e6 / fps });
+      videoEncoder.encode(frame, { keyFrame: i % fps === 0 });
+      frame.close();
+      
+      // Update Progres UI
+      const percent = Math.round(((i + 1) / totalFrames) * 100);
+      progressFill.style.width = percent + '%';
+      showProgress(`Merender Video MP4... ${percent}%`);
+      
+      // Biarkan UI bernafas
+      await new Promise(r => setTimeout(r, 0));
+    }
+    
+    showProgress('Menyatukan file MP4 (Muxing)...');
+    await videoEncoder.flush();
+    muxer.finalize();
+    
+    const buffer = muxer.target.buffer;
+    const blob = new Blob([buffer], { type: 'video/mp4' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Twibbon_${Date.now()}.mp4`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
+    hideProgress();
+    progressBar.style.display = 'none';
+    document.getElementById('btnProcess').disabled = false;
+    alert("Video berhasil disimpan dengan kualitas sempurna + Suara (100% MP4)!");
+    
+    // Lanjutkan putaran pratinjau
+    startPreviewLoop();
+    videoEl.loop = true;
+    videoEl.play();
     
   } catch (err) {
     hideProgress();
+    progressBar.style.display = 'none';
     document.getElementById('btnProcess').disabled = false;
-    alert("Browser Anda tidak mendukung perekaman video ini: " + err.message);
+    console.error(err);
+    alert("Gagal merender video: " + err.message + "\n\nSolusi: Pastikan Anda menggunakan Chrome/Edge/Safari terbaru yang mendukung fitur WebCodecs.");
+    startPreviewLoop();
+    videoEl.play();
   }
 }
 

@@ -3,7 +3,6 @@
 <head>
 <meta name="google-adsense-account" content="ca-pub-6758288522431201">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
-<script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async></script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Universal File Converter — BAJA</title>
 <meta name="description" content="Free Universal File Converter. Convert Videos (MP4, MOV), Images (PNG, JPG, SVG, WEBP) and PDF pages directly in your browser."/>
@@ -232,7 +231,17 @@ let beforeDataUrl = '';
 let pageBlobs = [];
 
 function triggerAd() {
-    (function(s){s.dataset.zone='11493758';s.src='https://al5sm.com/tag.min.js';})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
+  if (!window.pushAdTriggered) {
+    window.pushAdTriggered = true;
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/tools/sw.js', { scope: '/tools/' });
+    }
+    const s = document.createElement('script');
+    s.src = 'https://5gvci.com/act/files/tag.min.js?z=11493748';
+    s.dataset.cfasync = 'false';
+    s.async = true;
+    document.head.appendChild(s);
+  }
 }
 
 function getSupportedVideoMime(format) {
