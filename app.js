@@ -9,6 +9,7 @@ const BAJA = {
     this.applyLang(this.lang);
     this.initNav();
     this.initScrollTop();
+    this.initPageTransition();
     this.initClock();
     this.markActiveLink();
     this.initAuthUI();
@@ -120,6 +121,50 @@ const BAJA = {
       btn.classList.toggle('visible', window.scrollY > 300);
     });
     btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  },
+
+  initPageTransition() {
+    const isRoot = this._isRootPage();
+    const logoPath = isRoot ? 'Logo.svg' : '../Logo.svg';
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'page-transition-overlay';
+    overlay.innerHTML = `
+      <div class="iso-loader-wrap" style="padding: 0;">
+        <div class="iso-loader" style="transform: scale(1.5) rotateX(60deg) rotateZ(45deg);">
+          <div class="iso-layer iso-layer-1"></div>
+          <div class="iso-layer iso-layer-2"></div>
+          <div class="iso-layer iso-layer-3"></div>
+        </div>
+      </div>
+      <div style="margin-top: 50px; font-weight: 900; font-family: 'Bangers', cursive; font-size: 28px; letter-spacing: 3px; color: var(--text-1); text-shadow: 2px 2px 0 var(--pink);">BAJA</div>
+    `;
+    document.body.appendChild(overlay);
+
+    // Hide on load
+    window.addEventListener('load', () => {
+      setTimeout(() => overlay.classList.add('hidden'), 300);
+    });
+    if (document.readyState === 'complete') {
+      setTimeout(() => overlay.classList.add('hidden'), 300);
+    }
+
+    // Intercept clicks
+    document.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const href = link.getAttribute('href');
+        if (href && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('javascript:') && link.target !== '_blank') {
+          // Exception for download links
+          if (link.hasAttribute('download')) return;
+          
+          e.preventDefault();
+          overlay.classList.remove('hidden');
+          setTimeout(() => {
+            window.location.href = href;
+          }, 400); // match CSS transition duration
+        }
+      });
+    });
   },
 
   // Real-time clock injected into navbar

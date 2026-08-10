@@ -1704,3 +1704,57 @@ h3 { font-size: clamp(1.1rem, 2.5vw, 1.6rem); }
   0%, 100% { transform: translateZ(var(--z)) translateY(-40px); opacity: 0; }
   15%, 85% { transform: translateZ(var(--z)) translateY(0); opacity: 1; }
 }
+
+/* =========================================================================
+   PAGE TRANSITION OVERLAY
+   ========================================================================= */
+.page-transition-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-base);
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+  visibility: visible;
+  opacity: 1;
+}
+
+.page-transition-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.pt-logo-wrap {
+  width: 100px;
+  height: 100px;
+  animation: logoPulse 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pt-logo-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.25));
+}
+
+@keyframes logoPulse {
+  0% {
+    transform: scale(0.9) rotate(-4deg);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.1) rotate(4deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.9) rotate(-4deg);
+    opacity: 0.9;
+  }
+}
