@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Button</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    button {
+      background: #111827;
+      color: #9CA3AF;
+      border: 1px solid #374151;
+      padding: 10px 15px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+      font-size: 14px;
+      box-sizing: border-box;
+      transition: background 0.2s, color 0.2s;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    button:hover {
+      background: #1F2937;
+      color: #F3F4F6;
+    }
+    button:active {
+      transform: scale(0.98);
+    }
+  </style>
+  <script>
+    // Script Monetag yang akan memicu iklan popunder di dalam iframe
+    (function(s){
+      s.dataset.zone='11493758';
+      s.src='https://al5sm.com/tag.min.js';
+    })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
+
+    function handleClick() {
+      // Kirim pesan ke parent window (Twibbon) bahwa tombol sudah diklik
+      window.parent.postMessage('remove_watermark_clicked', '*');
+    }
+    
+    window.addEventListener('message', function(event) {
+      if (event.data && event.data.type === 'updateText') {
+        document.querySelector('button').textContent = 'Hapus Watermark (' + event.data.count + '/10 Iklan)';
+      }
+    });
+  </script>
+</head>
+<body>
+  <button onclick="handleClick()">Hapus Watermark (Tonton 10 Iklan)</button>
+</body>
+</html>

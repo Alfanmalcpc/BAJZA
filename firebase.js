@@ -111,11 +111,11 @@ async function updateDisplayName(uid, name) {
   
   // Sinkronisasi nama pembuat di semua karya Twibbon-nya
   try {
-    const snap = await db.ref('twibbonTemplates').orderByChild('authorUid').equalTo(uid).once('value');
+    const snap = await db.ref('twibbon_templates').orderByChild('authorUid').equalTo(uid).once('value');
     if (snap.exists()) {
       const updates = {};
       snap.forEach(child => {
-        updates[`twibbonTemplates/${child.key}/authorName`] = name;
+        updates[`twibbon_templates/${child.key}/authorName`] = name;
       });
       await db.ref().update(updates);
     }

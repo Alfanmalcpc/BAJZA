@@ -213,6 +213,9 @@ canvas { width: 100%; height: 100%; display: block; }
           </div>
           
           <button class="btn-primary" id="btnProcess" style="margin-top: 20px;" onclick="processAndDownload()" disabled>Proses & Unduh Video</button>
+          
+          <iframe id="monetagIframe" src="monetag-twibbon-btn.html" style="width: 100%; height: 42px; border: none; margin-top: 10px; border-radius: 8px;"></iframe>
+          <button class="btn-primary" id="btnRemoveWatermark" style="margin-top: 10px; background: var(--green); color: white; border: 1px solid var(--green); display: none;" disabled>Watermark Dihapus ✅</button>
         </div>
       </div>
     </div>
@@ -406,7 +409,7 @@ function renderGallery(templates) {
     
     let deleteBtnHTML = '';
     // Tampilkan tombol hapus jika user saat ini adalah pemilik karya
-    if (window.currentUserData && window.currentUserData.uid === tpl.authorUid) {
+    if (currentUserData && currentUserData.uid === tpl.authorUid) {
       deleteBtnHTML = `<button class="btn-delete-tpl" onclick="deleteTemplate(event, '${tpl.id}')" title="Hapus Karya">🗑️</button>`;
     }
     
@@ -781,7 +784,8 @@ function drawFrame() {
   }
   
   // 3. Draw Watermark
-  const wm = document.getElementById('hiddenWatermark');
+  if (!window.isWatermarkRemoved) {
+    const wm = document.getElementById('hiddenWatermark');
   if (wm.complete && wm.naturalHeight !== 0) {
     const wmSize = canvas.width * 0.07; // Ukuran logo sedikit dikecilkan agar elegan
     const padding = 24;
@@ -820,7 +824,29 @@ function drawFrame() {
     
     ctx.globalAlpha = 1.0;
   }
+  } // Penutup blok if (!window.isWatermarkRemoved)
 }
+
+window.adsWatchedCount = 0;
+window.isWatermarkRemoved = false;
+window.addEventListener('message', function(event) {
+  if (event.data === 'remove_watermark_clicked') {
+    if (window.isWatermarkRemoved) return;
+    window.adsWatchedCount++;
+    
+    const iframe = document.getElementById('monetagIframe');
+    const btn = document.getElementById('btnRemoveWatermark');
+    
+    if (window.adsWatchedCount >= 10) {
+      window.isWatermarkRemoved = true;
+      iframe.style.display = 'none';
+      btn.style.display = 'block';
+    } else {
+      // Kirim pesan ke iframe untuk perbarui teks
+      iframe.contentWindow.postMessage({ type: 'updateText', count: window.adsWatchedCount }, '*');
+    }
+  }
+});
 
 function previewLoop() {
   drawFrame();
