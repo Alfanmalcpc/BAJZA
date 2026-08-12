@@ -340,9 +340,13 @@ async function loadEditorWithTemplate(tplId) {
     document.getElementById('editorControls').style.pointerEvents = 'none';
     photoImg = null;
     
-    // Load video
+    // Load video — gabungkan semua chunk secara dinamis
     if (currentTemplate) {
-      const fullUrl = currentTemplate.videoUrl || ((currentTemplate.videoUrl_chunk1 || '') + (currentTemplate.videoUrl_chunk2 || '') + (currentTemplate.videoUrl_chunk3 || '') + (currentTemplate.videoUrl_chunk4 || '') + (currentTemplate.videoUrl_chunk5 || '') + (currentTemplate.videoUrl_chunk6 || '') + (currentTemplate.videoUrl_chunk7 || '') + (currentTemplate.videoUrl_chunk8 || ''));
+      let fullUrl = currentTemplate.videoUrl || '';
+      if (!fullUrl) {
+        const n = currentTemplate.totalChunks || 8;
+        for (let i = 1; i <= n; i++) fullUrl += (currentTemplate[`videoUrl_chunk${i}`] || '');
+      }
       videoEl.src = fullUrl;
       videoEl.crossOrigin = "anonymous";
       videoEl.play();
@@ -402,7 +406,11 @@ function renderGallery(templates) {
   }
   
   templates.forEach(tpl => {
-    const fullUrl = tpl.videoUrl || ((tpl.videoUrl_chunk1 || '') + (tpl.videoUrl_chunk2 || '') + (tpl.videoUrl_chunk3 || '') + (tpl.videoUrl_chunk4 || '') + (tpl.videoUrl_chunk5 || '') + (tpl.videoUrl_chunk6 || '') + (tpl.videoUrl_chunk7 || '') + (tpl.videoUrl_chunk8 || ''));
+    let fullUrl = tpl.videoUrl || '';
+    if (!fullUrl) {
+      const n = tpl.totalChunks || 8;
+      for (let i = 1; i <= n; i++) fullUrl += (tpl[`videoUrl_chunk${i}`] || '');
+    }
     const card = document.createElement('div');
     card.className = 'tpl-card';
     card.onclick = () => {
@@ -606,30 +614,23 @@ async function uploadTemplate() {
       return;
     }
 
-    // Bagi menjadi 8 chunk agar tiap node Firebase RTDB < 10MB
-    const chunkSize = Math.ceil(base64Video.length / 8);
-    const chunk1 = base64Video.slice(0 * chunkSize, 1 * chunkSize);
-    const chunk2 = base64Video.slice(1 * chunkSize, 2 * chunkSize);
-    const chunk3 = base64Video.slice(2 * chunkSize, 3 * chunkSize);
-    const chunk4 = base64Video.slice(3 * chunkSize, 4 * chunkSize);
-    const chunk5 = base64Video.slice(4 * chunkSize, 5 * chunkSize);
-    const chunk6 = base64Video.slice(5 * chunkSize, 6 * chunkSize);
-    const chunk7 = base64Video.slice(6 * chunkSize, 7 * chunkSize);
-    const chunk8 = base64Video.slice(7 * chunkSize);
+    // Bagi menjadi chunk, masing-masing < 7MB (aman untuk batas 10MB Firebase RTDB)
+    const MAX_CHUNK_BYTES = 7 * 1024 * 1024; // 7MB per chunk (karakter base64)
+    const chunks = [];
+    for (let i = 0; i < base64Video.length; i += MAX_CHUNK_BYTES) {
+      chunks.push(base64Video.slice(i, i + MAX_CHUNK_BYTES));
+    }
+    const totalChunks = chunks.length;
 
-    updateProgress('Mengunggah ke Database...');
+    updateProgress(`Mengunggah metadata...`);
     
     try {
-      await dbTemplates.child(tplId).set({
+      const ref = dbTemplates.child(tplId);
+
+      // 1. Kirim metadata dulu (ringan, cepat)
+      await ref.set({
         title: title,
-        videoUrl_chunk1: chunk1,
-        videoUrl_chunk2: chunk2,
-        videoUrl_chunk3: chunk3,
-        videoUrl_chunk4: chunk4,
-        videoUrl_chunk5: chunk5,
-        videoUrl_chunk6: chunk6,
-        videoUrl_chunk7: chunk7,
-        videoUrl_chunk8: chunk8,
+        totalChunks: totalChunks,
         authorUid: currentUserData.uid,
         authorName: authorName,
         createdAt: Date.now(),
@@ -641,6 +642,13 @@ async function uploadTemplate() {
           tolerance: parseInt(document.getElementById('chromaTolerance').value)
         } : null
       });
+
+      // 2. Upload tiap chunk satu per satu (masing-masing < 10MB, tidak trigger limit RTDB)
+      for (let i = 0; i < totalChunks; i++) {
+        const percent = Math.round(((i + 1) / totalChunks) * 100);
+        updateProgress(`Mengunggah video... ${percent}% (Bagian ${i + 1}/${totalChunks})`);
+        await ref.child(`videoUrl_chunk${i + 1}`).set(chunks[i]);
+      }
       
       hideProgress();
       alert("Berhasil diunggah dan dibagikan!");
