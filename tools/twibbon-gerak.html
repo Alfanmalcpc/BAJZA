@@ -142,7 +142,7 @@ canvas { width: 100%; height: 100%; display: block; }
           <label class="form-label">File Video (.webm transparan disarankan)</label>
           <label class="file-upload-box" id="dropAreaVideo">
             <div style="font-size: 24px; margin-bottom: 8px;">📁</div>
-            <div style="font-weight: 600; color: var(--text-2);">Pilih file video (Max 13MB, 30 detik)</div>
+            <div style="font-weight: 600; color: var(--text-2);">Pilih file video (Max 50MB, 30 detik)</div>
             <input type="file" id="makerVideoFile" accept="video/webm, video/mp4, video/quicktime">
             <div class="file-name" id="makerFileName">Belum ada file dipilih</div>
           </label>
@@ -332,7 +332,7 @@ async function loadEditorWithTemplate(tplId) {
     
     // Load video
     if (currentTemplate) {
-      const fullUrl = currentTemplate.videoUrl || ((currentTemplate.videoUrl_chunk1 || '') + (currentTemplate.videoUrl_chunk2 || ''));
+      const fullUrl = currentTemplate.videoUrl || ((currentTemplate.videoUrl_chunk1 || '') + (currentTemplate.videoUrl_chunk2 || '') + (currentTemplate.videoUrl_chunk3 || '') + (currentTemplate.videoUrl_chunk4 || '') + (currentTemplate.videoUrl_chunk5 || '') + (currentTemplate.videoUrl_chunk6 || '') + (currentTemplate.videoUrl_chunk7 || '') + (currentTemplate.videoUrl_chunk8 || ''));
       videoEl.src = fullUrl;
       videoEl.crossOrigin = "anonymous";
       videoEl.play();
@@ -398,7 +398,7 @@ function renderGallery(templates) {
   }
   
   templates.forEach(tpl => {
-    const fullUrl = tpl.videoUrl || ((tpl.videoUrl_chunk1 || '') + (tpl.videoUrl_chunk2 || ''));
+    const fullUrl = tpl.videoUrl || ((tpl.videoUrl_chunk1 || '') + (tpl.videoUrl_chunk2 || '') + (tpl.videoUrl_chunk3 || '') + (tpl.videoUrl_chunk4 || '') + (tpl.videoUrl_chunk5 || '') + (tpl.videoUrl_chunk6 || '') + (tpl.videoUrl_chunk7 || '') + (tpl.videoUrl_chunk8 || ''));
     const card = document.createElement('div');
     card.className = 'tpl-card';
     card.onclick = () => {
@@ -595,15 +595,23 @@ async function uploadTemplate() {
     const base64Video = e.target.result;
     
     // Firebase RTDB memiliki batas 10MB per baris teks. Kita bagi jadi 2 bagian jika lebih besar.
-    // Batas maksimal total sekitar 18MB (sekitar 13MB ukuran video asli).
-    if (base64Video.length > 18000000) {
+    // Batas maksimal total sekitar 68MB (sekitar 50MB ukuran video asli, faktor base64 ~1.37x).
+    if (base64Video.length > 68000000) {
       hideProgress();
-      showMakerAlert("Ukuran video terlalu raksasa (lebih dari 13MB). Harap perkecil/kompres ukuran video Anda.");
+      showMakerAlert("Ukuran video terlalu besar (lebih dari 50MB). Harap perkecil/kompres ukuran video Anda.");
       return;
     }
 
-    const chunk1 = base64Video.slice(0, 9000000);
-    const chunk2 = base64Video.slice(9000000);
+    // Bagi menjadi 8 chunk agar tiap node Firebase RTDB < 10MB
+    const chunkSize = Math.ceil(base64Video.length / 8);
+    const chunk1 = base64Video.slice(0 * chunkSize, 1 * chunkSize);
+    const chunk2 = base64Video.slice(1 * chunkSize, 2 * chunkSize);
+    const chunk3 = base64Video.slice(2 * chunkSize, 3 * chunkSize);
+    const chunk4 = base64Video.slice(3 * chunkSize, 4 * chunkSize);
+    const chunk5 = base64Video.slice(4 * chunkSize, 5 * chunkSize);
+    const chunk6 = base64Video.slice(5 * chunkSize, 6 * chunkSize);
+    const chunk7 = base64Video.slice(6 * chunkSize, 7 * chunkSize);
+    const chunk8 = base64Video.slice(7 * chunkSize);
 
     updateProgress('Mengunggah ke Database...');
     
@@ -612,6 +620,12 @@ async function uploadTemplate() {
         title: title,
         videoUrl_chunk1: chunk1,
         videoUrl_chunk2: chunk2,
+        videoUrl_chunk3: chunk3,
+        videoUrl_chunk4: chunk4,
+        videoUrl_chunk5: chunk5,
+        videoUrl_chunk6: chunk6,
+        videoUrl_chunk7: chunk7,
+        videoUrl_chunk8: chunk8,
         authorUid: currentUserData.uid,
         authorName: authorName,
         createdAt: Date.now(),
