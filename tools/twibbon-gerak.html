@@ -342,15 +342,9 @@ async function loadEditorWithTemplate(tplId) {
       });
     }
     
-    // Setup Canvas dimension to match video (max 1080 to prevent memory issues)
-    const MAX_DIM = 1080;
+    // Setup Canvas dimension to match video (tanpa batas resolusi)
     let w = videoEl.videoWidth;
     let h = videoEl.videoHeight;
-    if (w > MAX_DIM || h > MAX_DIM) {
-      const ratio = Math.min(MAX_DIM/w, MAX_DIM/h);
-      w = Math.floor(w * ratio);
-      h = Math.floor(h * ratio);
-    }
     // Prevent 0 size 
     canvas.width = w || 720;
     canvas.height = h || 720;
@@ -458,9 +452,9 @@ document.getElementById('makerVideoFile').addEventListener('change', async funct
   document.getElementById('makerFileName').textContent = file.name;
   document.getElementById('makerAlert').style.display = 'none';
   
-  // Validate Size (15MB raw video to fit 18MB Base64 limit)
-  if (file.size > 15 * 1024 * 1024) {
-    showMakerAlert("Ukuran file video terlalu besar! Maksimal 15MB.");
+  // Validate Size (50MB raw video to fit 68MB Base64 limit)
+  if (file.size > 50 * 1024 * 1024) {
+    showMakerAlert("Ukuran file video terlalu besar! Maksimal 50MB.");
     e.target.value = '';
     document.getElementById('makerFileName').textContent = 'Belum ada file dipilih';
     return;
