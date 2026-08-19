@@ -1,53 +1,15 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
 <meta name="google-adsense-account" content="ca-pub-6758288522431201">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
+
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>React & Firebase Tutorial — BAJA</title>
 <meta name="description" content="Complete React + Firebase tutorial. Build a real-time CRUD app with authentication, Realtime Database, and Netlify deployment."/>
-<link rel="icon" href="../Logo.svg"/>
+<link rel="icon" href="../img/Logo.svg"/>
 <link rel="stylesheet" href="../style.css"/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
-<style>
-.article-layout{display:grid;grid-template-columns:1fr 300px;gap:40px;align-items:start}
-.article-content{max-width:none}
-.article-header{margin-bottom:40px;padding-bottom:32px;border-bottom:1px solid var(--border)}
-.article-cats{display:flex;gap:8px;margin-bottom:16px}
-.article-title{font-size:clamp(1.8rem,3.5vw,2.6rem);font-weight:900;line-height:1.2;margin-bottom:16px;letter-spacing:-.5px}
-.article-meta-row{display:flex;align-items:center;gap:16px;font-size:13px;color:var(--text-3);flex-wrap:wrap}
-.toc{background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--purple);border-radius:var(--r-lg);padding:20px;margin-bottom:32px}
-.toc-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-2);margin-bottom:12px}
-.toc ol{padding-left:20px;display:flex;flex-direction:column;gap:6px}
-.toc a{font-size:14px;color:var(--purple);transition:color var(--tr)}
-.toc a:hover{color:var(--blue-light)}
-.article-body h2{font-size:1.5rem;font-weight:800;margin:40px 0 16px;padding-top:8px;border-top:1px solid var(--border)}
-.article-body h3{font-size:1.1rem;font-weight:700;margin:28px 0 12px;color:var(--blue-light)}
-.article-body p{font-size:15px;color:var(--text-2);line-height:1.8;margin-bottom:16px}
-.article-body ul,.article-body ol{margin:0 0 16px 24px;display:flex;flex-direction:column;gap:6px}
-.article-body li{font-size:15px;color:var(--text-2);line-height:1.6}
-.article-body strong{color:var(--text-1)}
-.code-block{background:#0D1117;border:1px solid rgba(255,255,255,.1);border-radius:var(--r-lg);overflow:hidden;margin:20px 0;position:relative}
-.code-block-header{background:#161B22;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.1)}
-.code-lang{font-size:12px;color:#8B949E;font-weight:600;font-family:var(--mono)}
-.copy-code-btn{background:transparent;border:1px solid rgba(255,255,255,.15);color:#8B949E;padding:4px 10px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;transition:all var(--tr)}
-.copy-code-btn:hover{background:rgba(255,255,255,.1);color:#fff}
-.code-block pre{padding:20px;margin:0;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.7;color:#E6EDF3}
-.callout{border-radius:var(--r-lg);padding:16px 20px;margin:20px 0;font-size:14px;line-height:1.6;display:flex;gap:12px;align-items:flex-start}
-.callout.info{background:rgba(59,130,246,.08);border-left:3px solid var(--blue)}
-.callout.tip{background:rgba(16,185,129,.08);border-left:3px solid var(--green)}
-.callout.warning{background:rgba(245,158,11,.08);border-left:3px solid var(--gold)}
-.callout.note{background:rgba(139,92,246,.08);border-left:3px solid var(--purple)}
-.callout-icon{font-size:18px;flex-shrink:0;margin-top:2px}
-.step-num{display:inline-flex;width:28px;height:28px;align-items:center;justify-content:center;background:var(--grad-tutorial);border-radius:50%;font-size:13px;font-weight:800;color:#fff;margin-right:10px;flex-shrink:0}
-.sidebar-sticky{position:sticky;top:calc(var(--nav-h) + 20px);display:flex;flex-direction:column;gap:16px}
-.sidebar-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px}
-.sidebar-card h4{font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text-2);text-transform:uppercase;letter-spacing:.8px}
-.related-link{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2);padding:8px 0;border-bottom:1px solid var(--border);transition:color var(--tr)}
-.related-link:last-child{border-bottom:none}
-.related-link:hover{color:var(--purple)}
-@media(max-width:1024px){.article-layout{grid-template-columns:1fr}.sidebar-sticky{position:static}}
-</style>
+
+<link rel="stylesheet" href="css/web-dev.css"/>
 <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
 </head>
 <body>
@@ -56,7 +18,7 @@
 <nav class="navbar" id="navbar">
   <div class="nav-container">
     <a href="../index.html" class="nav-logo" style="text-decoration:none">
-      <div class="logo-badge"><img src="../Logo.svg" alt="BAJA"></div>
+      <div class="logo-badge"><img src="../img/Logo.svg" alt="BAJA"></div>
       <div class="logo-text">BAJA</div>
     </a>
     <div class="nav-actions">
@@ -64,7 +26,6 @@
     </div>
   </div>
 </nav>
-
 
 <div style="padding-top:var(--nav-h)"></div>
 

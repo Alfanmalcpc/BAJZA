@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id" data-theme="dark">
 <head>
 <meta name="google-adsense-account" content="ca-pub-6758288522431201">
@@ -6,59 +6,14 @@
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Pengaturan — BAJA</title>
 <meta name="description" content="Pengaturan bahasa dan preferensi akun BAJA."/>
-<link rel="icon" href="Logo.svg"/>
+<link rel="icon" href="img/Logo.svg"/>
 <link rel="stylesheet" href="style.css"/>
 <link rel="stylesheet" href="responsive.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-<script src="firebase.js"></script>
-<style>
-.settings-wrap { max-width: 520px; margin: 0 auto; padding: 100px 20px 60px; }
-.settings-card {
-  background: rgba(15,23,42,0.7); backdrop-filter: blur(24px);
-  border: 1px solid rgba(255,255,255,0.08); border-radius: 24px;
-  padding: 32px; box-shadow: 0 30px 60px rgba(0,0,0,0.4);
-}
-.settings-title { font-size: 22px; font-weight: 800; margin-bottom: 8px; }
-.settings-sub { color: var(--text-2); font-size: 14px; margin-bottom: 32px; }
-.section-label {
-  font-size: 11px; font-weight: 800; color: var(--text-3); letter-spacing: 1.5px;
-  text-transform: uppercase; margin-bottom: 12px; margin-top: 28px;
-}
-.section-label:first-child { margin-top: 0; }
-.lang-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-.lang-btn {
-  padding: 14px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(255,255,255,0.03); color: var(--text-1);
-  font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;
-  text-align: center; transition: all 0.2s;
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
-}
-.lang-btn:hover { background: rgba(255,255,255,0.07); }
-.lang-btn.selected {
-  background: rgba(139,92,246,0.15); border-color: var(--purple);
-  color: #c4b5fd; box-shadow: 0 0 20px rgba(139,92,246,0.2);
-}
-.lang-flag { font-size: 24px; }
-.lang-name { font-size: 14px; }
-.section-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 24px 0; }
-.btn-back {
-  display: inline-flex; align-items: center; gap: 8px;
-  color: var(--text-2); font-size: 14px; font-weight: 600;
-  background: none; border: none; cursor: pointer; font-family: inherit;
-  padding: 0; transition: color 0.2s; text-decoration: none;
-}
-.btn-back:hover { color: var(--text-1); }
-.toast {
-  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(80px);
-  background: rgba(52,211,153,0.15); border: 1px solid rgba(52,211,153,0.3);
-  color: #6ee7b7; padding: 12px 24px; border-radius: 40px;
-  font-weight: 700; font-size: 14px; transition: transform 0.3s; z-index: 9999;
-  backdrop-filter: blur(10px);
-}
-.toast.show { transform: translateX(-50%) translateY(0); }
-</style>
+<script src="db/firebase.js"></script>
+<link rel="stylesheet" href="css/settings.css"/>
 <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
 </head>
 <body>
@@ -67,7 +22,7 @@
 <nav class="navbar" id="navbar">
   <div class="nav-container">
     <a href="index.html" class="nav-logo" style="text-decoration:none">
-      <div class="logo-badge"><img src="Logo.svg" alt="BAJA"></div>
+      <div class="logo-badge"><img src="img/Logo.svg" alt="BAJA"></div>
       <div class="logo-text">BAJA</div>
     </a>
     <div class="nav-actions">

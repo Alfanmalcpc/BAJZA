@@ -7,258 +7,15 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Photobooth — BAJA</title>
 <meta name="description" content="Bilik foto online untuk membuat photo strip keren langsung dari browser."/>
-<link rel="icon" href="../Logo.svg"/>
+<link rel="icon" href="../img/Logo.svg"/>
 <link rel="stylesheet" href="../style.css"/>
 <link rel="stylesheet" href="../responsive.css"/>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-<script src="../firebase.js"></script>
-<script src="../firebase-multiplay.js"></script>
-<style>
-  /* ── Photobooth-specific layout overrides ── */
-  .pb-header {
-    background: linear-gradient(135deg, #7c3aed, #06b6d4);
-    padding: 24px 20px;
-    text-align: center;
-    border-bottom: 4px solid #000;
-  }
-  .pb-title {
-    font-size: 28px;
-    font-weight: 900;
-    font-family: var(--font-heading);
-    letter-spacing: 2px;
-    text-shadow: 2px 2px 0 #000;
-  }
-  .pb-layout {
-    display: flex;
-    flex-direction: column;
-    gap: 32px;
-    max-width: 1100px;
-    margin: 40px auto;
-    padding: 0 20px;
-  }
-  @media (min-width: 768px) {
-    .pb-layout { flex-direction: row; align-items: flex-start; }
-  }
-
-  /* ── Camera Section ── */
-  .pb-cam-section {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  .cam-container {
-    background: #000;
-    border: 6px solid #1e293b;
-    border-radius: 24px;
-    overflow: hidden;
-    position: relative;
-    aspect-ratio: 4 / 3;
-    width: 100%;
-    display: flex;
-    align-items: stretch;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    transition: aspect-ratio 0.3s;
-  }
-  /* Wrapper video lokal/remote — default: penuh lebar */
-  .mp-video-wrap {
-    position: relative;
-    flex: 1;
-    overflow: hidden;
-    background: #111;
-    display: flex;
-    align-items: stretch;
-    min-height: 0;
-  }
-  .mp-video-wrap video {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transform: scaleX(-1);
-  }
-  /* Saat multiplayer aktif — dua kolom setengah-setengah */
-  .cam-container.mp-active {
-    gap: 4px;
-  }
-  #webcam {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transform: scaleX(-1);
-  }
-  .btn-capture {
-    background: #ff4757;
-    color: #fff;
-    border: 4px solid #000;
-    border-radius: var(--r-full);
-    padding: 16px 32px;
-    font-size: 20px;
-    font-family: var(--font-heading);
-    font-weight: 900;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 4px 4px 0 #000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-  }
-  .btn-capture:hover:not(:disabled) {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 #000;
-  }
-  .btn-capture:active:not(:disabled) {
-    transform: translate(4px, 4px);
-    box-shadow: 0 0 0 #000;
-  }
-  .btn-capture:disabled {
-    background: #64748b;
-    cursor: not-allowed;
-    opacity: 0.7;
-    box-shadow: none;
-    border-color: transparent;
-  }
-
-  /* ── Preview Section ── */
-  .pb-preview-section {
-    width: 100%;
-    max-width: 380px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  .strip-container {
-    background: rgba(255,255,255,0.05);
-    border: 2px dashed rgba(255,255,255,0.2);
-    border-radius: 16px;
-    padding: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  #stripCanvas {
-    max-width: 100%;
-    height: auto;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-    transition: all 0.3s ease;
-  }
-  
-  /* ── Controls ── */
-  .pb-controls {
-    background: #1e293b;
-    border-radius: 16px;
-    padding: 20px;
-    border: 2px solid #334155;
-  }
-  .control-label {
-    font-size: 13px;
-    font-weight: 700;
-    color: #94a3b8;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  .theme-grid {
-    display: flex;
-    overflow-x: auto;
-    gap: 12px;
-    margin-bottom: 20px;
-    padding-bottom: 12px;
-    scroll-snap-type: x mandatory;
-  }
-  .theme-grid::-webkit-scrollbar { height: 8px; }
-  .theme-grid::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
-  .theme-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-  
-  .theme-btn {
-    flex: 0 0 calc(33.333% - 8px);
-    min-width: 100px;
-    scroll-snap-align: start;
-    padding: 12px;
-    border-radius: 12px;
-    border: 2px solid transparent;
-    font-weight: 700;
-    font-size: 14px;
-    cursor: pointer;
-    transition: transform 0.2s;
-  }
-  .theme-btn:hover { transform: translateY(-2px); }
-  .theme-btn.active { border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
-  
-  .layout-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
-  
-  .watermark-task-container {
-    margin-top: 20px;
-    padding: 16px;
-    background: rgba(244, 114, 182, 0.1);
-    border: 2px dashed #f472b6;
-    border-radius: 12px;
-    text-align: center;
-  }
-  .watermark-task-container p {
-    font-size: 13px;
-    color: #f8fafc;
-    margin-bottom: 12px;
-  }
-  .layout-btn {
-    background: #334155;
-    color: #fff;
-    border: none;
-    padding: 12px;
-    border-radius: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  .layout-btn.active { background: #7c3aed; }
-  
-  .btn-download {
-    background: #10b981;
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    padding: 16px;
-    font-size: 16px;
-    font-weight: 800;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 16px;
-    display: none; /* Hidden by default */
-    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-  }
-  .btn-download:hover { background: #059669; }
-  
-  .btn-reset {
-    background: transparent;
-    color: #f87171;
-    border: 1px solid #f87171;
-    border-radius: 12px;
-    padding: 10px;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    width: 100%;
-    margin-top: 12px;
-    display: none;
-  }
-  .btn-reset:hover { background: rgba(248,113,113,0.1); }
-
-  @keyframes popIn {
-    0% { transform: scale(0.9); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-</style>
+<script src="../db/firebase.js"></script>
+<script src="../db/firebase-multiplay.js"></script>
+<link rel="stylesheet" href="css/photobooth.css"/>
 <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
 </head>
 <body>
@@ -267,7 +24,7 @@
 <nav class="navbar" id="navbar">
   <div class="nav-container">
     <a href="../index.html" class="nav-logo" style="text-decoration:none">
-      <div class="logo-badge"><img src="../Logo.svg" alt="BAJA"></div>
+      <div class="logo-badge"><img src="../img/Logo.svg" alt="BAJA"></div>
       <div class="logo-text">BAJA</div>
     </a>
     <div class="nav-actions"></div>
@@ -324,12 +81,41 @@
         <div class="mp-badge remote" id="badgeRemote">TEMANMU</div>
       </div>
       <div id="camStatus" style="position:absolute;color:#fff;font-weight:700;z-index:10;">Mengakses kamera...</div>
+      <!-- Badge indikator kamera aktif -->
+      <div id="camFacingBadge"
+           style="position:absolute; top:12px; left:12px; z-index:20;
+                  background:rgba(0,0,0,0.55); backdrop-filter:blur(6px);
+                  color:#fff; font-size:12px; font-weight:700;
+                  padding:5px 12px; border-radius:20px;
+                  border:1px solid rgba(255,255,255,0.2);
+                  letter-spacing:0.5px; display:none;">
+        🤳 Kamera Depan
+      </div>
     </div>
     
-    <button class="btn-capture" id="btnCapture" disabled>
-      <span>📸 Ambil Foto</span>
-      <span id="captureCount" style="background:rgba(0,0,0,0.3);padding:4px 12px;border-radius:20px;font-size:14px;">0/3</span>
-    </button>
+    <!-- Baris tombol: Capture + Flip Kamera -->
+    <div style="display:flex; gap:12px; align-items:stretch; width:100%;">
+      <button class="btn-capture" id="btnCapture" disabled style="flex:1;">
+        <span>📸 Ambil Foto</span>
+        <span id="captureCount" style="background:rgba(0,0,0,0.3);padding:4px 12px;border-radius:20px;font-size:14px;">0/3</span>
+      </button>
+      <button id="btnFlipCam" title="Ganti ke Kamera Belakang">
+        🔄
+      </button>
+    </div>
+
+    <!-- Filter Foto dipindah ke sini -->
+    <div class="control-label" style="margin-top:20px;">Filter Foto (Geser)</div>
+    <div class="filter-grid" style="margin-bottom: 12px;">
+      <button class="filter-btn active" data-filter="none">Normal</button>
+      <button class="filter-btn" data-filter="grayscale(100%)">B & W</button>
+      <button class="filter-btn" data-filter="sepia(80%)">Sepia</button>
+      <button class="filter-btn" data-filter="sepia(50%) contrast(120%) brightness(90%)">Retro</button>
+      <button class="filter-btn" data-filter="saturate(150%) contrast(110%)">Vibrant</button>
+      <button class="filter-btn" data-filter="contrast(120%) brightness(110%)">Bright</button>
+      <button class="filter-btn" data-filter="hue-rotate(90deg)">Alien</button>
+      <button class="filter-btn" data-filter="invert(100%)">Invert</button>
+    </div>
 
     <!-- Tombol Hapus Watermark — langsung terlihat di bawah tombol kamera -->
     <div id="wmTaskContainer" style="background:rgba(244,114,182,0.15); border:2px dashed #f472b6; border-radius:16px; padding:16px; text-align:center;">
@@ -353,7 +139,10 @@
         <button class="layout-btn" data-slots="4">4 Foto</button>
       </div>
       
-      <div class="control-label" style="margin-top:20px;">2. Pilih Tema Bingkai (Geser)</div>
+      <div class="control-label" style="margin-top:20px; display: flex; justify-content: space-between; align-items: center;">
+        <span>2. Pilih Tema Bingkai</span>
+        <button id="btnToggleThemes" style="background: none; border: none; color: #38bdf8; font-size: 12px; font-weight: bold; cursor: pointer; padding: 0;">Lihat Semua</button>
+      </div>
       <div class="theme-grid">
         <button class="theme-btn active" data-type="solid" data-bg="#ffffff" data-text="#000000" style="background:#fff;color:#000;">Classic</button>
         <button class="theme-btn" data-type="solid" data-bg="#000000" data-text="#ffffff" style="background:#000;color:#fff;border-color:#334155;">Dark</button>
@@ -362,20 +151,47 @@
         <button class="theme-btn" data-type="batik" data-bg="#5c3a21" data-text="#fcd34d" style="background:#5c3a21;color:#fcd34d;border:1px solid #8b5a2b;">Batik</button>
         <button class="theme-btn" data-type="checker" data-bg="#ffffff" data-text="#000000" style="background:repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 50% / 20px 20px; color:#fff; text-shadow:0 0 4px #000;">Checker</button>
         <button class="theme-btn" data-type="vaporwave" data-bg="#2e0854" data-text="#00ffcc" style="background:linear-gradient(180deg, #2e0854, #ff007f); color:#00ffcc;">Vaporwave</button>
+        
+        <!-- Tema tanpa emoji -->
         <button class="theme-btn" data-type="hearts" data-bg="#ffe4e6" data-text="#be123c" style="background:#ffe4e6; color:#be123c;">Hearts</button>
-        <button class="theme-btn" data-type="clouds" data-bg="#bae6fd" data-text="#0ea5e9" style="background:#bae6fd; color:#0ea5e9;">Clouds ☁️</button>
-        <button class="theme-btn" data-type="stars" data-bg="#fdf4ff" data-text="#c026d3" style="background:#fdf4ff; color:#c026d3;">Stars ✨</button>
-        <button class="theme-btn" data-type="paws" data-bg="#ffedd5" data-text="#ea580c" style="background:#ffedd5; color:#ea580c;">Paws 🐾</button>
-        <button class="theme-btn" data-type="daisy" data-bg="#dcfce7" data-text="#16a34a" style="background:#dcfce7; color:#16a34a;">Daisy 🌼</button>
-        <button class="theme-btn" data-type="candy" data-bg="#fbcfe8" data-text="#db2777" style="background:repeating-linear-gradient(45deg, #fbcfe8, #fbcfe8 20px, #ffffff 20px, #ffffff 40px); border-color:#f9a8d4; color:#db2777;">Candy 🍭</button>
+        <button class="theme-btn" data-type="clouds" data-bg="#bae6fd" data-text="#0ea5e9" style="background:#bae6fd; color:#0ea5e9;">Clouds</button>
+        <button class="theme-btn" data-type="stars" data-bg="#fdf4ff" data-text="#c026d3" style="background:#fdf4ff; color:#c026d3;">Stars</button>
+        <button class="theme-btn" data-type="paws" data-bg="#ffedd5" data-text="#ea580c" style="background:#ffedd5; color:#ea580c;">Paws</button>
+        <button class="theme-btn" data-type="daisy" data-bg="#dcfce7" data-text="#16a34a" style="background:#dcfce7; color:#16a34a;">Daisy</button>
+        <button class="theme-btn" data-type="candy" data-bg="#fbcfe8" data-text="#db2777" style="background:repeating-linear-gradient(45deg, #fbcfe8, #fbcfe8 20px, #ffffff 20px, #ffffff 40px); border-color:#f9a8d4; color:#db2777;">Candy</button>
+        
         <button class="theme-btn" data-type="matrix" data-bg="#000000" data-text="#00ff00" style="background:#000; color:#0f0; font-family:monospace;">Matrix</button>
         <button class="theme-btn" data-type="blueprint" data-bg="#1e3a8a" data-text="#ffffff" style="background:#1e3a8a; background-image:linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px); background-size:8px 8px; color:#fff; text-shadow:0 1px 2px #000;">Blueprint</button>
         <button class="theme-btn" data-type="dots" data-bg="#fcd34d" data-text="#000000" style="background:#fcd34d; background-image:radial-gradient(rgba(0,0,0,0.2) 15%, transparent 16%); background-size:10px 10px; color:#000;">Polkadot</button>
+
+        <!-- Tema Baru Estetik -->
+        <button class="theme-btn" data-type="geometric" data-bg="#f3f4f6" data-text="#111827" style="background:#f3f4f6; color:#111827;">Geometric</button>
+        <button class="theme-btn" data-type="cyberpunk" data-bg="#09090b" data-text="#fde047" style="background:#09090b; color:#fde047; border-color:#fde047;">Cyberpunk</button>
+        <button class="theme-btn" data-type="floral" data-bg="#fdf4ff" data-text="#86198f" style="background:#fdf4ff; color:#86198f;">Floral</button>
+        <button class="theme-btn" data-type="sunset" data-bg="#ff9a9e" data-text="#ffffff" style="background:linear-gradient(180deg, #ff9a9e, #fecfef); color:#fff; text-shadow: 0 1px 2px #d946ef;">Sunset</button>
+        <button class="theme-btn" data-type="holo" data-bg="#c2e9fb" data-text="#000000" style="background:linear-gradient(45deg, #ff9a9e, #fecfef, #a1c4fd, #c2e9fb); color:#000;">Holographic</button>
+        <button class="theme-btn" data-type="space" data-bg="#020617" data-text="#ffffff" style="background:#020617; color:#e0e7ff; border:1px solid #1e1b4b;">Space</button>
+        <button class="theme-btn" data-type="memphis" data-bg="#fdf4ff" data-text="#000000" style="background:#fdf4ff; color:#000; border:2px dashed #f472b6;">Memphis</button>
+        <button class="theme-btn" data-type="retrogrid" data-bg="#1e1b4b" data-text="#fb7185" style="background:linear-gradient(180deg, #1e1b4b, #312e81); color:#fb7185; border:1px solid #e11d48;">RetroGrid</button>
+        <button class="theme-btn" data-type="ocean" data-bg="#ecfeff" data-text="#083344" style="background:linear-gradient(180deg, #67e8f9, #0891b2); color:#fff;">Ocean</button>
+        <button class="theme-btn" data-type="vintage" data-bg="#fef3c7" data-text="#451a03" style="background:#fef3c7; color:#78350f; border:1px solid #d97706;">Vintage</button>
       </div>
 
 
+      <div class="control-label" style="margin-top:20px;">3. Tambah Stiker (Bisa digeser & diubah ukuran)</div>
+      <div class="sticker-menu-grid">
+        <button class="sticker-btn" data-src="../img/stickers/crown.svg"><img src="../img/stickers/crown.svg"></button>
+        <button class="sticker-btn" data-src="../img/stickers/sunglasses.svg"><img src="../img/stickers/sunglasses.svg"></button>
+        <button class="sticker-btn" data-src="../img/stickers/mustache.svg"><img src="../img/stickers/mustache.svg"></button>
+        <button class="sticker-btn" data-src="../img/stickers/party-hat.svg"><img src="../img/stickers/party-hat.svg"></button>
+        <button class="sticker-btn" data-src="../img/stickers/sparkle.svg"><img src="../img/stickers/sparkle.svg"></button>
+      </div>
+
     <div class="strip-container">
-      <canvas id="stripCanvas"></canvas>
+      <div class="canvas-wrapper" style="position: relative; display: inline-block;">
+        <canvas id="stripCanvas"></canvas>
+        <div id="stickerLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden;"></div>
+      </div>
     </div>
 
     <button class="btn-download" id="btnDownload">⬇️ Instal / Simpan Photobooth</button>
@@ -409,15 +225,19 @@
   const capCtx = captureCanvas.getContext('2d');
 
   // State
-  let stream = null;
-  let photos = []; // Array of Image objects or DataURLs
-  let maxSlots = 3;
+  let stream       = null;
+  let photos       = [];          // Array of Image objects atau DataURLs
+  let maxSlots     = 3;
   let currentTheme = { type: 'solid', bg: '#ffffff', text: '#000000' };
-  let hasWatermark = true; // Status watermark
-  let cameraRatio = 4/3; // Default format desktop (4:3)
+  let currentFilter= 'none';      // Filter aktif untuk foto
+  let hasWatermark = true;        // Status watermark
+  let cameraRatio  = 4/3;        // Default format (4:3)
+  let facingMode   = 'user';     // 'user' = depan, 'environment' = belakang
+  let isSwitching  = false;      // Guard agar tidak switch ganda
+  const btnFlipCam = document.getElementById('btnFlipCam');
 
   const logoImg = new Image();
-  logoImg.src = '../Logo.svg';
+  logoImg.src = '../img/Logo.svg';
   let isLogoLoaded = false;
   logoImg.onload = () => { isLogoLoaded = true; if(photos.length > 0) renderStrip(); };
 
@@ -479,36 +299,123 @@
   });
 
   btnDownload.addEventListener('click', () => {
+    const stickerLayer = document.getElementById('stickerLayer');
+    const stickerItems = stickerLayer.querySelectorAll('.sticker-item');
+    if (stickerItems.length > 0) {
+      const canvasRect = stripCanvas.getBoundingClientRect();
+      const scaleX = stripCanvas.width / canvasRect.width;
+      const scaleY = stripCanvas.height / canvasRect.height;
+      
+      // Render ulang strip agar bersih (menghindari tumpukan jika didownload berkali-kali)
+      renderStrip();
+      
+      stickerItems.forEach(item => {
+        const img = item.querySelector('img');
+        const itemRect = item.getBoundingClientRect();
+        
+        // Hitung posisi dan dimensi aktual terhadap resolusi canvas asli
+        const x = (itemRect.left - canvasRect.left) * scaleX;
+        const y = (itemRect.top - canvasRect.top) * scaleY;
+        const w = itemRect.width * scaleX;
+        const h = itemRect.height * scaleY;
+        
+        ctx.drawImage(img, x, y, w, h);
+      });
+    }
+
     const link = document.createElement('a');
     link.download = `BAJA_Photobooth_${Date.now()}.jpg`;
     link.href = stripCanvas.toDataURL('image/jpeg', 0.9);
     link.click();
   });
 
-  // Camera Setup
-  async function startCamera() {
+  // ══════════════════════════════════════════
+  // CAMERA SETUP
+  // ══════════════════════════════════════════
+
+  /* Mulai stream kamera dengan facingMode yang ditentukan */
+  async function startCamera(facing) {
+    facing = facing || facingMode; // default ke state global
+
+    // Stop stream lama terlebih dahulu
+    if (stream) {
+      stream.getTracks().forEach(t => t.stop());
+      stream = null;
+    }
+
+    // Mirror video: depan = mirror, belakang = tidak
+    video.style.transform = (facing === 'user') ? 'scaleX(-1)' : 'scaleX(1)';
+
     try {
-      stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'user', width: { ideal: 1280 } }, 
-        audio: false 
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: facing },
+          width:  { ideal: 1280 },
+          height: { ideal: 960 }
+        },
+        audio: false
       });
       video.srcObject = stream;
       video.onloadedmetadata = () => {
         video.play();
         camStatus.style.display = 'none';
         btnCapture.disabled = false;
-        
-        // Match capture canvas to video resolution
-        captureCanvas.width = video.videoWidth;
+
+        // Sesuaikan canvas dengan resolusi kamera
+        captureCanvas.width  = video.videoWidth;
         captureCanvas.height = video.videoHeight;
-        
+
+        // Update badge indikator kamera aktif
+        const badge = document.getElementById('camFacingBadge');
+        if (badge) {
+          badge.style.display = 'block';
+          badge.textContent = (facing === 'user') ? '🤳 Kamera Depan' : '📷 Kamera Belakang';
+        }
+
+        // Update icon & tooltip tombol flip
+        btnFlipCam.title = (facing === 'user') ? 'Ganti ke Kamera Belakang' : 'Ganti ke Kamera Depan';
+        btnFlipCam.innerHTML = (facing === 'user') ? '🔄' : '🤳';
+
         renderStrip();
       };
     } catch (err) {
       console.error(err);
-      camStatus.textContent = 'Gagal mengakses kamera. Izinkan akses di browser.';
+      // Jika kamera belakang tidak tersedia, fallback ke depan
+      if (facing === 'environment') {
+        camStatus.textContent = 'Kamera belakang tidak tersedia, kembali ke depan.';
+        setTimeout(() => { facingMode = 'user'; startCamera('user'); }, 1200);
+      } else {
+        camStatus.textContent = 'Gagal mengakses kamera. Izinkan akses di browser.';
+      }
     }
   }
+
+  /* Toggle kamera depan ↔ belakang */
+  async function switchCamera() {
+    if (isSwitching || isMultiplayer) return; // Tidak tersedia saat multiplayer
+    isSwitching = true;
+
+    // Animasi rotate tombol
+    btnFlipCam.style.transform = 'rotate(180deg)';
+    btnFlipCam.disabled = true;
+    btnCapture.disabled = true;
+
+    facingMode = (facingMode === 'user') ? 'environment' : 'user';
+
+    // Update tooltip tombol
+    btnFlipCam.title = (facingMode === 'user') ? 'Ganti ke Kamera Belakang' : 'Ganti ke Kamera Depan';
+
+    await startCamera(facingMode);
+
+    setTimeout(() => {
+      btnFlipCam.style.transform = 'rotate(0deg)';
+      btnFlipCam.disabled  = false;
+      isSwitching = false;
+    }, 400);
+  }
+
+  btnFlipCam.addEventListener('click', switchCamera);
+  btnFlipCam.style.transition = 'transform 0.4s ease, box-shadow 0.2s';
 
   // Capture Logic
   btnCapture.addEventListener('click', () => {
@@ -525,6 +432,7 @@
 
     // Draw current video frame to hidden canvas
     capCtx.save();
+    capCtx.filter = currentFilter;
     
     if (isMultiplayer) {
       // Gambar 2 pemain berdampingan: masing-masing setengah frame
@@ -551,10 +459,17 @@
       capCtx.restore();
     } else {
       // Single player
-      captureCanvas.width = video.videoWidth;
+      captureCanvas.width  = video.videoWidth;
       captureCanvas.height = video.videoHeight;
-      capCtx.scale(-1, 1);
-      capCtx.drawImage(video, -captureCanvas.width, 0, captureCanvas.width, captureCanvas.height);
+
+      if (facingMode === 'user') {
+        // Kamera depan: mirror horizontal agar tampak natural
+        capCtx.scale(-1, 1);
+        capCtx.drawImage(video, -captureCanvas.width, 0, captureCanvas.width, captureCanvas.height);
+      } else {
+        // Kamera belakang: gambar langsung tanpa mirror
+        capCtx.drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
+      }
     }
     
     capCtx.restore();
@@ -632,8 +547,9 @@
     let photoHeight = photoWidth / currentRatio;
     const padding = currentTheme.type === 'film' ? 50 : 30;
     const spacing = 20;
-    // We extend the bottom empty space from 120 to 180 so it's longer when printed
-    const bottomPadding = hasWatermark ? 180 : padding; 
+    // We extend the bottom empty space from 120 to 180 so it's longer when printed.
+    // Jika watermark dihilangkan, tetap berikan margin bawah (120px) agar proporsi "photo strip" klasik tidak terpotong.
+    const bottomPadding = hasWatermark ? 180 : 120; 
 
     const stripWidth = photoWidth + (padding * 2);
     const stripHeight = padding + (maxSlots * photoHeight) + ((maxSlots - 1) * spacing) + bottomPadding;
@@ -740,43 +656,84 @@
       for(let i=0; i<30; i++) {
          const hx = Math.random() * stripWidth;
          const hy = Math.random() * stripHeight;
-         const size = 10 + Math.random() * 20;
-         ctx.font = `${size}px sans-serif`;
-         ctx.fillText('❤', hx, hy);
+         const size = 15 + Math.random() * 25;
+         ctx.save();
+         ctx.translate(hx, hy);
+         ctx.scale(size/20, size/20);
+         ctx.beginPath();
+         ctx.moveTo(0, 5);
+         ctx.bezierCurveTo(0, 0, -10, 0, -10, 10);
+         ctx.bezierCurveTo(-10, 20, 0, 30, 0, 35);
+         ctx.bezierCurveTo(0, 30, 10, 20, 10, 10);
+         ctx.bezierCurveTo(10, 0, 0, 0, 0, 5);
+         ctx.fill();
+         ctx.restore();
       }
     } else if (currentTheme.type === 'clouds') {
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
       for(let i=0; i<15; i++) {
          const cx = Math.random() * stripWidth;
          const cy = Math.random() * stripHeight;
-         ctx.font = '60px sans-serif';
-         ctx.fillText('☁️', cx, cy);
+         const size = 20 + Math.random() * 30;
+         ctx.save();
+         ctx.translate(cx, cy);
+         ctx.beginPath();
+         ctx.arc(0, 0, size, Math.PI*0.5, Math.PI*1.5);
+         ctx.arc(size, -size*0.5, size*1.2, Math.PI, Math.PI*2);
+         ctx.arc(size*2.2, -size*0.2, size*0.8, Math.PI*1.2, Math.PI*2);
+         ctx.arc(size*2.8, 0, size, Math.PI*1.5, Math.PI*0.5);
+         ctx.fill();
+         ctx.restore();
       }
     } else if (currentTheme.type === 'stars') {
       ctx.fillStyle = 'rgba(255, 215, 0, 0.8)';
-      for(let i=0; i<25; i++) {
+      for(let i=0; i<30; i++) {
          const cx = Math.random() * stripWidth;
          const cy = Math.random() * stripHeight;
-         const size = 20 + Math.random() * 30;
-         ctx.font = `${size}px sans-serif`;
-         ctx.fillText(Math.random() > 0.5 ? '✨' : '⭐', cx, cy);
+         const spikes = 5;
+         const outerRadius = 15 + Math.random() * 20;
+         const innerRadius = outerRadius / 2.5;
+         ctx.save();
+         ctx.translate(cx, cy);
+         ctx.rotate(Math.random() * Math.PI);
+         ctx.beginPath();
+         let rot = Math.PI / 2 * 3;
+         const step = Math.PI / spikes;
+         ctx.moveTo(0, -outerRadius);
+         for(let j=0; j<spikes; j++){
+             ctx.lineTo(Math.cos(rot) * outerRadius, Math.sin(rot) * outerRadius);
+             rot += step;
+             ctx.lineTo(Math.cos(rot) * innerRadius, Math.sin(rot) * innerRadius);
+             rot += step;
+         }
+         ctx.closePath();
+         ctx.fill();
+         ctx.restore();
       }
     } else if (currentTheme.type === 'paws') {
+      ctx.fillStyle = 'rgba(234, 88, 12, 0.4)';
       for(let i=0; i<20; i++) {
          const cx = Math.random() * stripWidth;
          const cy = Math.random() * stripHeight;
-         ctx.font = '40px sans-serif';
+         const size = 0.5 + Math.random() * 0.8;
          ctx.save();
          ctx.translate(cx, cy);
+         ctx.scale(size, size);
          ctx.rotate(Math.random() * Math.PI * 2);
-         ctx.fillText('🐾', 0, 0);
+         // Main pad
+         ctx.beginPath(); ctx.ellipse(0, 10, 18, 15, 0, 0, Math.PI * 2); ctx.fill();
+         // Toes
+         ctx.beginPath(); ctx.ellipse(-18, -10, 8, 12, -Math.PI/6, 0, Math.PI*2); ctx.fill();
+         ctx.beginPath(); ctx.ellipse(-6, -22, 8, 12, -Math.PI/12, 0, Math.PI*2); ctx.fill();
+         ctx.beginPath(); ctx.ellipse(6, -22, 8, 12, Math.PI/12, 0, Math.PI*2); ctx.fill();
+         ctx.beginPath(); ctx.ellipse(18, -10, 8, 12, Math.PI/6, 0, Math.PI*2); ctx.fill();
          ctx.restore();
       }
     } else if (currentTheme.type === 'daisy') {
       for(let i=0; i<25; i++) {
          const cx = Math.random() * stripWidth;
          const cy = Math.random() * stripHeight;
-         const r = 8 + Math.random() * 8;
+         const r = 8 + Math.random() * 12;
          ctx.fillStyle = '#ffffff';
          for(let angle=0; angle < Math.PI*2; angle += Math.PI/4) {
             ctx.beginPath();
@@ -789,20 +746,31 @@
     } else if (currentTheme.type === 'candy') {
       ctx.fillStyle = '#ffffff';
       ctx.fillRect(0, 0, stripWidth, stripHeight);
+      // Background stripes
       ctx.fillStyle = '#fbcfe8';
       for(let i = -stripHeight; i < stripWidth; i += 40) {
         ctx.beginPath();
-        ctx.moveTo(i, 0);
-        ctx.lineTo(i + 20, 0);
-        ctx.lineTo(i + stripHeight + 20, stripHeight);
-        ctx.lineTo(i + stripHeight, stripHeight);
+        ctx.moveTo(i, 0); ctx.lineTo(i + 20, 0);
+        ctx.lineTo(i + stripHeight + 20, stripHeight); ctx.lineTo(i + stripHeight, stripHeight);
         ctx.fill();
       }
+      // Candy swirls
       for(let i=0; i<15; i++) {
          const cx = Math.random() * stripWidth;
          const cy = Math.random() * stripHeight;
-         ctx.font = '50px sans-serif';
-         ctx.fillText(Math.random() > 0.5 ? '🍬' : '🍭', cx, cy);
+         const r = 15 + Math.random() * 15;
+         ctx.save();
+         ctx.translate(cx, cy);
+         ctx.rotate(Math.random() * Math.PI * 2);
+         ctx.fillStyle = '#f472b6'; // Wrapper ends
+         ctx.beginPath(); ctx.moveTo(-r*1.5, -r); ctx.lineTo(-r, 0); ctx.lineTo(-r*1.5, r); ctx.fill();
+         ctx.beginPath(); ctx.moveTo(r*1.5, -r); ctx.lineTo(r, 0); ctx.lineTo(r*1.5, r); ctx.fill();
+         ctx.fillStyle = '#ffffff'; // Candy body
+         ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI*2); ctx.fill();
+         ctx.strokeStyle = '#db2777'; // Swirl
+         ctx.lineWidth = 3;
+         ctx.beginPath(); ctx.arc(0, 0, r*0.6, 0, Math.PI, false); ctx.arc(0, 0, r*0.3, Math.PI, Math.PI*2, true); ctx.stroke();
+         ctx.restore();
       }
     } else if (currentTheme.type === 'matrix') {
       ctx.fillStyle = 'rgba(0, 255, 0, 0.3)';
@@ -812,8 +780,184 @@
          const my = Math.random() * stripHeight;
          ctx.fillText(Math.random() > 0.5 ? '1' : '0', mx, my);
       }
+    } else if (currentTheme.type === 'geometric') {
+      ctx.fillStyle = '#f3f4f6';
+      ctx.fillRect(0, 0, stripWidth, stripHeight);
+      const colors = ['rgba(239, 68, 68, 0.4)', 'rgba(59, 130, 246, 0.4)', 'rgba(250, 204, 21, 0.4)', 'rgba(16, 185, 129, 0.4)'];
+      for(let i=0; i<25; i++) {
+         const cx = Math.random() * stripWidth;
+         const cy = Math.random() * stripHeight;
+         const size = 30 + Math.random() * 50;
+         ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+         const shape = Math.floor(Math.random() * 3);
+         ctx.save();
+         ctx.translate(cx, cy);
+         ctx.rotate(Math.random() * Math.PI);
+         if (shape === 0) {
+            ctx.beginPath(); ctx.arc(0, 0, size/2, 0, Math.PI*2); ctx.fill();
+         } else if (shape === 1) {
+            ctx.fillRect(-size/2, -size/2, size, size);
+         } else {
+            ctx.beginPath(); ctx.moveTo(0, -size/2); ctx.lineTo(size/2, size/2); ctx.lineTo(-size/2, size/2); ctx.fill();
+         }
+         ctx.restore();
+      }
+    } else if (currentTheme.type === 'cyberpunk') {
+      ctx.fillStyle = '#09090b';
+      ctx.fillRect(0, 0, stripWidth, stripHeight);
+      ctx.strokeStyle = 'rgba(236, 72, 153, 0.4)';
+      ctx.lineWidth = 2;
+      for (let x = 0; x < stripWidth; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, stripHeight); ctx.stroke(); }
+      for (let y = 0; y < stripHeight; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(stripWidth, y); ctx.stroke(); }
+      ctx.fillStyle = 'rgba(253, 224, 71, 0.6)';
+      for(let i=0; i<15; i++) { ctx.fillRect(Math.random() * stripWidth, Math.random() * stripHeight, Math.random() * 80, Math.random() * 15); }
+      ctx.fillStyle = 'rgba(6, 182, 212, 0.6)';
+      for(let i=0; i<10; i++) { ctx.fillRect(Math.random() * stripWidth, Math.random() * stripHeight, Math.random() * 50, Math.random() * 30); }
+    } else if (currentTheme.type === 'floral') {
+      ctx.fillStyle = '#fdf4ff';
+      ctx.fillRect(0, 0, stripWidth, stripHeight);
+      ctx.strokeStyle = '#d946ef';
+      ctx.lineWidth = 2;
+      ctx.fillStyle = 'rgba(232, 121, 249, 0.3)';
+      for(let i=0; i<20; i++) {
+         const cx = Math.random() * stripWidth;
+         const cy = Math.random() * stripHeight;
+         const size = 15 + Math.random() * 20;
+         ctx.save();
+         ctx.translate(cx, cy);
+         ctx.rotate(Math.random() * Math.PI * 2);
+         for(let j=0; j<5; j++) {
+            ctx.beginPath();
+            ctx.moveTo(0,0);
+            ctx.quadraticCurveTo(size, -size/2, size, 0);
+            ctx.quadraticCurveTo(size, size/2, 0, 0);
+            ctx.fill();
+            ctx.stroke();
+            ctx.rotate((Math.PI * 2) / 5);
+         }
+         ctx.restore();
+      }
+    } else if (currentTheme.type === 'sunset') {
+      const grad = ctx.createLinearGradient(0, 0, 0, stripHeight);
+      grad.addColorStop(0, '#1e1b4b');
+      grad.addColorStop(0.3, '#701a75');
+      grad.addColorStop(0.6, '#e11d48');
+      grad.addColorStop(1, '#f59e0b');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, stripWidth, stripHeight);
+      ctx.fillStyle = 'rgba(253, 224, 71, 0.8)';
+      ctx.beginPath(); ctx.arc(stripWidth/2, stripHeight * 0.7, 120, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath(); ctx.moveTo(-50, stripHeight); ctx.lineTo(150, stripHeight - 180); ctx.lineTo(350, stripHeight); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(200, stripHeight); ctx.lineTo(stripWidth, stripHeight - 240); ctx.lineTo(stripWidth + 100, stripHeight); ctx.fill();
+    } else if (currentTheme.type === 'space') {
+      ctx.fillStyle = '#020617';
+      ctx.fillRect(0, 0, stripWidth, stripHeight);
+      ctx.fillStyle = '#ffffff';
+      for(let i=0; i<150; i++) {
+         ctx.globalAlpha = Math.random();
+         const r = Math.random() * 2;
+         ctx.beginPath(); ctx.arc(Math.random() * stripWidth, Math.random() * stripHeight, r, 0, Math.PI*2); ctx.fill();
+      }
+      ctx.globalAlpha = 1.0;
+      const colors = ['rgba(139, 92, 246, 0.2)', 'rgba(56, 189, 248, 0.2)', 'rgba(236, 72, 153, 0.2)'];
+      for(let i=0; i<3; i++) {
+         const cx = Math.random() * stripWidth;
+         const cy = Math.random() * stripHeight;
+         const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 200);
+         grad.addColorStop(0, colors[i]);
+         grad.addColorStop(1, 'transparent');
+         ctx.fillStyle = grad;
+         ctx.beginPath(); ctx.arc(cx, cy, 200, 0, Math.PI*2); ctx.fill();
+      }
+    } else if (currentTheme.type === 'memphis') {
+      ctx.fillStyle = '#fdf4ff';
+      ctx.fillRect(0, 0, stripWidth, stripHeight);
+      const colors = ['#f472b6', '#38bdf8', '#fbbf24', '#34d399'];
+      for(let i=0; i<40; i++) {
+         ctx.strokeStyle = colors[Math.floor(Math.random() * colors.length)];
+         ctx.lineWidth = 4 + Math.random() * 4;
+         const cx = Math.random() * stripWidth;
+         const cy = Math.random() * stripHeight;
+         const shape = Math.floor(Math.random() * 3);
+         ctx.save();
+         ctx.translate(cx, cy);
+         ctx.rotate(Math.random() * Math.PI);
+         ctx.beginPath();
+         if(shape === 0) {
+            ctx.arc(0, 0, 15 + Math.random()*20, 0, Math.PI*2);
+         } else if(shape === 1) {
+            ctx.moveTo(-20, -10); ctx.lineTo(-10, 10); ctx.lineTo(0, -10); ctx.lineTo(10, 10); ctx.lineTo(20, -10);
+         } else {
+            ctx.moveTo(-15, 0); ctx.lineTo(15, 0); ctx.moveTo(0, -15); ctx.lineTo(0, 15);
+         }
+         ctx.stroke();
+         ctx.restore();
+      }
+    } else if (currentTheme.type === 'retrogrid') {
+      const grad = ctx.createLinearGradient(0, 0, 0, stripHeight);
+      grad.addColorStop(0, '#1e1b4b');
+      grad.addColorStop(1, '#312e81');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, stripWidth, stripHeight);
+      const sunY = stripHeight * 0.4;
+      ctx.fillStyle = '#f43f5e';
+      ctx.beginPath(); ctx.arc(stripWidth/2, sunY, 120, 0, Math.PI, true); ctx.fill();
+      ctx.fillStyle = '#1e1b4b';
+      for(let y = 0; y < 120; y += 15) {
+         ctx.fillRect(stripWidth/2 - 120, sunY - y, 240, 4);
+      }
+      ctx.strokeStyle = 'rgba(236, 72, 153, 0.5)';
+      ctx.lineWidth = 2;
+      for(let x = -stripWidth*2; x <= stripWidth*3; x += 60) {
+         ctx.beginPath(); ctx.moveTo(stripWidth/2, sunY); ctx.lineTo(x, stripHeight); ctx.stroke();
+      }
+      let currentY = sunY + 10;
+      let gap = 10;
+      while(currentY < stripHeight) {
+         ctx.beginPath(); ctx.moveTo(0, currentY); ctx.lineTo(stripWidth, currentY); ctx.stroke();
+         gap *= 1.2;
+         currentY += gap;
+      }
+    } else if (currentTheme.type === 'ocean') {
+      const grad = ctx.createLinearGradient(0, 0, 0, stripHeight);
+      grad.addColorStop(0, '#67e8f9');
+      grad.addColorStop(1, '#0891b2');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, stripWidth, stripHeight);
+      ctx.fillStyle = 'rgba(255,255,255,0.1)';
+      for(let i=0; i<6; i++) {
+         ctx.beginPath();
+         ctx.moveTo(0, stripHeight);
+         let yStart = stripHeight * (0.2 + (i * 0.12));
+         ctx.lineTo(0, yStart);
+         for(let x=0; x<=stripWidth; x+=50) {
+            ctx.quadraticCurveTo(x + 25, yStart - 40 + Math.random()*80, x + 50, yStart);
+         }
+         ctx.lineTo(stripWidth, stripHeight);
+         ctx.fill();
+      }
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      for(let i=0; i<40; i++) {
+         ctx.beginPath(); ctx.arc(Math.random()*stripWidth, Math.random()*stripHeight, 2 + Math.random()*6, 0, Math.PI*2); ctx.fill();
+      }
+    } else if (currentTheme.type === 'vintage') {
+      ctx.fillStyle = '#fef3c7';
+      ctx.fillRect(0, 0, stripWidth, stripHeight);
+      ctx.fillStyle = 'rgba(120, 53, 15, 0.05)';
+      for(let i=0; i<stripWidth; i+=4) {
+         for(let j=0; j<stripHeight; j+=4) {
+            if(Math.random() > 0.5) ctx.fillRect(i, j, 2, 2);
+         }
+      }
+      const g = ctx.createLinearGradient(0,0, stripWidth,0);
+      g.addColorStop(0, 'rgba(120, 53, 15, 0.2)'); g.addColorStop(0.1, 'transparent'); g.addColorStop(0.9, 'transparent'); g.addColorStop(1, 'rgba(120, 53, 15, 0.2)');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, stripWidth, stripHeight);
+      const g2 = ctx.createLinearGradient(0,0, 0,stripHeight);
+      g2.addColorStop(0, 'rgba(120, 53, 15, 0.2)'); g2.addColorStop(0.1, 'transparent'); g2.addColorStop(0.9, 'transparent'); g2.addColorStop(1, 'rgba(120, 53, 15, 0.2)');
+      ctx.fillStyle = g2; ctx.fillRect(0, 0, stripWidth, stripHeight);
     }
-
+    
     // Draw placeholders or photos
     for (let i = 0; i < maxSlots; i++) {
       const yPos = padding + (i * (photoHeight + spacing));
@@ -1223,6 +1367,134 @@
       if (isMultiplayer && currentRoomId && isHost) {
         mpDb.ref(`rooms/${currentRoomId}/theme`).set(currentTheme.type);
       }
+    });
+  });
+
+  // Toggle Show All Themes
+  const btnToggleThemes = document.getElementById('btnToggleThemes');
+  const themeGrid = document.querySelector('.theme-grid');
+  
+  if (btnToggleThemes && themeGrid) {
+    btnToggleThemes.addEventListener('click', () => {
+      themeGrid.classList.toggle('show-all');
+      if (themeGrid.classList.contains('show-all')) {
+        btnToggleThemes.textContent = 'Sembunyikan';
+      } else {
+        btnToggleThemes.textContent = 'Lihat Semua';
+      }
+    });
+  }
+
+  // --- STICKER LOGIC ---
+  const stickerLayerDOM = document.getElementById('stickerLayer');
+  const stickerBtns = document.querySelectorAll('.sticker-btn');
+  let stickerZIndex = 10;
+  
+  stickerBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      addSticker(btn.getAttribute('data-src'));
+    });
+  });
+  
+  function addSticker(src) {
+    const stickerDiv = document.createElement('div');
+    stickerDiv.className = 'sticker-item';
+    stickerDiv.style.zIndex = stickerZIndex++;
+    stickerDiv.style.left = '40%';
+    stickerDiv.style.top = '40%';
+    stickerDiv.style.pointerEvents = 'auto';
+    
+    const img = document.createElement('img');
+    img.src = src;
+    img.draggable = false;
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'sticker-close';
+    closeBtn.innerHTML = '×';
+    closeBtn.onclick = (e) => { e.stopPropagation(); stickerDiv.remove(); };
+    
+    const resizeHandle = document.createElement('div');
+    resizeHandle.className = 'sticker-resize';
+    
+    stickerDiv.appendChild(img);
+    stickerDiv.appendChild(closeBtn);
+    stickerDiv.appendChild(resizeHandle);
+    stickerLayerDOM.appendChild(stickerDiv);
+    
+    setupStickerEvents(stickerDiv, resizeHandle, img);
+  }
+  
+  function setupStickerEvents(stickerDiv, resizeHandle, img) {
+    let isDragging = false;
+    let isResizing = false;
+    let startX, startY, startLeft, startTop, startWidth;
+    
+    stickerDiv.addEventListener('pointerdown', (e) => {
+      if (e.target === resizeHandle || e.target.classList.contains('sticker-close')) return;
+      isDragging = true;
+      stickerDiv.style.zIndex = stickerZIndex++;
+      startX = e.clientX;
+      startY = e.clientY;
+      startLeft = parseFloat(stickerDiv.style.left) || 0;
+      startTop = parseFloat(stickerDiv.style.top) || 0;
+      // Konversi jika pakai % (saat baru spawn) ke pixel
+      if (stickerDiv.style.left.includes('%')) {
+        const rect = stickerDiv.getBoundingClientRect();
+        const pRect = stickerLayerDOM.getBoundingClientRect();
+        startLeft = rect.left - pRect.left;
+        startTop = rect.top - pRect.top;
+      }
+      stickerDiv.setPointerCapture(e.pointerId);
+    });
+    
+    stickerDiv.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      stickerDiv.style.left = (startLeft + dx) + 'px';
+      stickerDiv.style.top = (startTop + dy) + 'px';
+    });
+    
+    stickerDiv.addEventListener('pointerup', (e) => {
+      isDragging = false;
+      stickerDiv.releasePointerCapture(e.pointerId);
+    });
+    
+    resizeHandle.addEventListener('pointerdown', (e) => {
+      e.stopPropagation();
+      isResizing = true;
+      stickerDiv.style.zIndex = stickerZIndex++;
+      startX = e.clientX;
+      startWidth = img.offsetWidth;
+      resizeHandle.setPointerCapture(e.pointerId);
+    });
+    
+    resizeHandle.addEventListener('pointermove', (e) => {
+      if (!isResizing) return;
+      const dx = e.clientX - startX;
+      const newWidth = Math.max(30, startWidth + dx);
+      img.style.width = newWidth + 'px';
+    });
+    
+    resizeHandle.addEventListener('pointerup', (e) => {
+      isResizing = false;
+      resizeHandle.releasePointerCapture(e.pointerId);
+    });
+  }
+
+  // --- FILTER LOGIC ---
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      currentFilter = e.target.getAttribute('data-filter');
+      
+      // Terapkan ke live preview kamera
+      if (video) video.style.filter = currentFilter;
+      
+      // Terapkan juga ke foto yang sudah diambil (render ulang)
+      if (photos.length > 0) renderStrip();
     });
   });
 

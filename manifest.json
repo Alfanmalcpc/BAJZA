@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "BAJA — All-in-One Platform",
   "short_name": "BAJA",
   "description": "Free developer tools, live crypto & stock dashboards, and technical tutorials.",
@@ -11,13 +11,13 @@
   "lang": "en",
   "icons": [
     {
-      "src": "/Logo.svg",
+      "src": "/img/Logo.svg",
       "sizes": "192x192",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     },
     {
-      "src": "/Logo.svg",
+      "src": "/img/Logo.svg",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"

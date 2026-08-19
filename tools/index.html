@@ -2,37 +2,14 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta name="google-adsense-account" content="ca-pub-6758288522431201">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
+
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Tools & Utilities — BAJA</title>
 <meta name="description" content="Free browser-based developer tools: code beautifier, image compressor, and file converter. No upload required."/>
-<link rel="icon" href="../Logo.svg"/>
+<link rel="icon" href="../img/Logo.svg"/>
 <link rel="stylesheet" href="../style.css"/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
-<style>
-.tools-big-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:28px}
-.tool-big-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:40px 32px;transition:all var(--tr);display:flex;flex-direction:column;gap:16px;position:relative;overflow:hidden}
-.tool-big-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r-xl) var(--r-xl) 0 0}
-.tool-big-card.beautifier::after{background:var(--grad-tools)}
-.tool-big-card.compressor::after{background:linear-gradient(90deg,#10B981,#059669)}
-.tool-big-card.converter::after{background:linear-gradient(90deg,#8B5CF6,#6D28D9)}
-.tool-big-card.downloader::after{background:linear-gradient(90deg,#7c3aed,#06b6d4)}
-.tool-big-card:hover{transform:translateY(-6px);border-color:var(--border-active);box-shadow:var(--glow-blue)}
-.tool-big-icon{font-size:48px}
-.tool-big-name{font-size:22px;font-weight:800}
-.tool-big-desc{font-size:15px;color:var(--text-2);line-height:1.6;flex:1}
-.tool-features{display:flex;flex-direction:column;gap:8px}
-.feature-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2)}
-.feature-item::before{content:'✓';color:var(--green);font-weight:700}
-.tool-launch{display:inline-flex;align-items:center;gap:8px;background:var(--grad-tools);color:#fff;padding:12px 24px;border-radius:var(--r-full);font-size:14px;font-weight:600;transition:all var(--tr);width:fit-content}
-.tool-launch:hover{transform:scale(1.04);opacity:.9}
-.why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:24px}
-.why-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:24px;text-align:center}
-.why-icon{font-size:32px;margin-bottom:12px}
-.why-title{font-size:15px;font-weight:700;margin-bottom:6px}
-.why-desc{font-size:13px;color:var(--text-2)}
-@media(max-width:900px){.tools-big-grid{grid-template-columns:1fr}.why-grid{grid-template-columns:repeat(2,1fr)}}
-</style>
+
+<link rel="stylesheet" href="css/tools-index.css"/>
 <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
 </head>
 <body>
@@ -41,7 +18,7 @@
 <nav class="navbar" id="navbar">
   <div class="nav-container">
     <a href="../index.html" class="nav-logo" style="text-decoration:none">
-      <div class="logo-badge"><img src="../Logo.svg" alt="BAJA"></div>
+      <div class="logo-badge"><img src="../img/Logo.svg" alt="BAJA"></div>
       <div class="logo-text">BAJA</div>
     </a>
     <div class="nav-actions">
@@ -57,7 +34,6 @@
     <p data-en="All tools run entirely in your browser. Zero uploads, maximum privacy." data-id="Semua tools berjalan di browser Anda. Tanpa upload, privasi maksimal.">All tools run entirely in your browser. Zero uploads, maximum privacy.</p>
   </div>
 </div>
-
 
 <section class="section" style="padding-top:40px">
   <div class="container">
@@ -171,6 +147,21 @@
         </div>
         <a href="downloader.html" class="tool-launch" style="background:linear-gradient(135deg,#7c3aed,#06b6d4)">⬇️ <span data-en="Open Downloader" data-id="Buka Downloader">Open Downloader</span></a>
       </div>
+
+      <!-- IoT Trash Monitor -->
+      <div class="tool-big-card" style="border:1px solid rgba(74,222,128,0.3); background:linear-gradient(145deg,#080f0a,#0e1a10);">
+        <div class="tool-big-icon">🗑️</div>
+        <div class="tool-big-name" style="color:#4ade80;">IoT Trash Monitor</div>
+        <div class="tool-big-desc" style="color:#86efac;">Pantau tingkat kepenuhan dan kadar gas tempat sampah IoT Anda secara <strong style="color:#4ade80;">real-time</strong>. Daftarkan perangkat, dapatkan kode unik, dan mulai monitoring dari mana saja.</div>
+        <div class="tool-features">
+          <div class="feature-item" style="border-color:rgba(74,222,128,0.2); color:#86efac;">⚡ Update setiap 10 detik</div>
+          <div class="feature-item" style="border-color:rgba(74,222,128,0.2); color:#86efac;">☁️ Sensor gas (MQ-135)</div>
+          <div class="feature-item" style="border-color:rgba(74,222,128,0.2); color:#86efac;">📊 Grafik riwayat data</div>
+          <div class="feature-item" style="border-color:rgba(74,222,128,0.2); color:#86efac;">🔑 Kode akses unik</div>
+        </div>
+        <a href="trash-monitor.html" class="tool-launch" style="background:linear-gradient(135deg,#16a34a,#15803d);">🗑️ Buka Trash Monitor</a>
+      </div>
+
     </div>
   </div>
 </section>

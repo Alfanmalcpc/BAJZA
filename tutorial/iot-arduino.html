@@ -1,51 +1,15 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
 <meta name="google-adsense-account" content="ca-pub-6758288522431201">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
+
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>ESP32 + DHT22 IoT Tutorial — BAJA</title>
 <meta name="description" content="Build a real-time temperature & humidity monitor with ESP32 and DHT22. Step-by-step Arduino code and web dashboard guide."/>
-<link rel="icon" href="../Logo.svg"/>
+<link rel="icon" href="../img/Logo.svg"/>
 <link rel="stylesheet" href="../style.css"/>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
-<style>
-.article-layout{display:grid;grid-template-columns:1fr 300px;gap:40px;align-items:start}
-.article-body h2{font-size:1.5rem;font-weight:800;margin:40px 0 16px;padding-top:8px;border-top:1px solid var(--border)}
-.article-body h3{font-size:1.1rem;font-weight:700;margin:28px 0 12px;color:var(--green)}
-.article-body p{font-size:15px;color:var(--text-2);line-height:1.8;margin-bottom:16px}
-.article-body ul,.article-body ol{margin:0 0 16px 24px;display:flex;flex-direction:column;gap:6px}
-.article-body li{font-size:15px;color:var(--text-2);line-height:1.6}
-.article-body strong{color:var(--text-1)}
-.code-block{background:#0D1117;border:1px solid rgba(255,255,255,.1);border-radius:var(--r-lg);overflow:hidden;margin:20px 0}
-.code-block-header{background:#161B22;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.1)}
-.code-lang{font-size:12px;color:#8B949E;font-weight:600;font-family:var(--mono)}
-.copy-code-btn{background:transparent;border:1px solid rgba(255,255,255,.15);color:#8B949E;padding:4px 10px;border-radius:4px;font-size:11px;cursor:pointer;transition:all var(--tr)}
-.copy-code-btn:hover{background:rgba(255,255,255,.1);color:#fff}
-.code-block pre{padding:20px;margin:0;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.7;color:#E6EDF3}
-.callout{border-radius:var(--r-lg);padding:16px 20px;margin:20px 0;font-size:14px;line-height:1.6;display:flex;gap:12px}
-.callout.info{background:rgba(59,130,246,.08);border-left:3px solid var(--blue)}
-.callout.tip{background:rgba(16,185,129,.08);border-left:3px solid var(--green)}
-.callout.warning{background:rgba(245,158,11,.08);border-left:3px solid var(--gold)}
-.callout-icon{font-size:18px;flex-shrink:0;margin-top:2px}
-.toc{background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:var(--r-lg);padding:20px;margin-bottom:32px}
-.toc-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-2);margin-bottom:12px}
-.toc ol{padding-left:20px;display:flex;flex-direction:column;gap:6px}
-.toc a{font-size:14px;color:var(--green);transition:color var(--tr)}
-.toc a:hover{color:var(--blue-light)}
-.parts-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:14px}
-.parts-table th{background:var(--bg-elevated);padding:12px 16px;text-align:left;font-size:12px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border)}
-.parts-table td{padding:12px 16px;border-bottom:1px solid var(--border);color:var(--text-2)}
-.parts-table tr:hover td{background:var(--bg-card-hover)}
-.price-cell{color:var(--green);font-weight:600}
-.sidebar-sticky{position:sticky;top:calc(var(--nav-h) + 20px);display:flex;flex-direction:column;gap:16px}
-.sidebar-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px}
-.sidebar-card h4{font-size:13px;font-weight:700;margin-bottom:12px;color:var(--text-2);text-transform:uppercase;letter-spacing:.8px}
-.related-link{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text-2);padding:8px 0;border-bottom:1px solid var(--border);transition:color var(--tr)}
-.related-link:last-child{border-bottom:none}
-.related-link:hover{color:var(--green)}
-@media(max-width:1024px){.article-layout{grid-template-columns:1fr}.sidebar-sticky{position:static}}
-</style>
+
+<link rel="stylesheet" href="css/iot-arduino.css"/>
 <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
 </head>
 <body>
@@ -54,7 +18,7 @@
 <nav class="navbar" id="navbar">
   <div class="nav-container">
     <a href="../index.html" class="nav-logo" style="text-decoration:none">
-      <div class="logo-badge"><img src="../Logo.svg" alt="BAJA"></div>
+      <div class="logo-badge"><img src="../img/Logo.svg" alt="BAJA"></div>
       <div class="logo-text">BAJA</div>
     </a>
     <div class="nav-actions">
@@ -62,7 +26,6 @@
     </div>
   </div>
 </nav>
-
 
 <div style="padding-top:var(--nav-h)"></div>
 
@@ -358,7 +321,6 @@ void sendToFirebase() {
 </section>
 
 <footer class="footer"><div class="container"><div class="footer-bottom" style="border-top:none;padding-top:0"><span>© 2025 BAJA</span><a href="index.html">← All Tutorials</a></div></div></footer>
-
 
 <!-- Floating Back Button -->
 <a href="index.html" class="fab-back" id="fabBack" aria-label="Back to Tutorials">

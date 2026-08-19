@@ -9,7 +9,7 @@
 <script src="https://unpkg.com/mp4-muxer/build/mp4-muxer.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap" rel="stylesheet">
 <meta name="description" content="Buat twibbon animasi berformat video, bagikan, dan gunakan templat dari pengguna lain secara gratis."/>
-<link rel="icon" href="../Logo.svg"/>
+<link rel="icon" href="../img/Logo.svg"/>
 <link rel="stylesheet" href="../style.css"/>
 
 <!-- Firebase -->
@@ -17,72 +17,10 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-storage-compat.js"></script>
-<script src="../firebase.js"></script>
-<script src="../firebase-twibbon.js"></script>
+<script src="../db/firebase.js"></script>
+<script src="../db/firebase-twibbon.js"></script>
 
-<style>
-.view { display: none; }
-.view.active { display: block; animation: fadeIn 0.4s ease; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-/* Gallery */
-.gallery-header { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
-.search-box { flex: 1; min-width: 250px; position: relative; }
-.search-input { width: 100%; padding: 12px 16px 12px 40px; border-radius: var(--r-full); border: 1px solid var(--border); background: var(--bg-card); color: var(--text-1); outline: none; transition: all var(--tr); }
-.search-input:focus { border-color: var(--blue); box-shadow: var(--glow-blue); }
-.search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); opacity: 0.5; }
-.btn-new { background: var(--grad-tools); color: #fff; border: none; padding: 12px 24px; border-radius: var(--r-full); font-weight: 700; cursor: pointer; transition: all var(--tr); white-space: nowrap; font-family: inherit; }
-.btn-new:hover { transform: translateY(-2px); box-shadow: var(--glow-blue); }
-
-.gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-.tpl-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; cursor: pointer; transition: all var(--tr); display: flex; flex-direction: column;}
-.tpl-card:hover { transform: translateY(-4px); border-color: var(--blue); }
-.tpl-video-wrap { width: 100%; aspect-ratio: 1; background: #000; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-.tpl-video-wrap video { width: 100%; height: 100%; object-fit: contain; }
-.tpl-info { padding: 12px; }
-.tpl-title { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
-.tpl-author { font-size: 12px; color: var(--text-3); }
-.tpl-usage { font-size: 11px; color: var(--text-2); margin-top: 4px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
-.btn-delete-tpl { position: absolute; top: 8px; right: 8px; background: rgba(220, 38, 38, 0.8); color: white; border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(4px); transition: transform 0.2s; z-index: 2; font-size: 14px; }
-.btn-delete-tpl:hover { transform: scale(1.1); background: rgba(220, 38, 38, 1); }
-
-/* Maker & Editor common */
-.panel-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--r-xl); padding: 32px; max-width: 600px; margin: 0 auto; width: 100%; }
-.form-group { margin-bottom: 20px; }
-.form-label { display: block; font-size: 13px; font-weight: 700; color: var(--text-2); margin-bottom: 8px; }
-.form-input { width: 100%; padding: 12px 16px; border-radius: var(--r-lg); border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-1); font-family: inherit; }
-.file-upload-box { border: 2px dashed var(--border); border-radius: var(--r-lg); padding: 32px; text-align: center; cursor: pointer; transition: all var(--tr); background: rgba(255,255,255,0.02); display: block; }
-.file-upload-box:hover { border-color: var(--blue); background: rgba(59,130,246,0.05); }
-.file-upload-box input[type="file"] { display: none; }
-.file-name { margin-top: 12px; font-size: 13px; color: var(--blue); font-weight: 600; word-break: break-all; }
-
-/* Editor */
-.editor-workspace { display: flex; flex-direction: column; gap: 24px; align-items: center; width: 100%; }
-.canvas-container { position: relative; max-width: 100%; width: 400px; background: #111; border-radius: var(--r-lg); overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
-canvas { width: 100%; height: 100%; display: block; }
-.controls { width: 100%; background: var(--bg-surface); padding: 20px; border-radius: var(--r-lg); border: 1px solid var(--border); }
-.control-row { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
-.control-row:last-child { margin-bottom: 0; }
-.control-row label { width: 60px; font-size: 13px; font-weight: 600; color: var(--text-2); }
-.control-row input[type="range"] { flex: 1; cursor: pointer;}
-
-.btn-primary { background: var(--grad-tools); color: #fff; border: none; padding: 14px 0; width: 100%; border-radius: var(--r-full); font-weight: 700; cursor: pointer; transition: all var(--tr); font-size: 15px; font-family: inherit; }
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn-secondary { background: transparent; border: 1px solid var(--border); color: var(--text-2); padding: 10px 20px; border-radius: var(--r-full); font-size: 13px; font-weight: 600; cursor: pointer; transition: all var(--tr); margin-bottom: 20px; display: inline-flex; align-items: center; gap: 6px; font-family: inherit;}
-.btn-secondary:hover { background: var(--bg-surface); color: var(--text-1); }
-
-/* Progress Overlay */
-#progressOverlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; color: #fff; }
-.spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.2); border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px; }
-@keyframes spin { to { transform: rotate(360deg); } }
-#progressText { font-weight: 600; font-size: 16px; }
-
-.alert-box { padding: 12px 16px; border-radius: var(--r-md); background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #fca5a5; font-size: 13px; margin-bottom: 16px; display: none; }
-
-@media (max-width: 600px) {
-  .panel-card { padding: 20px; }
-}
-</style>
+<link rel="stylesheet" href="css/twibbon-gerak.css"/>
 <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
 </head>
 <body>
@@ -91,7 +29,7 @@ canvas { width: 100%; height: 100%; display: block; }
 <nav class="navbar" id="navbar">
   <div class="nav-container">
     <a href="../index.html" class="nav-logo" style="text-decoration:none">
-      <div class="logo-badge"><img src="../Logo.svg" alt="BAJA"></div>
+      <div class="logo-badge"><img src="../img/Logo.svg" alt="BAJA"></div>
       <div class="logo-text">BAJA</div>
     </a>
     <div class="nav-actions">
@@ -142,14 +80,14 @@ canvas { width: 100%; height: 100%; display: block; }
           <label class="form-label">File Video (.webm transparan disarankan)</label>
           <label class="file-upload-box" id="dropAreaVideo">
             <div style="font-size: 24px; margin-bottom: 8px;">📁</div>
-            <div style="font-weight: 600; color: var(--text-2);">Pilih file video (Max 50MB, 30 detik)</div>
+            <div style="font-weight: 600; color: var(--text-2);">Pilih file video (Max 60MB, 30 detik)</div>
             <input type="file" id="makerVideoFile" accept="video/webm, video/mp4, video/quicktime">
             <div class="file-name" id="makerFileName">Belum ada file dipilih</div>
           </label>
         </div>
         
         <!-- NEW CHROMA KEY UI -->
-        <div id="chromaSetupPanel" style="display: none; margin-top: 16px; background: var(--bg-card); padding: 16px; border-radius: 12px; border: 1px solid var(--border);">
+        <div id="chromaSetupPanel" style="display: none; margin-top: 16px; background: var(--bg-card); padding: 20px; border-radius: var(--r-lg); border: 2px solid var(--border); box-shadow: var(--shadow-md);">
           <h3 style="font-size: 16px; margin-bottom: 8px;">Hapus Warna Latar (Opsional)</h3>
           <p style="font-size: 13px; color: var(--text-2); margin-bottom: 12px;">Klik pada warna di video bawah ini yang ingin dijadikan bolong/transparan (misal: layar hijau).</p>
           
@@ -159,7 +97,7 @@ canvas { width: 100%; height: 100%; display: block; }
           </div>
           
           <div style="display: flex; align-items: center; gap: 12px; margin-top: 16px;">
-            <div id="chromaColorBox" style="width: 32px; height: 32px; border-radius: 8px; border: 2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); background: transparent;"></div>
+            <div id="chromaColorBox" style="width: 32px; height: 32px; border-radius: var(--r-md); border: 2px solid var(--border); box-shadow: var(--shadow-sm); background: transparent;"></div>
             <div style="flex: 1;">
               <label style="font-size: 12px; color: var(--text-2);">Toleransi Hapus Warna (<span id="chromaTolLabel">50</span>)</label>
               <input type="range" id="chromaTolerance" min="0" max="150" value="50" style="width: 100%;">
@@ -251,7 +189,7 @@ canvas { width: 100%; height: 100%; display: block; }
 
 <!-- Hidden Elements for Video Processing -->
 <video id="hiddenVideo" style="display:none;" crossorigin="anonymous" playsinline muted></video>
-<img id="hiddenWatermark" style="display:none;" src="../Logo.svg">
+<img id="hiddenWatermark" style="display:none;" src="../img/Logo.svg">
 
 <script src="../app.js"></script>
 <script>
@@ -470,9 +408,9 @@ document.getElementById('makerVideoFile').addEventListener('change', async funct
   document.getElementById('makerFileName').textContent = file.name;
   document.getElementById('makerAlert').style.display = 'none';
   
-  // Validate Size (50MB raw video to fit 68MB Base64 limit)
-  if (file.size > 50 * 1024 * 1024) {
-    showMakerAlert("Ukuran file video terlalu besar! Maksimal 50MB.");
+  // Validate Size (60MB raw video to fit 85MB Base64 limit)
+  if (file.size > 60 * 1024 * 1024) {
+    showMakerAlert("Ukuran file video terlalu besar! Maksimal 60MB.");
     e.target.value = '';
     document.getElementById('makerFileName').textContent = 'Belum ada file dipilih';
     return;
@@ -606,21 +544,21 @@ async function uploadTemplate() {
   reader.onload = async function(e) {
     const base64Video = e.target.result;
     
-    // Firebase RTDB memiliki batas 10MB per baris teks. Kita bagi jadi 2 bagian jika lebih besar.
-    // Batas maksimal total sekitar 68MB (sekitar 50MB ukuran video asli, faktor base64 ~1.37x).
-    if (base64Video.length > 68000000) {
+    // Firebase RTDB memiliki batas memori. Kita tingkatkan ke 60MB (~85MB Base64).
+    // Dibagi menjadi 6 chunk.
+    if (base64Video.length > 85000000) {
       hideProgress();
-      showMakerAlert("Ukuran video terlalu besar (lebih dari 50MB). Harap perkecil/kompres ukuran video Anda.");
+      showMakerAlert("Ukuran video terlalu besar (lebih dari 60MB). Harap perkecil/kompres ukuran video Anda.");
       return;
     }
 
-    // Bagi menjadi chunk, masing-masing < 7MB (aman untuk batas 10MB Firebase RTDB)
-    const MAX_CHUNK_BYTES = 7 * 1024 * 1024; // 7MB per chunk (karakter base64)
+    // Bagi menjadi 6 chunk seperti yang diminta agar bisa render di RTDB.
+    const totalChunks = 6;
+    const MAX_CHUNK_BYTES = Math.ceil(base64Video.length / totalChunks); 
     const chunks = [];
     for (let i = 0; i < base64Video.length; i += MAX_CHUNK_BYTES) {
       chunks.push(base64Video.slice(i, i + MAX_CHUNK_BYTES));
     }
-    const totalChunks = chunks.length;
 
     updateProgress(`Mengunggah metadata...`);
     

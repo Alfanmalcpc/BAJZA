@@ -1,0 +1,29 @@
+﻿/* ================================================================
+   ipo.css — Styles khusus: IPO Calendar
+   ================================================================ */
+
+.ipo-table-wrap{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden}
+.ipo-table{width:100%;border-collapse:collapse;font-size:14px}
+.ipo-table th{background:var(--bg-elevated);padding:14px 20px;text-align:left;font-size:12px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border);white-space:nowrap}
+.ipo-table td{padding:16px 20px;border-bottom:1px solid var(--border);vertical-align:middle}
+.ipo-table tr:last-child td{border-bottom:none}
+.ipo-table tr:hover td{background:var(--bg-card-hover)}
+.company-cell{display:flex;align-items:center;gap:12px}
+.company-logo{width:36px;height:36px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.company-name{font-weight:700}
+.company-desc{font-size:12px;color:var(--text-2)}
+.ticker-badge{background:var(--bg-elevated);padding:4px 10px;border-radius:var(--r-sm);font-size:12px;font-weight:700;font-family:var(--mono);color:var(--blue-light)}
+.status-badge{padding:4px 12px;border-radius:var(--r-full);font-size:11px;font-weight:700;text-transform:uppercase}
+.status-upcoming{background:rgba(59,130,246,.15);color:var(--blue-light)}
+.status-pricing{background:rgba(245,158,11,.15);color:var(--gold)}
+.status-filed{background:rgba(139,92,246,.15);color:var(--purple)}
+.status-priced{background:rgba(16,185,129,.15);color:var(--green)}
+.sector-tag{padding:3px 10px;border-radius:var(--r-full);font-size:11px;font-weight:600;background:var(--bg-elevated);color:var(--text-2)}
+.filter-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
+.filter-btn{background:var(--bg-card);border:1px solid var(--border);color:var(--text-2);padding:7px 16px;border-radius:var(--r-full);font-size:13px;font-weight:600;transition:all var(--tr)}
+.filter-btn.active,.filter-btn:hover{background:var(--grad-tools);color:#fff;border-color:transparent}
+.summary-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+.sum-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;text-align:center}
+.sum-num{font-size:28px;font-weight:900;background:var(--grad-finance);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sum-label{font-size:12px;color:var(--text-2);font-weight:600;margin-top:4px}
+@media(max-width:768px){.ipo-table-wrap{overflow-x:auto}.summary-row{grid-template-columns:repeat(2,1fr)}}

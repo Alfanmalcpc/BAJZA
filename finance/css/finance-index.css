@@ -1,0 +1,22 @@
+﻿/* ================================================================
+   finance-index.css — Styles khusus: Finance Hub
+   ================================================================ */
+
+.finance-hub-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+.fhub-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:36px 32px;transition:all var(--tr);display:block;position:relative;overflow:hidden}
+.fhub-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.fhub-card.green::before{background:var(--grad-finance)}
+.fhub-card.gold::before{background:linear-gradient(90deg,#F59E0B,#D97706)}
+.fhub-card.blue::before{background:var(--grad-tools)}
+.fhub-card.purple::before{background:var(--grad-tutorial)}
+.fhub-card:hover{transform:translateY(-5px);box-shadow:var(--glow-green)}
+.fhub-icon{font-size:44px;margin-bottom:20px}
+.fhub-title{font-size:20px;font-weight:800;margin-bottom:8px}
+.fhub-desc{font-size:14px;color:var(--text-2);line-height:1.6;margin-bottom:20px}
+.fhub-link{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
+.market-overview{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:48px}
+.mo-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px}
+.mo-name{font-size:12px;color:var(--text-2);font-weight:600;margin-bottom:4px}
+.mo-price{font-size:20px;font-weight:800;margin-bottom:4px}
+.disclaimer{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:var(--r-lg);padding:16px 20px;font-size:13px;color:var(--gold);margin-top:32px}
+@media(max-width:768px){.finance-hub-grid,.market-overview{grid-template-columns:1fr}}
