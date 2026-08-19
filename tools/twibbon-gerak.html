@@ -544,21 +544,22 @@ async function uploadTemplate() {
   reader.onload = async function(e) {
     const base64Video = e.target.result;
     
-    // Firebase RTDB memiliki batas memori. Kita tingkatkan ke 60MB (~85MB Base64).
-    // Dibagi menjadi 6 chunk.
+    // Firebase RTDB membatasi setiap node maks 10MB (10,485,760 bytes).
+    // Batas ukuran video: 60MB file asli (~85MB setelah Base64 encoding).
     if (base64Video.length > 85000000) {
       hideProgress();
       showMakerAlert("Ukuran video terlalu besar (lebih dari 60MB). Harap perkecil/kompres ukuran video Anda.");
       return;
     }
 
-    // Bagi menjadi 6 chunk seperti yang diminta agar bisa render di RTDB.
-    const totalChunks = 6;
-    const MAX_CHUNK_BYTES = Math.ceil(base64Video.length / totalChunks); 
+    // Potong per 9MB (aman di bawah limit 10MB Firebase).
+    // Jumlah chunk bersifat dinamis sesuai ukuran file.
+    const MAX_CHUNK_BYTES = 9 * 1024 * 1024; // 9MB per chunk
     const chunks = [];
     for (let i = 0; i < base64Video.length; i += MAX_CHUNK_BYTES) {
       chunks.push(base64Video.slice(i, i + MAX_CHUNK_BYTES));
     }
+    const totalChunks = chunks.length;
 
     updateProgress(`Mengunggah metadata...`);
     
