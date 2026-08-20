@@ -857,19 +857,27 @@ async function processAndDownload() {
     const duration   = (videoEl.duration && isFinite(videoEl.duration)) ? videoEl.duration : 5;
     const totalFrames = Math.floor(duration * fps);
 
-    // ── 2. DIMENSI GENAP (wajib H.264) ───────────────────────────
-    const encWidth  = canvas.width  % 2 === 0 ? canvas.width  : canvas.width  - 1;
-    const encHeight = canvas.height % 2 === 0 ? canvas.height : canvas.height - 1;
+    // ── 2. DIMENSI GENAP + BATAS RESOLUSI (wajib H.264) ────────────
+    // Batasi ke 1280px sisi terpanjang agar tetap dalam batas codec H.264
+    const MAX_ENC_DIM = 1280;
+    let rawW = canvas.width  % 2 === 0 ? canvas.width  : canvas.width  - 1;
+    let rawH = canvas.height % 2 === 0 ? canvas.height : canvas.height - 1;
+    const scale = Math.min(1, MAX_ENC_DIM / Math.max(rawW, rawH));
+    const encWidth  = Math.floor(rawW * scale / 2) * 2;
+    const encHeight = Math.floor(rawH * scale / 2) * 2;
+    if (scale < 1) console.log(`Resolusi diskalakan: ${rawW}x${rawH} → ${encWidth}x${encHeight}`);
 
-    // ── 3. PILIH CODEC — isConfigSupported hanya sebagai petunjuk, bukan penentu ──
-    // Beberapa browser mengembalikan false meski encoding sebenarnya bisa berjalan.
+    // ── 3. PILIH CODEC — Level 5.0 didahulukan agar support resolusi besar (1920x1920+) ──
+    // isConfigSupported hanya sebagai petunjuk, selalu ada fallback ke Level 5.0
     const codecCandidates = [
-      'avc1.42E01E', // H.264 Baseline 3.0 — paling kompatibel
-      'avc1.4D001F', // H.264 Main 3.1
-      'avc1.640028', // H.264 High 4.0
-      'avc1.4D002A', // H.264 Main 4.2
+      'avc1.640032', // H.264 High   5.0 — max ~4K, DIDAHULUKAN untuk resolusi besar
+      'avc1.4D0032', // H.264 Main   5.0
+      'avc1.42E032', // H.264 Baseline 5.0
+      'avc1.640028', // H.264 High   4.0 — max ~1920x1080
+      'avc1.4D001F', // H.264 Main   3.1 — max ~1280x720
+      'avc1.42E01E', // H.264 Baseline 3.0 — max ~SD
     ];
-    let chosenCodec = 'avc1.42E01E'; // selalu ada fallback
+    let chosenCodec = 'avc1.640032'; // fallback ke Level 5.0, bukan 3.0
     for (const c of codecCandidates) {
       try {
         const support = await VideoEncoder.isConfigSupported({
@@ -879,7 +887,7 @@ async function processAndDownload() {
         if (support.supported) { chosenCodec = c; break; }
       } catch (_) { /* abaikan, coba codec berikutnya */ }
     }
-    console.log('Codec terpilih:', chosenCodec);
+    console.log('Codec terpilih:', chosenCodec, `(${encWidth}x${encHeight})`);
 
     // ── 4. EKSTRAK AUDIO ──────────────────────────────────────────
     showProgress('Mengekstrak Audio...');
