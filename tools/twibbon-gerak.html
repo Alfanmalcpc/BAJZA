@@ -861,14 +861,15 @@ async function processAndDownload() {
     const encWidth  = canvas.width  % 2 === 0 ? canvas.width  : canvas.width  - 1;
     const encHeight = canvas.height % 2 === 0 ? canvas.height : canvas.height - 1;
 
-    // ── 3. CARI CODEC YANG DIDUKUNG SECARA OTOMATIS ───────────────
+    // ── 3. PILIH CODEC — isConfigSupported hanya sebagai petunjuk, bukan penentu ──
+    // Beberapa browser mengembalikan false meski encoding sebenarnya bisa berjalan.
     const codecCandidates = [
       'avc1.42E01E', // H.264 Baseline 3.0 — paling kompatibel
       'avc1.4D001F', // H.264 Main 3.1
       'avc1.640028', // H.264 High 4.0
       'avc1.4D002A', // H.264 Main 4.2
     ];
-    let chosenCodec = null;
+    let chosenCodec = 'avc1.42E01E'; // selalu ada fallback
     for (const c of codecCandidates) {
       try {
         const support = await VideoEncoder.isConfigSupported({
@@ -876,11 +877,9 @@ async function processAndDownload() {
           bitrate: 5_000_000, framerate: fps
         });
         if (support.supported) { chosenCodec = c; break; }
-      } catch (_) { /* coba codec berikutnya */ }
+      } catch (_) { /* abaikan, coba codec berikutnya */ }
     }
-    if (!chosenCodec) {
-      throw new Error("H.264 encoding tidak didukung browser ini. Coba Chrome/Edge terbaru.");
-    }
+    console.log('Codec terpilih:', chosenCodec);
 
     // ── 4. EKSTRAK AUDIO ──────────────────────────────────────────
     showProgress('Mengekstrak Audio...');
@@ -963,8 +962,14 @@ async function processAndDownload() {
     const encCtx = encCanvas.getContext('2d', { alpha: false });
 
     // ── 9. RENDER FRAME DEMI FRAME ───────────────────────────────
+    // Timeout 3 detik per seek agar tidak hang pada video base64 besar
     const seekVideo = (time) => new Promise((resolve) => {
-      const done = () => { videoEl.removeEventListener('seeked', done); resolve(); };
+      const timeout = setTimeout(resolve, 3000); // fallback jika seeked tidak terpanggil
+      const done = () => {
+        clearTimeout(timeout);
+        videoEl.removeEventListener('seeked', done);
+        resolve();
+      };
       videoEl.addEventListener('seeked', done);
       videoEl.currentTime = time;
     });
