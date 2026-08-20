@@ -833,56 +833,71 @@ function stopEditor() {
 // Media Recorder Export
 async function processAndDownload() {
   if (!photoImg) return;
-  
-
 
   document.getElementById('btnProcess').disabled = true;
-  
-  const progressOverlay = document.getElementById('progressOverlay');
+
   const progressFill = document.getElementById('progressFill');
-  const progressBar = document.getElementById('progressBar');
-  
+  const progressBar  = document.getElementById('progressBar');
+
   progressBar.style.display = 'block';
-  progressFill.style.width = '0%';
-  showProgress('Menyiapkan render video & audio (Tunggu Sebentar)...');
-  
+  progressFill.style.width  = '0%';
+  showProgress('Menyiapkan render video...');
   videoEl.pause();
-  
+
   try {
-    const fps = parseInt(document.getElementById('outputFps')?.value || '60', 10);
-    const duration = videoEl.duration && isFinite(videoEl.duration) ? videoEl.duration : 5;
-    const totalFrames = Math.floor(duration * fps);
-    
+    // ── 1. CEK DUKUNGAN WEBCODECS ─────────────────────────────────
+    if (typeof VideoEncoder === 'undefined') {
+      throw new Error("Browser Anda tidak mendukung WebCodecs. Harap gunakan Chrome/Edge versi 94+ atau Safari 16.4+.");
+    }
     if (typeof Mp4Muxer === 'undefined') {
-       throw new Error("Pustaka MP4 Muxer tidak dapat dimuat. Periksa koneksi internet Anda.");
+      throw new Error("Pustaka Mp4Muxer gagal dimuat. Periksa koneksi internet Anda.");
     }
 
-    // --- AUDIO EXTRACTION ---
-    showProgress('Mengekstrak Suara (Audio)...');
-    let audioBuffer = null;
-    try {
-      if (videoEl.src) {
-        const response = await fetch(videoEl.src);
-        const arrayBuffer = await response.arrayBuffer();
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-      }
-    } catch (e) {
-      console.warn("Gagal mengekstrak audio, merender tanpa suara.", e);
-    }
-    
-    // Pastikan resolusi bernilai genap (wajib untuk VideoEncoder H.264)
-    const encWidth = canvas.width % 2 === 0 ? canvas.width : canvas.width - 1;
+    const fps        = parseInt(document.getElementById('outputFps')?.value || '30', 10);
+    const duration   = (videoEl.duration && isFinite(videoEl.duration)) ? videoEl.duration : 5;
+    const totalFrames = Math.floor(duration * fps);
+
+    // ── 2. DIMENSI GENAP (wajib H.264) ───────────────────────────
+    const encWidth  = canvas.width  % 2 === 0 ? canvas.width  : canvas.width  - 1;
     const encHeight = canvas.height % 2 === 0 ? canvas.height : canvas.height - 1;
 
-    // Create muxer
-    let muxer = new Mp4Muxer.Muxer({
+    // ── 3. CARI CODEC YANG DIDUKUNG SECARA OTOMATIS ───────────────
+    const codecCandidates = [
+      'avc1.42E01E', // H.264 Baseline 3.0 — paling kompatibel
+      'avc1.4D001F', // H.264 Main 3.1
+      'avc1.640028', // H.264 High 4.0
+      'avc1.4D002A', // H.264 Main 4.2
+    ];
+    let chosenCodec = null;
+    for (const c of codecCandidates) {
+      try {
+        const support = await VideoEncoder.isConfigSupported({
+          codec: c, width: encWidth, height: encHeight,
+          bitrate: 5_000_000, framerate: fps
+        });
+        if (support.supported) { chosenCodec = c; break; }
+      } catch (_) { /* coba codec berikutnya */ }
+    }
+    if (!chosenCodec) {
+      throw new Error("H.264 encoding tidak didukung browser ini. Coba Chrome/Edge terbaru.");
+    }
+
+    // ── 4. EKSTRAK AUDIO ──────────────────────────────────────────
+    showProgress('Mengekstrak Audio...');
+    let audioBuffer = null;
+    try {
+      const response    = await fetch(videoEl.src);
+      const arrayBuffer = await response.arrayBuffer();
+      const audioCtx    = new (window.AudioContext || window.webkitAudioContext)();
+      audioBuffer       = await audioCtx.decodeAudioData(arrayBuffer);
+    } catch (e) {
+      console.warn('Tidak ada audio atau gagal diekstrak, merender tanpa suara.', e);
+    }
+
+    // ── 5. INISIALISASI MUXER ─────────────────────────────────────
+    const muxer = new Mp4Muxer.Muxer({
       target: new Mp4Muxer.ArrayBufferTarget(),
-      video: {
-        codec: 'avc',
-        width: encWidth,
-        height: encHeight
-      },
+      video: { codec: 'avc', width: encWidth, height: encHeight },
       audio: audioBuffer ? {
         codec: 'aac',
         sampleRate: audioBuffer.sampleRate,
@@ -890,149 +905,130 @@ async function processAndDownload() {
       } : undefined,
       fastStart: 'in-memory'
     });
-    
-    let videoEncoder = new VideoEncoder({
+
+    // ── 6. VIDEO ENCODER (error disimpan ke variabel, bukan di-throw) ──
+    let encoderError = null;
+    const videoEncoder = new VideoEncoder({
       output: (chunk, meta) => muxer.addVideoChunk(chunk, meta),
-      error: e => { throw e; }
+      error:  (e) => { encoderError = e; console.error('VideoEncoder error:', e); }
     });
-    
     videoEncoder.configure({
-      codec: 'avc1.4D002A', // Main profile, Level 4.2 (mendukung resolusi 1080p+)
-      width: encWidth,
-      height: encHeight,
-      bitrate: 10000000, // 10 Mbps for original pristine quality
+      codec:   chosenCodec,
+      width:   encWidth,
+      height:  encHeight,
+      bitrate: 6_000_000, // 6 Mbps — keseimbangan kualitas & kompatibilitas
       framerate: fps
     });
 
-    // --- AUDIO ENCODING ---
-    let audioEncoder;
+    // ── 7. ENCODE AUDIO ───────────────────────────────────────────
     if (audioBuffer) {
-      showProgress('Memproses Track Suara AAC...');
-      audioEncoder = new AudioEncoder({
+      showProgress('Memproses Audio AAC...');
+      const audioEncoder = new AudioEncoder({
         output: (chunk, meta) => muxer.addAudioChunk(chunk, meta),
-        error: e => console.error(e)
+        error:  (e) => console.error('AudioEncoder error:', e)
       });
-      
       audioEncoder.configure({
         codec: 'mp4a.40.2',
         sampleRate: audioBuffer.sampleRate,
         numberOfChannels: audioBuffer.numberOfChannels,
-        bitrate: 128000 // 128 kbps
+        bitrate: 128_000
       });
-      
-      // We chunk the audio into 1-second blocks
-      const frameSize = audioBuffer.sampleRate; 
+      const frameSize = audioBuffer.sampleRate;
       for (let i = 0; i < audioBuffer.length; i += frameSize) {
-        const end = Math.min(i + frameSize, audioBuffer.length);
+        const end    = Math.min(i + frameSize, audioBuffer.length);
         const frames = end - i;
-        
-        const planarData = new Float32Array(frames * audioBuffer.numberOfChannels);
+        const planar = new Float32Array(frames * audioBuffer.numberOfChannels);
         for (let c = 0; c < audioBuffer.numberOfChannels; c++) {
-          planarData.set(audioBuffer.getChannelData(c).subarray(i, end), c * frames);
+          planar.set(audioBuffer.getChannelData(c).subarray(i, end), c * frames);
         }
-        
-        const audioData = new AudioData({
+        const ad = new AudioData({
           format: 'f32-planar',
           sampleRate: audioBuffer.sampleRate,
           numberOfFrames: frames,
           numberOfChannels: audioBuffer.numberOfChannels,
-          timestamp: (i / audioBuffer.sampleRate) * 1e6, // microseconds
-          data: planarData
+          timestamp: Math.round((i / audioBuffer.sampleRate) * 1_000_000),
+          data: planar
         });
-        
-        audioEncoder.encode(audioData);
-        audioData.close();
+        audioEncoder.encode(ad);
+        ad.close();
       }
-      
       await audioEncoder.flush();
     }
-    
-    // Hentikan putaran pratinjau realtime agar CPU tidak kewalahan
-    if (animFrameId) cancelAnimationFrame(animFrameId);
-    
-    // Buat canvas encode dengan dimensi GENAP (wajib H.264) menggunakan HTMLCanvasElement biasa
-    // OffscreenCanvas tidak kompatibel penuh di semua browser untuk VideoFrame
-    const encCanvas = document.createElement('canvas');
-    encCanvas.width = encWidth;
-    encCanvas.height = encHeight;
-    const encCtx = encCanvas.getContext('2d', { alpha: false }); // alpha:false wajib untuk H.264
 
-    // Helper fungsi untuk berpindah frame
+    // ── 8. CANVAS ENCODE (dimensi genap, alpha=false untuk H.264) ─
+    if (animFrameId) cancelAnimationFrame(animFrameId);
+    const encCanvas = document.createElement('canvas');
+    encCanvas.width  = encWidth;
+    encCanvas.height = encHeight;
+    const encCtx = encCanvas.getContext('2d', { alpha: false });
+
+    // ── 9. RENDER FRAME DEMI FRAME ───────────────────────────────
     const seekVideo = (time) => new Promise((resolve) => {
-      const onSeeked = () => {
-        videoEl.removeEventListener('seeked', onSeeked);
-        resolve();
-      };
-      videoEl.addEventListener('seeked', onSeeked);
+      const done = () => { videoEl.removeEventListener('seeked', done); resolve(); };
+      videoEl.addEventListener('seeked', done);
       videoEl.currentTime = time;
     });
-    
-    // Render satu persatu per frame (Offline Rendering)
+
     for (let i = 0; i < totalFrames; i++) {
-      const time = i / fps;
-      await seekVideo(time);
-      
-      // Gambar frame ke canvas utama (untuk preview)
+      if (encoderError) throw encoderError; // cek error encoder per frame
+
+      await seekVideo(i / fps);
       drawFrame();
-      
-      // Salin canvas utama ke encCanvas yang dimensinya pasti GENAP
       encCtx.drawImage(canvas, 0, 0, encWidth, encHeight);
 
-      // Buat VideoFrame dari encCanvas — dijamin cocok dengan konfigurasi VideoEncoder
-      const frame = new VideoFrame(encCanvas, { timestamp: i * 1e6 / fps });
-      videoEncoder.encode(frame, { keyFrame: i % fps === 0 });
+      const frame = new VideoFrame(encCanvas, {
+        timestamp: Math.round(i * 1_000_000 / fps)
+      });
+      videoEncoder.encode(frame, { keyFrame: i % (fps * 2) === 0 });
       frame.close();
-      
-      // Update Progres UI
-      const percent = Math.round(((i + 1) / totalFrames) * 100);
-      progressFill.style.width = percent + '%';
-      showProgress(`Merender Video MP4... ${percent}%`);
-      
-      // Biarkan UI bernafas
+
+      progressFill.style.width = Math.round(((i + 1) / totalFrames) * 100) + '%';
+      showProgress(`Merender Frame ${i + 1}/${totalFrames}...`);
       await new Promise(r => setTimeout(r, 0));
     }
 
-    
-    showProgress('Menyatukan file MP4 (Muxing)...');
+    if (encoderError) throw encoderError;
+
+    // ── 10. FINALISASI & DOWNLOAD ─────────────────────────────────
+    showProgress('Menyatukan file MP4...');
     await videoEncoder.flush();
     muxer.finalize();
-    
-    // Tingkatkan jumlah penggunaan templat ini secara realtime
-    if (currentTemplate && currentTemplate.id) {
-      dbTemplates.child(currentTemplate.id).child('usageCount').set(firebase.database.ServerValue.increment(1));
+
+    if (currentTemplate?.id) {
+      dbTemplates.child(currentTemplate.id).child('usageCount')
+        .set(firebase.database.ServerValue.increment(1));
     }
-    
-    const buffer = muxer.target.buffer;
-    const blob = new Blob([buffer], { type: 'video/mp4' });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = url;
+
+    const blob = new Blob([muxer.target.buffer], { type: 'video/mp4' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
     a.download = `Twibbon_${Date.now()}.mp4`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    
+    URL.revokeObjectURL(url);
+
     hideProgress();
     progressBar.style.display = 'none';
     document.getElementById('btnProcess').disabled = false;
-    alert("Video berhasil disimpan dengan kualitas sempurna + Suara (100% MP4)!");
-    
-    // Lanjutkan putaran pratinjau
+    alert('Video berhasil disimpan! ✅');
+
     startPreviewLoop();
     videoEl.loop = true;
     videoEl.play();
-    
+
   } catch (err) {
     hideProgress();
-    progressBar.style.display = 'none';
+    document.getElementById('progressBar').style.display = 'none';
     document.getElementById('btnProcess').disabled = false;
-    console.error(err);
-    alert("Gagal merender video: " + err.message + "\n\nSolusi: Pastikan Anda menggunakan Chrome/Edge/Safari terbaru yang mendukung fitur WebCodecs.");
+    console.error('processAndDownload error:', err);
+    alert('Gagal merender video:\n' + err.message);
     startPreviewLoop();
     videoEl.play();
   }
 }
+
 
 // --- UTILS ---
 function showProgress(text) {
