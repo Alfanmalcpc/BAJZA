@@ -950,10 +950,12 @@ async function processAndDownload() {
     // Hentikan putaran pratinjau realtime agar CPU tidak kewalahan
     if (animFrameId) cancelAnimationFrame(animFrameId);
     
-    // Buat canvas encode khusus berukuran GENAP agar cocok dengan konfigurasi VideoEncoder.
-    // Menggunakan canvas utama langsung bisa gagal jika dimensinya ganjil (H.264 wajib genap).
-    const encCanvas = new OffscreenCanvas(encWidth, encHeight);
-    const encCtx = encCanvas.getContext('2d');
+    // Buat canvas encode dengan dimensi GENAP (wajib H.264) menggunakan HTMLCanvasElement biasa
+    // OffscreenCanvas tidak kompatibel penuh di semua browser untuk VideoFrame
+    const encCanvas = document.createElement('canvas');
+    encCanvas.width = encWidth;
+    encCanvas.height = encHeight;
+    const encCtx = encCanvas.getContext('2d', { alpha: false }); // alpha:false wajib untuk H.264
 
     // Helper fungsi untuk berpindah frame
     const seekVideo = (time) => new Promise((resolve) => {
