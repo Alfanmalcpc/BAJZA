@@ -834,11 +834,8 @@ function stopEditor() {
 async function processAndDownload() {
   if (!photoImg) return;
   
-  // Script Iklan (Dipicu saat tombol download ditekan)
-  try {
-    (function(s){s.dataset.zone='11493758',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
-  } catch(e) {}
-  
+
+
   document.getElementById('btnProcess').disabled = true;
   
   const progressOverlay = document.getElementById('progressOverlay');
@@ -953,6 +950,11 @@ async function processAndDownload() {
     // Hentikan putaran pratinjau realtime agar CPU tidak kewalahan
     if (animFrameId) cancelAnimationFrame(animFrameId);
     
+    // Buat canvas encode khusus berukuran GENAP agar cocok dengan konfigurasi VideoEncoder.
+    // Menggunakan canvas utama langsung bisa gagal jika dimensinya ganjil (H.264 wajib genap).
+    const encCanvas = new OffscreenCanvas(encWidth, encHeight);
+    const encCtx = encCanvas.getContext('2d');
+
     // Helper fungsi untuk berpindah frame
     const seekVideo = (time) => new Promise((resolve) => {
       const onSeeked = () => {
@@ -968,11 +970,14 @@ async function processAndDownload() {
       const time = i / fps;
       await seekVideo(time);
       
-      // Gambar frame tersebut ke canvas
+      // Gambar frame ke canvas utama (untuk preview)
       drawFrame();
       
-      // Ambil gambar dan encode
-      const frame = new VideoFrame(canvas, { timestamp: i * 1e6 / fps });
+      // Salin canvas utama ke encCanvas yang dimensinya pasti GENAP
+      encCtx.drawImage(canvas, 0, 0, encWidth, encHeight);
+
+      // Buat VideoFrame dari encCanvas — dijamin cocok dengan konfigurasi VideoEncoder
+      const frame = new VideoFrame(encCanvas, { timestamp: i * 1e6 / fps });
       videoEncoder.encode(frame, { keyFrame: i % fps === 0 });
       frame.close();
       
@@ -984,6 +989,7 @@ async function processAndDownload() {
       // Biarkan UI bernafas
       await new Promise(r => setTimeout(r, 0));
     }
+
     
     showProgress('Menyatukan file MP4 (Muxing)...');
     await videoEncoder.flush();
