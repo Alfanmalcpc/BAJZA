@@ -221,8 +221,8 @@ let currentUserData = null;
 auth.onAuthStateChanged(user => {
   currentUserData = user || null;
   // Jika sedang di halaman galeri, render ulang untuk memunculkan/menyembunyikan tombol Hapus
-  if (typeof allTemplates !== 'undefined' && allTemplates.length > 0 && document.getElementById('view-gallery').style.display !== 'none') {
-    renderGallery(allTemplates);
+  if (typeof allTemplates !== 'undefined' && allTemplates.length > 0 && document.getElementById('view-gallery').classList.contains('active')) {
+    renderGalleryProgressive(allTemplates);
   }
 });
 
@@ -327,7 +327,7 @@ async function fetchGallery() {
       allTemplates.push({ id: child.key, ...child.val() });
     });
     allTemplates.reverse(); // Newest first
-    renderGallery(allTemplates);
+    renderGalleryProgressive(allTemplates);
   } catch (err) {
     console.error("Error fetching templates:", err);
   } finally {
@@ -335,20 +335,44 @@ async function fetchGallery() {
   }
 }
 
-function renderGallery(templates) {
+// --- GALLERY LAZY LOAD OBSERVER ---
+const videoObserver = new IntersectionObserver((entries, observer) => {
+  entries.forEach(entry => {
+    const video = entry.target;
+    if (entry.isIntersecting) {
+      // Lazy load src jika belum di-set
+      if (!video.src && video.dataset.src) {
+        video.src = video.dataset.src;
+      }
+      video.play().catch(e => { /* Abaikan error autoplay */ });
+    } else {
+      video.pause();
+    }
+  });
+}, { rootMargin: '200px' }); // Render/Play sebelum masuk layar (jarak 200px)
+
+let currentRenderId = 0; // Untuk mencegah bentrok saat mencari dengan cepat
+
+async function renderGalleryProgressive(templates) {
+  const renderId = ++currentRenderId;
   const grid = document.getElementById('galleryGrid');
   grid.innerHTML = '';
+  
   if (templates.length === 0) {
     grid.innerHTML = '<div style="color:var(--text-3); grid-column: 1/-1;">Belum ada templat atau tidak ditemukan.</div>';
     return;
   }
   
-  templates.forEach(tpl => {
+  for (const tpl of templates) {
+    // Jika ada render baru (misal user mengetik di kotak pencarian), batalkan proses render lama
+    if (renderId !== currentRenderId) return; 
+
     let fullUrl = tpl.videoUrl || '';
     if (!fullUrl) {
       const n = tpl.totalChunks || 8;
       for (let i = 1; i <= n; i++) fullUrl += (tpl[`videoUrl_chunk${i}`] || '');
     }
+    
     const card = document.createElement('div');
     card.className = 'tpl-card';
     card.onclick = () => {
@@ -364,9 +388,10 @@ function renderGallery(templates) {
       deleteBtnHTML = `<button class="btn-delete-tpl" onclick="deleteTemplate(event, '${tpl.id}')" title="Hapus Karya">🗑️</button>`;
     }
     
+    // Gunakan data-src untuk Lazy Loading (video baru di-load saat terlihat di layar)
     card.innerHTML = `
       <div class="tpl-video-wrap">
-        <video src="${fullUrl}" muted autoplay loop playsinline crossorigin="anonymous"></video>
+        <video data-src="${fullUrl}" muted loop playsinline crossorigin="anonymous" style="background:#111;"></video>
         ${deleteBtnHTML}
       </div>
       <div class="tpl-info">
@@ -376,14 +401,22 @@ function renderGallery(templates) {
       </div>
     `;
     grid.appendChild(card);
-  });
+    
+    // Daftarkan video ke observer agar otomatis di-play/pause
+    const video = card.querySelector('video');
+    if (video) videoObserver.observe(video);
+    
+    // Jeda asinkron: Biarkan layar menggambar dan HP bernapas sebelum merakit templat berikutnya
+    await new Promise(resolve => setTimeout(resolve, 20));
+  }
 }
 
 document.getElementById('searchInput').addEventListener('input', (e) => {
   const q = e.target.value.toLowerCase();
   const filtered = allTemplates.filter(t => t.title.toLowerCase().includes(q));
-  renderGallery(filtered);
+  renderGalleryProgressive(filtered);
 });
+
 
 window.deleteTemplate = async function(event, id) {
   event.stopPropagation(); // Cegah klik menembus ke card editor
@@ -692,6 +725,11 @@ document.getElementById('editorPhotoFile').addEventListener('change', async func
 });
 
 function drawFrame() {
+  // Mencegah bug "flicker" (foto muncul menimpa/terlihat) saat video sedang lagging/buffering
+  if (currentTemplate && videoEl && videoEl.readyState < 2) {
+    return; // Abaikan frame ini, tahan gambar terakhir di layar
+  }
+  
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
   // 1. Draw Photo (Bottom Layer)
@@ -892,13 +930,20 @@ async function processAndDownload() {
     // ── 4. EKSTRAK AUDIO ──────────────────────────────────────────
     showProgress('Mengekstrak Audio...');
     let audioBuffer = null;
-    try {
-      const response    = await fetch(videoEl.src);
-      const arrayBuffer = await response.arrayBuffer();
-      const audioCtx    = new (window.AudioContext || window.webkitAudioContext)();
-      audioBuffer       = await audioCtx.decodeAudioData(arrayBuffer);
-    } catch (e) {
-      console.warn('Tidak ada audio atau gagal diekstrak, merender tanpa suara.', e);
+    let isSilentFallback = false;
+
+    if (typeof AudioEncoder === 'undefined') {
+      console.warn("AudioEncoder tidak didukung (iOS/Safari). Render dipaksa tanpa suara.");
+      isSilentFallback = true;
+    } else {
+      try {
+        const response    = await fetch(videoEl.src);
+        const arrayBuffer = await response.arrayBuffer();
+        const audioCtx    = new (window.AudioContext || window.webkitAudioContext)();
+        audioBuffer       = await audioCtx.decodeAudioData(arrayBuffer);
+      } catch (e) {
+        console.warn('Tidak ada audio atau gagal diekstrak, merender tanpa suara.', e);
+      }
     }
 
     // ── 5. INISIALISASI MUXER ─────────────────────────────────────
@@ -1025,7 +1070,12 @@ async function processAndDownload() {
     hideProgress();
     progressBar.style.display = 'none';
     document.getElementById('btnProcess').disabled = false;
-    alert('Video berhasil disimpan! ✅');
+    
+    if (isSilentFallback) {
+      alert("Video berhasil disimpan! ✅\n\n(Catatan: Karena keterbatasan perangkat iPhone/Apple Anda, video ini diunduh tanpa suara. Anda dapat menambahkan musik langsung saat mengunggahnya ke TikTok/Instagram.)");
+    } else {
+      alert('Video berhasil disimpan! ✅');
+    }
 
     startPreviewLoop();
     videoEl.loop = true;
