@@ -1,0 +1,142 @@
+﻿/* ================================================================
+   calculator.css — Styles khusus: Scientific Calculator
+   ================================================================ */
+
+.calc-wrapper {
+  max-width: 500px;
+  margin: 0 auto;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Display */
+.calc-display {
+  background: transparent;
+  padding: 30px 24px 20px;
+  text-align: right;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+}
+.calc-history {
+  font-size: 16px;
+  color: var(--text-3);
+  min-height: 24px;
+  margin-bottom: 8px;
+  word-wrap: break-word;
+  font-family: monospace;
+}
+.calc-input {
+  font-size: 44px;
+  font-weight: 700;
+  color: #fff;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+  font-family: monospace;
+  letter-spacing: 2px;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+.calc-input::-webkit-scrollbar { display: none; }
+.calc-indicators {
+  position: absolute;
+  top: 16px;
+  left: 20px;
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-3);
+  letter-spacing: 1px;
+}
+.ind-active { color: var(--blue-light); text-shadow: 0 0 10px rgba(96, 165, 250, 0.5); }
+
+/* Unified Grid with Floating Buttons */
+.calc-unified-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  padding: 24px;
+  background: transparent;
+}
+
+.calc-btn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--r-md);
+  padding: 14px 4px;
+  font-size: 16px;
+  color: var(--text-1);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+.calc-btn:hover { 
+  background: rgba(255, 255, 255, 0.08); 
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+.calc-btn:active { 
+  background: rgba(255, 255, 255, 0.12); 
+  transform: translateY(1px); 
+}
+
+/* Specific Button Styles */
+.btn-func { color: var(--blue-light); }
+.btn-func:hover { box-shadow: 0 0 15px rgba(96, 165, 250, 0.15); }
+
+.btn-num { font-size: 20px; background: rgba(255, 255, 255, 0.06); font-weight: 700; }
+.btn-num:hover { background: rgba(255, 255, 255, 0.1); }
+
+.btn-op { 
+  color: #c4b5fd; 
+  font-size: 22px; 
+  background: rgba(139, 92, 246, 0.1); 
+  border-color: rgba(139, 92, 246, 0.2); 
+}
+.btn-op:hover { background: rgba(139, 92, 246, 0.2); box-shadow: 0 0 15px rgba(139, 92, 246, 0.2); }
+
+.btn-eq { 
+  background: var(--grad-tools); 
+  color: #fff; 
+  font-size: 24px; 
+  font-weight: 800; 
+  border: none;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+}
+.btn-eq:hover { opacity: 0.9; box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6); }
+
+.btn-clear { color: #f87171; font-weight: 800; font-size: 16px; background: rgba(248, 113, 113, 0.05); }
+.btn-clear:hover { background: rgba(248, 113, 113, 0.1); box-shadow: 0 0 15px rgba(248, 113, 113, 0.2); }
+
+.btn-toggle { color: #34d399; background: rgba(52, 211, 153, 0.05); }
+.btn-toggle:hover { background: rgba(52, 211, 153, 0.1); box-shadow: 0 0 15px rgba(52, 211, 153, 0.2); }
+
+.btn-mem { color: #fbbf24; font-size: 14px; background: rgba(251, 191, 36, 0.05); }
+.btn-mem:hover { background: rgba(251, 191, 36, 0.1); box-shadow: 0 0 15px rgba(251, 191, 36, 0.2); }
+.mem-active { color: #fbbf24 !important; font-weight: 900; }
+
+/* Inverse Toggle States */
+.inv-view { display: none; }
+.is-inv .norm-view { display: none; }
+.is-inv .inv-view { display: inline; }
+.is-inv .btn-inv { background: rgba(52, 211, 153, 0.2); color: #fff; box-shadow: 0 0 15px rgba(52, 211, 153, 0.4); }
+
+@media(max-width: 500px) {
+  .calc-unified-grid { padding: 16px; gap: 6px; }
+  .calc-btn { padding: 12px 2px; font-size: 14px; }
+  .btn-num { font-size: 18px; }
+  .btn-op { font-size: 20px; }
+  .calc-input { font-size: 36px; }
+}

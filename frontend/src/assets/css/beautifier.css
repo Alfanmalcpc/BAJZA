@@ -1,0 +1,22 @@
+﻿/* ================================================================
+   beautifier.css — Styles khusus: Code Beautifier
+   ================================================================ */
+
+.beautifier-layout{display:grid;grid-template-columns:1fr 300px;gap:28px;align-items:start}
+.editor-panel{display:flex;flex-direction:column;gap:16px}
+.lang-select{display:flex;gap:8px;flex-wrap:wrap}
+.lang-btn{background:var(--bg-card);border:1px solid var(--border);color:var(--text-2);padding:8px 18px;border-radius:var(--r-full);font-size:13px;font-weight:600;transition:all var(--tr)}
+.lang-btn.active,.lang-btn:hover{background:var(--grad-tools);color:#fff;border-color:transparent}
+.action-row{display:flex;gap:10px;flex-wrap:wrap}
+.btn-beautify{background:var(--grad-tools);color:#fff;padding:12px 28px;border-radius:var(--r-full);font-size:14px;font-weight:700;transition:all var(--tr);display:flex;align-items:center;gap:8px}
+.btn-beautify:hover{transform:translateY(-2px);box-shadow:var(--glow-blue)}
+.btn-clear,.btn-copy{background:var(--bg-card);border:1px solid var(--border);color:var(--text-2);padding:12px 20px;border-radius:var(--r-full);font-size:14px;font-weight:500;transition:all var(--tr)}
+.btn-clear:hover,.btn-copy:hover{background:var(--bg-card-hover);color:var(--text-1)}
+.editor-split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.editor-label{font-size:12px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.output-area{width:100%;min-height:300px;background:#0D1117;border:1px solid var(--border);border-radius:var(--r-lg);padding:16px;font-family:var(--mono);font-size:13px;color:#E6EDF3;resize:vertical;line-height:1.6;outline:none}
+.sidebar-ad{position:sticky;top:calc(var(--nav-h) + 20px)}
+.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--green);color:#fff;padding:12px 28px;border-radius:var(--r-full);font-size:14px;font-weight:600;transition:transform var(--tr);z-index:2000;opacity:0}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.line-counter{font-size:12px;color:var(--text-3);font-family:var(--mono);padding:8px 12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--r-sm);display:flex;gap:20px}
+@media(max-width:900px){.beautifier-layout{grid-template-columns:1fr}.editor-split{grid-template-columns:1fr}.sidebar-ad{position:static}}

@@ -1,0 +1,50 @@
+﻿/* ════════════════════════════════════════════════════════════════
+   crypto.css — Styles khusus halaman Crypto Dashboard
+   Halaman: finance/crypto.html
+   ════════════════════════════════════════════════════════════════ */
+.crypto-layout{display:grid;grid-template-columns:1fr 300px;gap:28px;align-items:start}
+.crypto-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:28px}
+.coin-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;cursor:pointer;transition:border .25s,box-shadow .25s;position:relative;overflow:hidden}
+.coin-card.active{border-color:var(--blue);box-shadow:var(--glow-blue)}
+.coin-card:hover{background:var(--bg-card-hover)}
+.coin-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.coin-id{display:flex;align-items:center;gap:10px}
+.coin-icon{font-size:28px}
+.coin-name{font-size:13px;color:var(--text-2);font-weight:600}
+.coin-sym{font-size:15px;font-weight:800}
+.coin-price{font-size:22px;font-weight:900;margin-bottom:4px}
+.coin-meta{display:flex;gap:12px;font-size:12px;color:var(--text-3)}
+.chart-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:24px}
+.chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.chart-title{font-size:16px;font-weight:700}
+.chart-sub{font-size:12px;color:var(--text-3)}
+.rsi-gauge{background:var(--bg-elevated);border-radius:var(--r-full);height:12px;overflow:hidden;margin:12px 0}
+.rsi-fill{height:100%;border-radius:var(--r-full);transition:width 1s ease}
+.rsi-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);font-weight:600}
+.rsi-value-big{font-size:48px;font-weight:900;text-align:center;padding:20px 0}
+.rsi-signal{text-align:center;font-size:14px;font-weight:700;padding:8px 24px;border-radius:var(--r-full);display:inline-block}
+.rsi-oversold{background:rgba(16,185,129,.15);color:var(--green)}
+.rsi-overbought{background:rgba(239,68,68,.15);color:var(--red)}
+.rsi-neutral{background:rgba(245,158,11,.15);color:var(--gold)}
+.market-stats{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;margin-top:16px}
+.stat-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.stat-row:last-child{border-bottom:none}
+.stat-row-key{color:var(--text-2)}
+.stat-row-val{font-weight:600}
+.last-updated{text-align:center;font-size:11px;color:var(--text-3);margin-top:12px}
+.refresh-btn{background:var(--bg-card);border:1px solid var(--border);color:var(--text-2);padding:6px 14px;border-radius:var(--r-full);font-size:12px;font-weight:600;transition:all var(--tr)}
+.refresh-btn:hover{background:var(--bg-card-hover);color:var(--text-1)}
+/* Flash on price change */
+@keyframes flashUp{0%{background:rgba(16,185,129,.35)}100%{background:transparent}}
+@keyframes flashDown{0%{background:rgba(239,68,68,.35)}100%{background:transparent}}
+.flash-up{animation:flashUp .7s ease forwards}
+.flash-down{animation:flashDown .7s ease forwards}
+/* Live indicator */
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.live-dot{display:inline-block;width:8px;height:8px;background:var(--red);border-radius:50%;animation:blink 1s infinite;margin-right:4px}
+.ws-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:var(--r-full)}
+.ws-connected{background:rgba(16,185,129,.15);color:var(--green)}
+.ws-connecting{background:rgba(245,158,11,.15);color:var(--gold)}
+.ws-error{background:rgba(239,68,68,.15);color:var(--red)}
+@media(max-width:900px){.crypto-layout{grid-template-columns:1fr}.crypto-cards{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.crypto-cards{grid-template-columns:1fr}}

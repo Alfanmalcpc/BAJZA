@@ -1,0 +1,391 @@
+/* ================================================================
+   photobooth.css — Styles khusus: Photobooth Studio
+   ================================================================ */
+
+/* ── Photobooth-specific layout overrides ── */
+  .pb-header {
+    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    padding: 24px 20px;
+    text-align: center;
+    border-bottom: 4px solid #000;
+  }
+  .pb-title {
+    font-size: 28px;
+    font-weight: 900;
+    font-family: var(--font-heading);
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 0 #000;
+  }
+  .pb-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+  @media (min-width: 768px) {
+    .pb-layout { flex-direction: row; align-items: flex-start; }
+  }
+
+  /* ── Camera Section ── */
+  .pb-cam-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .cam-container {
+    background: #000;
+    border: 6px solid #1e293b;
+    border-radius: 24px;
+    overflow: hidden;
+    position: relative;
+    aspect-ratio: 4 / 3;
+    width: 100%;
+    display: flex;
+    align-items: stretch;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    transition: aspect-ratio 0.3s;
+  }
+  /* Wrapper video lokal/remote — default: penuh lebar */
+  .mp-video-wrap {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    background: #111;
+    display: flex;
+    align-items: stretch;
+    min-height: 0;
+  }
+  .mp-video-wrap video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    /* transform dikontrol oleh JS berdasarkan facingMode */
+  }
+  /* Saat multiplayer aktif — dua kolom setengah-setengah */
+  .cam-container.mp-active {
+    gap: 4px;
+  }
+  #webcam {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+    /* transform dikontrol oleh JS: scaleX(-1) jika kamera depan, scaleX(1) jika belakang */
+  }
+  .btn-capture {
+    background: #ff4757;
+    color: #fff;
+    border: 4px solid #000;
+    border-radius: var(--r-full);
+    padding: 16px 32px;
+    font-size: 20px;
+    font-family: var(--font-heading);
+    font-weight: 900;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 4px 4px 0 #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+  .btn-capture:hover:not(:disabled) {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 #000;
+  }
+  .btn-capture:active:not(:disabled) {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 #000;
+  }
+  .btn-capture:disabled {
+    background: #64748b;
+    cursor: not-allowed;
+    opacity: 0.7;
+    box-shadow: none;
+    border-color: transparent;
+  }
+  /* ── Tombol Flip Kamera ── */
+  #btnFlipCam {
+    flex-shrink: 0;
+    width: 56px;
+    background: #1e293b;
+    color: #fff;
+    border: 3px solid rgba(255,255,255,0.2);
+    border-radius: 16px;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.4s ease, background 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    align-self: stretch;
+  }
+  #btnFlipCam:hover:not(:disabled) {
+    background: #334155;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+    border-color: rgba(255,255,255,0.35);
+  }
+  #btnFlipCam:active:not(:disabled) {
+    background: #0f172a;
+    transform: scale(0.92);
+  }
+  #btnFlipCam:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+
+  .pb-preview-section {
+    width: 100%;
+    max-width: 380px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .strip-container {
+    background: rgba(255,255,255,0.05);
+    border: 2px dashed rgba(255,255,255,0.2);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #stripCanvas {
+    max-width: 100%;
+    height: auto;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    transition: all 0.3s ease;
+  }
+
+  /* Filter Grid */
+  .filter-grid {
+    display: flex;
+    overflow-x: auto;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+  }
+  .filter-grid::-webkit-scrollbar { height: 8px; }
+  .filter-grid::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
+  .filter-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+  
+  .filter-btn {
+    flex: 0 0 auto;
+    padding: 10px 16px;
+    background: #334155;
+    color: #fff;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover { transform: translateY(-2px); }
+  .filter-btn.active {
+    border-color: #38bdf8;
+    background: #0ea5e9;
+  }
+  
+  /* ── Controls ── */
+  .pb-controls {
+    background: #1e293b;
+    border-radius: 16px;
+    padding: 20px;
+    border: 2px solid #334155;
+  }
+  .control-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #94a3b8;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .theme-grid {
+    display: flex;
+    overflow-x: auto;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    scroll-snap-type: x mandatory;
+  }
+  .theme-grid.show-all {
+    flex-wrap: wrap;
+    overflow-x: hidden;
+  }
+  .theme-grid::-webkit-scrollbar { height: 8px; }
+  .theme-grid::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
+  .theme-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+  
+  .theme-btn {
+    flex: 0 0 calc(33.333% - 8px);
+    min-width: 100px;
+    scroll-snap-align: start;
+    padding: 12px;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .theme-btn:hover { transform: translateY(-2px); }
+  .theme-btn.active { border-color: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
+  
+  .layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  
+  .watermark-task-container {
+    margin-top: 20px;
+    padding: 16px;
+    background: rgba(244, 114, 182, 0.1);
+    border: 2px dashed #f472b6;
+    border-radius: 12px;
+    text-align: center;
+  }
+  .watermark-task-container p {
+    font-size: 13px;
+    color: #f8fafc;
+    margin-bottom: 12px;
+  }
+  .layout-btn {
+    background: #334155;
+    color: #fff;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .layout-btn.active { background: #7c3aed; }
+  
+  .sticker-menu-grid {
+    display: flex;
+    overflow-x: auto;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+  }
+  .sticker-menu-grid::-webkit-scrollbar { height: 8px; }
+  .sticker-menu-grid::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
+  .sticker-menu-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+
+  .sticker-btn {
+    flex: 0 0 60px;
+    height: 60px;
+    background: #334155;
+    border: 2px solid transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+  }
+  .sticker-btn:hover { transform: translateY(-2px); border-color: #38bdf8; }
+  .sticker-btn img { width: 40px; height: 40px; }
+
+  /* Sticker Overlay */
+  .sticker-item {
+    position: absolute;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    border: 2px dashed transparent;
+  }
+  .sticker-item:active {
+    cursor: grabbing;
+  }
+  .sticker-item:hover {
+    border-color: rgba(255,255,255,0.5);
+  }
+  .sticker-item img {
+    display: block;
+    pointer-events: none; /* Let the container handle dragging */
+    width: 80px; /* default size */
+    height: auto;
+  }
+  .sticker-close {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 24px;
+    height: 24px;
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding: 0;
+  }
+  .sticker-item:hover .sticker-close, .sticker-item:hover .sticker-resize {
+    display: flex;
+  }
+  .sticker-resize {
+    position: absolute;
+    bottom: -8px;
+    right: -8px;
+    width: 20px;
+    height: 20px;
+    background: #38bdf8;
+    border-radius: 50%;
+    cursor: nwse-resize;
+    display: none;
+  }
+
+  .btn-download {
+    background: #10b981;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 16px;
+    display: none; /* Hidden by default */
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  }
+  .btn-download:hover { background: #059669; }
+  
+  .btn-reset {
+    background: transparent;
+    color: #f87171;
+    border: 1px solid #f87171;
+    border-radius: 12px;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 12px;
+    display: none;
+  }
+  .btn-reset:hover { background: rgba(248,113,113,0.1); }
+
+  @keyframes popIn {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
