@@ -289,8 +289,8 @@ const BAJA = {
   /* Ambil harga crypto dari Backend */
   async fetchCryptoPrices(ids = ['bitcoin', 'ethereum', 'binancecoin', 'solana']) {
     try {
-      // Menggunakan jembatan backend kita (menyembunyikan URL asli CoinGecko)
-      const res = await fetch('/api/crypto/prices');
+      // Menggunakan jembatan backend kita di Vercel (menyembunyikan URL asli CoinGecko)
+      const res = await fetch('https://bajza.vercel.app/api/crypto/prices');
       if (!res.ok) throw new Error('API error');
       return await res.json();
     } catch (e) {
