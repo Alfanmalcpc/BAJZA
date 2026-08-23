@@ -1,0 +1,156 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta name="google-adsense-account" content="ca-pub-6758288522431201">
+
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>IPO Calendar 2025 — BAJA</title>
+<meta name="description" content="Upcoming IPO schedule 2025. Track tech stock IPOs, offering price, expected valuation, and market date."/>
+<link rel="icon" href="/src/assets/img/Logo.svg"/>
+<link rel="stylesheet" href="/src/assets/css/style.css"/>
+
+<link rel="stylesheet" href="/src/assets/css/ipo.css"/>
+<script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
+</head>
+<body>
+
+<!-- TOP NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="/public/index.html" class="nav-logo" style="text-decoration:none">
+      <div class="logo-badge"><img src="/src/assets/img/Logo.svg" alt="BAJA"></div>
+      <div class="logo-text">BAJA</div>
+    </a>
+    <div class="nav-actions">
+      <!-- navClock and navAuthSlot injected here -->
+    </div>
+  </div>
+</nav>
+
+<div class="page-header" style="background:linear-gradient(180deg,rgba(245,158,11,.08) 0%,transparent 100%)">
+  <div class="container">
+    <div class="section-badge" style="color:var(--gold)">📅 IPO Calendar</div>
+    <h1>IPO Calendar 2025</h1>
+    <p>Track upcoming Initial Public Offerings. Data updated manually. Always verify with official sources.</p>
+  </div>
+</div>
+
+<section class="section" style="padding-top:32px">
+  <div class="container">
+
+    <div class="summary-row">
+      <div class="sum-card"><div class="sum-num" id="countAll">12</div><div class="sum-label">Total IPOs Listed</div></div>
+      <div class="sum-card"><div class="sum-num" id="countUp">7</div><div class="sum-label">Upcoming</div></div>
+      <div class="sum-card"><div class="sum-num" id="countPriced">3</div><div class="sum-label">Already Priced</div></div>
+      <div class="sum-card"><div class="sum-num">2025</div><div class="sum-label">Year</div></div>
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="upcoming">Upcoming</button>
+      <button class="filter-btn" data-filter="pricing">Pricing Soon</button>
+      <button class="filter-btn" data-filter="priced">Priced</button>
+      <button class="filter-btn" data-filter="Tech">Tech</button>
+      <button class="filter-btn" data-filter="AI/ML">AI/ML</button>
+      <button class="filter-btn" data-filter="Fintech">Fintech</button>
+    </div>
+
+    <div class="ipo-table-wrap">
+      <table class="ipo-table" id="ipoTable">
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>Ticker</th>
+            <th>Expected Date</th>
+            <th>Price Range</th>
+            <th>Valuation</th>
+            <th>Sector</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="ipoBody"></tbody>
+      </table>
+    </div>
+    <div class="disclaimer" style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:var(--r-lg);padding:16px 20px;font-size:13px;color:var(--gold);margin-top:20px">⚠️ IPO data is manually curated for informational purposes. Dates and prices may change. Always verify with NASDAQ, NYSE, or official company filings before making investment decisions.</div>
+
+</section>
+
+<footer class="footer"><div class="container"><div class="footer-bottom" style="border-top:none;padding-top:0"><span>© 2025 BAJA</span><a href="/public/index.html">← Finance Hub</a></div></div></footer>
+
+</div>
+
+<!-- Floating Back Button -->
+<a href="/public/index.html" class="fab-back" id="fabBack" aria-label="Back to Finance">
+  <span class="fab-arrow">←</span>
+  <span>BACK</span>
+</a>
+
+<button id="scrollTop">↑</button>
+<script src="/src/App.js"></script>
+<script>
+const ipos = [
+  {company:'OpenAI',desc:'AI Research & Products',icon:'🤖',ticker:'OPENAI',date:'Q4 2025',range:'$45 – $55',val:'$300B+',sector:'AI/ML',status:'upcoming'},
+  {company:'Anthropic',desc:'AI Safety & Claude AI',icon:'🧠',ticker:'ANTH',date:'2026 TBD',range:'TBD',val:'$61B',sector:'AI/ML',status:'filed'},
+  {company:'Klarna',desc:'Buy Now Pay Later',icon:'💳',ticker:'KLAR',date:'Q3 2025',range:'$68 – $72',val:'$15B',sector:'Fintech',status:'pricing'},
+  {company:'Chime',desc:'Digital Banking',icon:'🏦',ticker:'CHME',date:'Q4 2025',range:'$35 – $40',val:'$25B',sector:'Fintech',status:'upcoming'},
+  {company:'Databricks',desc:'Data & AI Platform',icon:'📊',ticker:'DBX2',date:'2025 TBD',range:'$80 – $95',val:'$62B',sector:'Tech',status:'filed'},
+  {company:'Discord',desc:'Communication Platform',icon:'💬',ticker:'DCRD',date:'2025 TBD',range:'TBD',val:'$15B',sector:'Tech',status:'filed'},
+  {company:'Impossible Foods',desc:'Plant-based Meat',icon:'🌿',ticker:'IMPF',date:'Q3 2025',range:'$12 – $16',val:'$4B',sector:'FoodTech',status:'upcoming'},
+  {company:'Stripe',desc:'Payments Infrastructure',icon:'⚡',ticker:'STRP',date:'2026 TBD',range:'TBD',val:'$65B',sector:'Fintech',status:'filed'},
+  {company:'Canva',desc:'Design Platform',icon:'🎨',ticker:'CANV',date:'2026 TBD',range:'TBD',val:'$40B',sector:'Tech',status:'filed'},
+  {company:'Cerebras',desc:'AI Chip Manufacturer',icon:'🔬',ticker:'CBRS',date:'Q2 2025',range:'$31 – $37',val:'$8.1B',sector:'AI/ML',status:'priced'},
+  {company:'Reddit',desc:'Social Media',icon:'🔴',ticker:'RDDT',date:'Priced 2024',range:'—',val:'$6.5B',sector:'Tech',status:'priced'},
+  {company:'Shein',desc:'Fast Fashion E-commerce',icon:'👗',ticker:'SHEI',date:'2025 TBD',range:'TBD',val:'$66B',sector:'E-commerce',status:'upcoming'},
+];
+
+function renderTable(data) {
+  const tbody = document.getElementById('ipoBody');
+  tbody.innerHTML = data.map(ipo => `
+    <tr data-status="${ipo.status}" data-sector="${ipo.sector}">
+      <td><div class="company-cell">
+        <div class="company-logo" style="background:var(--bg-elevated)">${ipo.icon}</div>
+        <div><div class="company-name">${ipo.company}</div><div class="company-desc">${ipo.desc}</div></div>
+      </div></td>
+      <td><span class="ticker-badge">${ipo.ticker}</span></td>
+      <td style="font-size:13px;font-weight:600">${ipo.date}</td>
+      <td style="font-size:13px;font-weight:600">${ipo.range}</td>
+      <td style="font-size:13px;font-weight:600">${ipo.val}</td>
+      <td><span class="sector-tag">${ipo.sector}</span></td>
+      <td><span class="status-badge status-${ipo.status}">${ipo.status}</span></td>
+    </tr>`).join('');
+}
+
+renderTable(ipos);
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const f = btn.dataset.filter;
+    const filtered = f === 'all' ? ipos :
+      ipos.filter(i => i.status === f || i.sector === f);
+    renderTable(filtered);
+  });
+});
+</script>
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+  <a href="/public/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">🏠</span>
+    <span class="bottom-nav-text">Home</span>
+  </a>
+  <a href="/src/pages/tools/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">🛠️</span>
+    <span class="bottom-nav-text">Tools</span>
+  </a>
+  <a href="/public/index.html" class="bottom-nav-link active">
+    <span class="bottom-nav-icon">📈</span>
+    <span class="bottom-nav-text">Finance</span>
+  </a>
+  <a href="/src/pages/tutorial/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">📚</span>
+    <span class="bottom-nav-text">Tutorial</span>
+  </a>
+</nav>
+</body>
+</html>

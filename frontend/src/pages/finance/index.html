@@ -1,0 +1,127 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta name="google-adsense-account" content="ca-pub-6758288522431201">
+
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Finance Dashboard — BAJA</title>
+<meta name="description" content="Live crypto & stock dashboard, RSI indicators, IPO calendar, and trading calculator."/>
+<link rel="icon" href="/src/assets/img/Logo.svg"/>
+<link rel="stylesheet" href="/src/assets/css/style.css"/>
+
+<link rel="stylesheet" href="/src/assets/css/finance-index.css"/>
+<script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
+</head>
+<body>
+
+<!-- TOP NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="/public/index.html" class="nav-logo" style="text-decoration:none">
+      <div class="logo-badge"><img src="/src/assets/img/Logo.svg" alt="BAJA"></div>
+      <div class="logo-text">BAJA</div>
+    </a>
+    <div class="nav-actions">
+      <!-- navClock and navAuthSlot injected here -->
+    </div>
+  </div>
+</nav>
+
+<div class="page-header" style="background:linear-gradient(180deg,rgba(16,185,129,.08) 0%,transparent 100%)">
+  <div class="container">
+    <div class="section-badge" style="color:var(--green)">📈 Finance & Investment</div>
+    <h1>Your Financial Intelligence Hub</h1>
+    <p>Live crypto prices, stock monitoring, IPO calendar, and trading simulation tools.</p>
+  </div>
+</div>
+
+<section class="section" style="padding-top:40px">
+  <div class="container">
+    </div>
+    <div class="market-overview">
+      <div class="mo-card"><div class="mo-name">Bitcoin (BTC)</div><div class="mo-price" id="mo-btc">—</div><div id="mo-btc-ch" class="crypto-change">—</div></div>
+      <div class="mo-card"><div class="mo-name">Ethereum (ETH)</div><div class="mo-price" id="mo-eth">—</div><div id="mo-eth-ch" class="crypto-change">—</div></div>
+      <div class="mo-card"><div class="mo-name">BNB</div><div class="mo-price" id="mo-bnb">—</div><div id="mo-bnb-ch" class="crypto-change">—</div></div>
+      <div class="mo-card"><div class="mo-name">Solana (SOL)</div><div class="mo-price" id="mo-sol">—</div><div id="mo-sol-ch" class="crypto-change">—</div></div>
+    </div>
+    <div class="finance-hub-grid">
+      <a href="crypto.html" class="fhub-card green">
+        <div class="fhub-icon">📊</div>
+        <div class="fhub-title">Crypto Dashboard</div>
+        <div class="fhub-desc">Live prices for BTC, ETH, BNB, SOL with 24h charts and RSI indicator. Data from CoinGecko API.</div>
+        <div class="fhub-link" style="color:var(--green)">Open Dashboard →</div>
+      </a>
+      <a href="ipo.html" class="fhub-card gold">
+        <div class="fhub-icon">📅</div>
+        <div class="fhub-title">IPO Calendar</div>
+        <div class="fhub-desc">Track upcoming IPO schedules, offering price ranges, and market expectations for tech stocks.</div>
+        <div class="fhub-link" style="color:var(--gold)">View Calendar →</div>
+      </a>
+      <a href="calculator.html" class="fhub-card blue">
+        <div class="fhub-icon">🧮</div>
+        <div class="fhub-title">Trading Calculator</div>
+        <div class="fhub-desc">Simulate trades with P&amp;L calculation, risk management, stop-loss, take-profit, and position sizing.</div>
+        <div class="fhub-link" style="color:var(--blue-light)">Open Calculator →</div>
+      </a>
+      <a href="crypto.html" class="fhub-card purple">
+        <div class="fhub-icon">📉</div>
+        <div class="fhub-title">RSI Indicator</div>
+        <div class="fhub-desc">Relative Strength Index chart for BTC and ETH. Spot overbought and oversold conditions with visual signals.</div>
+        <div class="fhub-link" style="color:var(--purple)">View RSI →</div>
+      </a>
+    </div>
+    <div class="disclaimer">⚠️ Data is for informational purposes only. This is NOT financial advice. Always do your own research (DYOR) before investing.</div>
+  </div>
+</section>
+
+<footer class="footer"><div class="container"><div class="footer-bottom" style="border-top:none;padding-top:0"><span>© 2025 BAJA</span><a href="/public/index.html">← Back to Home</a></div></div></footer>
+
+</div>
+
+<!-- Floating Back Button -->
+<a href="/public/index.html" class="fab-back" id="fabBack" aria-label="Back to Home">
+  <span class="fab-arrow">←</span>
+  <span>BACK</span>
+</a>
+
+<button id="scrollTop">↑</button>
+<script src="/src/App.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const data = await BAJA.fetchCryptoPrices(['bitcoin','ethereum','binancecoin','solana']);
+  if (!data) return;
+  const map = {bitcoin:'btc',ethereum:'eth',binancecoin:'bnb',solana:'sol'};
+  for (const [id, sym] of Object.entries(map)) {
+    const d = data[id]; if (!d) continue;
+    const p = document.getElementById('mo-' + sym);
+    const c = document.getElementById('mo-' + sym + '-ch');
+    if (p) p.textContent = BAJA.formatUSD(d.usd);
+    if (c) {
+      const ch = (d.usd_24h_change||0).toFixed(2);
+      c.textContent = `${parseFloat(ch)>=0?'▲':'▼'} ${Math.abs(ch)}%`;
+      c.className = 'crypto-change ' + (parseFloat(ch)>=0?'up':'down');
+    }
+  }
+});
+</script>
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+  <a href="/public/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">🏠</span>
+    <span class="bottom-nav-text">Home</span>
+  </a>
+  <a href="/src/pages/tools/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">🛠️</span>
+    <span class="bottom-nav-text">Tools</span>
+  </a>
+  <a href="/public/index.html" class="bottom-nav-link active">
+    <span class="bottom-nav-icon">📈</span>
+    <span class="bottom-nav-text">Finance</span>
+  </a>
+  <a href="/src/pages/tutorial/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">📚</span>
+    <span class="bottom-nav-text">Tutorial</span>
+  </a>
+</nav>
+</body>
+</html>

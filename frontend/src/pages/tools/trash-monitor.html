@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IoT Trash Monitor — BAJA WEB</title>
+  <meta name="description" content="Pantau tempat sampah IoT Anda secara real-time. Masukkan kode perangkat untuk melihat tingkat kepenuhan, kadar gas, dan riwayat data."/>
+  <link rel="icon" href="/src/assets/img/Logo.svg"/>
+  <link rel="stylesheet" href="/src/assets/css/style.css"/>
+  <link rel="stylesheet" href="/src/assets/css/trash-monitor.css"/>
+
+  <!-- Firebase SDK (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- TOP NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="/public/index.html" class="nav-logo" style="text-decoration:none">
+      <div class="logo-badge"><img src="/src/assets/img/Logo.svg" alt="BAJA"></div>
+      <div class="logo-text">BAJA</div>
+    </a>
+    <div class="nav-actions">
+      <!-- navClock and navAuthSlot injected here -->
+    </div>
+  </div>
+</nav>
+
+<!-- HEADER (ganti tm-landing header) -->
+<div class="page-header tm-landing" id="tmLanding" style="padding-bottom: 0;">
+  <div class="container" style="position: relative;">
+    <a href="/public/index.html" class="tm-btn-back" style="position: absolute; left: 16px; top: 0; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 800; color: var(--text-1); background: var(--bg-surface); padding: 8px 16px; border-radius: var(--r-full); border: 2px solid var(--border); box-shadow: var(--shadow-sm); transition: all var(--tr); z-index: 10;">
+      <span>←</span> <span data-en="Back" data-id="Kembali">Kembali</span>
+    </a>
+    <div class="section-badge" style="margin-top: 40px;">🗑️ <span data-en="IoT Monitor" data-id="Monitor IoT">IoT Monitor</span></div>
+    <h1 data-en="IoT Trash Monitor" data-id="Monitor Sampah IoT">IoT Trash Monitor</h1>
+    <p data-en="Real-time fill level and gas monitor for your smart trash bin." data-id="Pantau tingkat kepenuhan & kadar gas tempat sampah Anda secara real-time dari mana saja.">Pantau tingkat kepenuhan & kadar gas tempat sampah Anda secara real-time dari mana saja.</p>
+  </div>
+</div>
+
+<section class="section tm-landing-content" id="tmLandingContent">
+  <div class="container">
+    <div class="tm-monitor-card">
+      <label for="codeInput" class="tm-monitor-label">Kode Perangkat</label>
+      <div class="tm-code-input-wrap">
+        <span class="tm-code-prefix">TRS-</span>
+        <input
+          type="text"
+          id="codeInput"
+          class="tm-code-input"
+          placeholder="XXXX"
+          maxlength="4"
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </div>
+      <div class="tm-error-msg" id="errorMsg">Kode tidak ditemukan. Pastikan kode benar.</div>
+      <button class="tm-btn-primary tm-btn-monitor" id="btnMonitor">
+        <span id="btnMonitorText">🔍 Pantau Sekarang</span>
+        <div class="tm-spinner" id="monitorSpinner" style="display:none;"></div>
+      </button>
+      <a href="trash-register.html" class="tm-btn-link">
+        ➕ Belum punya kode? Daftarkan perangkat
+      </a>
+    </div>
+
+    <!-- Fitur Overview -->
+    <div class="tm-features-grid">
+      <div class="tm-feature-card">
+        <div class="tm-feature-icon">📊</div>
+        <div class="tm-feature-title">Real-time</div>
+        <div class="tm-feature-desc">Update 10 detik</div>
+      </div>
+      <div class="tm-feature-card">
+        <div class="tm-feature-icon">☁️</div>
+        <div class="tm-feature-title">Sensor Gas</div>
+        <div class="tm-feature-desc">MQ-2 / MQ-135</div>
+      </div>
+      <div class="tm-feature-card">
+        <div class="tm-feature-icon">🔋</div>
+        <div class="tm-feature-title">Baterai</div>
+        <div class="tm-feature-desc">Monitor daya</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+  <!-- ════════ DASHBOARD ════════ -->
+  <div class="tm-dashboard" id="tmDashboard">
+
+    <!-- Header -->
+    <div class="tm-db-header">
+      <div>
+        <div class="tm-db-title" id="dbDeviceName">—</div>
+        <div class="tm-db-subtitle">
+          <span class="tm-db-location" id="dbDeviceLocation">📍 —</span>
+          <span class="tm-db-code-badge" id="dbDeviceCode">TRS-—</span>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
+        <div id="onlineStatus" class="tm-online-dot">LIVE</div>
+        <button class="tm-btn-back" id="btnBack">← Ganti Perangkat</button>
+      </div>
+    </div>
+
+    <!-- Alert Penuh -->
+    <div class="tm-alert-full" id="alertFull">
+      <div class="tm-alert-icon">🚨</div>
+      <div class="tm-alert-text">
+        <h3>TEMPAT SAMPAH PENUH!</h3>
+        <p>Segera kosongkan tempat sampah untuk menghindari meluap.</p>
+      </div>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="tm-cards-grid">
+
+      <!-- Gauge Kepenuhan -->
+      <div class="tm-card tm-gauge-card">
+        <div style="font-size:12px; font-weight:700; color:#86efac; text-transform:uppercase; letter-spacing:1px;">Tingkat Kepenuhan</div>
+        <div class="tm-gauge-wrap">
+          <svg class="tm-gauge-svg" viewBox="0 0 160 160">
+            <circle class="tm-gauge-track" cx="80" cy="80" r="70"/>
+            <circle class="tm-gauge-fill" id="gaugeFill" cx="80" cy="80" r="70"/>
+          </svg>
+          <div class="tm-gauge-text">
+            <div class="tm-gauge-pct" id="gaugePct">—</div>
+            <div class="tm-gauge-lbl">PENUH</div>
+          </div>
+        </div>
+        <div class="tm-status-label" id="statusLabel" style="background:rgba(74,222,128,0.15); color:#4ade80;">Memuat...</div>
+      </div>
+
+      <!-- Baterai -->
+      <div class="tm-card tm-stat-card">
+        <div class="tm-stat-icon" style="background:rgba(250,204,21,0.15);">🔋</div>
+        <div>
+          <div class="tm-stat-label">Baterai Sensor</div>
+          <div class="tm-stat-value" id="statBattery">
+            <span style="color:#facc15;">—</span><span class="tm-stat-unit">%</span>
+          </div>
+          <div id="battBar" style="height:6px; background:#1e2d12; border-radius:4px; margin-top:8px; overflow:hidden;">
+            <div id="battBarFill" style="height:100%; background:#facc15; border-radius:4px; width:0%; transition:width 1s ease;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gas Level -->
+      <div class="tm-card tm-stat-card">
+        <div class="tm-stat-icon" style="background:rgba(167,139,250,0.15);">☁️</div>
+        <div>
+          <div class="tm-stat-label">Tingkat Gas</div>
+          <div class="tm-stat-value" id="statGas">
+            <span style="color:#a78bfa;">—</span><span class="tm-stat-unit"> ppm</span>
+          </div>
+          <div id="gasStatus" style="font-size:12px; color:#86efac; margin-top:6px; font-weight:600;">Memuat...</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bar Update + Countdown -->
+    <div class="tm-last-update">
+      <div>⏱️ Update terakhir: <strong id="lastUpdateTime">—</strong></div>
+      <div class="tm-countdown">
+        <span>Update berikutnya:</span>
+        <div class="tm-countdown-bar-wrap">
+          <div class="tm-countdown-bar" id="countdownBar" style="width:100%;"></div>
+        </div>
+        <span id="countdownSec">10s</span>
+      </div>
+      <span class="tm-refresh-badge">⚡ AUTO REFRESH</span>
+    </div>
+
+    <!-- Chart -->
+    <div class="tm-chart-card">
+      <div class="tm-chart-header">
+        <div class="tm-chart-title">📈 Riwayat Data</div>
+        <div class="tm-chart-tabs">
+          <button class="tm-chart-tab active" id="tabFill" onclick="switchChart('fill')">Kepenuhan</button>
+          <button class="tm-chart-tab" id="tabGas" onclick="switchChart('gas')">Gas</button>
+        </div>
+      </div>
+      <div class="tm-chart-wrap">
+        <canvas id="historyChart"></canvas>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /tm-wrap -->
+
+<!-- Firebase IoT Script -->
+<script src="/src/services/firebase-iot.js"></script>
+
+<script>
+// ════════════════════════════════════════════════
+// trash-monitor.js — Dashboard Logic
+// ════════════════════════════════════════════════
+
+const landing    = document.getElementById('tmLanding');
+const dashboard  = document.getElementById('tmDashboard');
+const codeInput  = document.getElementById('codeInput');
+const btnMonitor = document.getElementById('btnMonitor');
+const btnBack    = document.getElementById('btnBack');
+const errorMsg   = document.getElementById('errorMsg');
+const spinner    = document.getElementById('monitorSpinner');
+const btnMonitorText = document.getElementById('btnMonitorText');
+
+let unsubscribe = null;        // Firebase listener cleanup
+let historyChart = null;       // Chart.js instance
+let currentChartMode = 'fill'; // 'fill' | 'gas'
+let historyData = [];          // Cache data histori
+let countdownInterval = null;  // Interval countdown bar
+const INTERVAL_SEC = 10;       // Update setiap 10 detik
+
+// ─── Format Waktu ───────────────────────────────
+function formatTimeAgo(unixTs) {
+  const diff = Math.floor(Date.now() / 1000) - unixTs;
+  if (diff < 10)  return 'baru saja';
+  if (diff < 60)  return `${diff} detik lalu`;
+  if (diff < 3600) return `${Math.floor(diff/60)} menit lalu`;
+  return `${Math.floor(diff/3600)} jam lalu`;
+}
+
+function formatTimeLabel(unixTs) {
+  const d = new Date(unixTs * 1000);
+  return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
+
+// ─── Render Gauge ──────────────────────────────
+function renderGauge(pct) {
+  const clamped = Math.min(100, Math.max(0, pct));
+  const circumference = 2 * Math.PI * 70; // 439.8
+  const offset = circumference - (clamped / 100) * circumference;
+
+  const fill = document.getElementById('gaugeFill');
+  fill.style.strokeDasharray  = circumference;
+  fill.style.strokeDashoffset = offset;
+
+  // Warna gauge
+  let color, statusText, statusStyle;
+  if (clamped < 50) {
+    color = '#4ade80';
+    statusText = 'Normal — Masih Lega';
+    statusStyle = 'background:rgba(74,222,128,0.15); color:#4ade80;';
+  } else if (clamped < 80) {
+    color = '#facc15';
+    statusText = 'Sedang — Mulai Penuh';
+    statusStyle = 'background:rgba(250,204,21,0.15); color:#facc15;';
+  } else {
+    color = '#f87171';
+    statusText = 'KRITIS — Hampir Penuh!';
+    statusStyle = 'background:rgba(248,113,113,0.15); color:#f87171;';
+  }
+
+  fill.style.stroke = color;
+  document.getElementById('gaugePct').textContent = clamped + '%';
+  document.getElementById('gaugePct').style.color = color;
+
+  const lbl = document.getElementById('statusLabel');
+  lbl.textContent = statusText;
+  lbl.style.cssText += statusStyle;
+}
+
+// ─── Render Battery ─────────────────────────────
+function renderBattery(pct) {
+  const v = Math.min(100, Math.max(0, pct));
+  document.getElementById('statBattery').innerHTML =
+    `<span style="color:#facc15;">${v}</span><span class="tm-stat-unit">%</span>`;
+  document.getElementById('battBarFill').style.width = v + '%';
+  const color = v > 50 ? '#facc15' : v > 20 ? '#fb923c' : '#f87171';
+  document.getElementById('battBarFill').style.background = color;
+}
+
+// ─── Render Gas ─────────────────────────────────
+function renderGas(ppm) {
+  document.getElementById('statGas').innerHTML =
+    `<span style="color:#a78bfa;">${ppm}</span><span class="tm-stat-unit"> ppm</span>`;
+  let status, color;
+  if (ppm < 200) { status = '✅ Aman'; color = '#4ade80'; }
+  else if (ppm < 500) { status = '⚠️ Waspada'; color = '#facc15'; }
+  else { status = '🚨 Berbahaya!'; color = '#f87171'; }
+  const el = document.getElementById('gasStatus');
+  el.textContent = status;
+  el.style.color = color;
+}
+
+// ─── Countdown Bar ──────────────────────────────
+function startCountdown() {
+  clearInterval(countdownInterval);
+  let sec = INTERVAL_SEC;
+  const bar = document.getElementById('countdownBar');
+  const secEl = document.getElementById('countdownSec');
+
+  countdownInterval = setInterval(() => {
+    sec--;
+    if (sec < 0) sec = INTERVAL_SEC;
+    bar.style.width = (sec / INTERVAL_SEC * 100) + '%';
+    secEl.textContent = sec + 's';
+  }, 1000);
+}
+
+// ─── Buat / Update Chart ────────────────────────
+function buildChart(entries) {
+  const labels = entries.map(e => formatTimeLabel(e.timestamp));
+  const fillData = entries.map(e => e.fill_level ?? 0);
+  const gasData  = entries.map(e => e.gas_level  ?? 0);
+
+  const data = currentChartMode === 'fill' ? fillData : gasData;
+  const label = currentChartMode === 'fill' ? 'Kepenuhan (%)' : 'Gas (ppm)';
+  const color = currentChartMode === 'fill' ? '#4ade80' : '#a78bfa';
+
+  if (historyChart) {
+    historyChart.data.labels = labels;
+    historyChart.data.datasets[0].data = data;
+    historyChart.data.datasets[0].label = label;
+    historyChart.data.datasets[0].borderColor = color;
+    historyChart.data.datasets[0].backgroundColor = color.replace(')', ', 0.15)').replace('rgb', 'rgba');
+    historyChart.update('none');
+    return;
+  }
+
+  const ctx = document.getElementById('historyChart').getContext('2d');
+  historyChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label,
+        data,
+        borderColor: color,
+        backgroundColor: 'rgba(74,222,128,0.08)',
+        borderWidth: 2.5,
+        pointRadius: 3,
+        pointBackgroundColor: color,
+        tension: 0.4,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0e1a10',
+          borderColor: 'rgba(74,222,128,0.3)',
+          borderWidth: 1,
+          titleColor: '#86efac',
+          bodyColor: '#f0fdf4',
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#4b7a56', font: { size: 11 }, maxTicksLimit: 8 },
+          grid: { color: 'rgba(74,222,128,0.05)' }
+        },
+        y: {
+          ticks: { color: '#4b7a56', font: { size: 11 } },
+          grid: { color: 'rgba(74,222,128,0.05)' },
+          min: 0
+        }
+      }
+    }
+  });
+}
+
+window.switchChart = function(mode) {
+  currentChartMode = mode;
+  document.getElementById('tabFill').classList.toggle('active', mode === 'fill');
+  document.getElementById('tabGas').classList.toggle('active',  mode === 'gas');
+  if (historyData.length) buildChart(historyData);
+};
+
+// ─── Render Semua Data Dashboard ────────────────
+function renderDashboard(data, code) {
+  const info   = data.info   || {};
+  const status = data.status || {};
+
+  // Header
+  document.getElementById('dbDeviceName').textContent    = info.name     || 'Perangkat Tanpa Nama';
+  document.getElementById('dbDeviceLocation').textContent = '📍 ' + (info.location || 'Lokasi tidak diset');
+  document.getElementById('dbDeviceCode').textContent    = 'TRS-' + code;
+
+  // Status online (cek apakah last_updated < 30 detik)
+  const lastTs = status.last_updated || 0;
+  const diffSec = Math.floor(Date.now() / 1000) - lastTs;
+  const onlineDot = document.getElementById('onlineStatus');
+  if (diffSec < 30) {
+    onlineDot.className = 'tm-online-dot';
+    onlineDot.textContent = 'LIVE';
+  } else {
+    onlineDot.className = 'tm-offline-dot';
+    onlineDot.textContent = 'OFFLINE';
+  }
+
+  // Alert Penuh
+  document.getElementById('alertFull').classList.toggle('show', !!status.is_full);
+
+  // Gauge
+  renderGauge(status.fill_level ?? 0);
+  renderBattery(status.battery ?? 0);
+  renderGas(status.gas_level ?? 0);
+
+  // Waktu update
+  document.getElementById('lastUpdateTime').textContent = formatTimeAgo(lastTs);
+}
+
+// ─── Load & Subscribe ────────────────────────────
+async function startMonitoring(code) {
+  const upper = code.toUpperCase();
+
+  // Cleanup listener lama
+  if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+
+  // Tampilkan dashboard
+  landing.classList.add('hidden');
+  dashboard.classList.add('active');
+
+  // Subscribe real-time status
+  unsubscribe = subscribeToDevice(upper, (data) => {
+    renderDashboard(data, upper);
+    startCountdown();
+
+    // Load histori untuk chart (sekali pertama & setiap update)
+    getDeviceHistory(upper, 60).then(entries => {
+      if (entries.length) {
+        historyData = entries;
+        buildChart(entries);
+      }
+    });
+  });
+}
+
+// ─── Event: Tombol Monitor ───────────────────────
+btnMonitor.addEventListener('click', async () => {
+  const raw = codeInput.value.trim().toUpperCase();
+  if (raw.length < 4) {
+    errorMsg.textContent = 'Masukkan 4 karakter kode lengkap.';
+    errorMsg.classList.add('show'); return;
+  }
+
+  errorMsg.classList.remove('show');
+  btnMonitorText.style.display = 'none';
+  spinner.style.display = 'block';
+  btnMonitor.disabled = true;
+
+  try {
+    const exists = await checkDeviceExists(raw);
+    if (!exists) {
+      errorMsg.textContent = 'Kode tidak ditemukan. Pastikan kode benar.';
+      errorMsg.classList.add('show');
+    } else {
+      await startMonitoring(raw);
+    }
+  } catch (e) {
+    errorMsg.textContent = 'Gagal terhubung. Periksa koneksi internet Anda.';
+    errorMsg.classList.add('show');
+  } finally {
+    btnMonitorText.style.display = 'inline';
+    spinner.style.display = 'none';
+    btnMonitor.disabled = false;
+  }
+});
+
+// Input: hanya huruf & angka
+codeInput.addEventListener('input', (e) => {
+  e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+  errorMsg.classList.remove('show');
+});
+codeInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') btnMonitor.click();
+});
+
+// ─── Event: Tombol Kembali ───────────────────────
+btnBack.addEventListener('click', () => {
+  if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+  clearInterval(countdownInterval);
+  landing.classList.remove('hidden');
+  dashboard.classList.remove('active');
+  codeInput.value = '';
+
+  if (historyChart) { historyChart.destroy(); historyChart = null; }
+  historyData = [];
+});
+
+// ─── Auto-read dari URL Query (?code=XXXX) ───────
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const c = params.get('code');
+  if (c && c.length === 4) {
+    codeInput.value = c.toUpperCase();
+    btnMonitor.click();
+  }
+});
+</script>
+
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+  <a href="/public/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">🏠</span>
+    <span class="bottom-nav-text">Home</span>
+  </a>
+  <a href="/public/index.html" class="bottom-nav-link active">
+    <span class="bottom-nav-icon">🛠️</span>
+    <span class="bottom-nav-text">Tools</span>
+  </a>
+  <a href="/src/pages/finance/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">📈</span>
+    <span class="bottom-nav-text">Finance</span>
+  </a>
+  <a href="/src/pages/tutorial/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">📚</span>
+    <span class="bottom-nav-text">Tutorial</span>
+  </a>
+</nav>
+
+<script src="/src/App.js"></script>
+</body>
+</html>

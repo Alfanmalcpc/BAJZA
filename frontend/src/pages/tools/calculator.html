@@ -1,0 +1,364 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta name="google-adsense-account" content="ca-pub-6758288522431201">
+
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Scientific Calculator — BAJA</title>
+<meta name="description" content="Free online scientific calculator. Comprehensive math functions directly in your browser."/>
+<link rel="icon" href="/src/assets/img/Logo.svg"/>
+<link rel="stylesheet" href="/src/assets/css/style.css"/>
+
+<!-- Math.js for robust expression evaluation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/12.4.1/math.js"></script>
+<link rel="stylesheet" href="/src/assets/css/calculator.css"/>
+<script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
+</head>
+<body>
+
+<!-- TOP NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="/public/index.html" class="nav-logo" style="text-decoration:none">
+      <div class="logo-badge"><img src="/src/assets/img/Logo.svg" alt="BAJA"></div>
+      <div class="logo-text">BAJA</div>
+    </a>
+    <div class="nav-actions">
+      <!-- navClock and navAuthSlot injected here -->
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="container">
+    <div class="section-badge">🧮 <span data-en="Calculator" data-id="Kalkulator">Calculator</span></div>
+    <h1 data-en="Scientific Calculator" data-id="Kalkulator Saintifik">Scientific Calculator</h1>
+    <p data-en="All symbols and numbers in one powerful layout." data-id="Semua simbol dan angka dalam satu layout yang powerful.">All symbols and numbers in one powerful layout.</p>
+  </div>
+</div>
+
+<section class="section" style="padding-top:32px">
+  <div class="container">
+    <div class="calc-wrapper" id="calcWrapper">
+      <!-- Display -->
+      <div class="calc-display">
+        <div class="calc-indicators">
+          <span id="indDeg" class="ind-active">DEG</span>
+          <span id="indRad">RAD</span>
+          <span id="indMem"></span>
+        </div>
+        <div class="calc-history" id="calcHistory"></div>
+        <div class="calc-input" id="calcInput">0</div>
+      </div>
+      
+      <!-- Unified Grid -->
+      <div class="calc-unified-grid" id="calcGrid">
+        <!-- Row 1 -->
+        <button class="calc-btn btn-toggle btn-inv" id="btnInv">2nd</button>
+        <button class="calc-btn btn-toggle" id="btnDegRad">DEG</button>
+        <button class="calc-btn btn-mem" data-mem="MC">MC</button>
+        <button class="calc-btn btn-mem" data-mem="MR">MR</button>
+        <button class="calc-btn btn-mem" data-mem="MS">MS</button>
+
+        <!-- Row 2 -->
+        <button class="calc-btn btn-func" data-val="sin(" data-inv="asin("><span class="norm-view">sin</span><span class="inv-view">sin⁻¹</span></button>
+        <button class="calc-btn btn-func" data-val="cos(" data-inv="acos("><span class="norm-view">cos</span><span class="inv-view">cos⁻¹</span></button>
+        <button class="calc-btn btn-func" data-val="tan(" data-inv="atan("><span class="norm-view">tan</span><span class="inv-view">tan⁻¹</span></button>
+        <button class="calc-btn btn-clear" data-val="DEL">⌫</button>
+        <button class="calc-btn btn-clear" data-val="AC">AC</button>
+
+        <!-- Row 3 -->
+        <button class="calc-btn btn-func" data-val="sinh(" data-inv="asinh("><span class="norm-view">sinh</span><span class="inv-view">sinh⁻¹</span></button>
+        <button class="calc-btn btn-func" data-val="cosh(" data-inv="acosh("><span class="norm-view">cosh</span><span class="inv-view">cosh⁻¹</span></button>
+        <button class="calc-btn btn-func" data-val="tanh(" data-inv="atanh("><span class="norm-view">tanh</span><span class="inv-view">tanh⁻¹</span></button>
+        <button class="calc-btn btn-func" data-val="π">π</button>
+        <button class="calc-btn btn-func" data-val="e">e</button>
+
+        <!-- Row 4 -->
+        <button class="calc-btn btn-func" data-val="ln(" data-inv="e^("><span class="norm-view">ln</span><span class="inv-view">e^</span></button>
+        <button class="calc-btn btn-func" data-val="log(" data-inv="10^("><span class="norm-view">log</span><span class="inv-view">10^</span></button>
+        <button class="calc-btn btn-func" data-val="²" data-inv="³"><span class="norm-view">x²</span><span class="inv-view">x³</span></button>
+        <button class="calc-btn btn-func" data-val="^" data-inv="^(1/"><span class="norm-view">xʸ</span><span class="inv-view">ʸ√x</span></button>
+        <button class="calc-btn btn-func" data-val="√(" data-inv="³√("><span class="norm-view">√x</span><span class="inv-view">³√x</span></button>
+
+        <!-- Row 5 -->
+        <button class="calc-btn btn-func" data-val="1/(">1/x</button>
+        <button class="calc-btn btn-func" data-val="abs(">|x|</button>
+        <button class="calc-btn btn-func" data-val="!">n!</button>
+        <button class="calc-btn btn-func" data-val="mod(">mod</button>
+        <button class="calc-btn btn-func" data-val="random(">Rand</button>
+
+        <!-- Row 6 -->
+        <button class="calc-btn btn-func" data-val="(">(</button>
+        <button class="calc-btn btn-func" data-val=")">)</button>
+        <button class="calc-btn btn-mem" data-mem="M+">M+</button>
+        <button class="calc-btn btn-mem" data-mem="M-">M-</button>
+        <button class="calc-btn btn-op" data-val="÷">÷</button>
+
+        <!-- Row 7 -->
+        <button class="calc-btn btn-num" data-val="7">7</button>
+        <button class="calc-btn btn-num" data-val="8">8</button>
+        <button class="calc-btn btn-num" data-val="9">9</button>
+        <button class="calc-btn btn-num" data-val="sign">+/-</button>
+        <button class="calc-btn btn-op" data-val="×">×</button>
+
+        <!-- Row 8 -->
+        <button class="calc-btn btn-num" data-val="4">4</button>
+        <button class="calc-btn btn-num" data-val="5">5</button>
+        <button class="calc-btn btn-num" data-val="6">6</button>
+        <button class="calc-btn btn-func" data-val="%">%</button>
+        <button class="calc-btn btn-op" data-val="−">−</button>
+
+        <!-- Row 9 -->
+        <button class="calc-btn btn-num" data-val="1">1</button>
+        <button class="calc-btn btn-num" data-val="2">2</button>
+        <button class="calc-btn btn-num" data-val="3">3</button>
+        <button class="calc-btn btn-num" data-val=".">.</button>
+        <button class="calc-btn btn-op" data-val="+">+</button>
+
+        <!-- Row 10 -->
+        <button class="calc-btn btn-num" data-val="0">0</button>
+        <button class="calc-btn btn-num" data-val="00">00</button>
+        <button class="calc-btn btn-num" data-val="E">Exp</button>
+        <button class="calc-btn btn-func" data-val="Ans">Ans</button>
+        <button class="calc-btn btn-eq" data-val="=">=</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Floating Back Button -->
+<a href="/public/index.html" class="fab-back" id="fabBack" aria-label="Back to Tools">
+  <span class="fab-arrow">←</span>
+  <span>BACK</span>
+</a>
+
+<button id="scrollTop">↑</button>
+<script src="/src/App.js"></script>
+<script>
+  // -- Calculator Logic --
+  const calcInput = document.getElementById('calcInput');
+  const calcHistory = document.getElementById('calcHistory');
+  const calcWrapper = document.getElementById('calcWrapper');
+  const indDeg = document.getElementById('indDeg');
+  const indRad = document.getElementById('indRad');
+  const indMem = document.getElementById('indMem');
+  
+  let currentExpr = ''; // Visual representation
+  let evaluated = false;
+  let isInv = false;
+  let isDeg = true;
+  let memoryValue = 0;
+  let ansValue = '';
+
+  // math.js configuration for DEG/RAD
+  const origSin = math.sin;
+  const origCos = math.cos;
+  const origTan = math.tan;
+  const origAsin = math.asin;
+  const origAcos = math.acos;
+  const origAtan = math.atan;
+
+  math.import({
+    sin: function(x) { return isDeg ? origSin(math.unit(x, 'deg')) : origSin(x); },
+    cos: function(x) { return isDeg ? origCos(math.unit(x, 'deg')) : origCos(x); },
+    tan: function(x) { return isDeg ? origTan(math.unit(x, 'deg')) : origTan(x); },
+    asin: function(x) { return isDeg ? origAsin(x) * 180 / math.pi : origAsin(x); },
+    acos: function(x) { return isDeg ? origAcos(x) * 180 / math.pi : origAcos(x); },
+    atan: function(x) { return isDeg ? origAtan(x) * 180 / math.pi : origAtan(x); }
+  }, {override: true});
+
+  function sanitizeForEval(expr) {
+    let s = expr;
+    s = s.replace(/×/g, '*');
+    s = s.replace(/÷/g, '/');
+    s = s.replace(/−/g, '-');
+    s = s.replace(/π/g, 'pi');
+    s = s.replace(/√\(/g, 'sqrt(');
+    s = s.replace(/³√\(/g, 'cbrt(');
+    s = s.replace(/²/g, '^2');
+    s = s.replace(/³/g, '^3');
+    s = s.replace(/%/g, '*0.01');
+    s = s.replace(/Ans/g, `(${ansValue || 0})`);
+    return s;
+  }
+
+  function updateDisplay(val) {
+    if(!val) {
+      calcInput.textContent = '0';
+      return;
+    }
+    calcInput.textContent = val;
+    calcInput.scrollLeft = calcInput.scrollWidth;
+  }
+
+  function updateMemoryInd() {
+    indMem.textContent = memoryValue !== 0 ? 'M' : '';
+    indMem.classList.toggle('mem-active', memoryValue !== 0);
+  }
+
+  // Handle Memory Buttons
+  document.querySelectorAll('.btn-mem').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const action = btn.getAttribute('data-mem');
+      try {
+        let currentVal = currentExpr ? math.evaluate(sanitizeForEval(currentExpr)) : 0;
+        
+        if (action === 'MC') {
+          memoryValue = 0;
+        } else if (action === 'MR') {
+          if (evaluated) { currentExpr = ''; evaluated = false; }
+          currentExpr += memoryValue;
+          updateDisplay(currentExpr);
+        } else if (action === 'M+') {
+          memoryValue += currentVal;
+          evaluated = true; 
+        } else if (action === 'M-') {
+          memoryValue -= currentVal;
+          evaluated = true;
+        } else if (action === 'MS') {
+          memoryValue = currentVal;
+          evaluated = true;
+        }
+        updateMemoryInd();
+      } catch (e) {
+        calcInput.textContent = 'Mem Error';
+      }
+    });
+  });
+
+  // Handle Toggles
+  document.getElementById('btnInv').addEventListener('click', () => {
+    isInv = !isInv;
+    calcWrapper.classList.toggle('is-inv', isInv);
+  });
+  
+  document.getElementById('btnDegRad').addEventListener('click', (e) => {
+    isDeg = !isDeg;
+    e.target.textContent = isDeg ? 'DEG' : 'RAD';
+    indDeg.classList.toggle('ind-active', isDeg);
+    indRad.classList.toggle('ind-active', !isDeg);
+  });
+
+  // Handle Input Buttons
+  document.querySelectorAll('.calc-btn:not(.btn-toggle):not(.btn-mem)').forEach(btn => {
+    btn.addEventListener('click', () => {
+      let val = btn.getAttribute('data-val');
+      
+      if (isInv && btn.hasAttribute('data-inv')) {
+        val = btn.getAttribute('data-inv');
+      }
+      
+      if(val === 'AC') {
+        currentExpr = '';
+        calcHistory.textContent = '';
+        evaluated = false;
+        updateDisplay(currentExpr);
+      }
+      else if(val === 'DEL') {
+        if(evaluated) {
+          calcHistory.textContent = '';
+          evaluated = false;
+        }
+        // Handle removing multi-char words visually
+        if(currentExpr.endsWith('Ans')) currentExpr = currentExpr.slice(0, -3);
+        else if(currentExpr.endsWith('sin(') || currentExpr.endsWith('cos(') || currentExpr.endsWith('tan(') || currentExpr.endsWith('log(')) currentExpr = currentExpr.slice(0, -4);
+        else if(currentExpr.endsWith('sinh(') || currentExpr.endsWith('cosh(') || currentExpr.endsWith('tanh(') || currentExpr.endsWith('asin(') || currentExpr.endsWith('acos(') || currentExpr.endsWith('atan(') || currentExpr.endsWith('sqrt(') || currentExpr.endsWith('cbrt(')) currentExpr = currentExpr.slice(0, -5);
+        else currentExpr = currentExpr.slice(0, -1);
+        
+        updateDisplay(currentExpr);
+      }
+      else if(val === 'sign') {
+         if(currentExpr.startsWith('−')) {
+           currentExpr = currentExpr.substring(1);
+         } else if (currentExpr.startsWith('-')) {
+           currentExpr = currentExpr.substring(1);
+         } else {
+           currentExpr = currentExpr === '' ? '−' : '−' + currentExpr;
+         }
+         updateDisplay(currentExpr);
+      }
+      else if(val === '=') {
+        if(!currentExpr) return;
+        try {
+          const evalStr = sanitizeForEval(currentExpr);
+          const result = math.evaluate(evalStr);
+          calcHistory.textContent = calcInput.textContent + ' =';
+          
+          ansValue = result.toString();
+          currentExpr = math.format(result, {precision: 14}).replace(/"/g, '');
+          // ensure result minus uses hyphen-minus or unicode minus
+          currentExpr = currentExpr.replace(/-/g, '−');
+          updateDisplay(currentExpr);
+          evaluated = true;
+        } catch(e) {
+          calcInput.textContent = 'Error';
+          currentExpr = '';
+        }
+      }
+      else {
+        if(evaluated) {
+          if(!['+', '−', '×', '÷', '^', '!', '²', '³', '%'].includes(val) && val !== 'E') {
+             currentExpr = '';
+          }
+          calcHistory.textContent = '';
+          evaluated = false;
+        }
+        currentExpr += val;
+        updateDisplay(currentExpr);
+      }
+    });
+  });
+  
+  // Keyboard support mapping physical keys to visual keys
+  document.addEventListener('keydown', (e) => {
+    let key = e.key;
+    
+    // Map standard keyboard to visual symbols
+    if (key === '*') key = '×';
+    if (key === '/') key = '÷';
+    if (key === '-') key = '−';
+
+    const validKeys = '0123456789+−×÷.^()%!eE';
+    
+    if(validKeys.includes(key)) {
+      if(evaluated) {
+        if(!['+', '−', '×', '÷', '^', '%', '!', 'e', 'E'].includes(key)) {
+             currentExpr = '';
+        }
+        calcHistory.textContent = '';
+        evaluated = false;
+      }
+      currentExpr += key;
+      updateDisplay(currentExpr);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      document.querySelector('[data-val="="]').click();
+    } else if (e.key === 'Backspace') {
+      document.querySelector('[data-val="DEL"]').click();
+    } else if (e.key === 'Escape') {
+      document.querySelector('[data-val="AC"]').click();
+    }
+  });
+</script>
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+  <a href="/public/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">🏠</span>
+    <span class="bottom-nav-text">Home</span>
+  </a>
+  <a href="/public/index.html" class="bottom-nav-link active">
+    <span class="bottom-nav-icon">🛠️</span>
+    <span class="bottom-nav-text">Tools</span>
+  </a>
+  <a href="/src/pages/finance/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">📈</span>
+    <span class="bottom-nav-text">Finance</span>
+  </a>
+  <a href="/src/pages/tutorial/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">📚</span>
+    <span class="bottom-nav-text">Tutorial</span>
+  </a>
+</nav>
+</body>
+</html>

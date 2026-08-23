@@ -1,0 +1,611 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta name="google-adsense-account" content="ca-pub-6758288522431201">
+
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Camera Effects Studio — BAJA</title>
+<meta name="description" content="Apply real-time effects and filters to your camera and take awesome photos."/>
+<link rel="icon" href="/src/assets/img/Logo.svg"/>
+<link rel="stylesheet" href="/src/assets/css/style.css"/>
+
+<!-- MediaPipe Hands for gesture detection -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/src/assets/css/camera-effects.css"/>
+<script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
+</head>
+<body>
+
+<!-- TOP NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="/public/index.html" class="nav-logo" style="text-decoration:none">
+      <div class="logo-badge"><img src="/src/assets/img/Logo.svg" alt="BAJA"></div>
+      <div class="logo-text">BAJA</div>
+    </a>
+    <div class="nav-actions">
+      <!-- navClock and navAuthSlot injected here -->
+    </div>
+  </div>
+</nav>
+
+
+</div>
+
+<section class="section camera-section" style="padding-top: 40px; min-height: 80vh; position: relative; overflow: hidden;">
+  <div class="comic-bg"></div>
+  <div class="sticker pow">POW!</div>
+  <div class="sticker zap">ZAP!</div>
+  <div class="sticker boom">BOOM!</div>
+  <div class="sticker wow">WOW!</div>
+  <div class="container" style="position: relative; z-index: 2;">
+    <div class="section-header" style="margin-bottom: 32px; text-align: left; background-color: var(--cyan); background-image: radial-gradient(rgba(255,255,255,0.3) 25%, transparent 25%); background-size: 20px 20px; padding: 24px; border: 5px solid #000; box-shadow: 10px 10px 0 #000; display: inline-block; transform: rotate(1deg);">
+      <a href="/public/index.html" style="display:inline-block;margin-bottom:16px;font-weight:900;text-decoration:none;text-transform:uppercase;border:3px solid #000;padding:6px 16px;background-color:var(--pink);color:#fff;box-shadow: 4px 4px 0 #000; font-family: var(--font-heading); font-size: 18px;">← BACK TO HQ</a><br/>
+      <div style="background:#fff; border:5px solid #000; padding:16px 24px; box-shadow: 10px 10px 0 #000; display:inline-block; transform:rotate(-2deg);">
+        <h1 class="comic-title" style="margin-bottom:0; transform:none; text-shadow: 4px 4px 0 #000, 8px 8px 0 var(--cyan);">📸 CAMERA <span style="color:var(--pink);">STUDIO!</span></h1>
+      </div><br/><br/>
+      <p class="section-sub" style="margin:0; font-family:var(--font-heading); font-size: 20px; color:#000; background-color:var(--bg-base); padding:8px 16px; display:inline-block; border: 3px solid #000; box-shadow: 4px 4px 0 #000; transform: rotate(-1deg);">💥 BAM! Apply live filters and snap awesome photos instantly.</p>
+    </div>
+
+    <div class="camera-layout">
+      <!-- Left: Camera Preview -->
+      <div class="camera-preview-container">
+        <div class="video-wrapper">
+          <video id="videoElement" class="filter-normal" autoplay playsinline></video>
+          <div id="loadingText" style="position:absolute;color:#fff;font-family:var(--font-heading);font-size:24px;font-weight:900;text-transform:uppercase;text-shadow:2px 2px 0 #000;">Kamera Nonaktif. Klik "Start"</div>
+          <!-- Gesture Badge -->
+          <div class="gesture-badge" id="gestureBadge">
+            <span id="gestureLabel">✌️ 0 JARI</span>
+            <span class="finger-count" id="fingerDots"></span>
+          </div>
+        </div>
+        
+        <div class="controls-bar">
+          <button class="btn-cam" id="startBtn">🎬 Action! (Start)</button>
+          <button class="btn-cam capture" id="captureBtn" style="display:none;">💥 SNAP PHOTO!</button>
+          <button class="btn-cam" id="stopBtn" style="background:var(--red);color:#fff;display:none;">🛑 CUT! (Stop)</button>
+        </div>
+        
+        <canvas id="canvasElement" style="display:none;"></canvas>
+      </div>
+
+      <!-- Right: Effects Menu -->
+      <div class="effects-menu">
+        <div class="tabs-header">
+          <button class="tab-btn active" data-tab="tab-effects">✨ EFFECTS</button>
+          <button class="tab-btn" data-tab="tab-frames">🖼️ 1000 FRAMES</button>
+        </div>
+        
+        <div id="tab-effects" class="tab-content active"></div>
+        <div id="tab-frames" class="tab-content"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div class="toast" id="toast">✅ Photo saved!</div>
+<!-- Floating Back Button -->
+<a href="/public/index.html" class="fab-back" id="fabBack" aria-label="Back to Tools">
+  <span class="fab-arrow">←</span>
+  <span>BACK</span>
+</a>
+
+<button id="scrollTop">↑</button>
+<script src="/src/App.js"></script>
+
+<script>
+  const video = document.getElementById('videoElement');
+  const canvas = document.getElementById('canvasElement');
+  const startBtn = document.getElementById('startBtn');
+  const stopBtn = document.getElementById('stopBtn');
+  const captureBtn = document.getElementById('captureBtn');
+  const loadingText = document.getElementById('loadingText');
+  const toast = document.getElementById('toast');
+  const tabEffects = document.getElementById('tab-effects');
+  const tabFrames = document.getElementById('tab-frames');
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const videoWrapper = document.querySelector('.video-wrapper');
+  
+  let stream = null;
+  let currentFilterClass = 'filter-normal';
+  let currentFrameData = null; // Stores color & thickness
+  let gestureBlurActive = false;
+  let gestureRAF = null;       // requestAnimationFrame ID for gesture loop
+  let handsModel = null;       // MediaPipe Hands instance
+  let lastFingerCount = -1;    // Avoid redundant DOM updates
+
+  // Tab switching
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      tabBtns.forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // 1. Generate Effects
+  const effectsData = [
+    { id: 'filter-normal', name: 'Normal', icon: '✅' },
+    { id: 'filter-grayscale', name: 'Grayscale', icon: '🖤' },
+    { id: 'filter-sepia', name: 'Sepia', icon: '📜' },
+    { id: 'filter-invert', name: 'Invert Colors', icon: '👻' },
+    { id: 'filter-blur', name: 'Blur', icon: '🌫️' },
+    { id: 'filter-contrast', name: 'High Contrast', icon: '🌗' },
+    { id: 'filter-hue', name: 'Alien (Hue)', icon: '👽' },
+    { id: 'filter-neon', name: 'Cyberpunk', icon: '🌆' },
+    { id: 'filter-vintage', name: 'Vintage', icon: '📻' }
+  ];
+  
+  effectsData.forEach((eff, i) => {
+    const btn = document.createElement('button');
+    btn.className = `effect-btn ${i === 0 ? 'active' : ''}`;
+    btn.innerHTML = `<span>${eff.name}</span> <span>${eff.icon}</span>`;
+    btn.addEventListener('click', () => {
+      tabEffects.querySelectorAll('.effect-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      video.classList.remove(currentFilterClass);
+      video.classList.add(eff.id);
+      currentFilterClass = eff.id;
+    });
+    tabEffects.appendChild(btn);
+  });
+
+  // Helper to remove old decos
+  function clearDecos() {
+    videoWrapper.querySelectorAll('.css-shape').forEach(el => el.remove());
+  }
+
+  // 2. Generate 1000 Frames dynamically
+  const noFrameBtn = document.createElement('button');
+  noFrameBtn.className = 'effect-btn active';
+  noFrameBtn.innerHTML = `<span>No Frame (Default)</span> <span>🚫</span>`;
+  noFrameBtn.addEventListener('click', () => {
+    tabFrames.querySelectorAll('.effect-btn').forEach(b => b.classList.remove('active'));
+    noFrameBtn.classList.add('active');
+    currentFrameData = null;
+    videoWrapper.style.padding = '16px';
+    videoWrapper.style.backgroundColor = '#fff';
+    document.documentElement.style.setProperty('--ui-radius', '0px');
+    document.documentElement.style.setProperty('--ui-shadow', '6px 6px 0 #000');
+    document.documentElement.style.setProperty('--ui-shadow-hover', '9px 9px 0 #000');
+    document.documentElement.style.setProperty('--ui-shadow-small', '5px 5px 0 #000');
+    clearDecos();
+  });
+  tabFrames.appendChild(noFrameBtn);
+
+  const svgs = {
+    heart: 'M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z',
+    lightning: 'M7 2v11h3v9l7-12h-4l4-8z',
+    star: 'M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z',
+    crown: 'M5 16h14V19H5z M19 5l-4 6-5-4-5 4-4-6 3.5 9h15z',
+    none: ''
+  };
+  const shapes = ['heart', 'lightning', 'star', 'crown', 'none'];
+  const uiStyles = [
+    { radius: '0px', shadow: '6px 6px 0 #000', hover: '9px 9px 0 #000', small: '5px 5px 0 #000' }, // Brutal
+    { radius: '30px', shadow: '0 8px 16px rgba(0,0,0,0.2)', hover: '0 12px 24px rgba(0,0,0,0.3)', small: '0 4px 8px rgba(0,0,0,0.2)' }, // Soft
+    { radius: '12px', shadow: '4px 4px 0 var(--shape-color-1)', hover: '6px 6px 0 var(--shape-color-1)', small: '3px 3px 0 var(--shape-color-1)' }, // Offset color
+    { radius: '50px', shadow: 'inset 4px 4px 0 rgba(255,255,255,0.5), 6px 6px 0 #000', hover: 'inset 4px 4px 0 rgba(255,255,255,0.5), 8px 8px 0 #000', small: '4px 4px 0 #000' } // Pill
+  ];
+
+  for (let i = 1; i <= 1000; i++) {
+    const hue = (i * 137.5) % 360; 
+    const baseColor = `hsl(${hue}, 85%, 55%)`;
+    // Generate a palette of 4 contrasting colors for decorations
+    const colors = [
+      `hsl(${(hue + 120) % 360}, 95%, 60%)`,
+      `hsl(${(hue + 240) % 360}, 95%, 60%)`,
+      '#ffffff',
+      `hsl(${(hue + 60) % 360}, 95%, 60%)`
+    ];
+    
+    const thickness = 10 + ((i * 7) % 30); 
+    
+    // Algorithmic selection
+    const shapeType = shapes[i % shapes.length];
+    const styleData = uiStyles[i % uiStyles.length];
+    
+    const btn = document.createElement('button');
+    btn.className = 'effect-btn';
+    btn.innerHTML = `<span>Frame #${i}</span> <div style="width:24px;height:24px;background:#000;border:${thickness/4}px solid ${baseColor};border-radius:${styleData.radius};"></div>`;
+    
+    // Pre-calculate scattering for this frame
+    const scatterPositions = [];
+    if (shapeType !== 'none') {
+      const numItems = 10 + (i % 15); // 10 to 24 scattered items
+      for (let j = 0; j < numItems; j++) {
+        const edge = j % 4; // 0: top, 1: bottom, 2: left, 3: right
+        const progress = 5 + ((j * 17.3) % 90); // 5% to 95% along the edge to avoid extreme corners
+        const color = colors[j % colors.length];
+        const rot = (j * 45) % 360; // Random looking rotation
+        
+        // Save CSS pos and matching logical pos for Canvas
+        let cssPos = {};
+        let canvasPos = { edge, progress, color, rot };
+        
+        // CSS position strings
+        if (edge === 0) { cssPos = { top: '4px', left: `${progress}%` }; }
+        else if (edge === 1) { cssPos = { bottom: '4px', left: `${progress}%` }; }
+        else if (edge === 2) { cssPos = { left: '4px', top: `${progress}%` }; }
+        else if (edge === 3) { cssPos = { right: '4px', top: `${progress}%` }; }
+        
+        scatterPositions.push({ cssPos, canvasPos });
+      }
+    }
+    
+    btn.addEventListener('click', () => {
+      tabFrames.querySelectorAll('.effect-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      currentFrameData = { color: baseColor, thickness, shape: shapeType, style: styleData, scatterPositions };
+      
+      // Apply UI Theme
+      videoWrapper.style.backgroundColor = baseColor;
+      videoWrapper.style.padding = `${thickness}px`;
+      document.documentElement.style.setProperty('--shape-color-1', colors[0]);
+      document.documentElement.style.setProperty('--ui-radius', styleData.radius);
+      document.documentElement.style.setProperty('--ui-shadow', styleData.shadow);
+      document.documentElement.style.setProperty('--ui-shadow-hover', styleData.hover);
+      document.documentElement.style.setProperty('--ui-shadow-small', styleData.small);
+      
+      clearDecos();
+      
+      if (shapeType !== 'none') {
+        scatterPositions.forEach(item => {
+          const deco = document.createElement('div');
+          deco.className = `css-shape`;
+          Object.assign(deco.style, item.cssPos);
+          deco.style.width = '36px';
+          deco.style.height = '36px';
+          deco.style.transform = `rotate(${item.canvasPos.rot}deg)`;
+          
+          deco.innerHTML = `<svg viewBox="0 0 24 24" fill="${item.canvasPos.color}" stroke="#000" stroke-width="1.5" stroke-linejoin="round"><path d="${svgs[shapeType]}"></path></svg>`;
+          
+          videoWrapper.appendChild(deco);
+        });
+      }
+    });
+    tabFrames.appendChild(btn);
+  }
+
+  // Handle Photo Capture
+  captureBtn.addEventListener('click', () => {
+    if (!stream) return;
+    
+    const ctx = canvas.getContext('2d');
+    
+    // Save state
+    ctx.save();
+    
+    // The video is mirrored via CSS scaleX(-1), so we should mirror the canvas context too
+    // unless the user wants it unmirrored. Usually mirrored is preferred for front-facing photos.
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    
+    // Get the computed style of the video to grab the current exact filter applied
+    const computedFilter = window.getComputedStyle(video).filter;
+    ctx.filter = computedFilter !== 'none' ? computedFilter : 'none';
+    
+    // Draw the current video frame onto the canvas
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    // Restore state
+    ctx.restore();
+    
+    // Draw Frame if selected
+    if (currentFrameData) {
+      const ratio = canvas.width / 800; // rough mapping from UI scale to canvas scale
+      const actualThickness = currentFrameData.thickness * ratio * 1.5; // Scale thickness slightly up for full res
+      
+      ctx.lineWidth = actualThickness;
+      ctx.strokeStyle = currentFrameData.color;
+      // Draw outer frame
+      ctx.strokeRect(actualThickness / 2, actualThickness / 2, canvas.width - actualThickness, canvas.height - actualThickness);
+      
+      // Draw thin black inner boundary for comic style
+      ctx.lineWidth = 6 * ratio;
+      ctx.strokeStyle = '#000000';
+      ctx.strokeRect(actualThickness, actualThickness, canvas.width - (actualThickness*2), canvas.height - (actualThickness*2));
+      
+      // Draw native canvas shapes matching CSS scattered positions
+      if (currentFrameData.shape !== 'none' && currentFrameData.scatterPositions) {
+        const shapeSize = 40 * ratio; // Bigger size for real objects
+        const offsetInner = actualThickness / 2; // Exact center of the border frame
+        
+        currentFrameData.scatterPositions.forEach(item => {
+          const { edge, progress, color, rot } = item.canvasPos;
+          
+          let cx, cy;
+          if (edge === 0) { // top
+            cy = offsetInner;
+            cx = (progress / 100) * canvas.width;
+          } else if (edge === 1) { // bottom
+            cy = canvas.height - offsetInner;
+            cx = (progress / 100) * canvas.width;
+          } else if (edge === 2) { // left
+            cx = offsetInner;
+            cy = (progress / 100) * canvas.height;
+          } else if (edge === 3) { // right
+            cx = canvas.width - offsetInner;
+            cy = (progress / 100) * canvas.height;
+          }
+          
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate((rot * Math.PI) / 180); // apply scattered rotation
+          
+          // SVG is 24x24. Scale it up to shapeSize
+          const scale = shapeSize / 24;
+          ctx.scale(scale, scale);
+          // Center the 24x24 drawing around 0,0
+          ctx.translate(-12, -12);
+          
+          const path = new Path2D(svgs[currentFrameData.shape]);
+          ctx.fillStyle = color;
+          // Scale down the stroke relative to the shape scale so it doesn't get massively thick
+          ctx.lineWidth = 1.5; 
+          ctx.strokeStyle = '#000';
+          
+          ctx.fill(path);
+          ctx.stroke(path);
+          
+          ctx.restore();
+        });
+      }
+    } else {
+      // Default clean white frame
+      const ratio = canvas.width / 800;
+      const actualThickness = 16 * ratio;
+      ctx.lineWidth = actualThickness;
+      ctx.strokeStyle = '#ffffff';
+      ctx.strokeRect(actualThickness / 2, actualThickness / 2, canvas.width - actualThickness, canvas.height - actualThickness);
+    }
+    
+    // Draw outer black border
+    ctx.lineWidth = 8;
+    ctx.strokeStyle = '#000000';
+    ctx.strokeRect(0, 0, canvas.width, canvas.height);
+    
+    // Convert to image and trigger download
+    const dataUrl = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = `baja-photo-${Date.now()}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    // Show toast
+    toast.textContent = "💥 BOOM! PHOTO SAVED!";
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  });
+
+  // Start Camera Function
+  async function startCamera() {
+    try {
+      loadingText.style.display = 'none';
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: false
+      });
+      video.srcObject = stream;
+      video.play();
+
+      video.addEventListener('loadedmetadata', () => {
+        canvas.width = video.videoWidth || 1280;
+        canvas.height = video.videoHeight || 720;
+      }, { once: true });
+
+      startBtn.style.display = 'none';
+      captureBtn.style.display = 'flex';
+      stopBtn.style.display = 'flex';
+
+      // Start gesture detection loop
+      if (handsModel) {
+        stopGestureLoop = startGestureLoop();
+      }
+
+      toast.textContent = '🎬 Kamera aktif! Siap beraksi!';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+
+    } catch (err) {
+      loadingText.style.display = 'block';
+      let msg = '❌ Kamera tidak bisa diakses.';
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        msg = '🚫 Izin kamera ditolak. Klik ikon kunci di address bar dan izinkan akses kamera.';
+      } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+        msg = '🔌 Tidak ada kamera yang terdeteksi di perangkat ini.';
+      } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
+        msg = '⚠️ Kamera sedang digunakan oleh aplikasi lain. Tutup aplikasi lain dan coba lagi.';
+      } else if (location.protocol === 'file:') {
+        msg = '⚠️ Kamera tidak bisa diakses dari file lokal. Buka situs melalui server (http://) atau gunakan Live Server.';
+      }
+      loadingText.textContent = msg;
+      loadingText.style.color = '#ff4757';
+      console.error('Camera error:', err);
+    }
+  }
+
+  // Stop Camera Function
+  function stopCamera() {
+    // Stop gesture loop first
+    if (stopGestureLoop) { stopGestureLoop(); stopGestureLoop = null; }
+    applyGestureBlur(false);
+    gestureBadge.classList.remove('visible');
+    lastFingerCount = -1;
+
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      stream = null;
+    }
+    video.srcObject = null;
+    loadingText.textContent = 'Kamera Nonaktif. Klik "Start"';
+    loadingText.style.color = '#fff';
+    loadingText.style.display = 'block';
+    startBtn.style.display = 'flex';
+    captureBtn.style.display = 'none';
+    stopBtn.style.display = 'none';
+  }
+
+  // ─────────────────────────────────────────────
+  // GESTURE DETECTION — MediaPipe Hands
+  // ─────────────────────────────────────────────
+  const gestureBadge  = document.getElementById('gestureBadge');
+  const gestureLabel  = document.getElementById('gestureLabel');
+  const fingerDotsEl  = document.getElementById('fingerDots');
+
+  // CSS filter strings for each base class
+  const filterMap = {
+    'filter-normal':    'none',
+    'filter-grayscale': 'grayscale(100%)',
+    'filter-sepia':     'sepia(100%)',
+    'filter-invert':    'invert(100%)',
+    'filter-blur':      'blur(8px)',
+    'filter-contrast':  'contrast(200%)',
+    'filter-hue':       'hue-rotate(90deg)',
+    'filter-neon':      'contrast(150%) saturate(200%) hue-rotate(180deg)',
+    'filter-vintage':   'sepia(50%) contrast(120%) saturate(80%)'
+  };
+
+  function applyGestureBlur(active) {
+    if (active === gestureBlurActive) return;
+    gestureBlurActive = active;
+    const base = filterMap[currentFilterClass] || 'none';
+    
+    if (active) {
+      const blurStr = (base === 'none') ? 'blur(12px)' : `${base} blur(12px)`;
+      video.style.filter = blurStr;
+      video.classList.add('gesture-blur-on');
+      gestureBadge.classList.add('blur-active');
+    } else {
+      video.style.filter = '';
+      video.classList.remove('gesture-blur-on');
+      gestureBadge.classList.remove('blur-active');
+    }
+  }
+
+  function updateFingerDots(count) {
+    if (count === lastFingerCount) return;
+    lastFingerCount = count;
+    fingerDotsEl.innerHTML = '';
+    for (let i = 0; i < Math.min(count, 10); i++) {
+      const d = document.createElement('span');
+      d.className = 'finger-dot';
+      fingerDotsEl.appendChild(d);
+    }
+    const emoji = count === 0 ? '🤚' : count === 1 ? '☝️' : count === 2 ? '✌️' : count >= 5 ? '🖐️' : '🤟';
+    const isBlur = count > 0 && count % 2 === 0;
+    gestureLabel.textContent = `${emoji} ${count} JARI${isBlur ? ' — BLUR!' : ''}`;
+  }
+
+  // Count extended fingers from MediaPipe landmarks (21 points)
+  function countExtendedFingers(landmarks) {
+    // Tip indices: thumb=4, index=8, middle=12, ring=16, pinky=20
+    // PIP (middle joint) indices: thumb=3(IP), index=6, middle=10, ring=14, pinky=18
+    const tips = [4, 8, 12, 16, 20];
+    const pips = [3, 6, 10, 14, 18];
+    let count = 0;
+    for (let i = 0; i < 5; i++) {
+      const tip = landmarks[tips[i]];
+      const pip = landmarks[pips[i]];
+      if (i === 0) {
+        // Thumb: compare x (mirrored video)
+        if (Math.abs(tip.x - pip.x) > 0.04) count++;
+      } else {
+        // Other fingers: tip.y < pip.y means finger is up
+        if (tip.y < pip.y - 0.02) count++;
+      }
+    }
+    return count;
+  }
+
+  async function initHandDetection() {
+    if (!window.Hands) {
+      console.warn('MediaPipe Hands not loaded.');
+      return;
+    }
+    handsModel = new Hands({
+      locateFile: (file) =>
+        `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+    });
+    handsModel.setOptions({
+      maxNumHands: 2,
+      modelComplexity: 0,   // 0 = fast & light
+      minDetectionConfidence: 0.7,
+      minTrackingConfidence: 0.6
+    });
+
+    let totalFingers = 0;
+    handsModel.onResults((results) => {
+      totalFingers = 0;
+      if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+        results.multiHandLandmarks.forEach(landmarks => {
+          totalFingers += countExtendedFingers(landmarks);
+        });
+      }
+      updateFingerDots(totalFingers);
+      // Show badge whenever camera is active
+      gestureBadge.classList.toggle('visible', !!stream);
+      // Trigger blur on multiples of 2 fingers
+      applyGestureBlur(totalFingers > 0 && totalFingers % 2 === 0);
+    });
+  }
+
+  function startGestureLoop() {
+    if (!handsModel || !stream) return;
+    let running = true;
+
+    async function loop() {
+      if (!running || !stream) return;
+      if (video.readyState >= 2) {
+        try { await handsModel.send({ image: video }); } catch (_) {}
+      }
+      gestureRAF = requestAnimationFrame(loop);
+    }
+    loop();
+
+    // Return stop fn
+    return () => { running = false; cancelAnimationFrame(gestureRAF); };
+  }
+
+  let stopGestureLoop = null;
+
+  // ─────────────────────────────────────────────
+  // Event Listeners
+  // ─────────────────────────────────────────────
+  startBtn.addEventListener('click', startCamera);
+  stopBtn.addEventListener('click', stopCamera);
+  
+  // Auto-start camera when page loads
+  window.addEventListener('load', async () => {
+    await initHandDetection();
+    startCamera();
+  });
+</script>
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+  <a href="/public/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">🏠</span>
+    <span class="bottom-nav-text">Home</span>
+  </a>
+  <a href="/public/index.html" class="bottom-nav-link active">
+    <span class="bottom-nav-icon">🛠️</span>
+    <span class="bottom-nav-text">Tools</span>
+  </a>
+  <a href="/src/pages/finance/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">📈</span>
+    <span class="bottom-nav-text">Finance</span>
+  </a>
+  <a href="/src/pages/tutorial/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">📚</span>
+    <span class="bottom-nav-text">Tutorial</span>
+  </a>
+</nav>
+</body>
+</html>
