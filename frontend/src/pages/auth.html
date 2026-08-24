@@ -281,7 +281,7 @@
 <script>
 // Redirect if already logged in
 auth.onAuthStateChanged(user => {
-  if (user) window.location.href = 'index.html';
+  if (user) window.location.href = '/public/index.html';
 });
 
 function switchTab(tab) {
@@ -344,7 +344,7 @@ async function handleLogin(e) {
       document.getElementById('loginPassword').value
     );
     showMsg('✅ Berhasil masuk! Mengalihkan...', 'success');
-    setTimeout(() => window.location.href = 'index.html', 900);
+    setTimeout(() => window.location.href = '/public/index.html', 900);
   } catch(err) {
     showMsg('❌ ' + friendlyError(err.code), 'error');
     setLoading('loginBtn', false, 'Masuk ke Akun');
@@ -365,7 +365,7 @@ async function handleRegister(e) {
       document.getElementById('regName').value.trim()
     );
     showMsg('✅ Akun berhasil dibuat! Mengalihkan...', 'success');
-    setTimeout(() => window.location.href = 'index.html', 900);
+    setTimeout(() => window.location.href = '/public/index.html', 900);
   } catch(err) {
     showMsg('❌ ' + friendlyError(err.code), 'error');
     setLoading('registerBtn', false, 'Buat Akun Baru');
@@ -377,7 +377,7 @@ async function handleGoogle() {
   try {
     await bajaSignInGoogle();
     showMsg('✅ Berhasil! Mengalihkan...', 'success');
-    setTimeout(() => window.location.href = 'index.html', 900);
+    setTimeout(() => window.location.href = '/public/index.html', 900);
   } catch(err) {
     showMsg('❌ ' + friendlyError(err.code), 'error');
   }

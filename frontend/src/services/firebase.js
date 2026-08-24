@@ -86,7 +86,7 @@ auth.getRedirectResult().then(async result => {
     }
     /* Redirect ke homepage setelah login via redirect */
     if (window.location.pathname.includes('auth.html')) {
-      window.location.href = 'index.html';
+      window.location.href = '/public/index.html';
     }
   }
 }).catch(err => {

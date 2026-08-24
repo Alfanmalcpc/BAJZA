@@ -15,8 +15,13 @@
  ══════════════════════════════════════════════════════════════
 */
 
-#include <WiFi.h>
-#include <FirebaseESP32.h>
+#if defined(ESP32)
+  #include <WiFi.h>
+  #include <FirebaseESP32.h>
+#elif defined(ESP8266)
+  #include <ESP8266WiFi.h>
+  #include <FirebaseESP8266.h>
+#endif
 #include <ArduinoJson.h>
 #include <time.h>
 
@@ -30,14 +35,35 @@
 #define FIREBASE_HOST   "baja-iot-default-rtdb.asia-southeast1.firebasedatabase.app"
 #define FIREBASE_AUTH   "AIzaSyDCh3CQHqdi7SxhDHLJ6IsQ7hq4GSOi6yI"
 
-// ─── PIN SENSOR ────────────────────────────────────────────────
-#define TRIG_PIN        5     // HC-SR04 Trigger
-#define ECHO_PIN        18    // HC-SR04 Echo
-#define GAS_PIN         34    // MQ-135 Analog Out (ADC)
-#define BATT_PIN        35    // Voltage divider baterai (ADC) — opsional
-#define LED_PIN         2     // LED built-in ESP32 (indikator)
-#define LED_RED_PIN     12    // Indikator Merah: Belum terkoneksi / Terputus
-#define LED_GREEN_PIN   13    // Indikator Hijau/Biru: Sudah terkoneksi
+// ─── RESOLUSI ADC & PIN SENSOR ─────────────────────────────────
+#if defined(ESP8266) // Wemos D1 Mini / NodeMCU
+  #define ADC_MAX         1023.0
+  #define TRIG_PIN        D1    // HC-SR04 Trigger
+  #define ECHO_PIN        D2    // HC-SR04 Echo
+  #define GAS_PIN         A0    // MQ-135 Analog
+  #define BATT_PIN        A0    // Di ESP8266 hanya ada 1 ADC
+  #define LED_PIN         LED_BUILTIN
+  #define LED_RED_PIN     D3    // Eksternal LED Merah
+  #define LED_GREEN_PIN   D4    // Eksternal LED Hijau
+#elif defined(CONFIG_IDF_TARGET_ESP32C6) // ESP32-C6
+  #define ADC_MAX         4095.0
+  #define TRIG_PIN        4     // HC-SR04 Trigger
+  #define ECHO_PIN        5     // HC-SR04 Echo
+  #define GAS_PIN         2     // MQ-135 Analog (ADC)
+  #define BATT_PIN        3     // Voltage divider baterai (ADC)
+  #define LED_PIN         8     // LED built-in
+  #define LED_RED_PIN     12
+  #define LED_GREEN_PIN   13
+#else // ESP32 Standar (WROOM/WROVER)
+  #define ADC_MAX         4095.0
+  #define TRIG_PIN        5     // HC-SR04 Trigger
+  #define ECHO_PIN        18    // HC-SR04 Echo
+  #define GAS_PIN         34    // MQ-135 Analog Out (ADC)
+  #define BATT_PIN        35    // Voltage divider baterai (ADC)
+  #define LED_PIN         2     // LED built-in ESP32 (indikator)
+  #define LED_RED_PIN     12    // Indikator Merah
+  #define LED_GREEN_PIN   13    // Indikator Hijau
+#endif
 
 // ─── KONFIGURASI TINGGI TONG SAMPAH ────────────────────────────
 #define BIN_HEIGHT_CM   50    // Tinggi tong sampah (cm) — sesuaikan!
@@ -134,10 +160,10 @@ int calcFillLevel(float distanceCm) {
 
 // ─── Baca Sensor Gas MQ-135 ─────────────────────────────────────
 int readGasPPM() {
-  int raw = analogRead(GAS_PIN); // 0 - 4095 (12-bit ADC ESP32)
+  int raw = analogRead(GAS_PIN); // Membaca nilai analog
   // Konversi kasar ke ppm (kalibrasi sesuai datasheet MQ-135)
   // Nilai ini perlu dikalibrasi ulang sesuai kondisi udara lokal
-  int ppm = map(raw, 0, 4095, 0, 1000);
+  int ppm = map(raw, 0, (int)ADC_MAX, 0, 1000);
   return ppm;
 }
 
@@ -146,7 +172,7 @@ int readBatteryPercent() {
   // Menggunakan voltage divider (mis: R1=100K, R2=100K → VIN max = 8.4V → ADC max 4.2V)
   // Sesuaikan pembagi sesuai rangkaian Anda
   int raw   = analogRead(BATT_PIN);
-  float volt = (raw / 4095.0) * 3.3 * 2.0; // faktor 2 dari voltage divider
+  float volt = (raw / ADC_MAX) * 3.3 * 2.0; // faktor 2 dari voltage divider
   // Untuk baterai LiPo 3.7V: 4.2V = 100%, 3.0V = 0%
   int pct = (int)((volt - 3.0) / (4.2 - 3.0) * 100.0);
   return constrain(pct, 0, 100);

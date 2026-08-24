@@ -63,9 +63,7 @@ const BAJA = {
     /* Tombol bahasa → redirect ke settings */
     if (langBtn) {
       langBtn.addEventListener('click', () => {
-        window.location.href = this._isRootPage()
-          ? 'settings.html'
-          : '../settings.html';
+        window.location.href = '/src/pages/settings.html';
       });
     }
   },
@@ -102,9 +100,8 @@ const BAJA = {
     if (hamburger) actions.insertBefore(slot, hamburger);
     else actions.appendChild(slot);
 
-    const isRoot      = this._isRootPage();
-    const profileHref = isRoot ? 'profile.html' : '../profile.html';
-    const authHref    = isRoot ? 'auth.html'    : '../auth.html';
+    const profileHref = '/src/pages/profile.html';
+    const authHref    = '/src/pages/auth.html';
 
     auth.onAuthStateChanged(async user => {
       if (user) {

@@ -237,12 +237,29 @@ function buildArduinoCode(deviceCode) {
 #define FIREBASE_HOST   "baja-iot-default-rtdb.asia-southeast1.firebasedatabase.app"
 #define FIREBASE_AUTH   "AIzaSyDCh3CQHqdi7SxhDHLJ6IsQ7hq4GSOi6yI"
 
-// PIN Sensor
-#define TRIG_PIN        5    // HC-SR04 Trigger
-#define ECHO_PIN        18   // HC-SR04 Echo
-#define GAS_PIN         34   // MQ-135 Analog
-#define BATT_PIN        35   // Voltage divider baterai
-#define LED_PIN         2    // LED indikator
+// Resolusi ADC & PIN Sensor
+#if defined(ESP8266) // Wemos D1 Mini / NodeMCU
+  #define ADC_MAX         1023.0
+  #define TRIG_PIN        D1   // HC-SR04 Trigger
+  #define ECHO_PIN        D2   // HC-SR04 Echo
+  #define GAS_PIN         A0   // MQ-135 Analog
+  #define BATT_PIN        A0   // Di ESP8266 hanya ada 1 ADC, baterai tidak akurat dibaca bersamaan
+  #define LED_PIN         LED_BUILTIN
+#elif defined(CONFIG_IDF_TARGET_ESP32C6) // ESP32-C6
+  #define ADC_MAX         4095.0
+  #define TRIG_PIN        4    // HC-SR04 Trigger
+  #define ECHO_PIN        5    // HC-SR04 Echo
+  #define GAS_PIN         2    // MQ-135 Analog (ADC)
+  #define BATT_PIN        3    // Voltage divider (ADC)
+  #define LED_PIN         8    // LED indikator
+#else // ESP32 Standar (WROOM/WROVER)
+  #define ADC_MAX         4095.0
+  #define TRIG_PIN        5    // HC-SR04 Trigger
+  #define ECHO_PIN        18   // HC-SR04 Echo
+  #define GAS_PIN         34   // MQ-135 Analog (ADC)
+  #define BATT_PIN        35   // Voltage divider (ADC)
+  #define LED_PIN         2    // LED indikator
+#endif
 
 // Konfigurasi
 #define BIN_HEIGHT_CM   50   // Tinggi tong sampah (cm)
@@ -302,11 +319,11 @@ int calcFillLevel(float dist) {
 }
 
 int readGasPPM() {
-  return map(analogRead(GAS_PIN), 0, 4095, 0, 1000);
+  return map(analogRead(GAS_PIN), 0, (int)ADC_MAX, 0, 1000);
 }
 
 int readBattery() {
-  float v = (analogRead(BATT_PIN) / 4095.0) * 3.3 * 2.0;
+  float v = (analogRead(BATT_PIN) / ADC_MAX) * 3.3 * 2.0;
   return constrain((int)((v - 3.0) / 1.2 * 100.0), 0, 100);
 }
 

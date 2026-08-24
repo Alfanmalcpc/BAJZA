@@ -249,12 +249,12 @@ function goToGallery() {
 function goToMaker() {
   if (!currentUserData) {
     alert("Harap masuk (login) terlebih dahulu untuk membuat templat.");
-    window.location.href = '../auth.html';
+    window.location.href = '/src/pages/auth.html';
     return;
   }
   if (!currentUserData.displayName) {
     alert("Anda belum mengatur Nama Akun. Silakan atur nama di halaman Profil terlebih dahulu.");
-    window.location.href = '../profile.html';
+    window.location.href = '/src/pages/profile.html';
     return;
   }
   showView('view-maker');

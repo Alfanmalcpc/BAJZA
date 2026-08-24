@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta name="google-adsense-account" content="ca-pub-6758288522431201">
@@ -263,7 +263,7 @@ btnSaveEdit.addEventListener('click', async () => {
 
 btnLogout.addEventListener('click', async () => {
   if (confirm('Apakah Anda yakin ingin keluar?')) {
-    try { await auth.signOut(); window.location.href = 'index.html'; }
+    try { await auth.signOut(); window.location.href = '/public/index.html'; }
     catch(e) { alert('Gagal keluar.'); }
   }
 });
