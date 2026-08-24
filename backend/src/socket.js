@@ -1,11 +1,30 @@
 const { Server } = require('socket.io');
 
 function initSocket(server) {
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+    // Ganti dengan URL Vercel Anda setelah deploy, contoh:
+    // 'https://baja-web.vercel.app',
+    /\.vercel\.app$/,   // Izinkan semua subdomain vercel.app
+  ];
+
   const io = new Server(server, {
     cors: {
-      origin: "*", // Dalam tahap pengembangan. Di production, ganti dengan domain frontend Anda
-      methods: ["GET", "POST"]
-    }
+      origin: (origin, callback) => {
+        // Izinkan request tanpa origin (misalnya dari Postman atau server-side)
+        if (!origin) return callback(null, true);
+        const isAllowed = allowedOrigins.some(o =>
+          typeof o === 'string' ? o === origin : o.test(origin)
+        );
+        callback(isAllowed ? null : new Error('Not allowed by CORS'), isAllowed);
+      },
+      methods: ["GET", "POST"],
+      credentials: true
+    },
+    // Izinkan WebSocket dan polling sebagai fallback
+    transports: ['websocket', 'polling'],
   });
 
   io.on('connection', (socket) => {
