@@ -15,6 +15,22 @@ const BACKEND_URL = (window.location.hostname === 'localhost' || window.location
   : 'https://bajza.onrender.com'; // Production → Render
 
 // ──────────────────────────────────────
+// WAKE-UP: Ping server dulu agar Render
+// bangun dari tidur (free tier sleeps)
+// ──────────────────────────────────────
+async function wakeUpServer() {
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') return;
+  try {
+    const statusEl = mpEl('mpStatusMsg');
+    if (statusEl) statusEl.textContent = '⏳ Membangunkan server (maks 30 detik)...';
+    await fetch(BACKEND_URL + '/health', { method: 'GET', mode: 'cors' });
+  } catch (e) {
+    // Tidak masalah jika endpoint tidak ada, yang penting server sudah bangun
+    console.log('[MP] Wake-up ping selesai (atau tidak diperlukan)');
+  }
+}
+
+// ──────────────────────────────────────
 // HELPER: Ambil elemen DOM secara lazy
 // ──────────────────────────────────────
 function mpEl(id) {
@@ -39,12 +55,14 @@ async function flushIceCandidates() {
 // INISIALISASI SOCKET
 // ──────────────────────────────────────
 function initMultiplayerSocket() {
-  if (socket && socket.connected) return;  // Jangan buat ulang jika masih aktif
+  if (socket && socket.connected) return;
 
   socket = io(BACKEND_URL, {
     transports: ['websocket', 'polling'],
-    reconnectionAttempts: 5,
-    reconnectionDelay: 1000,
+    reconnectionAttempts: 10,
+    reconnectionDelay: 2000,
+    reconnectionDelayMax: 10000,
+    timeout: 30000,  // 30 detik — memberi waktu Render untuk bangun
   });
 
   socket.on('connect', () => {
@@ -54,7 +72,11 @@ function initMultiplayerSocket() {
 
   socket.on('connect_error', (err) => {
     console.error('[MP] Gagal koneksi ke server:', err.message);
-    if (mpEl('mpStatusMsg')) mpEl('mpStatusMsg').textContent = '❌ Gagal koneksi ke server sinyal.';
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const hint = isLocal
+      ? ' Pastikan backend lokal sedang berjalan (node src/server.js).'
+      : ' Server mungkin masih bangun, coba lagi dalam 30 detik.';
+    if (mpEl('mpStatusMsg')) mpEl('mpStatusMsg').textContent = '❌ Gagal koneksi ke server sinyal.' + hint;
   });
 
   // Host: teman masuk → mulai buat WebRTC offer
@@ -280,12 +302,21 @@ async function startMultiplayerSession(roomId, role) {
   isHost = (role === 'host');
   currentRoomId = roomId;
 
-  // Pastikan socket siap
+  // Ping server dulu agar bangun (khusus Render free tier)
+  await wakeUpServer();
+
+  // Inisiasi socket
   initMultiplayerSocket();
 
   // Tunggu socket terhubung jika belum
   if (!socket.connected) {
-    await new Promise((resolve) => socket.once('connect', resolve));
+    await new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => reject(new Error('Koneksi socket timeout')), 10000);
+      socket.once('connect', () => { clearTimeout(timeout); resolve(); });
+    }).catch(err => {
+      console.error('[MP] Gagal konek ke server:', err);
+      if (mpEl('mpStatusMsg')) mpEl('mpStatusMsg').textContent = '❌ Gagal terhubung ke server. Coba lagi nanti.';
+    });
   }
 
   socket.emit('join-room', roomId);

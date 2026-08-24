@@ -12,6 +12,11 @@ app.use(express.json());
 // Serve static files from frontend folder
 app.use(express.static(path.join(__dirname, '../../frontend')));
 
+// Health check — dipakai oleh frontend untuk "membangunkan" server Render
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok', timestamp: Date.now() });
+});
+
 // Routes API
 app.use('/api/crypto', cryptoRoutes);
 
