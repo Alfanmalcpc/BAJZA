@@ -11,8 +11,8 @@ let isSyncingCapture = false;
 // isMultiplayer, isHost, currentRoomId, peerConnection, stream
 
 const BACKEND_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-  ? 'http://localhost:3000'
-  : '';  // String kosong = ikuti domain hosting saat production
+  ? 'http://localhost:3000'       // Dev lokal
+  : 'https://bajza.onrender.com'; // Production → Render
 
 // ──────────────────────────────────────
 // HELPER: Ambil elemen DOM secara lazy
