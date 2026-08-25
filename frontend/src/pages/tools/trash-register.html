@@ -14,7 +14,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="/src/services/firebase.js"></script>
-  <script src="/src/services/firebase-iot.js"></script>
 
 </head>
 <body>
@@ -252,7 +251,12 @@ async function loadMyDevices() {
 
   } catch (e) {
     console.error(e);
-    myDevicesList.innerHTML = '<div style="text-align:center;color:var(--red);font-size:14px;">Gagal mfunction buildArduinoCode(deviceCode) {
+    myDevicesList.innerHTML = '<div style="text-align:center;color:var(--red);font-size:14px;">Gagal memuat daftar perangkat.</div>';
+  }
+}
+
+// ─── Template Kode Arduino ──────────────────────────────
+function buildArduinoCode(deviceCode) {
   return `/*
  ======================================================
   BAJA IoT Trash Monitor -- ESP32 / ESP8266 Sketch
