@@ -172,32 +172,72 @@ window.addEventListener('DOMContentLoaded', () => {
 
 async function loadMyDevices() {
   if (!currentUser) return;
-  myDevicesList.innerHTML = '<div style="text-align: center; color: var(--text-3); font-size: 14px;">Memuat perangkat...</div>';
+  myDevicesList.innerHTML = '<div style="text-align:center;color:var(--text-3);font-size:14px;padding:28px;">Memuat perangkat...</div>';
   try {
     const snap = await db.ref(`users/${currentUser.uid}/iot_devices`).once('value');
     if (!snap.exists()) {
-      myDevicesList.innerHTML = '<div style="text-align: center; color: var(--text-3); font-size: 14px; padding: 20px; background: var(--bg-body); border-radius: 12px;">Anda belum mendaftarkan perangkat apapun.</div>';
+      myDevicesList.innerHTML = '<div style="text-align:center;color:var(--text-3);font-size:14px;padding:28px;background:var(--bg-body);border-radius:14px;">Anda belum mendaftarkan perangkat apapun.</div>';
       return;
     }
     
     let html = '';
+    const deviceCodes = [];
     snap.forEach(child => {
       const dev = child.val();
       const shortCode = child.key.replace('TRS-', '');
+      deviceCodes.push(shortCode);
+      const createdAt = dev.createdAt
+        ? new Date(dev.createdAt).toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'})
+        : '—';
+      const safeName = (dev.name || '').replace(/"/g, '&quot;');
+      const safeLoc  = (dev.location || '').replace(/"/g, '&quot;');
+
       html += `
-        <div style="background: var(--bg-body); border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
-          <div>
-            <div style="font-weight: bold; font-size: 16px; color: var(--text-1);">${dev.name}</div>
-            <div style="font-size: 12px; color: var(--text-2); margin-top: 4px;">Kode: <strong style="color: var(--blue)">${child.key}</strong> • ${dev.location}</div>
+        <div style="background:var(--bg-body);border:1px solid var(--border);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:14px;transition:border-color 0.2s,box-shadow 0.2s;" onmouseenter="this.style.borderColor='var(--blue)';this.style.boxShadow='0 0 0 1px var(--blue)'" onmouseleave="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:800;font-size:15px;color:var(--text-1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${dev.name}</div>
+              <div style="font-size:12px;color:var(--text-2);margin-top:5px;">📍 ${dev.location}</div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:3px;">📅 ${createdAt} &nbsp;·&nbsp; Kode: <strong style="color:var(--blue);">${child.key}</strong></div>
+            </div>
+            <div id="badge-${shortCode}" style="flex-shrink:0;font-size:11px;font-weight:700;padding:5px 12px;border-radius:var(--r-full);background:rgba(100,100,100,0.12);color:var(--text-3);transition:all 0.35s;">⌛ Cek...</div>
           </div>
-          <a href="trash-monitor.html?code=${shortCode}" style="background: var(--blue); color: #fff; padding: 8px 16px; border-radius: var(--r-full); text-decoration: none; font-size: 13px; font-weight: bold;">Pantau</a>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <a href="trash-monitor.html?code=${shortCode}" style="flex:1;min-width:80px;background:var(--blue);color:#fff;padding:10px 14px;border-radius:var(--r-full);text-decoration:none;font-size:13px;font-weight:700;text-align:center;transition:opacity 0.2s;" onmouseenter="this.style.opacity='.85'" onmouseleave="this.style.opacity='1'">🔍 Pantau</a>
+            <button class="btn-view-script" data-code="${shortCode}" data-name="${safeName}" style="flex:1;min-width:80px;background:var(--bg-surface);border:1.5px solid var(--border);color:var(--text-1);padding:10px 14px;border-radius:var(--r-full);font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:var(--font);" onmouseenter="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text-1)'">📋 Skrip C++</button>
+          </div>
         </div>
       `;
     });
+
     myDevicesList.innerHTML = html;
+
+    // Async: fetch status IoT untuk badge Online/Offline tiap perangkat
+    deviceCodes.forEach(async (shortCode) => {
+      try {
+        const st = await iotDb.ref(`trash-bins/TRS-${shortCode}/status/last_updated`).once('value');
+        const badge = document.getElementById(`badge-${shortCode}`);
+        if (!badge) return;
+        if (st.exists()) {
+          const diffSec = Math.floor(Date.now() / 1000) - st.val();
+          if (diffSec < 60) {
+            badge.style.background = 'rgba(74,222,128,0.15)';
+            badge.style.color = '#4ade80';
+            badge.textContent = '● Online';
+          } else {
+            badge.style.background = 'rgba(248,113,113,0.1)';
+            badge.style.color = '#f87171';
+            badge.textContent = '○ Offline';
+          }
+        } else {
+          badge.textContent = '○ Belum aktif';
+        }
+      } catch (_) {}
+    });
+
   } catch (e) {
     console.error(e);
-    myDevicesList.innerHTML = '<div style="text-align: center; color: var(--red); font-size: 14px;">Gagal memuat daftar perangkat.</div>';
+    myDevicesList.innerHTML = '<div style="text-align:center;color:var(--red);font-size:14px;">Gagal memuat daftar perangkat.</div>';
   }
 }
 
@@ -433,7 +473,69 @@ document.getElementById('btnCopyArduino').addEventListener('click', () => {
     setTimeout(() => { btn.textContent = '📋 Salin Semua Kode'; }, 2500);
   });
 });
+
+// ─── Delegated: Tombol Skrip C++ di Daftar Perangkat ──
+myDevicesList.addEventListener('click', (e) => {
+  const btn = e.target.closest('.btn-view-script');
+  if (btn) openScriptModal(btn.dataset.code, btn.dataset.name);
+});
+
+// ─── Modal Skrip C++ ─────────────────────────────────
+function openScriptModal(shortCode, deviceName) {
+  const modal = document.getElementById('scriptModal');
+  document.getElementById('modalDeviceTitle').textContent = `${deviceName} — TRS-${shortCode}`;
+  document.getElementById('modalArduinoCode').textContent = buildArduinoCode(shortCode);
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeScriptModal() {
+  document.getElementById('scriptModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+document.getElementById('btnModalCopy').addEventListener('click', () => {
+  const code = document.getElementById('modalArduinoCode').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.getElementById('btnModalCopy');
+    const orig = btn.textContent;
+    btn.textContent = '✅ Tersalin!';
+    setTimeout(() => { btn.textContent = orig; }, 2500);
+  });
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeScriptModal();
+});
 </script>
+
+<!-- ════ Modal Skrip C++ ════ -->
+<div id="scriptModal" onclick="if(event.target===this)closeScriptModal()" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(5,9,18,0.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:9999;overflow-y:auto;padding:16px;box-sizing:border-box;align-items:flex-start;justify-content:center;">
+  <div style="max-width:860px;width:100%;margin:0 auto;background:var(--bg-surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:0 32px 90px rgba(0,0,0,0.75);">
+    <!-- Header -->
+    <div style="background:var(--grad-tools);padding:20px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+      <div>
+        <div style="font-weight:800;font-size:18px;color:#fff;display:flex;align-items:center;gap:8px;">⚡ Skrip C++ / Arduino</div>
+        <div id="modalDeviceTitle" style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:5px;font-family:'Courier New',monospace;letter-spacing:0.5px;"></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
+        <button id="btnModalCopy" style="background:rgba(255,255,255,0.18);border:1.5px solid rgba(255,255,255,0.3);color:#fff;padding:9px 18px;border-radius:var(--r-full);cursor:pointer;font-weight:700;font-size:13px;font-family:var(--font);transition:all 0.2s;white-space:nowrap;">📋 Salin Kode</button>
+        <button onclick="closeScriptModal()" style="background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.18);color:#fff;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;transition:background 0.2s;" onmouseenter="this.style.background='rgba(255,255,255,0.22)'" onmouseleave="this.style.background='rgba(255,255,255,0.12)'">✕</button>
+      </div>
+    </div>
+    <!-- Warning -->
+    <div style="padding:11px 24px;background:rgba(250,204,21,0.07);border-bottom:1px solid rgba(250,204,21,0.2);font-size:13px;color:var(--text-2);line-height:1.65;">
+      ⚠️ <strong style="color:#facc15;">Yang perlu diubah hanya 2 baris:</strong>
+      Ganti <code style="color:#facc15;background:rgba(250,204,21,0.12);padding:2px 7px;border-radius:5px;font-size:12px;">NAMA_WIFI_ANDA</code>
+      dan <code style="color:#facc15;background:rgba(250,204,21,0.12);padding:2px 7px;border-radius:5px;font-size:12px;">PASSWORD_WIFI_ANDA</code>.
+      <strong>Kode perangkat sudah terisi otomatis — jangan diubah!</strong>
+    </div>
+    <!-- Kode Arduino -->
+    <div style="position:relative;">
+      <pre id="modalArduinoCode" style="margin:0;padding:22px 24px;font-family:'Courier New',Courier,monospace;font-size:12px;line-height:1.7;background:#04070f;color:#cdd6f4;overflow-x:auto;max-height:68vh;overflow-y:auto;tab-size:2;"></pre>
+    </div>
+  </div>
+</div>
 
 <!-- Bottom Navigation -->
 <nav class="bottom-nav">

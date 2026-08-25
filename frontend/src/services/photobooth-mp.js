@@ -58,12 +58,16 @@ function initMultiplayerSocket() {
   if (socket && socket.connected) return;
 
   socket = io(BACKEND_URL, {
-    transports: ['websocket', 'polling'],
+    // polling dulu, baru upgrade ke websocket
+    // (lebih kompatibel dengan proxy/firewall/Render)
+    transports: ['polling', 'websocket'],
     reconnectionAttempts: 10,
-    reconnectionDelay: 2000,
+    reconnectionDelay: 3000,
     reconnectionDelayMax: 10000,
-    timeout: 30000,  // 30 detik — memberi waktu Render untuk bangun
+    timeout: 45000,
   });
+
+  console.log('[MP] Mencoba koneksi ke:', BACKEND_URL);
 
   socket.on('connect', () => {
     console.log('[MP] Terhubung ke signaling server. ID:', socket.id);

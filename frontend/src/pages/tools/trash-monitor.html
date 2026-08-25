@@ -184,10 +184,34 @@
         <div class="tm-chart-tabs">
           <button class="tm-chart-tab active" id="tabFill" onclick="switchChart('fill')">Kepenuhan</button>
           <button class="tm-chart-tab" id="tabGas" onclick="switchChart('gas')">Gas</button>
+          <button class="tm-chart-tab" id="tabLog" onclick="switchChart('log')">📋 Log</button>
         </div>
       </div>
-      <div class="tm-chart-wrap">
+      <!-- Chart canvas -->
+      <div class="tm-chart-wrap" id="chartCanvasWrap">
         <canvas id="historyChart"></canvas>
+      </div>
+      <!-- Histori Log Table -->
+      <div id="historyLogWrap" style="display:none;padding:4px 0 8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 4px 12px;flex-wrap:wrap;gap:8px;">
+          <div style="font-size:12px;color:var(--text-3);" id="histLogCount">Memuat histori...</div>
+          <button onclick="exportHistoryCSV()" style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.28);color:#4ade80;padding:7px 16px;border-radius:var(--r-full);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.2s;" onmouseenter="this.style.background='rgba(74,222,128,0.22)'" onmouseleave="this.style.background='rgba(74,222,128,0.12)'">⬇️ Export CSV</button>
+        </div>
+        <div style="overflow-x:auto;border-radius:12px;border:1px solid var(--border);max-height:340px;overflow-y:auto;">
+          <table id="historyTable" style="width:100%;border-collapse:collapse;font-size:12px;min-width:380px;">
+            <thead>
+              <tr style="background:rgba(255,255,255,0.04);position:sticky;top:0;z-index:1;">
+                <th style="padding:10px 14px;text-align:left;color:var(--text-2);font-weight:700;border-bottom:1px solid var(--border);white-space:nowrap;">🕐 Waktu</th>
+                <th style="padding:10px 14px;text-align:right;color:var(--text-2);font-weight:700;border-bottom:1px solid var(--border);">Fill %</th>
+                <th style="padding:10px 14px;text-align:right;color:var(--text-2);font-weight:700;border-bottom:1px solid var(--border);">☁️ Gas</th>
+                <th style="padding:10px 14px;text-align:center;color:var(--text-2);font-weight:700;border-bottom:1px solid var(--border);">Status</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <tr><td colspan="4" style="text-align:center;padding:24px;color:var(--text-3);">Belum ada data histori.</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -372,9 +396,83 @@ function buildChart(entries) {
 
 window.switchChart = function(mode) {
   currentChartMode = mode;
+  const isLog = mode === 'log';
   document.getElementById('tabFill').classList.toggle('active', mode === 'fill');
   document.getElementById('tabGas').classList.toggle('active',  mode === 'gas');
-  if (historyData.length) buildChart(historyData);
+  document.getElementById('tabLog').classList.toggle('active',  isLog);
+
+  const canvasWrap = document.getElementById('chartCanvasWrap');
+  const logWrap    = document.getElementById('historyLogWrap');
+  if (isLog) {
+    canvasWrap.style.display = 'none';
+    logWrap.style.display    = 'block';
+    renderHistoryTable(historyData);
+  } else {
+    canvasWrap.style.display = '';
+    logWrap.style.display    = 'none';
+    if (historyData.length) buildChart(historyData);
+  }
+};
+
+// ─── Render Tabel Histori ───────────────────────────────
+function renderHistoryTable(entries) {
+  const tbody = document.getElementById('historyTableBody');
+  const countEl = document.getElementById('histLogCount');
+  if (!entries || entries.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:28px;color:var(--text-3);">Belum ada data histori.</td></tr>';
+    if (countEl) countEl.textContent = '0 entri';
+    return;
+  }
+
+  const sorted = [...entries].reverse(); // terbaru di atas
+  if (countEl) countEl.textContent = `${sorted.length} entri (terbaru di atas)`;
+
+  tbody.innerHTML = sorted.map((e, i) => {
+    const fill = e.fill_level ?? null;
+    const gas  = e.gas_level  ?? null;
+    const ts   = e.timestamp
+      ? new Date(e.timestamp * 1000).toLocaleString('id-ID', {
+          day:'2-digit', month:'2-digit', year:'numeric',
+          hour:'2-digit', minute:'2-digit', second:'2-digit'
+        })
+      : '—';
+
+    let statusText = '—', statusColor = 'var(--text-3)', fillColor = 'var(--text-2)';
+    if (fill !== null) {
+      if (fill < 50)  { statusText = '✅ Normal';   statusColor = '#4ade80'; fillColor = '#4ade80'; }
+      else if (fill < 80) { statusText = '⚠️ Sedang'; statusColor = '#facc15'; fillColor = '#facc15'; }
+      else            { statusText = '🚨 Penuh';   statusColor = '#f87171'; fillColor = '#f87171'; }
+    }
+
+    const rowBg = i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.025)';
+    return `<tr style="background:${rowBg};transition:background 0.15s;" onmouseenter="this.style.background='rgba(74,222,128,0.06)'" onmouseleave="this.style.background='${rowBg}'">
+      <td style="padding:9px 14px;color:var(--text-2);white-space:nowrap;font-family:monospace;font-size:11.5px;">${ts}</td>
+      <td style="padding:9px 14px;text-align:right;font-weight:700;color:${fillColor};">${fill !== null ? fill + '%' : '—'}</td>
+      <td style="padding:9px 14px;text-align:right;color:#a78bfa;">${gas !== null ? gas + ' ppm' : '—'}</td>
+      <td style="padding:9px 14px;text-align:center;font-size:11px;font-weight:700;color:${statusColor};">${statusText}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── Export CSV ────────────────────────────────────────
+window.exportHistoryCSV = function() {
+  if (!historyData.length) { alert('Tidak ada data untuk diekspor.'); return; }
+  const deviceCode = document.getElementById('dbDeviceCode').textContent || 'device';
+  const header = 'Waktu,Timestamp Unix,Fill (%),Gas (ppm),Status\n';
+  const rows = [...historyData].reverse().map(e => {
+    const ts     = e.timestamp ? new Date(e.timestamp * 1000).toLocaleString('id-ID') : '';
+    const fill   = e.fill_level ?? '';
+    const gas    = e.gas_level  ?? '';
+    const status = fill === '' ? '' : fill < 50 ? 'Normal' : fill < 80 ? 'Sedang' : 'Penuh';
+    return `"${ts}",${e.timestamp || ''},"${fill}","${gas}","${status}"`;
+  }).join('\n');
+  const blob = new Blob(['\uFEFF' + header + rows], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `histori-${deviceCode}-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 };
 
 // ─── Render Semua Data Dashboard ────────────────
@@ -431,7 +529,11 @@ async function startMonitoring(code) {
     getDeviceHistory(upper, 60).then(entries => {
       if (entries.length) {
         historyData = entries;
-        buildChart(entries);
+        if (currentChartMode === 'log') {
+          renderHistoryTable(entries);
+        } else {
+          buildChart(entries);
+        }
       }
     });
   });
