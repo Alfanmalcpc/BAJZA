@@ -483,7 +483,7 @@ function renderDashboard(data, code) {
   // Header
   document.getElementById('dbDeviceName').textContent    = info.name     || 'Perangkat Tanpa Nama';
   document.getElementById('dbDeviceLocation').textContent = '📍 ' + (info.location || 'Lokasi tidak diset');
-  document.getElementById('dbDeviceCode').textContent    = 'TRS-' + code;
+  document.getElementById('dbDeviceCode').textContent    = code;
 
   // Status online (cek apakah last_updated < 30 detik)
   const lastTs = status.last_updated || 0;
@@ -541,11 +541,18 @@ async function startMonitoring(code) {
 
 // ─── Event: Tombol Monitor ───────────────────────
 btnMonitor.addEventListener('click', async () => {
-  const raw = codeInput.value.trim().toUpperCase();
+  // Terima input: bisa "ABCD" atau "TRS-ABCD"
+  let raw = codeInput.value.trim().toUpperCase();
+  // Strip prefix jika user paste kode lengkap
+  if (raw.startsWith('TRS-')) raw = raw.slice(4);
+
   if (raw.length < 4) {
     errorMsg.textContent = 'Masukkan 4 karakter kode lengkap.';
     errorMsg.classList.add('show'); return;
   }
+
+  // Kode penuh yang disimpan di Firebase
+  const fullCode = 'TRS-' + raw;
 
   errorMsg.classList.remove('show');
   btnMonitorText.style.display = 'none';
@@ -553,12 +560,12 @@ btnMonitor.addEventListener('click', async () => {
   btnMonitor.disabled = true;
 
   try {
-    const exists = await checkDeviceExists(raw);
+    const exists = await checkDeviceExists(fullCode);
     if (!exists) {
-      errorMsg.textContent = 'Kode tidak ditemukan. Pastikan kode benar.';
+      errorMsg.textContent = 'Kode tidak ditemukan. Pastikan kode benar (contoh: ABCD atau TRS-ABCD).';
       errorMsg.classList.add('show');
     } else {
-      await startMonitoring(raw);
+      await startMonitoring(fullCode);
     }
   } catch (e) {
     errorMsg.textContent = 'Gagal terhubung. Periksa koneksi internet Anda.';

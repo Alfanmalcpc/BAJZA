@@ -205,6 +205,7 @@ async function loadMyDevices() {
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <a href="trash-monitor.html?code=${shortCode}" style="flex:1;min-width:80px;background:var(--blue);color:#fff;padding:10px 14px;border-radius:var(--r-full);text-decoration:none;font-size:13px;font-weight:700;text-align:center;transition:opacity 0.2s;" onmouseenter="this.style.opacity='.85'" onmouseleave="this.style.opacity='1'">🔍 Pantau</a>
             <button class="btn-view-script" data-code="${shortCode}" data-name="${safeName}" style="flex:1;min-width:80px;background:var(--bg-surface);border:1.5px solid var(--border);color:var(--text-1);padding:10px 14px;border-radius:var(--r-full);font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:var(--font);" onmouseenter="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text-1)'">📋 Skrip C++</button>
+            <button class="btn-delete-device" data-fullcode="${child.key}" data-name="${safeName}" style="flex-shrink:0;width:40px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:#f87171;border-radius:var(--r-full);font-size:14px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;" onmouseenter="this.style.background='#f87171';this.style.color='#fff'" onmouseleave="this.style.background='rgba(248,113,113,0.1)';this.style.color='#f87171'" title="Hapus Perangkat">🗑️</button>
           </div>
         </div>
       `;
@@ -237,183 +238,244 @@ async function loadMyDevices() {
 
   } catch (e) {
     console.error(e);
-    myDevicesList.innerHTML = '<div style="text-align:center;color:var(--red);font-size:14px;">Gagal memuat daftar perangkat.</div>';
-  }
-}
-
-// ─── Template Kode Arduino (dengan placeholder %%CODE%%) ────────
-function buildArduinoCode(deviceCode) {
+    myDevicesList.innerHTML = '<div style="text-align:center;color:var(--red);font-size:14px;">Gagal mfunction buildArduinoCode(deviceCode) {
   return `/*
- =====================================================
-  BAJA IoT Trash Monitor — Kode Mikrokontroler
+ ======================================================
+  BAJA IoT Trash Monitor -- ESP32 / ESP8266 Sketch
+  Version : 2.0 (Firebase_ESP_Client)
   Perangkat : TRS-${deviceCode}
   Dibuat    : ${new Date().toLocaleDateString('id-ID', {day:'numeric',month:'long',year:'numeric'})}
-  Web       : BAJA WEB IoT Trash Monitor
- =====================================================
-  Library yang dibutuhkan (install via Library Manager):
+  Hardware:
+    - ESP32 (DevKit / Wemos D1 R32) ATAU NodeMCU ESP8266
+    - Sensor Ultrasonik HC-SR04 (Level Kepenuhan)
+    - Sensor Gas MQ-135 (Kadar Gas)
+    - (Opsional) Voltage Divider untuk cek baterai
+
+  Library yang dibutuhkan (Install via Library Manager):
     - Firebase Arduino Client Library for ESP8266 and ESP32
       by Mobizt  (versi 4.x ke atas)
     - ArduinoJson by Benoit Blanchon
-=====================================================*/
+ ======================================================
+*/
 
-// ── Include WiFi & Firebase ──────────────────────────
+// --- Include WiFi & Firebase ----------------------------------
 #if defined(ESP32)
   #include <WiFi.h>
 #elif defined(ESP8266)
   #include <ESP8266WiFi.h>
 #endif
 
-#include <Firebase_ESP_Client.h>       // Library baru Mobizt (v4+)
-#include <addons/TokenHelper.h>        // Wajib untuk token callback
-#include <addons/RTDBHelper.h>         // Wajib untuk RTDB helper
+#include <Firebase_ESP_Client.h>
+#include <addons/TokenHelper.h>
+#include <addons/RTDBHelper.h>
 #include <ArduinoJson.h>
 #include <time.h>
 
-// ── GANTI 2 BARIS INI SAJA ──────────────────────────
+// --- KONFIGURASI WAJIB ----------------------------------------
 #define WIFI_SSID       "NAMA_WIFI_ANDA"
 #define WIFI_PASSWORD   "PASSWORD_WIFI_ANDA"
-// ────────────────────────────────────────────────────
+#define DEVICE_CODE     "${deviceCode}"   // Otomatis dari web
+// --------------------------------------------------------------
 
-// Kode perangkat (JANGAN DIUBAH)
-#define DEVICE_CODE     "${deviceCode}"
-
-// Firebase
+// Firebase Configuration
 #define FIREBASE_HOST   "baja-iot-default-rtdb.asia-southeast1.firebasedatabase.app"
 #define FIREBASE_AUTH   "AIzaSyDCh3CQHqdi7SxhDHLJ6IsQ7hq4GSOi6yI"
 
-// Resolusi ADC & PIN Sensor
-#if defined(ESP8266) // Wemos D1 Mini / NodeMCU
+// --- PIN & ADC ------------------------------------------------
+#if defined(ESP8266)  // NodeMCU / Wemos D1 Mini
   #define ADC_MAX         1023.0
-  #define TRIG_PIN        D1   // HC-SR04 Trigger
-  #define ECHO_PIN        D2   // HC-SR04 Echo
-  #define GAS_PIN         A0   // MQ-135 Analog
-  #define BATT_PIN        A0   // Di ESP8266 hanya ada 1 ADC
+  #define TRIG_PIN        D1
+  #define ECHO_PIN        D2
+  #define GAS_PIN         A0
+  #define BATT_PIN        A0
   #define LED_PIN         LED_BUILTIN
-#elif defined(CONFIG_IDF_TARGET_ESP32C6) // ESP32-C6
+  #define LED_RED_PIN     D3
+  #define LED_GREEN_PIN   D4
+#elif defined(CONFIG_IDF_TARGET_ESP32C6)
   #define ADC_MAX         4095.0
-  #define TRIG_PIN        4    // HC-SR04 Trigger
-  #define ECHO_PIN        5    // HC-SR04 Echo
-  #define GAS_PIN         2    // MQ-135 Analog (ADC)
-  #define BATT_PIN        3    // Voltage divider (ADC)
-  #define LED_PIN         8    // LED indikator
-#else // ESP32 Standar (WROOM/WROVER)
+  #define TRIG_PIN        4
+  #define ECHO_PIN        5
+  #define GAS_PIN         2
+  #define BATT_PIN        3
+  #define LED_PIN         8
+  #define LED_RED_PIN     12
+  #define LED_GREEN_PIN   13
+#else  // ESP32 Standar
   #define ADC_MAX         4095.0
-  #define TRIG_PIN        5    // HC-SR04 Trigger
-  #define ECHO_PIN        18   // HC-SR04 Echo
-  #define GAS_PIN         34   // MQ-135 Analog (ADC)
-  #define BATT_PIN        35   // Voltage divider (ADC)
-  #define LED_PIN         2    // LED indikator
+  #define TRIG_PIN        5
+  #define ECHO_PIN        18
+  #define GAS_PIN         34
+  #define BATT_PIN        35
+  #define LED_PIN         2
+  #define LED_RED_PIN     12
+  #define LED_GREEN_PIN   13
 #endif
 
-// Konfigurasi
-#define BIN_HEIGHT_CM   50   // Tinggi tong sampah (cm)
-#define UPDATE_INTERVAL 10000 // Update tiap 10 detik
+#define BIN_HEIGHT_CM   50     // Tinggi tong sampah (cm)
+#define UPDATE_INTERVAL 10000  // Interval kirim data (ms)
 
 FirebaseData   fbdo;
-FirebaseConfig fbConfig;
 FirebaseAuth   fbAuth;
+FirebaseConfig fbConfig;
 
-String devicePath = "/trash-bins/TRS-${deviceCode}/status";
-String histPath   = "/trash-bins/TRS-${deviceCode}/history";
+String devicePath;
+String histPath;
 
 unsigned long lastUpdate = 0;
 
+// --- Setup ----------------------------------------------------
 void setup() {
   Serial.begin(115200);
+  delay(500);
+
   pinMode(TRIG_PIN, OUTPUT);
   pinMode(ECHO_PIN, INPUT);
   pinMode(LED_PIN,  OUTPUT);
+  pinMode(LED_RED_PIN, OUTPUT);
+  pinMode(LED_GREEN_PIN, OUTPUT);
 
-  Serial.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  digitalWrite(LED_RED_PIN, HIGH);
+  digitalWrite(LED_GREEN_PIN, LOW);
+
+  devicePath = "/trash-bins/TRS-" + String(DEVICE_CODE) + "/status";
+  histPath   = "/trash-bins/TRS-" + String(DEVICE_CODE) + "/history";
+
+  Serial.println("================================");
   Serial.println("  BAJA IoT Trash Monitor v2.0");
-  Serial.println("  Kode: TRS-${deviceCode}");
-  Serial.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  Serial.println("  Kode: TRS-" + String(DEVICE_CODE));
+  Serial.println("================================");
 
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("Menghubungkan WiFi");
   while (WiFi.status() != WL_CONNECTED) {
     delay(500); Serial.print(".");
     digitalWrite(LED_PIN, !digitalRead(LED_PIN));
+    digitalWrite(LED_RED_PIN, !digitalRead(LED_RED_PIN));
   }
   digitalWrite(LED_PIN, HIGH);
   Serial.println("\\nWiFi Terhubung! IP: " + WiFi.localIP().toString());
 
-  configTime(25200, 0, "pool.ntp.org");
-  while (time(nullptr) < 100000) delay(200);
-  Serial.println("Waktu NTP OK");
+  configTime(25200, 0, "pool.ntp.org", "time.nist.gov");
+  Serial.print("Sinkronisasi waktu NTP");
+  while (time(nullptr) < 100000) { delay(200); Serial.print("."); }
+  Serial.println(" OK");
 
-  // ── Konfigurasi Firebase v4+ ─────────────────────
+  // Konfigurasi Firebase v4+
   fbConfig.database_url = FIREBASE_HOST;
   fbConfig.signer.tokens.legacy_token = FIREBASE_AUTH;
-  fbConfig.token_status_callback = tokenStatusCallback; // wajib v4+
+  fbConfig.token_status_callback = tokenStatusCallback;
+
   Firebase.begin(&fbConfig, &fbAuth);
   Firebase.reconnectWiFi(true);
-  Serial.println("Firebase Terhubung!");
+
+  digitalWrite(LED_RED_PIN, LOW);
+  digitalWrite(LED_GREEN_PIN, HIGH);
+
+  Serial.println("Firebase terhubung!");
+  Serial.println("================================");
 }
 
+// --- Baca Sensor Ultrasonik -----------------------------------
 float readDistanceCm() {
-  digitalWrite(TRIG_PIN, LOW);  delayMicroseconds(2);
-  digitalWrite(TRIG_PIN, HIGH); delayMicroseconds(10);
   digitalWrite(TRIG_PIN, LOW);
-  long dur = pulseIn(ECHO_PIN, HIGH, 30000);
-  return dur == 0 ? -1 : dur * 0.0343 / 2.0;
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+
+  long duration = pulseIn(ECHO_PIN, HIGH, 30000);
+  if (duration == 0) return -1;
+  return duration * 0.0343 / 2.0;
 }
 
-int calcFillLevel(float dist) {
-  if (dist < 0) return -1;
-  return constrain((int)((1.0 - dist / BIN_HEIGHT_CM) * 100.0), 0, 100);
+// --- Hitung Level Kepenuhan -----------------------------------
+int calcFillLevel(float distCm) {
+  if (distCm < 0) return -1;
+  float level = (1.0 - (distCm / BIN_HEIGHT_CM)) * 100.0;
+  return constrain((int)level, 0, 100);
 }
 
+// --- Baca Gas MQ-135 -----------------------------------------
 int readGasPPM() {
-  return map(analogRead(GAS_PIN), 0, (int)ADC_MAX, 0, 1000);
+  int raw = analogRead(GAS_PIN);
+  return map(raw, 0, (int)ADC_MAX, 0, 1000);
 }
 
-int readBattery() {
-  float v = (analogRead(BATT_PIN) / ADC_MAX) * 3.3 * 2.0;
-  return constrain((int)((v - 3.0) / 1.2 * 100.0), 0, 100);
+// --- Baca Baterai --------------------------------------------
+int readBatteryPercent() {
+  int   raw  = analogRead(BATT_PIN);
+  float volt = (raw / ADC_MAX) * 3.3 * 2.0;
+  int   pct  = (int)((volt - 3.0) / (4.2 - 3.0) * 100.0);
+  return constrain(pct, 0, 100);
 }
 
-void sendData(int fill, int gas, int batt, bool full) {
+// --- Kirim ke Firebase ---------------------------------------
+void sendToFirebase(int fillLevel, int gasLevel, int battery, bool isFull) {
   time_t now = time(nullptr);
 
-  // Update /status — gunakan Firebase.RTDB (API baru)
-  Firebase.RTDB.setInt(&fbdo,  devicePath + "/fill_level",   fill);
-  Firebase.RTDB.setInt(&fbdo,  devicePath + "/gas_level",    gas);
-  Firebase.RTDB.setInt(&fbdo,  devicePath + "/battery",      batt);
-  Firebase.RTDB.setBool(&fbdo, devicePath + "/is_full",      full);
+  Firebase.RTDB.setInt(&fbdo,  devicePath + "/fill_level",   fillLevel);
+  Firebase.RTDB.setInt(&fbdo,  devicePath + "/gas_level",    gasLevel);
+  Firebase.RTDB.setInt(&fbdo,  devicePath + "/battery",      battery);
+  Firebase.RTDB.setBool(&fbdo, devicePath + "/is_full",      isFull);
   Firebase.RTDB.setInt(&fbdo,  devicePath + "/last_updated", (int)now);
 
-  // Push ke /history
-  FirebaseJson j;
-  j.set("fill_level", fill);
-  j.set("gas_level",  gas);
-  j.set("timestamp",  (int)now);
-  Firebase.RTDB.pushJSON(&fbdo, histPath, &j);
+  FirebaseJson histJson;
+  histJson.set("fill_level",  fillLevel);
+  histJson.set("gas_level",   gasLevel);
+  histJson.set("timestamp",   (int)now);
+  Firebase.RTDB.pushJSON(&fbdo, histPath, &histJson);
 
-  Serial.printf("Terkirim | Fill:%d%% Gas:%d ppm Batt:%d%%\\n", fill, gas, batt);
+  Serial.print("Terkirim | Fill:");
+  Serial.print(fillLevel);
+  Serial.print("% | Gas:");
+  Serial.print(gasLevel);
+  Serial.print(" ppm | Batt:");
+  Serial.print(battery);
+  Serial.println("%");
 }
 
+// --- Loop Utama ----------------------------------------------
 void loop() {
-  if (millis() - lastUpdate >= UPDATE_INTERVAL) {
-    lastUpdate = millis();
+  unsigned long now = millis();
+
+  if (now - lastUpdate >= UPDATE_INTERVAL) {
+    lastUpdate = now;
     digitalWrite(LED_PIN, LOW);
 
-    float dist = readDistanceCm();
-    int   fill = calcFillLevel(dist);
-    int   gas  = readGasPPM();
-    int   batt = readBattery();
-    bool  full = (fill >= 90);
+    float  dist      = readDistanceCm();
+    int    fillLevel = calcFillLevel(dist);
+    int    gasLevel  = readGasPPM();
+    int    battery   = readBatteryPercent();
+    bool   isFull    = (fillLevel >= 90);
 
-    if (fill >= 0 && WiFi.status() == WL_CONNECTED) {
-      sendData(fill, gas, batt, full);
-    } else if (WiFi.status() != WL_CONNECTED) {
+    Serial.print("Sensor | Jarak:");
+    Serial.print(dist);
+    Serial.print("cm | Fill:");
+    Serial.print(fillLevel);
+    Serial.print("% | Gas:");
+    Serial.print(gasLevel);
+    Serial.print(" ppm | Batt:");
+    Serial.print(battery);
+    Serial.println("%");
+
+    if (fillLevel < 0) {
+      Serial.println("GAGAL baca sensor ultrasonik! Periksa kabel.");
+    } else if (WiFi.status() == WL_CONNECTED) {
+      sendToFirebase(fillLevel, gasLevel, battery, isFull);
+      digitalWrite(LED_RED_PIN,   LOW);
+      digitalWrite(LED_GREEN_PIN, HIGH);
+    } else {
+      Serial.println("WiFi terputus! Mencoba reconnect...");
+      digitalWrite(LED_GREEN_PIN, LOW);
+      digitalWrite(LED_RED_PIN,   HIGH);
       WiFi.reconnect();
     }
 
     digitalWrite(LED_PIN, HIGH);
   }
-}`;
 }
+\`;
+
 
 // ─── Register & Tampilkan Kode ──────────────────────
 btnRegister.addEventListener('click', async () => {
@@ -483,10 +545,41 @@ document.getElementById('btnCopyArduino').addEventListener('click', () => {
   });
 });
 
-// ─── Delegated: Tombol Skrip C++ di Daftar Perangkat ──
-myDevicesList.addEventListener('click', (e) => {
-  const btn = e.target.closest('.btn-view-script');
-  if (btn) openScriptModal(btn.dataset.code, btn.dataset.name);
+// ─── Delegated: Tombol Aksi di Daftar Perangkat ──
+myDevicesList.addEventListener('click', async (e) => {
+  // Tombol Skrip C++
+  const btnScript = e.target.closest('.btn-view-script');
+  if (btnScript) {
+    openScriptModal(btnScript.dataset.code, btnScript.dataset.name);
+    return;
+  }
+
+  // Tombol Hapus Perangkat
+  const btnDelete = e.target.closest('.btn-delete-device');
+  if (btnDelete) {
+    const fullCode = btnDelete.dataset.fullcode; // misal: TRS-ABCD
+    const name = btnDelete.dataset.name;
+    
+    if (confirm(`Apakah Anda yakin ingin menghapus perangkat "${name}" (Kode: ${fullCode})?\n\nSemua data pemantauan dan histori akan terhapus dan TIDAK BISA DIKEMBALIKAN.`)) {
+      btnDelete.disabled = true;
+      btnDelete.textContent = '...';
+      
+      try {
+        // Hapus dari database IoT utama (status & histori)
+        await iotDb.ref(`trash-bins/${fullCode}`).remove();
+        
+        // Hapus dari profil pengguna pembuat
+        await db.ref(`users/${currentUser.uid}/iot_devices/${fullCode}`).remove();
+        
+        // Refresh daftar
+        loadMyDevices();
+      } catch (err) {
+        alert('Gagal menghapus perangkat: ' + err.message);
+        btnDelete.disabled = false;
+        btnDelete.textContent = '🗑️';
+      }
+    }
+  }
 });
 
 // ─── Modal Skrip C++ ─────────────────────────────────
