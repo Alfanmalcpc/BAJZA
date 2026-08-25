@@ -251,17 +251,21 @@ function buildArduinoCode(deviceCode) {
   Web       : BAJA WEB IoT Trash Monitor
  =====================================================
   Library yang dibutuhkan (install via Library Manager):
-    - Firebase ESP32 Client atau Firebase ESP8266 Client by Mobizt
+    - Firebase Arduino Client Library for ESP8266 and ESP32
+      by Mobizt  (versi 4.x ke atas)
     - ArduinoJson by Benoit Blanchon
 =====================================================*/
 
+// ── Include WiFi & Firebase ──────────────────────────
 #if defined(ESP32)
   #include <WiFi.h>
-  #include <FirebaseESP32.h>
 #elif defined(ESP8266)
   #include <ESP8266WiFi.h>
-  #include <FirebaseESP8266.h>
 #endif
+
+#include <Firebase_ESP_Client.h>       // Library baru Mobizt (v4+)
+#include <addons/TokenHelper.h>        // Wajib untuk token callback
+#include <addons/RTDBHelper.h>         // Wajib untuk RTDB helper
 #include <ArduinoJson.h>
 #include <time.h>
 
@@ -283,7 +287,7 @@ function buildArduinoCode(deviceCode) {
   #define TRIG_PIN        D1   // HC-SR04 Trigger
   #define ECHO_PIN        D2   // HC-SR04 Echo
   #define GAS_PIN         A0   // MQ-135 Analog
-  #define BATT_PIN        A0   // Di ESP8266 hanya ada 1 ADC, baterai tidak akurat dibaca bersamaan
+  #define BATT_PIN        A0   // Di ESP8266 hanya ada 1 ADC
   #define LED_PIN         LED_BUILTIN
 #elif defined(CONFIG_IDF_TARGET_ESP32C6) // ESP32-C6
   #define ADC_MAX         4095.0
@@ -321,7 +325,7 @@ void setup() {
   pinMode(LED_PIN,  OUTPUT);
 
   Serial.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  Serial.println("  BAJA IoT Trash Monitor");
+  Serial.println("  BAJA IoT Trash Monitor v2.0");
   Serial.println("  Kode: TRS-${deviceCode}");
   Serial.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
@@ -332,14 +336,16 @@ void setup() {
     digitalWrite(LED_PIN, !digitalRead(LED_PIN));
   }
   digitalWrite(LED_PIN, HIGH);
-  Serial.println("\nWiFi Terhubung! IP: " + WiFi.localIP().toString());
+  Serial.println("\\nWiFi Terhubung! IP: " + WiFi.localIP().toString());
 
   configTime(25200, 0, "pool.ntp.org");
   while (time(nullptr) < 100000) delay(200);
   Serial.println("Waktu NTP OK");
 
-  fbConfig.host = FIREBASE_HOST;
+  // ── Konfigurasi Firebase v4+ ─────────────────────
+  fbConfig.database_url = FIREBASE_HOST;
   fbConfig.signer.tokens.legacy_token = FIREBASE_AUTH;
+  fbConfig.token_status_callback = tokenStatusCallback; // wajib v4+
   Firebase.begin(&fbConfig, &fbAuth);
   Firebase.reconnectWiFi(true);
   Serial.println("Firebase Terhubung!");
@@ -369,19 +375,22 @@ int readBattery() {
 
 void sendData(int fill, int gas, int batt, bool full) {
   time_t now = time(nullptr);
-  Firebase.setInt(fbdo,  devicePath + "/fill_level",   fill);
-  Firebase.setInt(fbdo,  devicePath + "/gas_level",    gas);
-  Firebase.setInt(fbdo,  devicePath + "/battery",      batt);
-  Firebase.setBool(fbdo, devicePath + "/is_full",      full);
-  Firebase.setInt(fbdo,  devicePath + "/last_updated", (int)now);
 
+  // Update /status — gunakan Firebase.RTDB (API baru)
+  Firebase.RTDB.setInt(&fbdo,  devicePath + "/fill_level",   fill);
+  Firebase.RTDB.setInt(&fbdo,  devicePath + "/gas_level",    gas);
+  Firebase.RTDB.setInt(&fbdo,  devicePath + "/battery",      batt);
+  Firebase.RTDB.setBool(&fbdo, devicePath + "/is_full",      full);
+  Firebase.RTDB.setInt(&fbdo,  devicePath + "/last_updated", (int)now);
+
+  // Push ke /history
   FirebaseJson j;
   j.set("fill_level", fill);
   j.set("gas_level",  gas);
   j.set("timestamp",  (int)now);
-  Firebase.pushJSON(fbdo, histPath, j);
+  Firebase.RTDB.pushJSON(&fbdo, histPath, &j);
 
-  Serial.printf("Terkirim | Fill:%d%% Gas:%d ppm Batt:%d%%\n", fill, gas, batt);
+  Serial.printf("Terkirim | Fill:%d%% Gas:%d ppm Batt:%d%%\\n", fill, gas, batt);
 }
 
 void loop() {
