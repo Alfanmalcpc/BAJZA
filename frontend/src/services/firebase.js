@@ -169,7 +169,13 @@ async function updateLang(uid, lang) {
 function initBajaAuth(onLogin, onLogout) {
   auth.onAuthStateChanged(async user => {
     if (user) {
-      const profile = await getUserProfile(user.uid) || {};
+      let profile = {};
+      try {
+        profile = (await getUserProfile(user.uid)) || {};
+      } catch (err) {
+        console.warn('[BAJA Auth] Gagal memuat profil DB:', err.message);
+      }
+      
       const merged = {
         uid:         user.uid,
         email:       user.email,
