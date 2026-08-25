@@ -615,14 +615,18 @@ function closeScriptModal() {
   document.body.style.overflow = '';
 }
 
-document.getElementById('btnModalCopy').addEventListener('click', () => {
-  const code = document.getElementById('modalArduinoCode').textContent;
-  navigator.clipboard.writeText(code).then(() => {
-    const btn = document.getElementById('btnModalCopy');
-    const orig = btn.textContent;
-    btn.textContent = '✅ Tersalin!';
-    setTimeout(() => { btn.textContent = orig; }, 2500);
-  });
+document.addEventListener('DOMContentLoaded', () => {
+  const btnModalCopy = document.getElementById('btnModalCopy');
+  if (btnModalCopy) {
+    btnModalCopy.addEventListener('click', () => {
+      const code = document.getElementById('modalArduinoCode').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const orig = btnModalCopy.textContent;
+        btnModalCopy.textContent = '✅ Tersalin!';
+        setTimeout(() => { btnModalCopy.textContent = orig; }, 2500);
+      });
+    });
+  }
 });
 
 document.addEventListener('keydown', (e) => {
