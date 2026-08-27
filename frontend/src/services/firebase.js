@@ -168,12 +168,6 @@ async function updateLang(uid, lang) {
 
 function initBajaAuth(onLogin, onLogout) {
   auth.onAuthStateChanged(async user => {
-    var d = document.getElementById('debugErrorOverlay');
-    if (d) {
-      d.style.display = 'block';
-      d.innerHTML += 'Auth State Changed. User is: ' + (user ? user.email : 'NULL') + '<br/>';
-    }
-    
     if (user) {
       let profile = {};
       try {

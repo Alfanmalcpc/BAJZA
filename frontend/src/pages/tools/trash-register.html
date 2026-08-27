@@ -17,20 +17,6 @@
 
 </head>
 <body>
-<!-- DEBUG OVERLAY -->
-<div id="debugErrorOverlay" style="position:fixed;bottom:10px;left:10px;background:rgba(255,0,0,0.8);color:white;padding:10px;z-index:99999;font-size:12px;display:none;max-width:80%;word-wrap:break-word;border-radius:8px;"></div>
-<script>
-  window.addEventListener('error', function(e) {
-    var d = document.getElementById('debugErrorOverlay');
-    d.style.display = 'block';
-    d.innerHTML += 'Error: ' + e.message + ' at ' + e.filename + ':' + e.lineno + '<br/>';
-  });
-  window.addEventListener('unhandledrejection', function(e) {
-    var d = document.getElementById('debugErrorOverlay');
-    d.style.display = 'block';
-    d.innerHTML += 'Promise Error: ' + (e.reason && e.reason.message ? e.reason.message : String(e.reason)) + '<br/>';
-  });
-</script>
 
 <!-- TOP NAVBAR -->
 <nav class="navbar" id="navbar">
@@ -120,10 +106,30 @@
 
       <!-- Perangkat Saya (My Devices) -->
       <div class="tm-monitor-card reg-card-custom" style="margin-top:24px;" id="myDevicesContainer">
-        <div class="tm-monitor-label" style="font-size:20px; font-family:var(--font-heading); margin-bottom:16px;">📱 Perangkat Saya</div>
-        <div id="myDevicesList" style="display: flex; flex-direction: column; gap: 12px;">
-          <!-- Daftar perangkat akan dirender di sini -->
-          <div style="text-align: center; color: var(--text-3); font-size: 14px;">Memuat data...</div>
+
+        <!-- Header Judul + Tombol Buat Grup -->
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+          <div class="tm-monitor-label" style="font-size:20px;font-family:var(--font-heading);margin:0;">📱 Perangkat Saya</div>
+          <button id="btnCreateGroup" style="background:rgba(99,102,241,0.15);border:1.5px solid rgba(99,102,241,0.4);color:#818cf8;padding:8px 16px;border-radius:var(--r-full);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.2s;" onmouseenter="this.style.background='rgba(99,102,241,0.28)'" onmouseleave="this.style.background='rgba(99,102,241,0.15)'">📂 + Buat Grup</button>
+        </div>
+
+        <!-- Tambah Perangkat via Kode -->
+        <div style="background:var(--bg-body);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:16px;">
+          <div style="font-size:13px;font-weight:700;color:var(--text-2);margin-bottom:10px;">🔗 Tambah Perangkat via Kode (milik siapapun)</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--r-full);overflow:hidden;flex:1;min-width:160px;">
+              <span style="padding:0 10px 0 14px;font-weight:700;font-size:14px;color:var(--text-3);white-space:nowrap;">TRS-</span>
+              <input type="text" id="joinCodeInput" maxlength="4" placeholder="XXXX" spellcheck="false" autocomplete="off"
+                style="border:none;background:transparent;color:var(--text-1);font-size:14px;font-weight:700;font-family:'Courier New',monospace;padding:10px 14px 10px 0;width:100%;outline:none;text-transform:uppercase;letter-spacing:2px;">
+            </div>
+            <button id="btnJoinDevice" style="background:var(--grad-tools);color:#fff;border:none;padding:10px 20px;border-radius:var(--r-full);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;transition:opacity 0.2s;" onmouseenter="this.style.opacity='.85'" onmouseleave="this.style.opacity='1'">Tambah</button>
+          </div>
+          <div id="joinError" style="font-size:12px;color:#f87171;margin-top:7px;display:none;"></div>
+        </div>
+
+        <!-- Daftar Perangkat (dirender oleh JS) -->
+        <div id="myDevicesList">
+          <div style="text-align:center;color:var(--text-3);font-size:14px;padding:28px;">Memuat data...</div>
         </div>
       </div>
 
@@ -156,14 +162,17 @@
 <script src="/src/services/firebase-iot.js"></script>
 <script>
 let currentUser = null;
+// Cache untuk semua data perangkat dan grup
+let allDevices = {};   // { fullCode: {name, location, isOwner, createdAt} }
+let allGroups  = {};   // { groupId: {name, createdAt, devices: {code: true}} }
 
-const btnRegister = document.getElementById('btnRegister');
-const btnRegText  = document.getElementById('btnRegText');
-const regSpinner  = document.getElementById('regSpinner');
-const regResult   = document.getElementById('regResult');
-const regError    = document.getElementById('regError');
-const inoSection  = document.getElementById('inoSection');
-const linkMonitor = document.getElementById('linkMonitor');
+const btnRegister   = document.getElementById('btnRegister');
+const btnRegText    = document.getElementById('btnRegText');
+const regSpinner    = document.getElementById('regSpinner');
+const regResult     = document.getElementById('regResult');
+const regError      = document.getElementById('regError');
+const inoSection    = document.getElementById('inoSection');
+const linkMonitor   = document.getElementById('linkMonitor');
 const arduinoCodeEl = document.getElementById('arduinoCode');
 const unauthOverlay = document.getElementById('unauthOverlay');
 const myDevicesList = document.getElementById('myDevicesList');
@@ -183,76 +192,112 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// ─── Load Perangkat & Grup ───────────────────────
 async function loadMyDevices() {
   if (!currentUser) return;
   myDevicesList.innerHTML = '<div style="text-align:center;color:var(--text-3);font-size:14px;padding:28px;">Memuat perangkat...</div>';
   try {
-    const snap = await db.ref(`users/${currentUser.uid}/iot_devices`).once('value');
-    if (!snap.exists()) {
-      myDevicesList.innerHTML = '<div style="text-align:center;color:var(--text-3);font-size:14px;padding:28px;background:var(--bg-body);border-radius:14px;">Anda belum mendaftarkan perangkat apapun.</div>';
+    const [devSnap, grpSnap] = await Promise.all([
+      db.ref(`users/${currentUser.uid}/iot_devices`).once('value'),
+      db.ref(`users/${currentUser.uid}/iot_groups`).once('value')
+    ]);
+    allDevices = {};
+    allGroups  = {};
+    if (!devSnap.exists()) {
+      myDevicesList.innerHTML = '<div style="text-align:center;color:var(--text-3);font-size:14px;padding:28px;background:var(--bg-body);border-radius:14px;">Belum ada perangkat. Daftarkan baru atau tambah via kode di atas.</div>';
       return;
     }
-    
-    let html = '';
-    const deviceCodes = [];
-    snap.forEach(child => {
-      const dev = child.val();
-      const shortCode = child.key.replace('TRS-', '');
-      deviceCodes.push(shortCode);
-      const createdAt = dev.createdAt
-        ? new Date(dev.createdAt).toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'})
-        : '—';
-      const safeName = (dev.name || '').replace(/"/g, '&quot;');
-      const safeLoc  = (dev.location || '').replace(/"/g, '&quot;');
-
-      html += `
-        <div style="background:var(--bg-body);border:1px solid var(--border);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:14px;transition:border-color 0.2s,box-shadow 0.2s;" onmouseenter="this.style.borderColor='var(--blue)';this.style.boxShadow='0 0 0 1px var(--blue)'" onmouseleave="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
-            <div style="flex:1;min-width:0;">
-              <div style="font-weight:800;font-size:15px;color:var(--text-1);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${dev.name}</div>
-              <div style="font-size:12px;color:var(--text-2);margin-top:5px;">📍 ${dev.location}</div>
-              <div style="font-size:11px;color:var(--text-3);margin-top:3px;">📅 ${createdAt} &nbsp;·&nbsp; Kode: <strong style="color:var(--blue);">${child.key}</strong></div>
-            </div>
-            <div id="badge-${shortCode}" style="flex-shrink:0;font-size:11px;font-weight:700;padding:5px 12px;border-radius:var(--r-full);background:rgba(100,100,100,0.12);color:var(--text-3);transition:all 0.35s;">⌛ Cek...</div>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <a href="trash-monitor.html?code=${shortCode}" style="flex:1;min-width:80px;background:var(--blue);color:#fff;padding:10px 14px;border-radius:var(--r-full);text-decoration:none;font-size:13px;font-weight:700;text-align:center;transition:opacity 0.2s;" onmouseenter="this.style.opacity='.85'" onmouseleave="this.style.opacity='1'">🔍 Pantau</a>
-            <button class="btn-view-script" data-code="${shortCode}" data-name="${safeName}" style="flex:1;min-width:80px;background:var(--bg-surface);border:1.5px solid var(--border);color:var(--text-1);padding:10px 14px;border-radius:var(--r-full);font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;font-family:var(--font);" onmouseenter="this.style.borderColor='var(--blue)';this.style.color='var(--blue)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text-1)'">📋 Skrip C++</button>
-            <button class="btn-delete-device" data-fullcode="${child.key}" data-name="${safeName}" style="flex-shrink:0;width:40px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:#f87171;border-radius:var(--r-full);font-size:14px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;" onmouseenter="this.style.background='#f87171';this.style.color='#fff'" onmouseleave="this.style.background='rgba(248,113,113,0.1)';this.style.color='#f87171'" title="Hapus Perangkat">🗑️</button>
-          </div>
-        </div>
-      `;
-    });
-
-    myDevicesList.innerHTML = html;
-
-    // Async: fetch status IoT untuk badge Online/Offline tiap perangkat
-    deviceCodes.forEach(async (shortCode) => {
+    devSnap.forEach(child => { allDevices[child.key] = child.val(); });
+    if (grpSnap.exists()) grpSnap.forEach(child => { allGroups[child.key] = child.val(); });
+    renderDeviceList();
+    // Async: cek status online tiap perangkat
+    Object.keys(allDevices).forEach(async fullCode => {
+      const shortCode = fullCode.replace('TRS-', '');
       try {
-        const st = await iotDb.ref(`trash-bins/TRS-${shortCode}/status/last_updated`).once('value');
+        const st = await iotDb.ref(`trash-bins/${fullCode}/status/last_updated`).once('value');
         const badge = document.getElementById(`badge-${shortCode}`);
         if (!badge) return;
         if (st.exists()) {
-          const diffSec = Math.floor(Date.now() / 1000) - st.val();
-          if (diffSec < 60) {
-            badge.style.background = 'rgba(74,222,128,0.15)';
-            badge.style.color = '#4ade80';
-            badge.textContent = '● Online';
-          } else {
-            badge.style.background = 'rgba(248,113,113,0.1)';
-            badge.style.color = '#f87171';
-            badge.textContent = '○ Offline';
-          }
-        } else {
-          badge.textContent = '○ Belum aktif';
-        }
+          const diff = Math.floor(Date.now() / 1000) - st.val();
+          if (diff < 60) { badge.style.background='rgba(74,222,128,0.15)'; badge.style.color='#4ade80'; badge.textContent='\u25cf Online'; }
+          else           { badge.style.background='rgba(248,113,113,0.1)'; badge.style.color='#f87171'; badge.textContent='\u25cb Offline'; }
+        } else { badge.textContent = '\u25cb Belum aktif'; }
       } catch (_) {}
     });
-
   } catch (e) {
     console.error(e);
     myDevicesList.innerHTML = '<div style="text-align:center;color:var(--red);font-size:14px;">Gagal memuat daftar perangkat.</div>';
   }
+}
+
+// ─── Render Kartu Perangkat ─────────────────────
+function buildDeviceCard(fullCode, dev) {
+  const shortCode = fullCode.replace('TRS-', '');
+  const safeName  = (dev.name || '').replace(/"/g, '&quot;');
+  const safeLoc   = (dev.location || '').replace(/"/g, '&quot;');
+  const isOwner   = dev.isOwner !== false;
+  const createdAt = dev.createdAt
+    ? new Date(dev.createdAt).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}) : '\u2014';
+  const ownerBadge = isOwner ? '' : '<span style="font-size:10px;background:rgba(99,102,241,0.18);color:#818cf8;padding:2px 8px;border-radius:4px;font-weight:700;margin-left:6px;">Dipantau</span>';
+  return `
+    <div style="background:var(--bg-body);border:1px solid var(--border);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:12px;transition:border-color 0.2s,box-shadow 0.2s;" onmouseenter="this.style.borderColor='var(--blue)';this.style.boxShadow='0 0 0 1px var(--blue)'" onmouseleave="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:800;font-size:15px;color:var(--text-1);display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="devname-${shortCode}">${dev.name}</span>${ownerBadge}
+          </div>
+          <div style="font-size:12px;color:var(--text-2);margin-top:4px;" id="devloc-${shortCode}">📍 ${dev.location}</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:3px;">📅 ${createdAt} &nbsp;&middot;&nbsp; Kode: <strong style="color:var(--blue);">${fullCode}</strong></div>
+        </div>
+        <div id="badge-${shortCode}" style="flex-shrink:0;font-size:11px;font-weight:700;padding:5px 12px;border-radius:var(--r-full);background:rgba(100,100,100,0.12);color:var(--text-3);transition:all 0.35s;">⏳ Cek...</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <a href="trash-monitor.html?code=${shortCode}" style="flex:1;min-width:70px;background:var(--blue);color:#fff;padding:9px 12px;border-radius:var(--r-full);text-decoration:none;font-size:12px;font-weight:700;text-align:center;transition:opacity 0.2s;" onmouseenter="this.style.opacity='.85'" onmouseleave="this.style.opacity='1'">🔍 Pantau</a>
+        <button class="btn-edit-device" data-fullcode="${fullCode}" data-name="${safeName}" data-loc="${safeLoc}" data-owner="${isOwner}" style="flex:1;min-width:70px;background:rgba(250,204,21,0.1);border:1px solid rgba(250,204,21,0.25);color:#facc15;padding:9px 12px;border-radius:var(--r-full);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.2s;" onmouseenter="this.style.background='rgba(250,204,21,0.22)'" onmouseleave="this.style.background='rgba(250,204,21,0.1)'">✏️ Edit</button>
+        ${isOwner ? `<button class="btn-view-script" data-code="${shortCode}" data-name="${safeName}" style="flex:1;min-width:70px;background:var(--bg-surface);border:1.5px solid var(--border);color:var(--text-1);padding:9px 12px;border-radius:var(--r-full);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.2s;" onmouseenter="this.style.borderColor='var(--blue)'" onmouseleave="this.style.borderColor='var(--border)'">📋 Skrip</button>` : ''}
+        <button class="btn-manage-groups" data-fullcode="${fullCode}" data-name="${safeName}" style="flex-shrink:0;width:38px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);color:#818cf8;border-radius:var(--r-full);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;" onmouseenter="this.style.background='rgba(99,102,241,0.25)'" onmouseleave="this.style.background='rgba(99,102,241,0.1)'" title="Kelola Grup">📂</button>
+        <button class="btn-delete-device" data-fullcode="${fullCode}" data-name="${safeName}" data-owner="${isOwner}" style="flex-shrink:0;width:38px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:#f87171;border-radius:var(--r-full);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;" onmouseenter="this.style.background='#f87171';this.style.color='#fff'" onmouseleave="this.style.background='rgba(248,113,113,0.1)';this.style.color='#f87171'" title="Hapus">🗑️</button>
+      </div>
+    </div>`;
+}
+
+// ─── Render Seluruh Daftar (Grup + Tanpa Grup) ────────
+function renderDeviceList() {
+  const codesInGroups = new Set();
+  Object.values(allGroups).forEach(g => {
+    if (g.devices) Object.keys(g.devices).forEach(c => codesInGroups.add(c));
+  });
+  let html = '';
+  Object.entries(allGroups).forEach(([groupId, group]) => {
+    const devCodes   = group.devices ? Object.keys(group.devices) : [];
+    const safeGrpName = (group.name || '').replace(/"/g, '&quot;');
+    html += `
+      <div style="border:1.5px solid rgba(99,102,241,0.3);border-radius:16px;overflow:hidden;margin-bottom:4px;">
+        <div style="background:rgba(99,102,241,0.1);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div style="font-weight:800;font-size:14px;color:#818cf8;display:flex;align-items:center;gap:8px;">📂 ${group.name} <span style="font-size:11px;font-weight:600;color:var(--text-3);">(${devCodes.length} perangkat)</span></div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn-rename-group" data-groupid="${groupId}" data-name="${safeGrpName}" style="background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.4);color:#818cf8;padding:5px 12px;border-radius:var(--r-full);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);">✏️ Rename</button>
+            <button class="btn-delete-group" data-groupid="${groupId}" data-name="${safeGrpName}" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:#f87171;padding:5px 10px;border-radius:var(--r-full);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);">🗑️</button>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;padding:12px;">
+          ${devCodes.length === 0
+            ? '<div style="text-align:center;color:var(--text-3);font-size:13px;padding:16px;">Belum ada perangkat di grup ini.</div>'
+            : devCodes.map(fc => allDevices[fc] ? buildDeviceCard(fc, allDevices[fc]) : '').join('')}
+        </div>
+      </div>`;
+  });
+  const ungrouped = Object.entries(allDevices).filter(([fc]) => !codesInGroups.has(fc));
+  if (ungrouped.length > 0) {
+    html += `
+      <div style="border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:4px;">
+        <div style="background:rgba(255,255,255,0.03);padding:12px 16px;font-weight:700;font-size:13px;color:var(--text-3);">📋 Tanpa Grup <span style="font-weight:600;">(${ungrouped.length})</span></div>
+        <div style="display:flex;flex-direction:column;gap:10px;padding:12px;">
+          ${ungrouped.map(([fc, dev]) => buildDeviceCard(fc, dev)).join('')}
+        </div>
+      </div>`;
+  }
+  myDevicesList.innerHTML = html || '<div style="text-align:center;color:var(--text-3);font-size:14px;padding:28px;">Belum ada perangkat.</div>';
 }
 
 // ─── Template Kode Arduino ──────────────────────────────
@@ -494,133 +539,193 @@ void loop() {
 }
 `;
 }
-
-
-// ─── Register & Tampilkan Kode ──────────────────────
+// ─── Register: Buat Perangkat Baru ──────────────────
 btnRegister.addEventListener('click', async () => {
-  if (!currentUser) {
-    alert("Silakan login terlebih dahulu.");
-    return;
-  }
-
+  if (!currentUser) { alert('Silakan login terlebih dahulu.'); return; }
   const name     = document.getElementById('regName').value.trim();
   const location = document.getElementById('regLocation').value.trim();
-
-  if (!name || !location) {
-    regError.textContent = 'Mohon isi semua field terlebih dahulu.';
-    regError.classList.add('show'); return;
-  }
+  if (!name || !location) { regError.textContent = 'Mohon isi semua field terlebih dahulu.'; regError.classList.add('show'); return; }
   regError.classList.remove('show');
-
-  btnRegText.textContent = 'Membuat kode';
-  btnRegText.classList.add('loading-dots');
-  regSpinner.style.display = 'flex';
-  btnRegister.disabled = true;
-
+  btnRegText.textContent = 'Membuat kode'; btnRegText.classList.add('loading-dots');
+  regSpinner.style.display = 'flex'; btnRegister.disabled = true;
   try {
-    const fullCode = await registerDevice(name, location, currentUser.uid); // misal: TRS-4F2A
-    const shortCode = fullCode.replace('TRS-', '');         // misal: 4F2A
-
-    // Simpan ke database akun utama
-    await db.ref(`users/${currentUser.uid}/iot_devices/${fullCode}`).set({
-      name: name,
-      location: location,
-      createdAt: Date.now()
-    });
-
-    // Refresh daftar perangkat
+    const fullCode  = await registerDevice(name, location, currentUser.uid);
+    const shortCode = fullCode.replace('TRS-', '');
+    await db.ref(`users/${currentUser.uid}/iot_devices/${fullCode}`).set({ name, location, createdAt: Date.now(), isOwner: true });
     loadMyDevices();
-
-    // Tampilkan kode di header
     document.getElementById('generatedCode').textContent = fullCode;
     linkMonitor.href = `trash-monitor.html?code=${shortCode}`;
     regResult.classList.add('show');
-
-    // Generate kode Arduino lengkap & tampilkan
     arduinoCodeEl.textContent = buildArduinoCode(shortCode);
     inoSection.classList.add('show');
-
-    // Scroll ke kode Arduino
-    setTimeout(() => inoSection.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
-
-  } catch (e) {
-    regError.textContent = 'Gagal membuat kode: ' + e.message;
-    regError.classList.add('show');
-  } finally {
-    btnRegText.textContent = '✅ Generate Kode Perangkat';
-    btnRegText.classList.remove('loading-dots');
-    regSpinner.style.display = 'none';
-    btnRegister.disabled = false;
+    setTimeout(() => inoSection.scrollIntoView({ behavior:'smooth', block:'start' }), 300);
+  } catch (e) { regError.textContent = 'Gagal membuat kode: ' + e.message; regError.classList.add('show'); }
+  finally {
+    btnRegText.textContent = '✅ Generate Kode Perangkat'; btnRegText.classList.remove('loading-dots');
+    regSpinner.style.display = 'none'; btnRegister.disabled = false;
   }
 });
 
-// ─── Salin Kode Arduino ─────────────────────────────
+// ─── Salin Kode Arduino ──────────────────────────
 document.getElementById('btnCopyArduino').addEventListener('click', () => {
-  const code = arduinoCodeEl.textContent;
-  navigator.clipboard.writeText(code).then(() => {
+  navigator.clipboard.writeText(arduinoCodeEl.textContent).then(() => {
     const btn = document.getElementById('btnCopyArduino');
     btn.textContent = '✅ Tersalin!';
     setTimeout(() => { btn.textContent = '📋 Salin Semua Kode'; }, 2500);
   });
 });
 
-// ─── Delegated: Tombol Aksi di Daftar Perangkat ──
+// ─── Tambah via Kode (Join Device) ────────────────
+document.getElementById('joinCodeInput').addEventListener('input', e => {
+  e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+  document.getElementById('joinError').style.display = 'none';
+});
+document.getElementById('btnJoinDevice').addEventListener('click', async () => {
+  if (!currentUser) { alert('Silakan login terlebih dahulu.'); return; }
+  const raw      = document.getElementById('joinCodeInput').value.trim().toUpperCase();
+  const joinErr  = document.getElementById('joinError');
+  const fullCode = 'TRS-' + raw;
+  if (raw.length !== 4) { joinErr.textContent = 'Masukkan tepat 4 karakter.'; joinErr.style.display = 'block'; return; }
+  if (allDevices[fullCode]) { joinErr.textContent = 'Perangkat ini sudah ada di daftar Anda.'; joinErr.style.display = 'block'; return; }
+  joinErr.style.display = 'none';
+  const btn = document.getElementById('btnJoinDevice');
+  btn.textContent = '...'; btn.disabled = true;
+  try {
+    const info = await getDeviceInfo(fullCode);
+    if (!info) { joinErr.textContent = 'Kode tidak ditemukan.'; joinErr.style.display = 'block'; return; }
+    await db.ref(`users/${currentUser.uid}/iot_devices/${fullCode}`).set({ name: info.name || 'Perangkat', location: info.location || '—', createdAt: Date.now(), isOwner: false });
+    document.getElementById('joinCodeInput').value = '';
+    loadMyDevices();
+  } catch (err) { joinErr.textContent = 'Gagal: ' + err.message; joinErr.style.display = 'block'; }
+  finally { btn.textContent = 'Tambah'; btn.disabled = false; }
+});
+
+// ─── Buat Grup ──────────────────────────────────
+document.getElementById('btnCreateGroup').addEventListener('click', async () => {
+  if (!currentUser) { alert('Silakan login terlebih dahulu.'); return; }
+  const name = prompt('Masukkan nama grup baru:');
+  if (!name || !name.trim()) return;
+  try { await db.ref(`users/${currentUser.uid}/iot_groups`).push({ name: name.trim(), createdAt: Date.now() }); loadMyDevices(); }
+  catch (e) { alert('Gagal membuat grup: ' + e.message); }
+});
+
+// ─── Delegated: Semua Aksi Daftar Perangkat ──────────
 myDevicesList.addEventListener('click', async (e) => {
-  // Tombol Skrip C++
   const btnScript = e.target.closest('.btn-view-script');
-  if (btnScript) {
-    openScriptModal(btnScript.dataset.code, btnScript.dataset.name);
+  if (btnScript) { openScriptModal(btnScript.dataset.code, btnScript.dataset.name); return; }
+
+  const btnEdit = e.target.closest('.btn-edit-device');
+  if (btnEdit) { openEditModal(btnEdit.dataset.fullcode, btnEdit.dataset.name, btnEdit.dataset.loc, btnEdit.dataset.owner === 'true'); return; }
+
+  const btnGrp = e.target.closest('.btn-manage-groups');
+  if (btnGrp) { openGroupModal(btnGrp.dataset.fullcode, btnGrp.dataset.name); return; }
+
+  const btnRenGrp = e.target.closest('.btn-rename-group');
+  if (btnRenGrp) {
+    const newName = prompt('Nama grup baru:', btnRenGrp.dataset.name);
+    if (!newName || !newName.trim()) return;
+    try { await db.ref(`users/${currentUser.uid}/iot_groups/${btnRenGrp.dataset.groupid}/name`).set(newName.trim()); loadMyDevices(); }
+    catch(e) { alert('Gagal: ' + e.message); }
     return;
   }
 
-  // Tombol Hapus Perangkat
+  const btnDelGrp = e.target.closest('.btn-delete-group');
+  if (btnDelGrp) {
+    if (!confirm(`Hapus grup "${btnDelGrp.dataset.name}"?\nPerangkat tidak akan terhapus, hanya dikeluarkan dari grup.`)) return;
+    try { await db.ref(`users/${currentUser.uid}/iot_groups/${btnDelGrp.dataset.groupid}`).remove(); loadMyDevices(); }
+    catch(e) { alert('Gagal: ' + e.message); }
+    return;
+  }
+
   const btnDelete = e.target.closest('.btn-delete-device');
   if (btnDelete) {
-    const fullCode = btnDelete.dataset.fullcode; // misal: TRS-ABCD
-    const name = btnDelete.dataset.name;
-    
-    if (confirm(`Apakah Anda yakin ingin menghapus perangkat "${name}" (Kode: ${fullCode})?\n\nSemua data pemantauan dan histori akan terhapus dan TIDAK BISA DIKEMBALIKAN.`)) {
-      btnDelete.disabled = true;
-      btnDelete.textContent = '...';
-      
-      try {
-        // Hapus dari database IoT utama (status & histori)
-        await iotDb.ref(`trash-bins/${fullCode}`).remove();
-        
-        // Hapus dari profil pengguna pembuat
-        await db.ref(`users/${currentUser.uid}/iot_devices/${fullCode}`).remove();
-        
-        // Refresh daftar
-        loadMyDevices();
-      } catch (err) {
-        alert('Gagal menghapus perangkat: ' + err.message);
-        btnDelete.disabled = false;
-        btnDelete.textContent = '🗑️';
-      }
-    }
+    const fullCode = btnDelete.dataset.fullcode;
+    const isOwner  = btnDelete.dataset.owner === 'true';
+    const msg = isOwner
+      ? `Hapus perangkat "${btnDelete.dataset.name}" (${fullCode})?\n\nSEMUA data IoT terhapus permanen dan TIDAK BISA DIKEMBALIKAN.`
+      : `Lepaskan perangkat "${btnDelete.dataset.name}" dari daftar Anda?\nData di database tidak terhapus.`;
+    if (!confirm(msg)) return;
+    btnDelete.disabled = true; btnDelete.textContent = '...';
+    try {
+      if (isOwner) await iotDb.ref(`trash-bins/${fullCode}`).remove();
+      const updates = {};
+      Object.keys(allGroups).forEach(gid => {
+        if (allGroups[gid].devices && allGroups[gid].devices[fullCode])
+          updates[`users/${currentUser.uid}/iot_groups/${gid}/devices/${fullCode}`] = null;
+      });
+      updates[`users/${currentUser.uid}/iot_devices/${fullCode}`] = null;
+      await db.ref().update(updates);
+      loadMyDevices();
+    } catch (err) { alert('Gagal: ' + err.message); btnDelete.disabled = false; btnDelete.textContent = '🗑️'; }
   }
 });
 
-// ─── Modal Skrip C++ ─────────────────────────────────
+// ─── Modal Edit Perangkat ──────────────────────────
+function openEditModal(fullCode, name, loc, isOwner) {
+  document.getElementById('editModal').style.display = 'flex';
+  document.getElementById('editModalTitle').textContent = fullCode;
+  document.getElementById('editNameInput').value = name;
+  document.getElementById('editLocInput').value  = loc;
+  document.getElementById('editOwnerNote').style.display = isOwner ? 'none' : 'block';
+  document.getElementById('editSaveBtn').onclick = async () => {
+    const newName = document.getElementById('editNameInput').value.trim();
+    const newLoc  = document.getElementById('editLocInput').value.trim();
+    if (!newName || !newLoc) { alert('Nama dan lokasi tidak boleh kosong.'); return; }
+    try {
+      await db.ref(`users/${currentUser.uid}/iot_devices/${fullCode}`).update({ name: newName, location: newLoc });
+      if (isOwner) await updateDeviceInfo(fullCode, newName, newLoc);
+      closeEditModal(); loadMyDevices();
+    } catch (e) { alert('Gagal: ' + e.message); }
+  };
+}
+function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+
+// ─── Modal Kelola Grup ───────────────────────────
+function openGroupModal(fullCode, devName) {
+  document.getElementById('groupModal').style.display = 'flex';
+  document.getElementById('groupModalDevName').textContent = devName + ' (' + fullCode + ')';
+  renderGroupModalList(fullCode);
+}
+function closeGroupModal() { document.getElementById('groupModal').style.display = 'none'; }
+function renderGroupModalList(fullCode) {
+  const container = document.getElementById('groupModalList');
+  const entries   = Object.entries(allGroups);
+  if (!entries.length) { container.innerHTML = '<div style="color:var(--text-3);font-size:13px;padding:12px 0;">Belum ada grup. Buat grup terlebih dahulu.</div>'; return; }
+  container.innerHTML = entries.map(([gid, grp]) => {
+    const inGroup = grp.devices && grp.devices[fullCode];
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--bg-body);border:1px solid var(--border);border-radius:10px;">
+      <span style="font-weight:700;font-size:13px;color:var(--text-1)">📂 ${grp.name}</span>
+      <button onclick="toggleDeviceInGroup('${gid}','${fullCode}',${!inGroup})" style="background:${inGroup?'rgba(248,113,113,0.12)':'rgba(74,222,128,0.12)'};border:1px solid ${inGroup?'rgba(248,113,113,0.3)':'rgba(74,222,128,0.3)'};color:${inGroup?'#f87171':'#4ade80'};padding:5px 14px;border-radius:var(--r-full);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);">${inGroup?'✕ Keluarkan':'+ Masukkan'}</button>
+    </div>`;
+  }).join('');
+}
+window.toggleDeviceInGroup = async function(groupId, fullCode, add) {
+  try {
+    if (add) await db.ref(`users/${currentUser.uid}/iot_groups/${groupId}/devices/${fullCode}`).set(true);
+    else     await db.ref(`users/${currentUser.uid}/iot_groups/${groupId}/devices/${fullCode}`).remove();
+    if (!allGroups[groupId].devices) allGroups[groupId].devices = {};
+    if (add) allGroups[groupId].devices[fullCode] = true;
+    else delete allGroups[groupId].devices[fullCode];
+    renderGroupModalList(fullCode); renderDeviceList();
+  } catch(e) { alert('Gagal update grup: ' + e.message); }
+};
+
+// ─── Modal Skrip C++ ─────────────────────────────
 function openScriptModal(shortCode, deviceName) {
-  const modal = document.getElementById('scriptModal');
+  document.getElementById('scriptModal').style.display = 'flex';
   document.getElementById('modalDeviceTitle').textContent = `${deviceName} — TRS-${shortCode}`;
   document.getElementById('modalArduinoCode').textContent = buildArduinoCode(shortCode);
-  modal.style.display = 'flex';
   document.body.style.overflow = 'hidden';
 }
-
 function closeScriptModal() {
   document.getElementById('scriptModal').style.display = 'none';
   document.body.style.overflow = '';
 }
-
 document.addEventListener('DOMContentLoaded', () => {
   const btnModalCopy = document.getElementById('btnModalCopy');
   if (btnModalCopy) {
     btnModalCopy.addEventListener('click', () => {
-      const code = document.getElementById('modalArduinoCode').textContent;
-      navigator.clipboard.writeText(code).then(() => {
+      navigator.clipboard.writeText(document.getElementById('modalArduinoCode').textContent).then(() => {
         const orig = btnModalCopy.textContent;
         btnModalCopy.textContent = '✅ Tersalin!';
         setTimeout(() => { btnModalCopy.textContent = orig; }, 2500);
@@ -628,11 +733,51 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeScriptModal();
+  if (e.key === 'Escape') { closeScriptModal(); closeEditModal(); closeGroupModal(); }
 });
 </script>
+
+<!-- ════ Modal Edit Perangkat ════ -->
+<div id="editModal" onclick="if(event.target===this)closeEditModal()" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(5,9,18,0.88);backdrop-filter:blur(14px);z-index:9998;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;">
+  <div style="max-width:480px;width:100%;background:var(--bg-surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:0 32px 90px rgba(0,0,0,0.75);">
+    <div style="background:linear-gradient(135deg,#facc15,#f59e0b);padding:18px 22px;display:flex;justify-content:space-between;align-items:center;">
+      <div><div style="font-weight:800;font-size:17px;color:#1a0a00;">✏️ Edit Perangkat</div><div id="editModalTitle" style="font-size:12px;color:rgba(0,0,0,0.55);margin-top:3px;font-family:'Courier New',monospace;"></div></div>
+      <button onclick="closeEditModal()" style="background:rgba(0,0,0,0.12);border:none;color:#1a0a00;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;">✕</button>
+    </div>
+    <div style="padding:22px;">
+      <div id="editOwnerNote" style="display:none;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.25);border-radius:10px;padding:10px 14px;font-size:12px;color:#818cf8;margin-bottom:16px;">ℹ️ Anda bukan pemilik. Perubahan hanya tersimpan di profil Anda.</div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:12px;font-weight:700;color:var(--text-2);display:block;margin-bottom:6px;">Nama Perangkat</label>
+        <input id="editNameInput" type="text" maxlength="60" style="width:100%;background:var(--bg-body);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text-1);font-size:14px;font-family:var(--font);box-sizing:border-box;outline:none;">
+      </div>
+      <div style="margin-bottom:20px;">
+        <label style="font-size:12px;font-weight:700;color:var(--text-2);display:block;margin-bottom:6px;">Lokasi / Keterangan</label>
+        <input id="editLocInput" type="text" maxlength="100" style="width:100%;background:var(--bg-body);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text-1);font-size:14px;font-family:var(--font);box-sizing:border-box;outline:none;">
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="closeEditModal()" style="flex:1;background:var(--bg-body);border:1px solid var(--border);color:var(--text-2);padding:11px;border-radius:var(--r-full);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">Batal</button>
+        <button id="editSaveBtn" style="flex:2;background:linear-gradient(135deg,#facc15,#f59e0b);border:none;color:#1a0a00;padding:11px;border-radius:var(--r-full);font-size:13px;font-weight:800;cursor:pointer;font-family:var(--font);">💾 Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ Modal Kelola Grup ════ -->
+<div id="groupModal" onclick="if(event.target===this)closeGroupModal()" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(5,9,18,0.88);backdrop-filter:blur(14px);z-index:9998;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;">
+  <div style="max-width:440px;width:100%;background:var(--bg-surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:0 32px 90px rgba(0,0,0,0.75);">
+    <div style="background:linear-gradient(135deg,rgba(99,102,241,0.85),rgba(139,92,246,0.85));padding:18px 22px;display:flex;justify-content:space-between;align-items:center;">
+      <div><div style="font-weight:800;font-size:17px;color:#fff;">📂 Kelola Grup</div><div id="groupModalDevName" style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:3px;"></div></div>
+      <button onclick="closeGroupModal()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;">✕</button>
+    </div>
+    <div style="padding:18px;">
+      <p style="font-size:12px;color:var(--text-3);margin:0 0 12px;">Pilih grup untuk memasukkan atau mengeluarkan perangkat ini:</p>
+      <div id="groupModalList" style="display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto;"></div>
+      <button onclick="closeGroupModal()" style="width:100%;margin-top:14px;background:var(--bg-body);border:1px solid var(--border);color:var(--text-2);padding:10px;border-radius:var(--r-full);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">Selesai</button>
+    </div>
+  </div>
+</div>
+
 
 <!-- ════ Modal Skrip C++ ════ -->
 <div id="scriptModal" onclick="if(event.target===this)closeScriptModal()" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(5,9,18,0.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:9999;overflow-y:auto;padding:16px;box-sizing:border-box;align-items:flex-start;justify-content:center;">

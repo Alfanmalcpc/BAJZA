@@ -88,6 +88,26 @@ async function checkDeviceExists(code) {
 }
 
 /**
+ * Ambil info dasar perangkat (nama, lokasi, owner)
+ */
+async function getDeviceInfo(code) {
+  const snap = await iotDb.ref(`trash-bins/${code.toUpperCase()}/info`).once('value');
+  if (!snap.exists()) return null;
+  return snap.val();
+}
+
+/**
+ * Update nama dan lokasi perangkat di database IoT pusat.
+ * Hanya dipanggil oleh pemilik perangkat (isOwner === true).
+ * @param {string} code - Kode perangkat (misal: TRS-ABCD)
+ * @param {string} name - Nama baru
+ * @param {string} location - Lokasi baru
+ */
+async function updateDeviceInfo(code, name, location) {
+  await iotDb.ref(`trash-bins/${code.toUpperCase()}/info`).update({ name, location });
+}
+
+/**
  * Ambil data device sekali (one-time)
  */
 async function getDeviceData(code) {
@@ -104,15 +124,16 @@ async function getDeviceData(code) {
 function subscribeToDevice(code, onUpdate) {
   const ref = iotDb.ref(`trash-bins/${code.toUpperCase()}`);
   ref.on('value', snap => {
-    if (snap.exists()) onUpdate(snap.val());
+    if (snap.exists()) {
+      onUpdate(snap.val());
+      // Otomatis bersihkan history jika > 100 entri
+      pruneHistory(code).catch(() => {});
+    }
   });
   return () => ref.off('value');
 }
 
-/**
- * Ambil histori data (50 entri terakhir)
- */
-async function getDeviceHistory(code, limit = 50) {
+async function getDeviceHistory(code, limit = 100) {
   const snap = await iotDb.ref(`trash-bins/${code.toUpperCase()}/history`)
     .orderByChild('timestamp')
     .limitToLast(limit)
@@ -123,4 +144,30 @@ async function getDeviceHistory(code, limit = 50) {
   const entries = [];
   snap.forEach(child => entries.push(child.val()));
   return entries;
+}
+
+/**
+ * Hapus entri histori terlama jika jumlahnya melebihi batas maksimum.
+ * Dipanggil otomatis setiap kali ada update real-time dari perangkat.
+ * @param {string} code - Kode perangkat (misal: TRS-ABCD)
+ * @param {number} maxEntries - Batas maksimum entri (default: 100)
+ */
+async function pruneHistory(code, maxEntries = 100) {
+  const ref = iotDb.ref(`trash-bins/${code.toUpperCase()}/history`);
+  // Ambil semua key diurutkan dari terlama ke terbaru
+  const snap = await ref.orderByChild('timestamp').once('value');
+  if (!snap.exists()) return;
+
+  const keys = [];
+  snap.forEach(child => keys.push(child.key));
+
+  const excess = keys.length - maxEntries;
+  if (excess <= 0) return; // Masih dalam batas, tidak perlu hapus
+
+  // Hapus `excess` entri paling lama (index 0 = terlama)
+  const toDelete = keys.slice(0, excess);
+  const updates = {};
+  toDelete.forEach(k => { updates[k] = null; });
+  await ref.update(updates);
+  console.log(`[pruneHistory] Dihapus ${excess} entri lama dari ${code}. Sisa: ${maxEntries}.`);
 }
