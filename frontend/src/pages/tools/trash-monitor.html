@@ -148,6 +148,18 @@
         </div>
       </div>
 
+      <!-- Battery Level -->
+      <div class="tm-card tm-stat-card">
+        <div class="tm-stat-icon" style="background:rgba(56,189,248,0.15);">🔋</div>
+        <div>
+          <div class="tm-stat-label">Baterai</div>
+          <div class="tm-stat-value" id="statBattery">
+            <span style="color:#38bdf8;">—</span><span class="tm-stat-unit">%</span>
+          </div>
+          <div id="batteryStatus" style="font-size:12px; color:#38bdf8; margin-top:6px; font-weight:600;">Memuat...</div>
+        </div>
+      </div>
+
     </div>
 
     <!-- Bar Update + Countdown -->
@@ -286,6 +298,19 @@ function renderGas(ppm) {
   else if (ppm < 500) { status = '⚠️ Waspada'; color = '#facc15'; }
   else { status = '🚨 Berbahaya!'; color = '#f87171'; }
   const el = document.getElementById('gasStatus');
+  el.textContent = status;
+  el.style.color = color;
+}
+
+// ─── Render Baterai ──────────────────────────────
+function renderBattery(pct) {
+  document.getElementById('statBattery').innerHTML =
+    `<span style="color:#38bdf8;">${pct}</span><span class="tm-stat-unit">%</span>`;
+  let status, color;
+  if (pct > 50) { status = '🔋 Penuh/Bagus'; color = '#38bdf8'; }
+  else if (pct > 20) { status = '🪫 Menengah'; color = '#facc15'; }
+  else { status = '⚠️ Baterai Lemah'; color = '#f87171'; }
+  const el = document.getElementById('batteryStatus');
   el.textContent = status;
   el.style.color = color;
 }
@@ -476,9 +501,10 @@ function renderDashboard(data, code) {
   // Alert Penuh
   document.getElementById('alertFull').classList.toggle('show', !!status.is_full);
 
-  // Gauge
+  // Gauge & Stat Cards
   renderGauge(status.fill_level ?? 0);
   renderGas(status.gas_level ?? 0);
+  renderBattery(status.battery ?? 0);
 
   // Waktu update
   document.getElementById('lastUpdateTime').textContent = formatTimeAgo(lastTs);
@@ -500,17 +526,22 @@ async function startMonitoring(code) {
     renderDashboard(data, upper);
     startCountdown();
 
-    // Load histori untuk chart (sekali pertama & setiap update)
-    getDeviceHistory(upper, 100).then(entries => {
-      if (entries.length) {
-        historyData = entries;
-        if (currentChartMode === 'log') {
-          renderHistoryTable(entries);
-        } else {
-          buildChart(entries);
-        }
+    // Gunakan histori dari data snapshot langsung (menghindari isu cache dari query once)
+    let entries = [];
+    if (data.history) {
+      entries = Object.values(data.history).sort((a, b) => a.timestamp - b.timestamp);
+      // Batasi 100 entri terakhir
+      if (entries.length > 100) {
+        entries = entries.slice(-100);
       }
-    });
+    }
+
+    if (entries.length) {
+      historyData = entries;
+      // Update chart dan tabel bersamaan agar selalu sinkron
+      buildChart(entries);
+      renderHistoryTable(entries);
+    }
   });
 }
 
