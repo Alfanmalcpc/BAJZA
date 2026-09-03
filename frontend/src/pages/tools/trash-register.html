@@ -162,26 +162,65 @@
             <div class="reg-step-text">Buka <strong>Arduino IDE</strong>, tempel kode, ganti <code class="code-hl">NAMA_WIFI_ANDA</code></div>
 <script>
 
+// ══ DEBUG WIDGET ══════════════════════════════
+const _dbg = document.createElement('div');
+_dbg.id = 'debugBox';
+Object.assign(_dbg.style, {
+  position:'fixed', bottom:'10px', left:'10px', zIndex:'999999',
+  background:'rgba(180,0,0,0.92)', color:'#fff', padding:'10px 14px',
+  borderRadius:'10px', fontSize:'11px', maxWidth:'320px', maxHeight:'220px',
+  overflowY:'auto', pointerEvents:'none', lineHeight:'1.6',
+  fontFamily:'monospace', boxShadow:'0 4px 20px rgba(0,0,0,0.6)'
+});
+_dbg.innerHTML = '<b>🔴 DEBUG AUTH LOG:</b><br/>';
+document.addEventListener('DOMContentLoaded', () => document.body.appendChild(_dbg));
+if (document.body) document.body.appendChild(_dbg);
+
+function logDebug(msg, color) {
+  console.log('[DEBUG]', msg);
+  _dbg.innerHTML += `<span style="color:${color||'#fff'}">${msg}</span><br/>`;
+  _dbg.scrollTop = _dbg.scrollHeight;
+}
+// ══ END DEBUG ═════════════════════════════════
+
 let currentUser = null;
-// Cache untuk semua data perangkat dan grup
-let allDevices = {};   // { fullCode: {name, location, isOwner, createdAt} }
-let allGroups  = {};   // { groupId: {name, createdAt, devices: {code: true}} }
+let allDevices = {};
+let allGroups  = {};
 
 function checkAuthStatus() {
-  if (typeof auth === 'undefined') {
+  logDebug('⏳ Cek firebase + auth...', '#facc15');
+  if (typeof firebase === 'undefined') {
+    logDebug('❌ firebase SDK belum load, retry...', '#f87171');
     setTimeout(checkAuthStatus, 200);
     return;
   }
+  if (typeof auth === 'undefined') {
+    logDebug('❌ auth undefined, retry...', '#f87171');
+    setTimeout(checkAuthStatus, 200);
+    return;
+  }
+  if (typeof iotDb === 'undefined') {
+    logDebug('⚠️ iotDb undefined (firebase-iot.js belum load?), retry...', '#fb923c');
+    setTimeout(checkAuthStatus, 200);
+    return;
+  }
+  logDebug('✅ firebase + auth + iotDb OK', '#4ade80');
+  logDebug('📡 Memanggil onAuthStateChanged...', '#facc15');
+
   auth.onAuthStateChanged((user) => {
     if (user) {
+      logDebug('✅ LOGIN: UID=' + user.uid.slice(0,8) + '...', '#4ade80');
       currentUser = user;
       document.getElementById('unauthOverlay').style.display = 'none';
       loadMyDevices();
     } else {
+      logDebug('🔒 LOGOUT / belum login', '#f87171');
       currentUser = null;
       document.getElementById('unauthOverlay').style.display = 'flex';
       document.getElementById('myDevicesList').innerHTML = '<div class="tm-monitor-card" style="text-align:center;color:var(--text-2);">Silakan login untuk melihat perangkat.</div>';
     }
+  }, (err) => {
+    logDebug('💥 onAuthStateChanged ERROR: ' + err.message, '#f87171');
   });
 }
 checkAuthStatus();
