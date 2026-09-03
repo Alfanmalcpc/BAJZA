@@ -412,7 +412,7 @@
 /* Cards Grid */
 .tm-cards-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
   gap: 20px;
   margin-bottom: 24px;
 }
@@ -420,15 +420,18 @@
 /* Gas Grid */
 .tm-gas-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
   gap: 12px;
 }
 
 @media (max-width: 768px) {
-  .tm-cards-grid { grid-template-columns: 1fr; }
-  .tm-gas-grid { grid-template-columns: 1fr; }
   .tm-chart-card { padding: 16px 12px; }
   .tm-dashboard { padding: 20px 12px 60px; }
+  
+  /* Make stat text slightly smaller on mobile to prevent any wrap */
+  .tm-stat-value { font-size: 24px; }
+  .tm-stat-icon { width: 48px; height: 48px; font-size: 22px; gap: 12px; }
+  .tm-stat-card { padding: 16px; gap: 12px; }
 }
 
 .tm-card {
