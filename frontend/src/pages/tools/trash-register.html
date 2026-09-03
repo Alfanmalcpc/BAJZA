@@ -14,6 +14,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="/src/services/firebase.js"></script>
+  <script src="/src/services/firebase-iot.js"></script>
 
 </head>
 <body>
@@ -161,63 +162,26 @@
             <div class="reg-step-text">Buka <strong>Arduino IDE</strong>, tempel kode, ganti <code class="code-hl">NAMA_WIFI_ANDA</code></div>
 <script>
 
-// --- DEBUG WIDGET ---
-const debugBox = document.createElement('div');
-debugBox.style.position = 'fixed';
-debugBox.style.bottom = '10px';
-debugBox.style.left = '10px';
-debugBox.style.backgroundColor = 'rgba(255, 0, 0, 0.9)';
-debugBox.style.color = 'white';
-debugBox.style.padding = '10px';
-debugBox.style.borderRadius = '8px';
-debugBox.style.zIndex = '999999';
-debugBox.style.fontSize = '12px';
-debugBox.style.maxWidth = '300px';
-debugBox.style.pointerEvents = 'none';
-debugBox.innerHTML = '<strong>DEBUG LOG:</strong><br/>';
-document.addEventListener("DOMContentLoaded", () => document.body.appendChild(debugBox));
-
-function logDebug(msg) {
-  console.log("[DEBUG]", msg);
-  if (document.body) {
-    if (!debugBox.parentElement) document.body.appendChild(debugBox);
-    debugBox.innerHTML += msg + '<br/>';
-  }
-}
-// --------------------
-
 let currentUser = null;
 // Cache untuk semua data perangkat dan grup
 let allDevices = {};   // { fullCode: {name, location, isOwner, createdAt} }
 let allGroups  = {};   // { groupId: {name, createdAt, devices: {code: true}} }
 
 function checkAuthStatus() {
-  logDebug('Cek auth object...');
   if (typeof auth === 'undefined') {
-    logDebug('auth undefined, retry 200ms...');
     setTimeout(checkAuthStatus, 200);
     return;
   }
-  logDebug('auth DITEMUKAN! Memanggil onAuthStateChanged...');
   auth.onAuthStateChanged((user) => {
     if (user) {
-      logDebug('SUCCESS: User UID = ' + user.uid);
       currentUser = user;
       document.getElementById('unauthOverlay').style.display = 'none';
       loadMyDevices();
-      
-      const script = document.createElement('script');
-      script.src = '/src/services/firebase-iot.js';
-      document.body.appendChild(script);
-      logDebug('Injeksi firebase-iot.js');
     } else {
-      logDebug('FAILED: user = null (Belum login di objek auth ini)');
       currentUser = null;
       document.getElementById('unauthOverlay').style.display = 'flex';
       document.getElementById('myDevicesList').innerHTML = '<div class="tm-monitor-card" style="text-align:center;color:var(--text-2);">Silakan login untuk melihat perangkat.</div>';
     }
-  }, (error) => {
-    logDebug('ERROR Auth: ' + error.message);
   });
 }
 checkAuthStatus();
