@@ -1067,6 +1067,60 @@ if (boardSel) {
 </nav>
 <script src="/src/App.js"></script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v3d52b47920f24c319d37e2661827c42b1787588026925" integrity="sha512-d9sL6GJLXn6fInD1+TVXhTcQOsmxeHfmHAvwGDIxp5TO+uo1fiWW7mHomMj4MLRlCsJDTqXzWLHJFFlPCEIj/A==" data-cf-beacon='{"version":"2024.11.0","token":"eed07e53e123488192259813d71ad93e","r":1}' crossorigin="anonymous"></script>
+
+<!-- ══ DEBUG BOX (hapus setelah selesai debug) ══ -->
+<script>
+(function() {
+  const box = document.createElement('div');
+  box.id = 'authDebugBox';
+  Object.assign(box.style, {
+    position:'fixed', bottom:'10px', left:'10px', zIndex:'9999999',
+    background:'rgba(160,0,0,0.95)', color:'#fff', padding:'10px 14px',
+    borderRadius:'10px', fontSize:'11px', maxWidth:'340px', maxHeight:'260px',
+    overflowY:'auto', lineHeight:'1.7', fontFamily:'monospace',
+    boxShadow:'0 4px 24px rgba(0,0,0,0.7)', border:'1px solid rgba(255,100,100,0.4)'
+  });
+  box.innerHTML = '<b>🔴 AUTH DEBUG LOG</b><br/>';
+  document.body.appendChild(box);
+
+  function log(msg, color) {
+    console.log('[AUTH DEBUG]', msg);
+    box.innerHTML += '<span style="color:' + (color||'#fff') + '">' + msg + '</span><br/>';
+    box.scrollTop = box.scrollHeight;
+  }
+
+  log('📄 Script jalan ✅', '#4ade80');
+
+  // Cek semua dependencies
+  setTimeout(function check() {
+    log('--- Cek dependencies ---', '#facc15');
+    log('firebase: ' + (typeof firebase !== 'undefined' ? '✅' : '❌ TIDAK ADA'), typeof firebase !== 'undefined' ? '#4ade80' : '#f87171');
+    log('auth: '    + (typeof auth    !== 'undefined' ? '✅' : '❌ TIDAK ADA'), typeof auth    !== 'undefined' ? '#4ade80' : '#f87171');
+    log('db: '      + (typeof db      !== 'undefined' ? '✅' : '❌ TIDAK ADA'), typeof db      !== 'undefined' ? '#4ade80' : '#f87171');
+    log('iotDb: '   + (typeof iotDb   !== 'undefined' ? '✅' : '❌ TIDAK ADA'), typeof iotDb   !== 'undefined' ? '#4ade80' : '#f87171');
+
+    if (typeof auth === 'undefined') {
+      log('⚠️ auth belum ada, tunggu 500ms...', '#fb923c');
+      setTimeout(check, 500);
+      return;
+    }
+
+    log('📡 Memanggil auth.onAuthStateChanged...', '#facc15');
+    auth.onAuthStateChanged(function(user) {
+      if (user) {
+        log('✅ USER LOGIN: ' + user.uid.slice(0,10) + '...', '#4ade80');
+        log('email: ' + (user.email || '(kosong)'), '#4ade80');
+        log('unauthOverlay display: ' + (document.getElementById('unauthOverlay') ? document.getElementById('unauthOverlay').style.display : 'ELEMEN TIDAK ADA'), '#facc15');
+      } else {
+        log('🔒 USER = NULL (belum login)', '#f87171');
+        log('unauthOverlay display: ' + (document.getElementById('unauthOverlay') ? document.getElementById('unauthOverlay').style.display : 'ELEMEN TIDAK ADA'), '#facc15');
+      }
+    }, function(err) {
+      log('💥 onAuthStateChanged ERROR: ' + err.message, '#f87171');
+    });
+  }, 800);
+})();
+</script>
 </body>
 </html>
 
