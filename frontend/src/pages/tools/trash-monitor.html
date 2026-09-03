@@ -77,9 +77,9 @@
         <div class="tm-feature-desc">Update 10 detik</div>
       </div>
       <div class="tm-feature-card">
-        <div class="tm-feature-icon">☁️</div>
-        <div class="tm-feature-title">Sensor Gas</div>
-        <div class="tm-feature-desc">MQ-2 / MQ-135</div>
+        <div class="tm-feature-icon">🔬</div>
+        <div class="tm-feature-title">3 Sensor Gas</div>
+        <div class="tm-feature-desc">MQ-4 · MQ-135 · MQ-2</div>
       </div>
       <div class="tm-feature-card">
         <div class="tm-feature-icon">📈</div>
@@ -136,15 +136,55 @@
         <div class="tm-status-label" id="statusLabel" style="background:rgba(74,222,128,0.15); color:#4ade80;">Memuat...</div>
       </div>
 
-      <!-- Gas Level -->
-      <div class="tm-card tm-stat-card">
-        <div class="tm-stat-icon" style="background:rgba(167,139,250,0.15);">☁️</div>
-        <div>
-          <div class="tm-stat-label">Tingkat Gas</div>
-          <div class="tm-stat-value" id="statGas">
-            <span style="color:#a78bfa;">—</span><span class="tm-stat-unit"> ppm</span>
+      <!-- ═══ 3 KARTU SENSOR GAS ═══ -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;" class="tm-gas-grid">
+
+        <!-- MQ-4: Metana -->
+        <div class="tm-card tm-stat-card" style="border-top:3px solid #f97316;">
+          <div class="tm-stat-icon" style="background:rgba(249,115,22,0.15);">🔥</div>
+          <div style="flex:1;">
+            <div class="tm-stat-label" style="color:#fb923c;">MQ-4 — Metana</div>
+            <div class="tm-stat-value" id="statMQ4">
+              <span style="color:#fb923c;">—</span><span class="tm-stat-unit"> ppm</span>
+            </div>
+            <div id="mq4Status" style="font-size:11px;color:#4ade80;margin-top:5px;font-weight:700;">Memuat...</div>
           </div>
-          <div id="gasStatus" style="font-size:12px; color:#86efac; margin-top:6px; font-weight:600;">Memuat...</div>
+        </div>
+
+        <!-- MQ-135: Kualitas Udara -->
+        <div class="tm-card tm-stat-card" style="border-top:3px solid #a78bfa;">
+          <div class="tm-stat-icon" style="background:rgba(167,139,250,0.15);">☁️</div>
+          <div style="flex:1;">
+            <div class="tm-stat-label" style="color:#c4b5fd;">MQ-135 — NH₃/CO₂</div>
+            <div class="tm-stat-value" id="statMQ135">
+              <span style="color:#a78bfa;">—</span><span class="tm-stat-unit"> ppm</span>
+            </div>
+            <div id="mq135Status" style="font-size:11px;color:#4ade80;margin-top:5px;font-weight:700;">Memuat...</div>
+          </div>
+        </div>
+
+        <!-- MQ-2: Gas Umum -->
+        <div class="tm-card tm-stat-card" style="border-top:3px solid #22d3ee;">
+          <div class="tm-stat-icon" style="background:rgba(34,211,238,0.15);">🌿</div>
+          <div style="flex:1;">
+            <div class="tm-stat-label" style="color:#67e8f9;">MQ-2 — Gas Umum</div>
+            <div class="tm-stat-value" id="statMQ2">
+              <span style="color:#22d3ee;">—</span><span class="tm-stat-unit"> ppm</span>
+            </div>
+            <div id="mq2Status" style="font-size:11px;color:#4ade80;margin-top:5px;font-weight:700;">Memuat...</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══ PANEL REKOMENDASI BAHAN ═══ -->
+      <div class="tm-card" id="recPanel" style="padding:18px 20px;margin-top:4px;border:1.5px solid rgba(74,222,128,0.2);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+          <div style="font-weight:800;font-size:15px;color:var(--text-1);">💊 Rekomendasi Penanganan</div>
+          <div id="recLevelBadge" style="font-size:11px;font-weight:700;padding:4px 12px;border-radius:var(--r-full);background:rgba(74,222,128,0.15);color:#4ade80;">✅ Aman</div>
+        </div>
+        <div id="recContent">
+          <div style="color:var(--text-3);font-size:13px;text-align:center;padding:10px 0;">Menunggu data sensor...</div>
         </div>
       </div>
 
@@ -165,9 +205,11 @@
     <div class="tm-chart-card">
       <div class="tm-chart-header">
         <div class="tm-chart-title">📈 Riwayat Data</div>
-        <div class="tm-chart-tabs">
+        <div class="tm-chart-tabs" style="flex-wrap:wrap;gap:4px;">
           <button class="tm-chart-tab active" id="tabFill" onclick="switchChart('fill')">Kepenuhan</button>
-          <button class="tm-chart-tab" id="tabGas" onclick="switchChart('gas')">Gas</button>
+          <button class="tm-chart-tab" id="tabMQ4" onclick="switchChart('mq4')">🔥 MQ-4</button>
+          <button class="tm-chart-tab" id="tabMQ135" onclick="switchChart('mq135')">☁️ MQ-135</button>
+          <button class="tm-chart-tab" id="tabMQ2" onclick="switchChart('mq2')">🌿 MQ-2</button>
           <button class="tm-chart-tab" id="tabLog" onclick="switchChart('log')">📋 Log</button>
         </div>
       </div>
@@ -182,17 +224,19 @@
           <button onclick="exportHistoryCSV()" style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.28);color:#4ade80;padding:7px 16px;border-radius:var(--r-full);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.2s;" onmouseenter="this.style.background='rgba(74,222,128,0.22)'" onmouseleave="this.style.background='rgba(74,222,128,0.12)'">⬇️ Export CSV</button>
         </div>
         <div style="overflow-x:auto;border-radius:12px;border:1px solid var(--border);max-height:340px;overflow-y:auto;">
-          <table id="historyTable" style="width:100%;border-collapse:collapse;font-size:12px;min-width:340px;">
+          <table id="historyTable" style="width:100%;border-collapse:collapse;font-size:12px;min-width:520px;">
             <thead>
               <tr style="background:rgba(255,255,255,0.04);position:sticky;top:0;z-index:1;">
                 <th style="padding:10px 14px;text-align:left;color:var(--text-2);font-weight:700;border-bottom:1px solid var(--border);white-space:nowrap;">🕐 Waktu</th>
                 <th style="padding:10px 14px;text-align:right;color:var(--text-2);font-weight:700;border-bottom:1px solid var(--border);">Fill %</th>
-                <th style="padding:10px 14px;text-align:right;color:var(--text-2);font-weight:700;border-bottom:1px solid var(--border);">☁️ Gas</th>
+                <th style="padding:10px 14px;text-align:right;color:#fb923c;font-weight:700;border-bottom:1px solid var(--border);">🔥 MQ-4</th>
+                <th style="padding:10px 14px;text-align:right;color:#a78bfa;font-weight:700;border-bottom:1px solid var(--border);">☁️ MQ-135</th>
+                <th style="padding:10px 14px;text-align:right;color:#22d3ee;font-weight:700;border-bottom:1px solid var(--border);">🌿 MQ-2</th>
                 <th style="padding:10px 14px;text-align:center;color:var(--text-2);font-weight:700;border-bottom:1px solid var(--border);">Status</th>
               </tr>
             </thead>
             <tbody id="historyTableBody">
-              <tr><td colspan="4" style="text-align:center;padding:24px;color:var(--text-3);">Belum ada data histori.</td></tr>
+              <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-3);">Belum ada data histori.</td></tr>
             </tbody>
           </table>
         </div>
@@ -219,12 +263,16 @@ const errorMsg   = document.getElementById('errorMsg');
 const spinner    = document.getElementById('monitorSpinner');
 const btnMonitorText = document.getElementById('btnMonitorText');
 
-let unsubscribe = null;        // Firebase listener cleanup
-let historyChart = null;       // Chart.js instance
-let currentChartMode = 'fill'; // 'fill' | 'gas'
-let historyData = [];          // Cache data histori
-let countdownInterval = null;  // Interval countdown bar
-const INTERVAL_SEC = 10;       // Update setiap 10 detik
+let unsubscribe = null;         // Firebase listener cleanup
+let historyChart = null;        // Chart.js instance
+let currentChartMode = 'fill';  // 'fill' | 'mq4' | 'mq135' | 'mq2'
+let historyData = [];           // Cache data histori
+let countdownInterval = null;   // Interval countdown bar
+const INTERVAL_SEC = 10;        // Update setiap 10 detik
+
+// ─── Ambang Batas Gas ────────────────────────────
+const GAS_WARN  = 200;  // ppm — batas Sedang/Waspada
+const GAS_CRIT  = 500;  // ppm — batas Kritis/Berbahaya
 
 // ─── Format Waktu ───────────────────────────────
 function formatTimeAgo(unixTs) {
@@ -275,17 +323,77 @@ function renderGauge(pct) {
   lbl.style.cssText += statusStyle;
 }
 
-// ─── Render Gas ─────────────────────────────────
-function renderGas(ppm) {
-  document.getElementById('statGas').innerHTML =
-    `<span style="color:#a78bfa;">${ppm}</span><span class="tm-stat-unit"> ppm</span>`;
-  let status, color;
-  if (ppm < 200) { status = '✅ Aman'; color = '#4ade80'; }
-  else if (ppm < 500) { status = '⚠️ Waspada'; color = '#facc15'; }
-  else { status = '🚨 Berbahaya!'; color = '#f87171'; }
-  const el = document.getElementById('gasStatus');
-  el.textContent = status;
-  el.style.color = color;
+// ─── Render 3 Sensor Gas ─────────────────────────
+function gasLabel(ppm) {
+  if (ppm < GAS_WARN) return { text: '✅ Aman',       color: '#4ade80' };
+  if (ppm < GAS_CRIT) return { text: '⚠️ Waspada',   color: '#facc15' };
+  return                     { text: '🚨 Kritis!',    color: '#f87171' };
+}
+
+function renderGasSensor(elId, statusId, ppm, accentColor) {
+  const el = document.getElementById(elId);
+  if (el) el.innerHTML = `<span style="color:${accentColor};">${ppm ?? '—'}</span><span class="tm-stat-unit"> ppm</span>`;
+  const st = document.getElementById(statusId);
+  if (st && ppm != null) {
+    const lbl = gasLabel(ppm);
+    st.textContent = lbl.text;
+    st.style.color  = lbl.color;
+  }
+}
+
+// ─── Panel Rekomendasi Bahan ─────────────────────
+function renderRecommendation(mq4, mq135) {
+  const panel  = document.getElementById('recPanel');
+  const badge  = document.getElementById('recLevelBadge');
+  const content = document.getElementById('recContent');
+  if (!panel) return;
+
+  const lvl4   = mq4 != null   ? (mq4   < GAS_WARN ? 0 : mq4   < GAS_CRIT ? 1 : 2) : 0;
+  const lvl135 = mq135 != null ? (mq135 < GAS_WARN ? 0 : mq135 < GAS_CRIT ? 1 : 2) : 0;
+  const maxLvl = Math.max(lvl4, lvl135);
+
+  // Warna panel & badge
+  const colors = [
+    { border:'rgba(74,222,128,0.25)',  badgeBg:'rgba(74,222,128,0.15)',  badgeColor:'#4ade80',  badgeText:'✅ Semua Aman' },
+    { border:'rgba(250,204,21,0.35)',  badgeBg:'rgba(250,204,21,0.15)',  badgeColor:'#facc15',  badgeText:'⚠️ Waspada' },
+    { border:'rgba(248,113,113,0.45)', badgeBg:'rgba(248,113,113,0.18)', badgeColor:'#f87171',  badgeText:'🚨 KRITIS' }
+  ];
+  const c = colors[maxLvl];
+  panel.style.borderColor  = c.border;
+  badge.style.background   = c.badgeBg;
+  badge.style.color        = c.badgeColor;
+  badge.textContent        = c.badgeText;
+
+  // Tentukan rekomendasi
+  let rec = { title:'', desc:'', alt:'', icon:'', cardColor:'' };
+
+  if (maxLvl === 0) {
+    rec = { icon:'✅', title:'Tidak Perlu Tindakan', desc:'Kadar gas dalam batas aman. Tidak diperlukan penanganan khusus saat ini.', alt:'', cardColor:'rgba(74,222,128,0.08)' };
+  } else if (maxLvl === 2) {
+    // KRITIS — Adsorben Padat
+    if (lvl4 >= 2 && lvl135 >= 2) {
+      rec = { icon:'🪨', title:'Taburkan BIOCHAR + Serbuk Gergaji (Campur)', desc:'Campurkan Biochar 50g + Serbuk Gergaji 50g, lalu taburkan merata di permukaan sampah. JANGAN siramkan cairan — sampah terlalu basah akan membunuh bakteri.', alt:'Pengganti: Abu kayu bakar 100g ditaburkan merata.', cardColor:'rgba(248,113,113,0.08)' };
+    } else {
+      rec = { icon:'🪨', title:'Taburkan BIOCHAR (Arang Aktif Biomassa)', desc:'Taburkan Biochar 50g per wadah merata di permukaan sampah. Pori-pori mikro Biochar akan langsung menyerap dan menjebak molekul gas berbau tanpa menambah kelembaban.', alt:'Pengganti: Serbuk Gergaji kering 100g, atau Abu kayu bakar 100g.', cardColor:'rgba(248,113,113,0.08)' };
+    }
+  } else {
+    // SEDANG — Cairan
+    if (lvl4 >= 1 && lvl135 >= 1) {
+      rec = { icon:'🧪', title:'Semprotkan RACIKAN COCKTAIL (EM4 + Eco-Enzyme)', desc:'Larutkan 10 ml EM4 + 10 ml Eco-Enzyme dalam 1 liter air bersih, lalu semprotkan merata. Eco-Enzyme membuka pori-pori sampah & menyeimbangkan pH basa dari Amonia, sehingga bakteri EM4 dapat memakan metana lebih cepat.', alt:'Pengganti: EM4 saja (15ml per 1L air).', cardColor:'rgba(250,204,21,0.08)' };
+    } else if (lvl4 >= 1) {
+      rec = { icon:'🦠', title:'Semprotkan EM4 (Effective Microorganisms)', desc:'Larutkan 10 ml EM4 dalam 1 liter air bersih, lalu semprotkan merata ke permukaan sampah. Bakteri hidup dalam EM4 akan mengurai gas metana (CH₄) secara aktif.', alt:'Pengganti: Cuka putih 30ml per 1 liter air.', cardColor:'rgba(250,204,21,0.08)' };
+    } else {
+      rec = { icon:'🍃', title:'Semprotkan ECO-ENZYME', desc:'Larutkan 15 ml Eco-Enzyme dalam 1 liter air bersih, lalu semprotkan merata. Asam organik dalam Eco-Enzyme akan menyeimbangkan pH basa dari Amonia (NH₃) dan CO₂ berlebih.', alt:'Pengganti: Air kapur sirih 50ml per 1 liter air.', cardColor:'rgba(250,204,21,0.08)' };
+    }
+  }
+
+  content.innerHTML = `
+    <div style="background:${rec.cardColor};border-radius:12px;padding:14px 16px;">
+      <div style="font-size:24px;margin-bottom:8px;">${rec.icon}</div>
+      <div style="font-weight:800;font-size:14px;color:var(--text-1);margin-bottom:6px;">${rec.title}</div>
+      <div style="font-size:13px;color:var(--text-2);line-height:1.6;">${rec.desc}</div>
+      ${rec.alt ? `<details style="margin-top:10px;"><summary style="font-size:12px;color:var(--text-3);cursor:pointer;font-weight:700;">🔄 Bahan Pengganti</summary><div style="font-size:12px;color:var(--text-3);margin-top:6px;padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:8px;">${rec.alt}</div></details>` : ''}
+    </div>`;
 }
 
 // ─── Countdown Bar ──────────────────────────────
@@ -305,13 +413,19 @@ function startCountdown() {
 
 // ─── Buat / Update Chart ────────────────────────
 function buildChart(entries) {
-  const labels = entries.map(e => formatTimeLabel(e.timestamp));
-  const fillData = entries.map(e => e.fill_level ?? 0);
-  const gasData  = entries.map(e => e.gas_level  ?? 0);
+  const labels   = entries.map(e => formatTimeLabel(e.timestamp));
+  const fillData = entries.map(e => e.fill_level  ?? 0);
+  const mq4Data  = entries.map(e => e.gas_mq4     ?? e.gas_level ?? 0);
+  const mq135Data= entries.map(e => e.gas_mq135   ?? e.gas_level ?? 0);
+  const mq2Data  = entries.map(e => e.gas_ppm     ?? e.gas_level ?? 0);
 
-  const data = currentChartMode === 'fill' ? fillData : gasData;
-  const label = currentChartMode === 'fill' ? 'Kepenuhan (%)' : 'Gas (ppm)';
-  const color = currentChartMode === 'fill' ? '#4ade80' : '#a78bfa';
+  let data, label, color;
+  switch (currentChartMode) {
+    case 'mq4':   data = mq4Data;   label = 'MQ-4 Metana (ppm)';    color = '#f97316'; break;
+    case 'mq135': data = mq135Data; label = 'MQ-135 NH₃/CO₂ (ppm)'; color = '#a78bfa'; break;
+    case 'mq2':   data = mq2Data;   label = 'MQ-2 Gas Umum (ppm)';  color = '#22d3ee'; break;
+    default:      data = fillData;  label = 'Kepenuhan (%)';         color = '#4ade80';
+  }
 
   if (historyChart) {
     historyChart.data.labels = labels;
@@ -371,9 +485,10 @@ function buildChart(entries) {
 window.switchChart = function(mode) {
   currentChartMode = mode;
   const isLog = mode === 'log';
-  document.getElementById('tabFill').classList.toggle('active', mode === 'fill');
-  document.getElementById('tabGas').classList.toggle('active',  mode === 'gas');
-  document.getElementById('tabLog').classList.toggle('active',  isLog);
+  ['fill','mq4','mq135','mq2','log'].forEach(m => {
+    const el = document.getElementById('tab' + m.charAt(0).toUpperCase() + m.slice(1));
+    if (el) el.classList.toggle('active', m === mode);
+  });
 
   const canvasWrap = document.getElementById('chartCanvasWrap');
   const logWrap    = document.getElementById('historyLogWrap');
@@ -390,21 +505,23 @@ window.switchChart = function(mode) {
 
 // ─── Render Tabel Histori ───────────────────────────────
 function renderHistoryTable(entries) {
-  const tbody = document.getElementById('historyTableBody');
+  const tbody   = document.getElementById('historyTableBody');
   const countEl = document.getElementById('histLogCount');
   if (!entries || entries.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:28px;color:var(--text-3);">Belum ada data histori.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:28px;color:var(--text-3);">Belum ada data histori.</td></tr>';
     if (countEl) countEl.textContent = '0 entri';
     return;
   }
 
-  const sorted = [...entries].reverse(); // terbaru di atas
+  const sorted = [...entries].reverse();
   if (countEl) countEl.textContent = `${sorted.length} entri (terbaru di atas)`;
 
   tbody.innerHTML = sorted.map((e, i) => {
-    const fill = e.fill_level ?? null;
-    const gas  = e.gas_level  ?? null;
-    const ts   = e.timestamp
+    const fill  = e.fill_level ?? null;
+    const mq4   = e.gas_mq4   ?? e.gas_level ?? null;
+    const mq135 = e.gas_mq135 ?? e.gas_level ?? null;
+    const mq2   = e.gas_ppm   ?? e.gas_level ?? null;
+    const ts    = e.timestamp
       ? new Date(e.timestamp * 1000).toLocaleString('id-ID', {
           day:'2-digit', month:'2-digit', year:'numeric',
           hour:'2-digit', minute:'2-digit', second:'2-digit'
@@ -413,16 +530,18 @@ function renderHistoryTable(entries) {
 
     let statusText = '—', statusColor = 'var(--text-3)', fillColor = 'var(--text-2)';
     if (fill !== null) {
-      if (fill < 50)  { statusText = '✅ Normal';   statusColor = '#4ade80'; fillColor = '#4ade80'; }
-      else if (fill < 80) { statusText = '⚠️ Sedang'; statusColor = '#facc15'; fillColor = '#facc15'; }
-      else            { statusText = '🚨 Penuh';   statusColor = '#f87171'; fillColor = '#f87171'; }
+      if (fill < 50)       { statusText = '✅ Normal';   statusColor = '#4ade80'; fillColor = '#4ade80'; }
+      else if (fill < 80)  { statusText = '⚠️ Sedang';  statusColor = '#facc15'; fillColor = '#facc15'; }
+      else                 { statusText = '🚨 Penuh';    statusColor = '#f87171'; fillColor = '#f87171'; }
     }
 
     const rowBg = i % 2 === 0 ? 'transparent' : 'rgba(255,255,255,0.025)';
     return `<tr style="background:${rowBg};transition:background 0.15s;" onmouseenter="this.style.background='rgba(74,222,128,0.06)'" onmouseleave="this.style.background='${rowBg}'">
       <td style="padding:9px 14px;color:var(--text-2);white-space:nowrap;font-family:monospace;font-size:11.5px;">${ts}</td>
       <td style="padding:9px 14px;text-align:right;font-weight:700;color:${fillColor};">${fill !== null ? fill + '%' : '—'}</td>
-      <td style="padding:9px 14px;text-align:right;color:#a78bfa;">${gas !== null ? gas + ' ppm' : '—'}</td>
+      <td style="padding:9px 14px;text-align:right;color:#fb923c;">${mq4  !== null ? mq4  + ' ppm' : '—'}</td>
+      <td style="padding:9px 14px;text-align:right;color:#a78bfa;">${mq135!== null ? mq135+ ' ppm' : '—'}</td>
+      <td style="padding:9px 14px;text-align:right;color:#22d3ee;">${mq2  !== null ? mq2  + ' ppm' : '—'}</td>
       <td style="padding:9px 14px;text-align:center;font-size:11px;font-weight:700;color:${statusColor};">${statusText}</td>
     </tr>`;
   }).join('');
@@ -432,13 +551,15 @@ function renderHistoryTable(entries) {
 window.exportHistoryCSV = function() {
   if (!historyData.length) { alert('Tidak ada data untuk diekspor.'); return; }
   const deviceCode = document.getElementById('dbDeviceCode').textContent || 'device';
-  const header = 'Waktu,Timestamp Unix,Fill (%),Gas (ppm),Status\n';
+  const header = 'Waktu,Timestamp Unix,Fill (%),MQ-4 Metana (ppm),MQ-135 NH3/CO2 (ppm),MQ-2 Gas Umum (ppm),Status\n';
   const rows = [...historyData].reverse().map(e => {
     const ts     = e.timestamp ? new Date(e.timestamp * 1000).toLocaleString('id-ID') : '';
     const fill   = e.fill_level ?? '';
-    const gas    = e.gas_level  ?? '';
+    const mq4    = e.gas_mq4   ?? e.gas_level ?? '';
+    const mq135  = e.gas_mq135 ?? e.gas_level ?? '';
+    const mq2    = e.gas_ppm   ?? e.gas_level ?? '';
     const status = fill === '' ? '' : fill < 50 ? 'Normal' : fill < 80 ? 'Sedang' : 'Penuh';
-    return `"${ts}",${e.timestamp || ''},"${fill}","${gas}","${status}"`;
+    return `"${ts}",${e.timestamp || ''},"${fill}","${mq4}","${mq135}","${mq2}","${status}"`;
   }).join('\n');
   const blob = new Blob(['\uFEFF' + header + rows], { type: 'text/csv;charset=utf-8;' });
   const url  = URL.createObjectURL(blob);
@@ -474,9 +595,20 @@ function renderDashboard(data, code) {
   // Alert Penuh
   document.getElementById('alertFull').classList.toggle('show', !!status.is_full);
 
-  // Gauge & Stat Cards
+  // Gauge & 3 Sensor Cards
   renderGauge(status.fill_level ?? 0);
-  renderGas(status.gas_level ?? 0);
+
+  // Baca nilai 3 sensor (dengan fallback backward-compatible ke gas_level lama)
+  const mq4   = status.gas_mq4   ?? status.gas_level ?? null;
+  const mq135 = status.gas_mq135 ?? status.gas_level ?? null;
+  const mq2   = status.gas_ppm   ?? status.gas_level ?? null;
+
+  renderGasSensor('statMQ4',   'mq4Status',   mq4,   '#f97316');
+  renderGasSensor('statMQ135', 'mq135Status', mq135, '#a78bfa');
+  renderGasSensor('statMQ2',   'mq2Status',   mq2,   '#22d3ee');
+
+  // Panel Rekomendasi
+  renderRecommendation(mq4, mq135);
 
   // Waktu update
   document.getElementById('lastUpdateTime').textContent = formatTimeAgo(lastTs);
