@@ -179,6 +179,187 @@ let allGroups  = {};   // { groupId: {name, createdAt, devices: {code: true}} }
 const btnRegister   = document.getElementById('btnRegister');
 const btnRegText    = document.getElementById('btnRegText');
 const regSpinner    = document.getElementById('regSpinner');
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Daftarkan Perangkat IoT — BAJA WEB</title>
+  <meta name="description" content="Daftarkan perangkat tempat sampah IoT baru dan dapatkan kode akses unik."/>
+  <link rel="icon" href="/src/assets/img/Logo.svg"/>
+  <link rel="stylesheet" href="/src/assets/css/style.css"/>
+  <link rel="stylesheet" href="/src/assets/css/trash-monitor.css"/>
+
+  <!-- Firebase SDK (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="/src/services/firebase.js"></script>
+
+</head>
+<body>
+
+<!-- TOP NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="/public/index.html" class="nav-logo" style="text-decoration:none">
+      <div class="logo-badge"><img src="/src/assets/img/Logo.svg" alt="BAJA"></div>
+      <div class="logo-text">BAJA</div>
+    </a>
+    <div class="nav-actions">
+      <!-- navClock and navAuthSlot injected here -->
+    </div>
+  </div>
+</nav>
+
+<!-- HEADER -->
+<div class="page-header" style="padding-bottom: 0;">
+  <div class="container" style="position: relative;">
+    <a href="/public/index.html" class="tm-btn-back" style="position: absolute; left: 16px; top: 0; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 800; color: var(--text-1); background: var(--bg-surface); padding: 8px 16px; border-radius: var(--r-full); border: 2px solid var(--border); box-shadow: var(--shadow-sm); transition: all var(--tr); z-index: 10;">
+      <span>←</span> <span data-en="Back" data-id="Kembali">Kembali</span>
+    </a>
+    <div class="section-badge" style="margin-top: 40px;">➕ <span data-en="Register Device" data-id="Daftar Perangkat">Register Device</span></div>
+    <h1 data-en="Register New IoT Bin" data-id="Daftarkan Tempat Sampah Baru">Register New IoT Bin</h1>
+    <p data-en="Get your unique device code and complete Arduino code automatically. Supports all microcontrollers (ESP32, ESP8266, Wemos, etc)." data-id="Dapatkan kode unik perangkat dan kode Arduino lengkap secara otomatis. Mendukung semua mikrokontroler (ESP32, ESP8266, Wemos, dll).">Dapatkan kode unik perangkat dan kode Arduino lengkap secara otomatis. Mendukung semua mikrokontroler (ESP32, ESP8266, Wemos, dll).</p>
+  </div>
+</div>
+
+<section class="section tm-landing-content">
+  <div class="container">
+    <div class="tm-monitor-card reg-card-custom" style="position: relative; overflow: hidden;">
+      
+      <!-- Overlay Belum Login -->
+      <div id="unauthOverlay" style="display: flex; flex-direction: column; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(var(--bg-surface-rgb, 15,23,42), 0.85); backdrop-filter: blur(4px); z-index: 100; justify-content: center; align-items: center; text-align: center; padding: 20px;">
+        <h2 style="margin-bottom: 12px; font-size: 20px;">Anda Belum Login</h2>
+        <p style="margin-bottom: 20px; color: var(--text-2);">Silakan login terlebih dahulu untuk mendaftarkan perangkat IoT dan menyimpannya di akun Anda.</p>
+        <a href="/src/pages/auth.html" style="background: var(--grad-tools); color: #fff; text-decoration: none; padding: 12px 24px; border-radius: var(--r-full); font-weight: bold; box-shadow: var(--glow-blue);">Masuk / Daftar</a>
+      </div>
+
+        <div class="reg-field">
+          <label for="regName" class="tm-monitor-label">Nama Tempat Sampah</label>
+          <input type="text" id="regName" class="reg-input" placeholder="Contoh: Tempat Sampah Kantor Lt.3" maxlength="60"/>
+        </div>
+
+        <div class="reg-field">
+          <label for="regLocation" class="tm-monitor-label">Lokasi / Keterangan</label>
+          <input type="text" id="regLocation" class="reg-input" placeholder="Contoh: Jl. Merdeka No.1, Bandung" maxlength="100"/>
+        </div>
+
+        <div class="tm-error-msg" id="regError">Mohon isi semua field terlebih dahulu.</div>
+
+        <div class="reg-field" style="margin-top:14px;">
+          <label for="regBoard" class="tm-monitor-label">Pilih Board Mikrokontroler</label>
+          <select id="regBoard" class="reg-input" style="cursor:pointer;">
+            <option value="esp32">ESP32 (DevKit / NodeMCU-32) — 2 ADC, Tidak perlu Multiplexer</option>
+            <option value="esp8266">ESP8266 / NodeMCU — 1 ADC (A0), Perlu CD74HC4067</option>
+            <option value="wemos">Wemos D1 Mini — 1 ADC (A0), Perlu CD74HC4067</option>
+            <option value="arduino_esp01">Arduino Uno/Nano + ESP-01 — Tidak ada ADC, Perlu CD74HC4067</option>
+          </select>
+          <div id="boardNote" style="font-size:12px;color:var(--text-3);margin-top:8px;padding:8px 12px;background:rgba(99,102,241,0.07);border-radius:8px;border-left:3px solid #818cf8;"></div>
+        </div>
+
+        <button id="btnRegister" style="background:var(--grad-tools); color:#fff; border:none; padding:16px 32px; border-radius:var(--r-full); font-size:16px; font-weight:800; font-family:var(--font); cursor:pointer; width:100%; margin-top:24px; transition:all var(--tr); box-shadow:var(--glow-blue); display:flex; align-items:center; justify-content:center; gap:12px;">
+          <span id="btnRegText">✅ Generate Kode Perangkat</span>
+          
+          <!-- Animasi Logo Kecil (seperti di Converter) -->
+          <div class="iso-loader-wrap" id="regSpinner" style="display:none; padding: 0;">
+            <div class="iso-loader" style="transform: scale(0.4); margin: -20px;">
+              <div class="iso-layer iso-layer-3"></div>
+              <div class="iso-layer iso-layer-2"></div>
+              <div class="iso-layer iso-layer-1"></div>
+            </div>
+          </div>
+        </button>
+
+        <!-- Hasil Kode + Arduino -->
+        <div class="reg-result" id="regResult">
+          <div class="reg-result-title">✅ Perangkat Berhasil Didaftarkan!</div>
+          <div class="reg-code-display" id="generatedCode">TRS-—</div>
+          <a class="link-monitor" id="linkMonitor" href="#">🔍 Pantau Sekarang</a>
+        </div>
+
+        <!-- Kode Arduino Lengkap (muncul otomatis setelah registrasi) -->
+        <div class="ino-section" id="inoSection">
+          <div class="ino-header">
+            <div class="ino-header-title">
+              <span style="font-size:18px;">⚡</span>
+              Kode Arduino (ESP32 / ESP8266 / Wemos dll) — Siap Copy-Paste
+            </div>
+            <button class="ino-copy-btn" id="btnCopyArduino">📋 Salin Semua Kode</button>
+          </div>
+          <pre class="ino-code" id="arduinoCode"></pre>
+          <div class="ino-wifi-note">
+            ⚠️ <strong>Yang perlu Anda ubah hanya 2 baris:</strong><br>
+            Ganti <code style="color:#facc15;">NAMA_WIFI_ANDA</code> dan <code style="color:#facc15;">PASSWORD_WIFI_ANDA</code> dengan WiFi Anda.<br>
+            <strong>Kode perangkat sudah otomatis terisi. Jangan ubah!</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Perangkat Saya (My Devices) -->
+      <div class="tm-monitor-card reg-card-custom" style="margin-top:24px;" id="myDevicesContainer">
+
+        <!-- Header Judul + Tombol Buat Grup -->
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+          <div class="tm-monitor-label" style="font-size:20px;font-family:var(--font-heading);margin:0;">📱 Perangkat Saya</div>
+          <button id="btnCreateGroup" style="background:rgba(99,102,241,0.15);border:1.5px solid rgba(99,102,241,0.4);color:#818cf8;padding:8px 16px;border-radius:var(--r-full);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.2s;" onmouseenter="this.style.background='rgba(99,102,241,0.28)'" onmouseleave="this.style.background='rgba(99,102,241,0.15)'">📂 + Buat Grup</button>
+        </div>
+
+        <!-- Tambah Perangkat via Kode -->
+        <div style="background:var(--bg-body);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:16px;">
+          <div style="font-size:13px;font-weight:700;color:var(--text-2);margin-bottom:10px;">🔗 Tambah Perangkat via Kode (milik siapapun)</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--r-full);overflow:hidden;flex:1;min-width:160px;">
+              <span style="padding:0 10px 0 14px;font-weight:700;font-size:14px;color:var(--text-3);white-space:nowrap;">TRS-</span>
+              <input type="text" id="joinCodeInput" maxlength="4" placeholder="XXXX" spellcheck="false" autocomplete="off"
+                style="border:none;background:transparent;color:var(--text-1);font-size:14px;font-weight:700;font-family:'Courier New',monospace;padding:10px 14px 10px 0;width:100%;outline:none;text-transform:uppercase;letter-spacing:2px;">
+            </div>
+            <button id="btnJoinDevice" style="background:var(--grad-tools);color:#fff;border:none;padding:10px 20px;border-radius:var(--r-full);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;transition:opacity 0.2s;" onmouseenter="this.style.opacity='.85'" onmouseleave="this.style.opacity='1'">Tambah</button>
+          </div>
+          <div id="joinError" style="font-size:12px;color:#f87171;margin-top:7px;display:none;"></div>
+        </div>
+
+        <!-- Daftar Perangkat (dirender oleh JS) -->
+        <div id="myDevicesList">
+          <div style="text-align:center;color:var(--text-3);font-size:14px;padding:28px;">Memuat data...</div>
+        </div>
+      </div>
+
+      <!-- Cara Pakai -->
+      <div class="tm-monitor-card reg-card-custom" style="margin-top:24px;">
+        <div class="reg-steps">
+          <div class="tm-monitor-label" style="font-size:20px; font-family:var(--font-heading); margin-bottom:16px;">📖 Cara Menggunakan</div>
+          <div class="reg-step">
+            <div class="reg-step-num bg-green">1</div>
+            <div class="reg-step-text">Isi form dan klik <strong>Generate Kode Perangkat</strong></div>
+          </div>
+          <div class="reg-step">
+            <div class="reg-step-num bg-blue">2</div>
+            <div class="reg-step-text"><strong>Salin semua kode Arduino</strong> yang muncul — kode sudah lengkap & siap pakai!</div>
+          </div>
+          <div class="reg-step">
+            <div class="reg-step-num bg-pink">3</div>
+            <div class="reg-step-text">Buka <strong>Arduino IDE</strong>, tempel kode, ganti <code class="code-hl">NAMA_WIFI_ANDA</code></div>
+          </div>
+          <div class="reg-step">
+            <div class="reg-step-num bg-gold">4</div>
+            <div class="reg-step-text">Klik <strong>Upload</strong> ke mikrokontroler Anda (ESP, Wemos, dll). Selesai! Data langsung mengalir ke dashboard.</div>
+          </div>
+        </div>
+      </div>
+
+  </div>
+</section>
+
+<script>
+let currentUser = null;
+// Cache untuk semua data perangkat dan grup
+let allDevices = {};   // { fullCode: {name, location, isOwner, createdAt} }
+let allGroups  = {};   // { groupId: {name, createdAt, devices: {code: true}} }
+
+const btnRegister   = document.getElementById('btnRegister');
+const btnRegText    = document.getElementById('btnRegText');
+const regSpinner    = document.getElementById('regSpinner');
 const regResult     = document.getElementById('regResult');
 const regError      = document.getElementById('regError');
 const inoSection    = document.getElementById('inoSection');
@@ -188,18 +369,48 @@ const unauthOverlay = document.getElementById('unauthOverlay');
 const myDevicesList = document.getElementById('myDevicesList');
 
 // ─── Setup Auth & Load Devices ──────────────────────
-// Gunakan initBajaAuth langsung — dijamin ada karena firebase.js dimuat di <head>
-initBajaAuth((user) => {
-  currentUser = user; // 'user' sudah digabung dengan profile (uid, email, displayName, dll)
-  const overlay = document.getElementById('unauthOverlay');
-  if (overlay) overlay.style.display = 'none';
-  loadMyDevices();
-}, () => {
-  currentUser = null;
-  const overlay = document.getElementById('unauthOverlay');
-  if (overlay) overlay.style.display = 'flex';
-  if (myDevicesList) myDevicesList.innerHTML = '<div style="text-align: center; color: var(--text-3); font-size: 14px;">Silakan login untuk melihat perangkat Anda.</div>';
-});
+// Fungsi untuk mengecek login, dengan sistem polling agar tahan terhadap
+// penundaan load script (seperti Cloudflare Rocket Loader atau koneksi lambat).
+function checkAuthStatus() {
+  if (typeof auth === 'undefined') {
+    console.warn("[IoT Auth] Menunggu Firebase Auth siap...");
+    setTimeout(checkAuthStatus, 200); // Cek lagi setelah 200ms
+    return;
+  }
+
+  auth.onAuthStateChanged((user) => {
+    console.log("[IoT Auth] State changed. User:", user ? user.uid : "null");
+    if (user) {
+      currentUser = { uid: user.uid, email: user.email, displayName: user.displayName || 'Pengguna' };
+      const overlay = document.getElementById('unauthOverlay');
+      if (overlay) overlay.style.display = 'none';
+      console.log("[IoT Auth] User login terdeteksi. Memuat database IoT...");
+      
+      // Cegah load ganda jika onAuthStateChanged terpanggil lebih dari sekali
+      if (!document.getElementById('iotScript')) {
+        const script = document.createElement('script');
+        script.id = 'iotScript';
+        script.src = '/src/services/firebase-iot.js';
+        script.onload = () => {
+          console.log("[IoT Auth] Database IoT siap. Memuat perangkat...");
+          loadMyDevices();
+        };
+        document.body.appendChild(script);
+      } else {
+        loadMyDevices();
+      }
+    } else {
+      currentUser = null;
+      const overlay = document.getElementById('unauthOverlay');
+      if (overlay) overlay.style.display = 'flex';
+      if (myDevicesList) myDevicesList.innerHTML = '<div style="text-align: center; color: var(--text-3); font-size: 14px; padding: 20px;">Silakan login untuk melihat perangkat Anda.</div>';
+      console.warn("[IoT Auth] Tidak ada sesi login terdeteksi dari Firebase.");
+    }
+  });
+}
+
+// Mulai pengecekan
+checkAuthStatus();
 
 // ─── Load Perangkat & Grup ───────────────────────
 async function loadMyDevices() {
@@ -696,242 +907,7 @@ void loop() {
 `;
   }
 }
- ======================================================
-  BAJA IoT Trash Monitor -- ESP32 / ESP8266 Sketch
-  Version : 2.0 (Firebase_ESP_Client)
-  Perangkat : TRS-${deviceCode}
-  Dibuat    : ${new Date().toLocaleDateString('id-ID', {day:'numeric',month:'long',year:'numeric'})}
-  Hardware:
-    - ESP32 (DevKit / Wemos D1 R32) ATAU NodeMCU ESP8266
-    - Sensor Ultrasonik HC-SR04 (Level Kepenuhan)
-    - Sensor Gas MQ-135 (Kadar Gas)
-    - (Opsional) Voltage Divider untuk cek baterai
 
-  Library yang dibutuhkan (Install via Library Manager):
-    - Firebase Arduino Client Library for ESP8266 and ESP32
-      by Mobizt  (versi 4.x ke atas)
-    - ArduinoJson by Benoit Blanchon
- ======================================================
-*/
-
-// --- Include WiFi & Firebase ----------------------------------
-#if defined(ESP32)
-  #include <WiFi.h>
-#elif defined(ESP8266)
-  #include <ESP8266WiFi.h>
-#endif
-
-#include <Firebase_ESP_Client.h>
-#include <addons/TokenHelper.h>
-#include <addons/RTDBHelper.h>
-#include <ArduinoJson.h>
-#include <time.h>
-
-// --- KONFIGURASI WAJIB ----------------------------------------
-#define WIFI_SSID       "NAMA_WIFI_ANDA"
-#define WIFI_PASSWORD   "PASSWORD_WIFI_ANDA"
-#define DEVICE_CODE     "${deviceCode}"   // Otomatis dari web
-// --------------------------------------------------------------
-
-// Firebase Configuration
-#define FIREBASE_HOST   "baja-iot-default-rtdb.asia-southeast1.firebasedatabase.app"
-#define FIREBASE_AUTH   "AIzaSyDCh3CQHqdi7SxhDHLJ6IsQ7hq4GSOi6yI"
-
-// --- PIN & ADC ------------------------------------------------
-#if defined(ESP8266)  // NodeMCU / Wemos D1 Mini
-  #define ADC_MAX         1023.0
-  #define TRIG_PIN        D1
-  #define ECHO_PIN        D2
-  #define GAS_PIN         A0
-  #define BATT_PIN        A0
-  #define LED_PIN         LED_BUILTIN
-  #define LED_RED_PIN     D3
-  #define LED_GREEN_PIN   D4
-#elif defined(CONFIG_IDF_TARGET_ESP32C6)
-  #define ADC_MAX         4095.0
-  #define TRIG_PIN        4
-  #define ECHO_PIN        5
-  #define GAS_PIN         2
-  #define BATT_PIN        3
-  #define LED_PIN         8
-  #define LED_RED_PIN     12
-  #define LED_GREEN_PIN   13
-#else  // ESP32 Standar
-  #define ADC_MAX         4095.0
-  #define TRIG_PIN        5
-  #define ECHO_PIN        18
-  #define GAS_PIN         34
-  #define BATT_PIN        35
-  #define LED_PIN         2
-  #define LED_RED_PIN     12
-  #define LED_GREEN_PIN   13
-#endif
-
-#define BIN_HEIGHT_CM   50     // Tinggi tong sampah (cm)
-#define UPDATE_INTERVAL 10000  // Interval kirim data (ms)
-
-FirebaseData   fbdo;
-FirebaseAuth   fbAuth;
-FirebaseConfig fbConfig;
-
-String devicePath;
-String histPath;
-
-unsigned long lastUpdate = 0;
-
-// --- Setup ----------------------------------------------------
-void setup() {
-  Serial.begin(115200);
-  delay(500);
-
-  pinMode(TRIG_PIN, OUTPUT);
-  pinMode(ECHO_PIN, INPUT);
-  pinMode(LED_PIN,  OUTPUT);
-  pinMode(LED_RED_PIN, OUTPUT);
-  pinMode(LED_GREEN_PIN, OUTPUT);
-
-  digitalWrite(LED_RED_PIN, HIGH);
-  digitalWrite(LED_GREEN_PIN, LOW);
-
-  devicePath = "/trash-bins/TRS-" + String(DEVICE_CODE) + "/status";
-  histPath   = "/trash-bins/TRS-" + String(DEVICE_CODE) + "/history";
-
-  Serial.println("================================");
-  Serial.println("  BAJA IoT Trash Monitor v2.0");
-  Serial.println("  Kode: TRS-" + String(DEVICE_CODE));
-  Serial.println("================================");
-
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  Serial.print("Menghubungkan WiFi");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500); Serial.print(".");
-    digitalWrite(LED_PIN, !digitalRead(LED_PIN));
-    digitalWrite(LED_RED_PIN, !digitalRead(LED_RED_PIN));
-  }
-  digitalWrite(LED_PIN, HIGH);
-  Serial.println("\\nWiFi Terhubung! IP: " + WiFi.localIP().toString());
-
-  configTime(25200, 0, "pool.ntp.org", "time.nist.gov");
-  Serial.print("Sinkronisasi waktu NTP");
-  while (time(nullptr) < 100000) { delay(200); Serial.print("."); }
-  Serial.println(" OK");
-
-  // Konfigurasi Firebase v4+
-  fbConfig.database_url = FIREBASE_HOST;
-  fbConfig.signer.tokens.legacy_token = FIREBASE_AUTH;
-  fbConfig.token_status_callback = tokenStatusCallback;
-
-  Firebase.begin(&fbConfig, &fbAuth);
-  Firebase.reconnectWiFi(true);
-
-  digitalWrite(LED_RED_PIN, LOW);
-  digitalWrite(LED_GREEN_PIN, HIGH);
-
-  Serial.println("Firebase terhubung!");
-  Serial.println("================================");
-}
-
-// --- Baca Sensor Ultrasonik -----------------------------------
-float readDistanceCm() {
-  digitalWrite(TRIG_PIN, LOW);
-  delayMicroseconds(2);
-  digitalWrite(TRIG_PIN, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(TRIG_PIN, LOW);
-
-  long duration = pulseIn(ECHO_PIN, HIGH, 30000);
-  if (duration == 0) return -1;
-  return duration * 0.0343 / 2.0;
-}
-
-// --- Hitung Level Kepenuhan -----------------------------------
-int calcFillLevel(float distCm) {
-  if (distCm < 0) return -1;
-  float level = (1.0 - (distCm / BIN_HEIGHT_CM)) * 100.0;
-  return constrain((int)level, 0, 100);
-}
-
-// --- Baca Gas MQ-135 -----------------------------------------
-int readGasPPM() {
-  int raw = analogRead(GAS_PIN);
-  return map(raw, 0, (int)ADC_MAX, 0, 1000);
-}
-
-// --- Baca Baterai --------------------------------------------
-int readBatteryPercent() {
-  int   raw  = analogRead(BATT_PIN);
-  float volt = (raw / ADC_MAX) * 3.3 * 2.0;
-  int   pct  = (int)((volt - 3.0) / (4.2 - 3.0) * 100.0);
-  return constrain(pct, 0, 100);
-}
-
-// --- Kirim ke Firebase ---------------------------------------
-void sendToFirebase(int fillLevel, int gasLevel, int battery, bool isFull) {
-  time_t now = time(nullptr);
-
-  Firebase.RTDB.setInt(&fbdo,  devicePath + "/fill_level",   fillLevel);
-  Firebase.RTDB.setInt(&fbdo,  devicePath + "/gas_level",    gasLevel);
-  Firebase.RTDB.setInt(&fbdo,  devicePath + "/battery",      battery);
-  Firebase.RTDB.setBool(&fbdo, devicePath + "/is_full",      isFull);
-  Firebase.RTDB.setInt(&fbdo,  devicePath + "/last_updated", (int)now);
-
-  FirebaseJson histJson;
-  histJson.set("fill_level",  fillLevel);
-  histJson.set("gas_level",   gasLevel);
-  histJson.set("timestamp",   (int)now);
-  Firebase.RTDB.pushJSON(&fbdo, histPath, &histJson);
-
-  Serial.print("Terkirim | Fill:");
-  Serial.print(fillLevel);
-  Serial.print("% | Gas:");
-  Serial.print(gasLevel);
-  Serial.print(" ppm | Batt:");
-  Serial.print(battery);
-  Serial.println("%");
-}
-
-// --- Loop Utama ----------------------------------------------
-void loop() {
-  unsigned long now = millis();
-
-  if (now - lastUpdate >= UPDATE_INTERVAL) {
-    lastUpdate = now;
-    digitalWrite(LED_PIN, LOW);
-
-    float  dist      = readDistanceCm();
-    int    fillLevel = calcFillLevel(dist);
-    int    gasLevel  = readGasPPM();
-    int    battery   = readBatteryPercent();
-    bool   isFull    = (fillLevel >= 90);
-
-    Serial.print("Sensor | Jarak:");
-    Serial.print(dist);
-    Serial.print("cm | Fill:");
-    Serial.print(fillLevel);
-    Serial.print("% | Gas:");
-    Serial.print(gasLevel);
-    Serial.print(" ppm | Batt:");
-    Serial.print(battery);
-    Serial.println("%");
-
-    if (fillLevel < 0) {
-      Serial.println("GAGAL baca sensor ultrasonik! Periksa kabel.");
-    } else if (WiFi.status() == WL_CONNECTED) {
-      sendToFirebase(fillLevel, gasLevel, battery, isFull);
-      digitalWrite(LED_RED_PIN,   LOW);
-      digitalWrite(LED_GREEN_PIN, HIGH);
-    } else {
-      Serial.println("WiFi terputus! Mencoba reconnect...");
-      digitalWrite(LED_GREEN_PIN, LOW);
-      digitalWrite(LED_RED_PIN,   HIGH);
-      WiFi.reconnect();
-    }
-
-    digitalWrite(LED_PIN, HIGH);
-  }
-}
-`;
-}
 // ─── Register: Buat Perangkat Baru ──────────────────
 btnRegister.addEventListener('click', async () => {
   if (!currentUser) { alert('Silakan login terlebih dahulu.'); return; }
@@ -1241,7 +1217,6 @@ if (boardSel) {
     <span class="bottom-nav-text">Tutorial</span>
   </a>
 </nav>
-<script src="/src/services/firebase-iot.js"></script>
 <script src="/src/App.js"></script>
 </body>
 </html>
