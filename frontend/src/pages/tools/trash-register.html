@@ -188,19 +188,17 @@ const unauthOverlay = document.getElementById('unauthOverlay');
 const myDevicesList = document.getElementById('myDevicesList');
 
 // ─── Setup Auth & Load Devices ──────────────────────
-// Gunakan auth.onAuthStateChanged langsung — tidak bergantung pada timing DOM
-auth.onAuthStateChanged(async user => {
-  if (user) {
-    currentUser = { uid: user.uid, email: user.email, displayName: user.displayName || 'Pengguna' };
-    const overlay = document.getElementById('unauthOverlay');
-    if (overlay) overlay.style.display = 'none';
-    loadMyDevices();
-  } else {
-    currentUser = null;
-    const overlay = document.getElementById('unauthOverlay');
-    if (overlay) overlay.style.display = 'flex';
-    if (myDevicesList) myDevicesList.innerHTML = '<div style="text-align: center; color: var(--text-3); font-size: 14px;">Silakan login untuk melihat perangkat Anda.</div>';
-  }
+// Gunakan initBajaAuth langsung — dijamin ada karena firebase.js dimuat di <head>
+initBajaAuth((user) => {
+  currentUser = user; // 'user' sudah digabung dengan profile (uid, email, displayName, dll)
+  const overlay = document.getElementById('unauthOverlay');
+  if (overlay) overlay.style.display = 'none';
+  loadMyDevices();
+}, () => {
+  currentUser = null;
+  const overlay = document.getElementById('unauthOverlay');
+  if (overlay) overlay.style.display = 'flex';
+  if (myDevicesList) myDevicesList.innerHTML = '<div style="text-align: center; color: var(--text-3); font-size: 14px;">Silakan login untuk melihat perangkat Anda.</div>';
 });
 
 // ─── Load Perangkat & Grup ───────────────────────
