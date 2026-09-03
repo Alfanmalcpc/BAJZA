@@ -159,31 +159,49 @@
           <div class="reg-step">
             <div class="reg-step-num bg-pink">3</div>
             <div class="reg-step-text">Buka <strong>Arduino IDE</strong>, tempel kode, ganti <code class="code-hl">NAMA_WIFI_ANDA</code></div>
-          </div>
-          <div class="reg-step">
-            <div class="reg-step-num bg-gold">4</div>
-            <div class="reg-step-text">Klik <strong>Upload</strong> ke mikrokontroler Anda (ESP, Wemos, dll). Selesai! Data langsung mengalir ke dashboard.</div>
-          </div>
-        </div>
-      </div>
-
-  </div>
-</section>
-
 <script>
+
+// --- DEBUG WIDGET ---
+const debugBox = document.createElement('div');
+debugBox.style.position = 'fixed';
+debugBox.style.bottom = '10px';
+debugBox.style.left = '10px';
+debugBox.style.backgroundColor = 'rgba(255, 0, 0, 0.9)';
+debugBox.style.color = 'white';
+debugBox.style.padding = '10px';
+debugBox.style.borderRadius = '8px';
+debugBox.style.zIndex = '999999';
+debugBox.style.fontSize = '12px';
+debugBox.style.maxWidth = '300px';
+debugBox.style.pointerEvents = 'none';
+debugBox.innerHTML = '<strong>DEBUG LOG:</strong><br/>';
+document.addEventListener("DOMContentLoaded", () => document.body.appendChild(debugBox));
+
+function logDebug(msg) {
+  console.log("[DEBUG]", msg);
+  if (document.body) {
+    if (!debugBox.parentElement) document.body.appendChild(debugBox);
+    debugBox.innerHTML += msg + '<br/>';
+  }
+}
+// --------------------
+
 let currentUser = null;
 // Cache untuk semua data perangkat dan grup
 let allDevices = {};   // { fullCode: {name, location, isOwner, createdAt} }
 let allGroups  = {};   // { groupId: {name, createdAt, devices: {code: true}} }
 
-
 function checkAuthStatus() {
+  logDebug('Cek auth object...');
   if (typeof auth === 'undefined') {
-    setTimeout(checkAuthStatus, 100);
+    logDebug('auth undefined, retry 200ms...');
+    setTimeout(checkAuthStatus, 200);
     return;
   }
+  logDebug('auth DITEMUKAN! Memanggil onAuthStateChanged...');
   auth.onAuthStateChanged((user) => {
     if (user) {
+      logDebug('SUCCESS: User UID = ' + user.uid);
       currentUser = user;
       document.getElementById('unauthOverlay').style.display = 'none';
       loadMyDevices();
@@ -191,69 +209,42 @@ function checkAuthStatus() {
       const script = document.createElement('script');
       script.src = '/src/services/firebase-iot.js';
       document.body.appendChild(script);
+      logDebug('Injeksi firebase-iot.js');
     } else {
+      logDebug('FAILED: user = null (Belum login di objek auth ini)');
       currentUser = null;
       document.getElementById('unauthOverlay').style.display = 'flex';
       document.getElementById('myDevicesList').innerHTML = '<div class="tm-monitor-card" style="text-align:center;color:var(--text-2);">Silakan login untuk melihat perangkat.</div>';
     }
+  }, (error) => {
+    logDebug('ERROR Auth: ' + error.message);
   });
 }
 checkAuthStatus();
 
-const btnRegister   = document.getElementById('btnRegister');
-const btnRegText    = document.getElementById('btnRegText');
-const regSpinner    = document.getElementById('regSpinner');
-const regResult     = document.getElementById('regResult');
-const regError      = document.getElementById('regError');
-const inoSection    = document.getElementById('inoSection');
-const linkMonitor   = document.getElementById('linkMonitor');
-const arduinoCodeEl = document.getElementById('arduinoCode');
-const unauthOverlay = document.getElementById('unauthOverlay');
-const myDevicesList = document.getElementById('myDevicesList');
-
-// ─── Setup Auth & Load Devices ──────────────────────
-// Fungsi untuk mengecek login, dengan sistem polling agar tahan terhadap
-// penundaan load script (seperti Cloudflare Rocket Loader atau koneksi lambat).
-function checkAuthStatus() {
-  if (typeof auth === 'undefined') {
-    console.warn("[IoT Auth] Menunggu Firebase Auth siap...");
-    setTimeout(checkAuthStatus, 200); // Cek lagi setelah 200ms
-    return;
-  }
-
-  auth.onAuthStateChanged((user) => {
-    console.log("[IoT Auth] State changed. User:", user ? user.uid : "null");
-    if (user) {
-      currentUser = { uid: user.uid, email: user.email, displayName: user.displayName || 'Pengguna' };
-      const overlay = document.getElementById('unauthOverlay');
-      if (overlay) overlay.style.display = 'none';
-      console.log("[IoT Auth] User login terdeteksi. Memuat perangkat...");
-      loadMyDevices();
-    } else {
-      currentUser = null;
-      const overlay = document.getElementById('unauthOverlay');
-      if (overlay) overlay.style.display = 'flex';
-      if (myDevicesList) myDevicesList.innerHTML = '<div style="text-align: center; color: var(--text-3); font-size: 14px; padding: 20px;">Silakan login untuk melihat perangkat Anda.</div>';
-      console.warn("[IoT Auth] Tidak ada sesi login terdeteksi dari Firebase.");
-    }
-  });
-}
-
-// Mulai pengecekan
-checkAuthStatus();
-
-// ─── Load Perangkat & Grup ───────────────────────
-async function loadMyDevices() {
-  if (!currentUser) return;
-  myDevicesList.innerHTML = '<div style="text-align:center;color:var(--text-3);font-size:14px;padding:28px;">Memuat perangkat...</div>';
-  try {
-    const [devSnap, grpSnap] = await Promise.all([
-      db.ref(`users/${currentUser.uid}/iot_devices`).once('value'),
-      db.ref(`users/${currentUser.uid}/iot_groups`).once('value')
-    ]);
-    allDevices = {};
-    allGroups  = {};
-    if (!devSnap.exists()) {
+const btnRegister   = document.getElementById('btnRegister');
+const btnRegText    = document.getElementById('btnRegText');
+const regSpinner    = document.getElementById('regSpinner');
+const regResult     = document.getElementById('regResult');
+const regError      = document.getElementById('regError');
+const inoSection    = document.getElementById('inoSection');
+const linkMonitor   = document.getElementById('linkMonitor');
+const arduinoCodeEl = document.getElementById('arduinoCode');
+const unauthOverlay = document.getElementById('unauthOverlay');
+const myDevicesList = document.getElementById('myDevicesList');
+
+// ─── Load Perangkat & Grup ───────────────────────
+async function loadMyDevices() {
+  if (!currentUser) return;
+  myDevicesList.innerHTML = '<div style="text-align:center;color:var(--text-3);font-size:14px;padding:28px;">Memuat perangkat...</div>';
+  try {
+    const [devSnap, grpSnap] = await Promise.all([
+      db.ref(`users/${currentUser.uid}/iot_devices`).once('value'),
+      db.ref(`users/${currentUser.uid}/iot_groups`).once('value')
+    ]);
+    allDevices = {};
+    allGroups  = {};
+    if (!devSnap.exists()) {
       myDevicesList.innerHTML = '<div style="text-align:center;color:var(--text-3);font-size:14px;padding:28px;background:var(--bg-body);border-radius:14px;">Belum ada perangkat. Daftarkan baru atau tambah via kode di atas.</div>';
       return;
     }
