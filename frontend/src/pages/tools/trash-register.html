@@ -49,7 +49,7 @@
     <div class="tm-monitor-card reg-card-custom" style="position: relative; overflow: hidden;">
       
       <!-- Overlay Belum Login -->
-      <div id="unauthOverlay" style="display: flex; flex-direction: column; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(var(--bg-surface-rgb, 15,23,42), 0.85); backdrop-filter: blur(4px); z-index: 100; justify-content: center; align-items: center; text-align: center; padding: 20px;">
+      <div id="unauthOverlay" style="display: none; flex-direction: column; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(var(--bg-surface-rgb, 15,23,42), 0.85); backdrop-filter: blur(4px); z-index: 100; justify-content: center; align-items: center; text-align: center; padding: 20px;">
         <h2 style="margin-bottom: 12px; font-size: 20px;">Anda Belum Login</h2>
         <p style="margin-bottom: 20px; color: var(--text-2);">Silakan login terlebih dahulu untuk mendaftarkan perangkat IoT dan menyimpannya di akun Anda.</p>
         <a href="/src/pages/auth.html" style="background: var(--grad-tools); color: #fff; text-decoration: none; padding: 12px 24px; border-radius: var(--r-full); font-weight: bold; box-shadow: var(--glow-blue);">Masuk / Daftar</a>
@@ -1071,7 +1071,7 @@ if (boardSel) {
 <!-- ══ DEBUG BOX (hapus setelah selesai debug) ══ -->
 <script>
 (function() {
-  const box = document.createElement('div');
+  var box = document.createElement('div');
   box.id = 'authDebugBox';
   Object.assign(box.style, {
     position:'fixed', bottom:'10px', left:'10px', zIndex:'9999999',
@@ -1089,36 +1089,46 @@ if (boardSel) {
     box.scrollTop = box.scrollHeight;
   }
 
-  log('📄 Script jalan ✅', '#4ade80');
+  log('📄 Script jalan OK', '#4ade80');
 
-  // Cek semua dependencies
-  setTimeout(function check() {
-    log('--- Cek dependencies ---', '#facc15');
-    log('firebase: ' + (typeof firebase !== 'undefined' ? '✅' : '❌ TIDAK ADA'), typeof firebase !== 'undefined' ? '#4ade80' : '#f87171');
-    log('auth: '    + (typeof auth    !== 'undefined' ? '✅' : '❌ TIDAK ADA'), typeof auth    !== 'undefined' ? '#4ade80' : '#f87171');
-    log('db: '      + (typeof db      !== 'undefined' ? '✅' : '❌ TIDAK ADA'), typeof db      !== 'undefined' ? '#4ade80' : '#f87171');
-    log('iotDb: '   + (typeof iotDb   !== 'undefined' ? '✅' : '❌ TIDAK ADA'), typeof iotDb   !== 'undefined' ? '#4ade80' : '#f87171');
-
+  function runAuthFix() {
     if (typeof auth === 'undefined') {
-      log('⚠️ auth belum ada, tunggu 500ms...', '#fb923c');
-      setTimeout(check, 500);
+      log('⚠️ auth belum ada, retry...', '#fb923c');
+      setTimeout(runAuthFix, 300);
       return;
     }
+    log('firebase:✅ auth:✅ db:' + (typeof db!=='undefined'?'✅':'❌') + ' iotDb:' + (typeof iotDb!=='undefined'?'✅':'❌'), '#facc15');
+    log('📡 onAuthStateChanged...', '#facc15');
 
-    log('📡 Memanggil auth.onAuthStateChanged...', '#facc15');
     auth.onAuthStateChanged(function(user) {
+      var overlay = document.getElementById('unauthOverlay');
+      var devList = document.getElementById('myDevicesList');
       if (user) {
-        log('✅ USER LOGIN: ' + user.uid.slice(0,10) + '...', '#4ade80');
-        log('email: ' + (user.email || '(kosong)'), '#4ade80');
-        log('unauthOverlay display: ' + (document.getElementById('unauthOverlay') ? document.getElementById('unauthOverlay').style.display : 'ELEMEN TIDAK ADA'), '#facc15');
+        log('✅ LOGIN: ' + user.email, '#4ade80');
+        // FIX: sembunyikan overlay, tampilkan konten
+        if (overlay) overlay.style.display = 'none';
+        log('overlay → none ✅', '#4ade80');
+        // Panggil loadMyDevices jika tersedia (dari script utama)
+        if (typeof loadMyDevices === 'function') {
+          log('loadMyDevices() dipanggil', '#4ade80');
+          if (typeof currentUser === 'undefined' || !window.currentUser) {
+            window.currentUser = user;
+          }
+          loadMyDevices();
+        } else {
+          log('⚠️ loadMyDevices tidak ada (script utama error)', '#fb923c');
+          if (devList) devList.innerHTML = '<div style="text-align:center;color:var(--text-3);padding:20px;">Script utama error — lihat console browser (F12)</div>';
+        }
       } else {
-        log('🔒 USER = NULL (belum login)', '#f87171');
-        log('unauthOverlay display: ' + (document.getElementById('unauthOverlay') ? document.getElementById('unauthOverlay').style.display : 'ELEMEN TIDAK ADA'), '#facc15');
+        log('🔒 Belum login', '#f87171');
+        if (overlay) overlay.style.display = 'flex';
+        if (devList) devList.innerHTML = '<div style="text-align:center;color:var(--text-2);">Silakan login.</div>';
       }
     }, function(err) {
-      log('💥 onAuthStateChanged ERROR: ' + err.message, '#f87171');
+      log('💥 ERROR: ' + err.message, '#f87171');
     });
-  }, 800);
+  }
+  runAuthFix();
 })();
 </script>
 </body>
