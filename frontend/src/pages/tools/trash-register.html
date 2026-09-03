@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Daftarkan Perangkat IoT — BAJA WEB</title>
+  <title>Daftarkan Perangkat IoT &mdash; BAJA WEB</title>
   <meta name="description" content="Daftarkan perangkat tempat sampah IoT baru dan dapatkan kode akses unik."/>
   <link rel="icon" href="/src/assets/img/Logo.svg"/>
   <link rel="stylesheet" href="/src/assets/css/style.css"/>
@@ -15,7 +15,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="/src/services/firebase.js"></script>
   <script src="/src/services/firebase-iot.js"></script>
-
 </head>
 <body>
 
@@ -36,956 +35,150 @@
 <div class="page-header" style="padding-bottom: 0;">
   <div class="container" style="position: relative;">
     <a href="/public/index.html" class="tm-btn-back" style="position: absolute; left: 16px; top: 0; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 800; color: var(--text-1); background: var(--bg-surface); padding: 8px 16px; border-radius: var(--r-full); border: 2px solid var(--border); box-shadow: var(--shadow-sm); transition: all var(--tr); z-index: 10;">
-      <span>←</span> <span data-en="Back" data-id="Kembali">Kembali</span>
+      <span>&larr;</span> <span data-en="Back" data-id="Kembali">Kembali</span>
     </a>
-    <div class="section-badge" style="margin-top: 40px;">➕ <span data-en="Register Device" data-id="Daftar Perangkat">Register Device</span></div>
+    <div class="section-badge" style="margin-top: 40px;">&#xFF0B; <span data-en="Register Device" data-id="Daftar Perangkat">Register Device</span></div>
     <h1 data-en="Register New IoT Bin" data-id="Daftarkan Tempat Sampah Baru">Register New IoT Bin</h1>
-    <p data-en="Get your unique device code and complete Arduino code automatically. Supports all microcontrollers (ESP32, ESP8266, Wemos, etc)." data-id="Dapatkan kode unik perangkat dan kode Arduino lengkap secara otomatis. Mendukung semua mikrokontroler (ESP32, ESP8266, Wemos, dll).">Dapatkan kode unik perangkat dan kode Arduino lengkap secara otomatis. Mendukung semua mikrokontroler (ESP32, ESP8266, Wemos, dll).</p>
+    <p>Dapatkan kode unik perangkat dan kode Arduino lengkap secara otomatis. Mendukung semua mikrokontroler (ESP32, ESP8266, Wemos, dll).</p>
   </div>
 </div>
 
 <section class="section tm-landing-content">
   <div class="container">
+
+    <!-- ── Kartu Register ── -->
     <div class="tm-monitor-card reg-card-custom" style="position: relative; overflow: hidden;">
-      
-      <!-- Overlay Belum Login -->
+
+      <!-- Overlay Belum Login (tersembunyi by default, tampil jika belum login) -->
       <div id="unauthOverlay" style="display: none; flex-direction: column; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(var(--bg-surface-rgb, 15,23,42), 0.85); backdrop-filter: blur(4px); z-index: 100; justify-content: center; align-items: center; text-align: center; padding: 20px;">
         <h2 style="margin-bottom: 12px; font-size: 20px;">Anda Belum Login</h2>
         <p style="margin-bottom: 20px; color: var(--text-2);">Silakan login terlebih dahulu untuk mendaftarkan perangkat IoT dan menyimpannya di akun Anda.</p>
         <a href="/src/pages/auth.html" style="background: var(--grad-tools); color: #fff; text-decoration: none; padding: 12px 24px; border-radius: var(--r-full); font-weight: bold; box-shadow: var(--glow-blue);">Masuk / Daftar</a>
       </div>
 
-        <div class="reg-field">
-          <label for="regName" class="tm-monitor-label">Nama Tempat Sampah</label>
-          <input type="text" id="regName" class="reg-input" placeholder="Contoh: Tempat Sampah Kantor Lt.3" maxlength="60"/>
-        </div>
-
-        <div class="reg-field">
-          <label for="regLocation" class="tm-monitor-label">Lokasi / Keterangan</label>
-          <input type="text" id="regLocation" class="reg-input" placeholder="Contoh: Jl. Merdeka No.1, Bandung" maxlength="100"/>
-        </div>
-
-        <div class="tm-error-msg" id="regError">Mohon isi semua field terlebih dahulu.</div>
-
-        <div class="reg-field" style="margin-top:14px;">
-          <label for="regBoard" class="tm-monitor-label">Pilih Board Mikrokontroler</label>
-          <select id="regBoard" class="reg-input" style="cursor:pointer;">
-            <option value="esp32">ESP32 (DevKit / NodeMCU-32) — 2 ADC, Tidak perlu Multiplexer</option>
-            <option value="esp8266">ESP8266 / NodeMCU — 1 ADC (A0), Perlu CD74HC4067</option>
-            <option value="wemos">Wemos D1 Mini — 1 ADC (A0), Perlu CD74HC4067</option>
-            <option value="arduino_esp01">Arduino Uno/Nano + ESP-01 — Tidak ada ADC, Perlu CD74HC4067</option>
-          </select>
-          <div id="boardNote" style="font-size:12px;color:var(--text-3);margin-top:8px;padding:8px 12px;background:rgba(99,102,241,0.07);border-radius:8px;border-left:3px solid #818cf8;"></div>
-        </div>
-
-        <button id="btnRegister" style="background:var(--grad-tools); color:#fff; border:none; padding:16px 32px; border-radius:var(--r-full); font-size:16px; font-weight:800; font-family:var(--font); cursor:pointer; width:100%; margin-top:24px; transition:all var(--tr); box-shadow:var(--glow-blue); display:flex; align-items:center; justify-content:center; gap:12px;">
-          <span id="btnRegText">✅ Generate Kode Perangkat</span>
-          
-          <!-- Animasi Logo Kecil (seperti di Converter) -->
-          <div class="iso-loader-wrap" id="regSpinner" style="display:none; padding: 0;">
-            <div class="iso-loader" style="transform: scale(0.4); margin: -20px;">
-              <div class="iso-layer iso-layer-3"></div>
-              <div class="iso-layer iso-layer-2"></div>
-              <div class="iso-layer iso-layer-1"></div>
-            </div>
-          </div>
-        </button>
-
-        <!-- Hasil Kode + Arduino -->
-        <div class="reg-result" id="regResult">
-          <div class="reg-result-title">✅ Perangkat Berhasil Didaftarkan!</div>
-          <div class="reg-code-display" id="generatedCode">TRS-—</div>
-          <a class="link-monitor" id="linkMonitor" href="#">🔍 Pantau Sekarang</a>
-        </div>
-
-        <!-- Kode Arduino Lengkap (muncul otomatis setelah registrasi) -->
-        <div class="ino-section" id="inoSection">
-          <div class="ino-header">
-            <div class="ino-header-title">
-              <span style="font-size:18px;">⚡</span>
-              Kode Arduino (ESP32 / ESP8266 / Wemos dll) — Siap Copy-Paste
-            </div>
-            <button class="ino-copy-btn" id="btnCopyArduino">📋 Salin Semua Kode</button>
-          </div>
-          <pre class="ino-code" id="arduinoCode"></pre>
-          <div class="ino-wifi-note">
-            ⚠️ <strong>Yang perlu Anda ubah hanya 2 baris:</strong><br>
-            Ganti <code style="color:#facc15;">NAMA_WIFI_ANDA</code> dan <code style="color:#facc15;">PASSWORD_WIFI_ANDA</code> dengan WiFi Anda.<br>
-            <strong>Kode perangkat sudah otomatis terisi. Jangan ubah!</strong>
-          </div>
-        </div>
+      <div class="reg-field">
+        <label for="regName" class="tm-monitor-label">Nama Tempat Sampah</label>
+        <input type="text" id="regName" class="reg-input" placeholder="Contoh: Tempat Sampah Kantor Lt.3" maxlength="60"/>
       </div>
 
-      <!-- Perangkat Saya (My Devices) -->
-      <div class="tm-monitor-card reg-card-custom" style="margin-top:24px;" id="myDevicesContainer">
-
-        <!-- Header Judul + Tombol Buat Grup -->
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
-          <div class="tm-monitor-label" style="font-size:20px;font-family:var(--font-heading);margin:0;">📱 Perangkat Saya</div>
-          <button id="btnCreateGroup" style="background:rgba(99,102,241,0.15);border:1.5px solid rgba(99,102,241,0.4);color:#818cf8;padding:8px 16px;border-radius:var(--r-full);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.2s;" onmouseenter="this.style.background='rgba(99,102,241,0.28)'" onmouseleave="this.style.background='rgba(99,102,241,0.15)'">📂 + Buat Grup</button>
-        </div>
-
-        <!-- Tambah Perangkat via Kode -->
-        <div style="background:var(--bg-body);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:16px;">
-          <div style="font-size:13px;font-weight:700;color:var(--text-2);margin-bottom:10px;">🔗 Tambah Perangkat via Kode (milik siapapun)</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <div style="display:flex;align-items:center;background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--r-full);overflow:hidden;flex:1;min-width:160px;">
-              <span style="padding:0 10px 0 14px;font-weight:700;font-size:14px;color:var(--text-3);white-space:nowrap;">TRS-</span>
-              <input type="text" id="joinCodeInput" maxlength="4" placeholder="XXXX" spellcheck="false" autocomplete="off"
-                style="border:none;background:transparent;color:var(--text-1);font-size:14px;font-weight:700;font-family:'Courier New',monospace;padding:10px 14px 10px 0;width:100%;outline:none;text-transform:uppercase;letter-spacing:2px;">
-            </div>
-            <button id="btnJoinDevice" style="background:var(--grad-tools);color:#fff;border:none;padding:10px 20px;border-radius:var(--r-full);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;transition:opacity 0.2s;" onmouseenter="this.style.opacity='.85'" onmouseleave="this.style.opacity='1'">Tambah</button>
-          </div>
-          <div id="joinError" style="font-size:12px;color:#f87171;margin-top:7px;display:none;"></div>
-        </div>
-
-        <!-- Daftar Perangkat (dirender oleh JS) -->
-        <div id="myDevicesList">
-          <div style="text-align:center;color:var(--text-3);font-size:14px;padding:28px;">Memuat data...</div>
-        </div>
+      <div class="reg-field">
+        <label for="regLocation" class="tm-monitor-label">Lokasi / Keterangan</label>
+        <input type="text" id="regLocation" class="reg-input" placeholder="Contoh: Jl. Merdeka No.1, Bandung" maxlength="100"/>
       </div>
 
-      <!-- Cara Pakai -->
-      <div class="tm-monitor-card reg-card-custom" style="margin-top:24px;">
-        <div class="reg-steps">
-          <div class="tm-monitor-label" style="font-size:20px; font-family:var(--font-heading); margin-bottom:16px;">📖 Cara Menggunakan</div>
-          <div class="reg-step">
-            <div class="reg-step-num bg-green">1</div>
-            <div class="reg-step-text">Isi form dan klik <strong>Generate Kode Perangkat</strong></div>
+      <div class="tm-error-msg" id="regError">Mohon isi semua field terlebih dahulu.</div>
+
+      <div class="reg-field" style="margin-top:14px;">
+        <label for="regBoard" class="tm-monitor-label">Pilih Board Mikrokontroler</label>
+        <select id="regBoard" class="reg-input" style="cursor:pointer;">
+          <option value="esp32">ESP32 (DevKit / NodeMCU-32) &mdash; 2 ADC, Tidak perlu Multiplexer</option>
+          <option value="esp8266">ESP8266 / NodeMCU &mdash; 1 ADC (A0), Perlu CD74HC4067</option>
+          <option value="wemos">Wemos D1 Mini &mdash; 1 ADC (A0), Perlu CD74HC4067</option>
+          <option value="arduino_esp01">Arduino Uno/Nano + ESP-01 &mdash; Tidak ada ADC, Perlu CD74HC4067</option>
+        </select>
+        <div id="boardNote" style="font-size:12px;color:var(--text-3);margin-top:8px;padding:8px 12px;background:rgba(99,102,241,0.07);border-radius:8px;border-left:3px solid #818cf8;"></div>
+      </div>
+
+      <button id="btnRegister" style="background:var(--grad-tools); color:#fff; border:none; padding:16px 32px; border-radius:var(--r-full); font-size:16px; font-weight:800; font-family:var(--font); cursor:pointer; width:100%; margin-top:24px; transition:all var(--tr); box-shadow:var(--glow-blue); display:flex; align-items:center; justify-content:center; gap:12px;">
+        <span id="btnRegText">&#x2705; Generate Kode Perangkat</span>
+        <div class="iso-loader-wrap" id="regSpinner" style="display:none; padding: 0;">
+          <div class="iso-loader" style="transform: scale(0.4); margin: -20px;">
+            <div class="iso-layer iso-layer-3"></div>
+            <div class="iso-layer iso-layer-2"></div>
+            <div class="iso-layer iso-layer-1"></div>
           </div>
-          <div class="reg-step">
-            <div class="reg-step-num bg-blue">2</div>
-            <div class="reg-step-text"><strong>Salin semua kode Arduino</strong> yang muncul — kode sudah lengkap & siap pakai!</div>
+        </div>
+      </button>
+
+      <!-- Hasil Kode -->
+      <div class="reg-result" id="regResult">
+        <div class="reg-result-title">&#x2705; Perangkat Berhasil Didaftarkan!</div>
+        <div class="reg-code-display" id="generatedCode">TRS-&mdash;</div>
+        <a class="link-monitor" id="linkMonitor" href="#">&#x1F50D; Pantau Sekarang</a>
+      </div>
+
+      <!-- Kode Arduino -->
+      <div class="ino-section" id="inoSection">
+        <div class="ino-header">
+          <div class="ino-header-title">
+            <span style="font-size:18px;">&#x26A1;</span>
+            Kode Arduino (ESP32 / ESP8266 / Wemos dll) &mdash; Siap Copy-Paste
           </div>
-          <div class="reg-step">
-            <div class="reg-step-num bg-pink">3</div>
-            <div class="reg-step-text">Buka <strong>Arduino IDE</strong>, tempel kode, ganti <code class="code-hl">NAMA_WIFI_ANDA</code></div>
-<script>
+          <button class="ino-copy-btn" id="btnCopyArduino">&#x1F4CB; Salin Semua Kode</button>
+        </div>
+        <pre class="ino-code" id="arduinoCode"></pre>
+        <div class="ino-wifi-note">
+          &#x26A0;&#xFE0F; <strong>Yang perlu Anda ubah hanya 2 baris:</strong><br>
+          Ganti <code style="color:#facc15;">NAMA_WIFI_ANDA</code> dan <code style="color:#facc15;">PASSWORD_WIFI_ANDA</code> dengan WiFi Anda.<br>
+          <strong>Kode perangkat sudah otomatis terisi. Jangan ubah!</strong>
+        </div>
+      </div>
+    </div>
 
-// ══ DEBUG WIDGET ══════════════════════════════
-const _dbg = document.createElement('div');
-_dbg.id = 'debugBox';
-Object.assign(_dbg.style, {
-  position:'fixed', bottom:'10px', left:'10px', zIndex:'999999',
-  background:'rgba(180,0,0,0.92)', color:'#fff', padding:'10px 14px',
-  borderRadius:'10px', fontSize:'11px', maxWidth:'320px', maxHeight:'220px',
-  overflowY:'auto', pointerEvents:'none', lineHeight:'1.6',
-  fontFamily:'monospace', boxShadow:'0 4px 20px rgba(0,0,0,0.6)'
-});
-_dbg.innerHTML = '<b>🔴 DEBUG AUTH LOG:</b><br/>';
-document.addEventListener('DOMContentLoaded', () => document.body.appendChild(_dbg));
-if (document.body) document.body.appendChild(_dbg);
+    <!-- ── Perangkat Saya ── -->
+    <div class="tm-monitor-card reg-card-custom" style="margin-top:24px;" id="myDevicesContainer">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+        <div class="tm-monitor-label" style="font-size:20px;font-family:var(--font-heading);margin:0;">&#x1F4F1; Perangkat Saya</div>
+        <button id="btnCreateGroup" style="background:rgba(99,102,241,0.15);border:1.5px solid rgba(99,102,241,0.4);color:#818cf8;padding:8px 16px;border-radius:var(--r-full);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.2s;" onmouseenter="this.style.background='rgba(99,102,241,0.28)'" onmouseleave="this.style.background='rgba(99,102,241,0.15)'">&#x1F4C2; + Buat Grup</button>
+      </div>
 
-function logDebug(msg, color) {
-  console.log('[DEBUG]', msg);
-  _dbg.innerHTML += `<span style="color:${color||'#fff'}">${msg}</span><br/>`;
-  _dbg.scrollTop = _dbg.scrollHeight;
-}
-// ══ END DEBUG ═════════════════════════════════
+      <!-- Tambah via Kode -->
+      <div style="background:var(--bg-body);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:16px;">
+        <div style="font-size:13px;font-weight:700;color:var(--text-2);margin-bottom:10px;">&#x1F517; Tambah Perangkat via Kode (milik siapapun)</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;background:var(--bg-surface);border:1.5px solid var(--border);border-radius:var(--r-full);overflow:hidden;flex:1;min-width:160px;">
+            <span style="padding:0 10px 0 14px;font-weight:700;font-size:14px;color:var(--text-3);white-space:nowrap;">TRS-</span>
+            <input type="text" id="joinCodeInput" maxlength="4" placeholder="XXXX" spellcheck="false" autocomplete="off"
+              style="border:none;background:transparent;color:var(--text-1);font-size:14px;font-weight:700;font-family:'Courier New',monospace;padding:10px 14px 10px 0;width:100%;outline:none;text-transform:uppercase;letter-spacing:2px;">
+          </div>
+          <button id="btnJoinDevice" style="background:var(--grad-tools);color:#fff;border:none;padding:10px 20px;border-radius:var(--r-full);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);white-space:nowrap;transition:opacity 0.2s;" onmouseenter="this.style.opacity='.85'" onmouseleave="this.style.opacity='1'">Tambah</button>
+        </div>
+        <div id="joinError" style="font-size:12px;color:#f87171;margin-top:7px;display:none;"></div>
+      </div>
 
-let currentUser = null;
-let allDevices = {};
-let allGroups  = {};
+      <div id="myDevicesList">
+        <div style="text-align:center;color:var(--text-3);font-size:14px;padding:28px;">Memuat data...</div>
+      </div>
+    </div>
 
-function checkAuthStatus() {
-  logDebug('⏳ Cek firebase + auth...', '#facc15');
-  if (typeof firebase === 'undefined') {
-    logDebug('❌ firebase SDK belum load, retry...', '#f87171');
-    setTimeout(checkAuthStatus, 200);
-    return;
-  }
-  if (typeof auth === 'undefined') {
-    logDebug('❌ auth undefined, retry...', '#f87171');
-    setTimeout(checkAuthStatus, 200);
-    return;
-  }
-  if (typeof iotDb === 'undefined') {
-    logDebug('⚠️ iotDb undefined (firebase-iot.js belum load?), retry...', '#fb923c');
-    setTimeout(checkAuthStatus, 200);
-    return;
-  }
-  logDebug('✅ firebase + auth + iotDb OK', '#4ade80');
-  logDebug('📡 Memanggil onAuthStateChanged...', '#facc15');
-
-  auth.onAuthStateChanged((user) => {
-    if (user) {
-      logDebug('✅ LOGIN: UID=' + user.uid.slice(0,8) + '...', '#4ade80');
-      currentUser = user;
-      document.getElementById('unauthOverlay').style.display = 'none';
-      loadMyDevices();
-    } else {
-      logDebug('🔒 LOGOUT / belum login', '#f87171');
-      currentUser = null;
-      document.getElementById('unauthOverlay').style.display = 'flex';
-      document.getElementById('myDevicesList').innerHTML = '<div class="tm-monitor-card" style="text-align:center;color:var(--text-2);">Silakan login untuk melihat perangkat.</div>';
-    }
-  }, (err) => {
-    logDebug('💥 onAuthStateChanged ERROR: ' + err.message, '#f87171');
-  });
-}
-checkAuthStatus();
-
-const btnRegister   = document.getElementById('btnRegister');
-const btnRegText    = document.getElementById('btnRegText');
-const regSpinner    = document.getElementById('regSpinner');
-const regResult     = document.getElementById('regResult');
-const regError      = document.getElementById('regError');
-const inoSection    = document.getElementById('inoSection');
-const linkMonitor   = document.getElementById('linkMonitor');
-const arduinoCodeEl = document.getElementById('arduinoCode');
-const unauthOverlay = document.getElementById('unauthOverlay');
-const myDevicesList = document.getElementById('myDevicesList');
-
-// ─── Load Perangkat & Grup ───────────────────────
-async function loadMyDevices() {
-  if (!currentUser) return;
-  myDevicesList.innerHTML = '<div style="text-align:center;color:var(--text-3);font-size:14px;padding:28px;">Memuat perangkat...</div>';
-  try {
-    const [devSnap, grpSnap] = await Promise.all([
-      db.ref(`users/${currentUser.uid}/iot_devices`).once('value'),
-      db.ref(`users/${currentUser.uid}/iot_groups`).once('value')
-    ]);
-    allDevices = {};
-    allGroups  = {};
-    if (!devSnap.exists()) {
-      myDevicesList.innerHTML = '<div style="text-align:center;color:var(--text-3);font-size:14px;padding:28px;background:var(--bg-body);border-radius:14px;">Belum ada perangkat. Daftarkan baru atau tambah via kode di atas.</div>';
-      return;
-    }
-    devSnap.forEach(child => { allDevices[child.key] = child.val(); });
-    if (grpSnap.exists()) grpSnap.forEach(child => { allGroups[child.key] = child.val(); });
-    renderDeviceList();
-    // Async: cek status online tiap perangkat
-    Object.keys(allDevices).forEach(async fullCode => {
-      const shortCode = fullCode.replace('TRS-', '');
-      try {
-        const st = await iotDb.ref(`trash-bins/${fullCode}/status/last_updated`).once('value');
-        const badge = document.getElementById(`badge-${shortCode}`);
-        if (!badge) return;
-        if (st.exists()) {
-          const diff = Math.floor(Date.now() / 1000) - st.val();
-          if (diff < 60) { badge.style.background='rgba(74,222,128,0.15)'; badge.style.color='#4ade80'; badge.textContent='\u25cf Online'; }
-          else           { badge.style.background='rgba(248,113,113,0.1)'; badge.style.color='#f87171'; badge.textContent='\u25cb Offline'; }
-        } else { badge.textContent = '\u25cb Belum aktif'; }
-      } catch (_) {}
-    });
-  } catch (e) {
-    console.error(e);
-    myDevicesList.innerHTML = '<div style="text-align:center;color:var(--red);font-size:14px;">Gagal memuat daftar perangkat.</div>';
-  }
-}
-
-// ─── Render Kartu Perangkat ─────────────────────
-function buildDeviceCard(fullCode, dev) {
-  const shortCode = fullCode.replace('TRS-', '');
-  const safeName  = (dev.name || '').replace(/"/g, '&quot;');
-  const safeLoc   = (dev.location || '').replace(/"/g, '&quot;');
-  const isOwner   = dev.isOwner !== false;
-  const createdAt = dev.createdAt
-    ? new Date(dev.createdAt).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}) : '\u2014';
-  const ownerBadge = isOwner ? '' : '<span style="font-size:10px;background:rgba(99,102,241,0.18);color:#818cf8;padding:2px 8px;border-radius:4px;font-weight:700;margin-left:6px;">Dipantau</span>';
-  return `
-    <div style="background:var(--bg-body);border:1px solid var(--border);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:12px;transition:border-color 0.2s,box-shadow 0.2s;" onmouseenter="this.style.borderColor='var(--blue)';this.style.boxShadow='0 0 0 1px var(--blue)'" onmouseleave="this.style.borderColor='var(--border)';this.style.boxShadow='none'">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;">
-        <div style="flex:1;min-width:0;">
-          <div style="font-weight:800;font-size:15px;color:var(--text-1);display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
-            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="devname-${shortCode}">${dev.name}</span>${ownerBadge}
-          </div>
-          <div style="font-size:12px;color:var(--text-2);margin-top:4px;" id="devloc-${shortCode}">📍 ${dev.location}</div>
-          <div style="font-size:11px;color:var(--text-3);margin-top:3px;">📅 ${createdAt} &nbsp;&middot;&nbsp; Kode: <strong style="color:var(--blue);">${fullCode}</strong></div>
-        </div>
-        <div id="badge-${shortCode}" style="flex-shrink:0;font-size:11px;font-weight:700;padding:5px 12px;border-radius:var(--r-full);background:rgba(100,100,100,0.12);color:var(--text-3);transition:all 0.35s;">⏳ Cek...</div>
-      </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <a href="trash-monitor.html?code=${shortCode}" style="flex:1;min-width:70px;background:var(--blue);color:#fff;padding:9px 12px;border-radius:var(--r-full);text-decoration:none;font-size:12px;font-weight:700;text-align:center;transition:opacity 0.2s;" onmouseenter="this.style.opacity='.85'" onmouseleave="this.style.opacity='1'">🔍 Pantau</a>
-        <button class="btn-edit-device" data-fullcode="${fullCode}" data-name="${safeName}" data-loc="${safeLoc}" data-owner="${isOwner}" style="flex:1;min-width:70px;background:rgba(250,204,21,0.1);border:1px solid rgba(250,204,21,0.25);color:#facc15;padding:9px 12px;border-radius:var(--r-full);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.2s;" onmouseenter="this.style.background='rgba(250,204,21,0.22)'" onmouseleave="this.style.background='rgba(250,204,21,0.1)'">✏️ Edit</button>
-        ${isOwner ? `<button class="btn-view-script" data-code="${shortCode}" data-name="${safeName}" style="flex:1;min-width:70px;background:var(--bg-surface);border:1.5px solid var(--border);color:var(--text-1);padding:9px 12px;border-radius:var(--r-full);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.2s;" onmouseenter="this.style.borderColor='var(--blue)'" onmouseleave="this.style.borderColor='var(--border)'">📋 Skrip</button>` : ''}
-        <button class="btn-manage-groups" data-fullcode="${fullCode}" data-name="${safeName}" style="flex-shrink:0;width:38px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);color:#818cf8;border-radius:var(--r-full);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;" onmouseenter="this.style.background='rgba(99,102,241,0.25)'" onmouseleave="this.style.background='rgba(99,102,241,0.1)'" title="Kelola Grup">📂</button>
-        <button class="btn-delete-device" data-fullcode="${fullCode}" data-name="${safeName}" data-owner="${isOwner}" style="flex-shrink:0;width:38px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:#f87171;border-radius:var(--r-full);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;" onmouseenter="this.style.background='#f87171';this.style.color='#fff'" onmouseleave="this.style.background='rgba(248,113,113,0.1)';this.style.color='#f87171'" title="Hapus">🗑️</button>
-      </div>
-    </div>`;
-}
-
-// ─── Render Seluruh Daftar (Grup + Tanpa Grup) ────────
-function renderDeviceList() {
-  const codesInGroups = new Set();
-  Object.values(allGroups).forEach(g => {
-    if (g.devices) Object.keys(g.devices).forEach(c => codesInGroups.add(c));
-  });
-  let html = '';
-  Object.entries(allGroups).forEach(([groupId, group]) => {
-    const devCodes   = group.devices ? Object.keys(group.devices) : [];
-    const safeGrpName = (group.name || '').replace(/"/g, '&quot;');
-    html += `
-      <div style="border:1.5px solid rgba(99,102,241,0.3);border-radius:16px;overflow:hidden;margin-bottom:4px;">
-        <div style="background:rgba(99,102,241,0.1);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
-          <div style="font-weight:800;font-size:14px;color:#818cf8;display:flex;align-items:center;gap:8px;">📂 ${group.name} <span style="font-size:11px;font-weight:600;color:var(--text-3);">(${devCodes.length} perangkat)</span></div>
-          <div style="display:flex;gap:6px;">
-            <button class="btn-rename-group" data-groupid="${groupId}" data-name="${safeGrpName}" style="background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.4);color:#818cf8;padding:5px 12px;border-radius:var(--r-full);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);">✏️ Rename</button>
-            <button class="btn-delete-group" data-groupid="${groupId}" data-name="${safeGrpName}" style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:#f87171;padding:5px 10px;border-radius:var(--r-full);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);">🗑️</button>
-          </div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:10px;padding:12px;">
-          ${devCodes.length === 0
-            ? '<div style="text-align:center;color:var(--text-3);font-size:13px;padding:16px;">Belum ada perangkat di grup ini.</div>'
-            : devCodes.map(fc => allDevices[fc] ? buildDeviceCard(fc, allDevices[fc]) : '').join('')}
-        </div>
-      </div>`;
-  });
-  const ungrouped = Object.entries(allDevices).filter(([fc]) => !codesInGroups.has(fc));
-  if (ungrouped.length > 0) {
-    html += `
-      <div style="border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:4px;">
-        <div style="background:rgba(255,255,255,0.03);padding:12px 16px;font-weight:700;font-size:13px;color:var(--text-3);">📋 Tanpa Grup <span style="font-weight:600;">(${ungrouped.length})</span></div>
-        <div style="display:flex;flex-direction:column;gap:10px;padding:12px;">
-          ${ungrouped.map(([fc, dev]) => buildDeviceCard(fc, dev)).join('')}
-        </div>
-      </div>`;
-  }
-  myDevicesList.innerHTML = html || '<div style="text-align:center;color:var(--text-3);font-size:14px;padding:28px;">Belum ada perangkat.</div>';
-}
-
-// ─── Template Kode Arduino ──────────────────────────────
-function buildArduinoCode(deviceCode, boardType) {
-  const isSingleADC = (boardType === 'esp8266' || boardType === 'wemos' || boardType === 'arduino_esp01');
-  const boardName = { esp32: 'ESP32', esp8266: 'ESP8266 / NodeMCU', wemos: 'Wemos D1 Mini', arduino_esp01: 'Arduino + ESP-01' }[boardType] || 'ESP32';
-  const dateStr = new Date().toLocaleDateString('id-ID', {day:'numeric',month:'long',year:'numeric'});
-
-  if (isSingleADC) {
-    // ═══ VARIAN B: Single-ADC (Wemos / ESP8266 / Arduino+ESP-01) dengan CD74HC4067 ═══
-    return `/*
- ======================================================
-  BAJA IoT Trash Monitor -- ${boardName} Sketch
-  Version : 3.0 (Multi-Sensor + CD74HC4067 Multiplexer)
-  Perangkat : TRS-${deviceCode}
-  Dibuat    : ${dateStr}
-  Hardware:
-    - ${boardName}
-    - Sensor Ultrasonik HC-SR04 (Level Kepenuhan)
-    - Sensor Gas MQ-4  (Metana/CH4)
-    - Sensor Gas MQ-135 (NH3/CO2/Kualitas Udara)
-    - Sensor Gas MQ-2  (Gas Umum/LPG)
-    - Modul Multiplexer CD74HC4067 (WAJIB untuk board ini)
-
-  Library yang dibutuhkan (Install via Library Manager):
-    1. Firebase Arduino Client Library for ESP8266 and ESP32
-       by Mobizt  (versi 4.x ke atas)
-    2. ArduinoJson by Benoit Blanchon
-
-  Wiring CD74HC4067:
-    SIG (Common) -> A0 (${boardName})
-    S0  -> D5
-    S1  -> D6
-    S2  -> D7
-    S3  -> D8
-    EN  -> GND (selalu aktif)
-
-  Channel Multiplexer:
-    CH0 -> MQ-4   (Metana)
-    CH1 -> MQ-135 (NH3/CO2)
-    CH2 -> MQ-2   (Gas Umum)
- ======================================================
-*/
-
-// --- Include WiFi & Firebase ----------------------------------
-#if defined(ESP8266) || defined(WEMOS)
-  #include <ESP8266WiFi.h>
-#else
-  #include <WiFi.h>  // Arduino + ESP-01 via library
-#endif
-
-#include <Firebase_ESP_Client.h>
-#include <addons/TokenHelper.h>
-#include <addons/RTDBHelper.h>
-#include <ArduinoJson.h>
-#include <time.h>
-
-// --- KONFIGURASI WAJIB ----------------------------------------
-#define WIFI_SSID       "NAMA_WIFI_ANDA"
-#define WIFI_PASSWORD   "PASSWORD_WIFI_ANDA"
-#define DEVICE_CODE     "${deviceCode}"   // Otomatis dari web
-// --------------------------------------------------------------
-
-// Firebase Configuration
-#define FIREBASE_HOST   "baja-iot-default-rtdb.asia-southeast1.firebasedatabase.app"
-#define FIREBASE_AUTH   "AIzaSyDCh3CQHqdi7SxhDHLJ6IsQ7hq4GSOi6yI"
-
-// --- PIN & ADC ------------------------------------------------
-#define ADC_MAX         1023.0
-#define TRIG_PIN        D1
-#define ECHO_PIN        D2
-#define LED_PIN         LED_BUILTIN
-#define LED_RED_PIN     D3
-#define LED_GREEN_PIN   D4
-
-// Pin MUX Control (CD74HC4067)
-#define MUX_SIG         A0   // Signal output dari MUX
-#define MUX_S0          D5
-#define MUX_S1          D6
-#define MUX_S2          D7
-#define MUX_S3          D8
-
-// Channel MUX untuk setiap sensor
-#define CH_MQ4          0    // Channel 0 = MQ-4  (Metana)
-#define CH_MQ135        1    // Channel 1 = MQ-135 (NH3/CO2)
-#define CH_MQ2          2    // Channel 2 = MQ-2  (Gas Umum)
-
-#define BIN_HEIGHT_CM   50     // Tinggi tong sampah (cm)
-#define UPDATE_INTERVAL 10000  // Interval kirim data (ms)
-
-FirebaseData   fbdo;
-FirebaseAuth   fbAuth;
-FirebaseConfig fbConfig;
-
-String devicePath;
-String histPath;
-unsigned long lastUpdate = 0;
-
-// --- Pilih Channel Multiplexer --------------------------------
-void selectMuxChannel(int ch) {
-  digitalWrite(MUX_S0, (ch >> 0) & 0x01);
-  digitalWrite(MUX_S1, (ch >> 1) & 0x01);
-  digitalWrite(MUX_S2, (ch >> 2) & 0x01);
-  digitalWrite(MUX_S3, (ch >> 3) & 0x01);
-  delay(5); // Beri waktu MUX stabilisasi
-}
-
-// --- Baca Gas dari Channel Tertentu ---------------------------
-int readGasChannel(int channel) {
-  selectMuxChannel(channel);
-  int raw = analogRead(MUX_SIG);
-  return map(raw, 0, (int)ADC_MAX, 0, 1000);
-}
-
-// --- Setup ----------------------------------------------------
-void setup() {
-  Serial.begin(115200);
-  delay(500);
-
-  pinMode(TRIG_PIN, OUTPUT);
-  pinMode(ECHO_PIN, INPUT);
-  pinMode(LED_PIN,  OUTPUT);
-  pinMode(LED_RED_PIN, OUTPUT);
-  pinMode(LED_GREEN_PIN, OUTPUT);
-  // MUX Control Pins
-  pinMode(MUX_S0, OUTPUT); pinMode(MUX_S1, OUTPUT);
-  pinMode(MUX_S2, OUTPUT); pinMode(MUX_S3, OUTPUT);
-
-  digitalWrite(LED_RED_PIN, HIGH);
-  digitalWrite(LED_GREEN_PIN, LOW);
-
-  devicePath = "/trash-bins/TRS-" + String(DEVICE_CODE) + "/status";
-  histPath   = "/trash-bins/TRS-" + String(DEVICE_CODE) + "/history";
-
-  Serial.println("================================");
-  Serial.println("  BAJA IoT Trash Monitor v3.0");
-  Serial.println("  Board  : ${boardName}");
-  Serial.println("  MUX    : CD74HC4067");
-  Serial.println("  Kode   : TRS-" + String(DEVICE_CODE));
-  Serial.println("================================");
-
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  Serial.print("Menghubungkan WiFi");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500); Serial.print(".");
-    digitalWrite(LED_PIN, !digitalRead(LED_PIN));
-    digitalWrite(LED_RED_PIN, !digitalRead(LED_RED_PIN));
-  }
-  Serial.println("\nWiFi Terhubung! IP: " + WiFi.localIP().toString());
-
-  configTime(25200, 0, "pool.ntp.org", "time.nist.gov");
-  Serial.print("Sinkronisasi waktu NTP");
-  while (time(nullptr) < 100000) { delay(200); Serial.print("."); }
-  Serial.println(" OK");
-
-  fbConfig.database_url = FIREBASE_HOST;
-  fbConfig.signer.tokens.legacy_token = FIREBASE_AUTH;
-  fbConfig.token_status_callback = tokenStatusCallback;
-  Firebase.begin(&fbConfig, &fbAuth);
-  Firebase.reconnectWiFi(true);
-
-  digitalWrite(LED_RED_PIN, LOW);
-  digitalWrite(LED_GREEN_PIN, HIGH);
-  Serial.println("Firebase terhubung!");
-}
-
-// --- Baca Sensor Ultrasonik -----------------------------------
-float readDistanceCm() {
-  digitalWrite(TRIG_PIN, LOW); delayMicroseconds(2);
-  digitalWrite(TRIG_PIN, HIGH); delayMicroseconds(10);
-  digitalWrite(TRIG_PIN, LOW);
-  long d = pulseIn(ECHO_PIN, HIGH, 30000);
-  if (d == 0) return -1;
-  return d * 0.0343 / 2.0;
-}
-
-int calcFillLevel(float distCm) {
-  if (distCm < 0) return -1;
-  return constrain((int)((1.0 - (distCm / BIN_HEIGHT_CM)) * 100.0), 0, 100);
-}
-
-// --- Kirim ke Firebase (3 sensor) ----------------------------
-void sendToFirebase(int fillLevel, int mq4, int mq135, int mq2, bool isFull) {
-  time_t now = time(nullptr);
-  Firebase.RTDB.setInt(&fbdo,  devicePath + "/fill_level",   fillLevel);
-  Firebase.RTDB.setInt(&fbdo,  devicePath + "/gas_mq4",      mq4);
-  Firebase.RTDB.setInt(&fbdo,  devicePath + "/gas_mq135",    mq135);
-  Firebase.RTDB.setInt(&fbdo,  devicePath + "/gas_ppm",      mq2);
-  Firebase.RTDB.setBool(&fbdo, devicePath + "/is_full",      isFull);
-  Firebase.RTDB.setInt(&fbdo,  devicePath + "/last_updated", (int)now);
-
-  FirebaseJson histJson;
-  histJson.set("fill_level",  fillLevel);
-  histJson.set("gas_mq4",     mq4);
-  histJson.set("gas_mq135",   mq135);
-  histJson.set("gas_ppm",     mq2);
-  histJson.set("timestamp",   (int)now);
-  Firebase.RTDB.pushJSON(&fbdo, histPath, &histJson);
-
-  Serial.printf("OK | Fill:%d%% | MQ-4:%d | MQ-135:%d | MQ-2:%d ppm\n",
-                fillLevel, mq4, mq135, mq2);
-}
-
-// --- Loop Utama ----------------------------------------------
-void loop() {
-  unsigned long now = millis();
-  if (now - lastUpdate >= UPDATE_INTERVAL) {
-    lastUpdate = now;
-    digitalWrite(LED_PIN, LOW);
-
-    float dist      = readDistanceCm();
-    int   fillLevel = calcFillLevel(dist);
-    int   gasMQ4    = readGasChannel(CH_MQ4);
-    int   gasMQ135  = readGasChannel(CH_MQ135);
-    int   gasMQ2    = readGasChannel(CH_MQ2);
-    bool  isFull    = (fillLevel >= 90);
-
-    Serial.printf("Sensor | Jarak:%.1fcm | Fill:%d%% | MQ-4:%d | MQ-135:%d | MQ-2:%d ppm\n",
-                  dist, fillLevel, gasMQ4, gasMQ135, gasMQ2);
-
-    if (fillLevel < 0) {
-      Serial.println("GAGAL baca sensor ultrasonik! Periksa kabel.");
-    } else if (WiFi.status() == WL_CONNECTED) {
-      sendToFirebase(fillLevel, gasMQ4, gasMQ135, gasMQ2, isFull);
-      digitalWrite(LED_RED_PIN, LOW); digitalWrite(LED_GREEN_PIN, HIGH);
-    } else {
-      Serial.println("WiFi terputus! Reconnecting...");
-      digitalWrite(LED_GREEN_PIN, LOW); digitalWrite(LED_RED_PIN, HIGH);
-      WiFi.reconnect();
-    }
-    digitalWrite(LED_PIN, HIGH);
-  }
-}
-`;
-  } else {
-    // ═══ VARIAN A: ESP32 (Multi-ADC, tanpa multiplexer) ═══
-    return `/*
- ======================================================
-  BAJA IoT Trash Monitor -- ESP32 Sketch
-  Version : 3.0 (Multi-Sensor, 3 ADC Langsung)
-  Perangkat : TRS-${deviceCode}
-  Dibuat    : ${dateStr}
-  Hardware:
-    - ESP32 (DevKit / NodeMCU-32)
-    - Sensor Ultrasonik HC-SR04
-    - Sensor Gas MQ-4  (Pin ADC 34)
-    - Sensor Gas MQ-135 (Pin ADC 35)
-    - Sensor Gas MQ-2  (Pin ADC 32)
-
-  Library yang dibutuhkan (Install via Library Manager):
-    1. Firebase Arduino Client Library for ESP8266 and ESP32
-       by Mobizt  (versi 4.x ke atas)
-    2. ArduinoJson by Benoit Blanchon
- ======================================================
-*/
-
-#include <WiFi.h>
-#include <Firebase_ESP_Client.h>
-#include <addons/TokenHelper.h>
-#include <addons/RTDBHelper.h>
-#include <ArduinoJson.h>
-#include <time.h>
-
-// --- KONFIGURASI WAJIB ----------------------------------------
-#define WIFI_SSID       "NAMA_WIFI_ANDA"
-#define WIFI_PASSWORD   "PASSWORD_WIFI_ANDA"
-#define DEVICE_CODE     "${deviceCode}"
-// --------------------------------------------------------------
-
-#define FIREBASE_HOST   "baja-iot-default-rtdb.asia-southeast1.firebasedatabase.app"
-#define FIREBASE_AUTH   "AIzaSyDCh3CQHqdi7SxhDHLJ6IsQ7hq4GSOi6yI"
-
-// --- PIN ESP32 ------------------------------------------------
-#define ADC_MAX         4095.0
-#define TRIG_PIN        5
-#define ECHO_PIN        18
-#define MQ4_PIN         34   // ADC1_CH6
-#define MQ135_PIN       35   // ADC1_CH7
-#define MQ2_PIN         32   // ADC1_CH4
-#define LED_PIN         2
-#define LED_RED_PIN     12
-#define LED_GREEN_PIN   13
-
-#define BIN_HEIGHT_CM   50
-#define UPDATE_INTERVAL 10000
-
-FirebaseData   fbdo;
-FirebaseAuth   fbAuth;
-FirebaseConfig fbConfig;
-String devicePath, histPath;
-unsigned long lastUpdate = 0;
-
-int readGasPPM(int pin) {
-  return map(analogRead(pin), 0, (int)ADC_MAX, 0, 1000);
-}
-
-void setup() {
-  Serial.begin(115200);
-  delay(500);
-  pinMode(TRIG_PIN, OUTPUT); pinMode(ECHO_PIN, INPUT);
-  pinMode(LED_PIN, OUTPUT); pinMode(LED_RED_PIN, OUTPUT); pinMode(LED_GREEN_PIN, OUTPUT);
-  digitalWrite(LED_RED_PIN, HIGH);
-
-  devicePath = "/trash-bins/TRS-" + String(DEVICE_CODE) + "/status";
-  histPath   = "/trash-bins/TRS-" + String(DEVICE_CODE) + "/history";
-
-  Serial.println("================================");
-  Serial.println("  BAJA IoT Trash Monitor v3.0");
-  Serial.println("  Board  : ESP32");
-  Serial.println("  Kode   : TRS-" + String(DEVICE_CODE));
-  Serial.println("================================");
-
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  Serial.print("Menghubungkan WiFi");
-  while (WiFi.status() != WL_CONNECTED) { delay(500); Serial.print("."); }
-  Serial.println("\nWiFi OK: " + WiFi.localIP().toString());
-
-  configTime(25200, 0, "pool.ntp.org", "time.nist.gov");
-  while (time(nullptr) < 100000) { delay(200); }
-
-  fbConfig.database_url = FIREBASE_HOST;
-  fbConfig.signer.tokens.legacy_token = FIREBASE_AUTH;
-  fbConfig.token_status_callback = tokenStatusCallback;
-  Firebase.begin(&fbConfig, &fbAuth);
-  Firebase.reconnectWiFi(true);
-
-  digitalWrite(LED_RED_PIN, LOW); digitalWrite(LED_GREEN_PIN, HIGH);
-  Serial.println("Firebase terhubung!");
-}
-
-float readDistanceCm() {
-  digitalWrite(TRIG_PIN, LOW); delayMicroseconds(2);
-  digitalWrite(TRIG_PIN, HIGH); delayMicroseconds(10);
-  digitalWrite(TRIG_PIN, LOW);
-  long d = pulseIn(ECHO_PIN, HIGH, 30000);
-  return d == 0 ? -1 : d * 0.0343 / 2.0;
-}
-
-void sendToFirebase(int fillLevel, int mq4, int mq135, int mq2, bool isFull) {
-  time_t now = time(nullptr);
-  Firebase.RTDB.setInt(&fbdo,  devicePath + "/fill_level",   fillLevel);
-  Firebase.RTDB.setInt(&fbdo,  devicePath + "/gas_mq4",      mq4);
-  Firebase.RTDB.setInt(&fbdo,  devicePath + "/gas_mq135",    mq135);
-  Firebase.RTDB.setInt(&fbdo,  devicePath + "/gas_ppm",      mq2);
-  Firebase.RTDB.setBool(&fbdo, devicePath + "/is_full",      isFull);
-  Firebase.RTDB.setInt(&fbdo,  devicePath + "/last_updated", (int)now);
-
-  FirebaseJson histJson;
-  histJson.set("fill_level",  fillLevel);
-  histJson.set("gas_mq4",     mq4);
-  histJson.set("gas_mq135",   mq135);
-  histJson.set("gas_ppm",     mq2);
-  histJson.set("timestamp",   (int)now);
-  Firebase.RTDB.pushJSON(&fbdo, histPath, &histJson);
-
-  Serial.printf("OK | Fill:%d%% | MQ-4:%d | MQ-135:%d | MQ-2:%d ppm\n",
-                fillLevel, mq4, mq135, mq2);
-}
-
-void loop() {
-  if (millis() - lastUpdate >= UPDATE_INTERVAL) {
-    lastUpdate = millis();
-    digitalWrite(LED_PIN, LOW);
-
-    float dist      = readDistanceCm();
-    int   fillLevel = dist < 0 ? -1 : constrain((int)((1.0 - dist/BIN_HEIGHT_CM)*100.0), 0, 100);
-    int   gasMQ4    = readGasPPM(MQ4_PIN);
-    int   gasMQ135  = readGasPPM(MQ135_PIN);
-    int   gasMQ2    = readGasPPM(MQ2_PIN);
-    bool  isFull    = (fillLevel >= 90);
-
-    Serial.printf("Sensor | Jarak:%.1fcm | Fill:%d%% | MQ-4:%d | MQ-135:%d | MQ-2:%d ppm\n",
-                  dist, fillLevel, gasMQ4, gasMQ135, gasMQ2);
-
-    if (fillLevel < 0) {
-      Serial.println("GAGAL baca sensor ultrasonik!");
-    } else if (WiFi.status() == WL_CONNECTED) {
-      sendToFirebase(fillLevel, gasMQ4, gasMQ135, gasMQ2, isFull);
-      digitalWrite(LED_RED_PIN, LOW); digitalWrite(LED_GREEN_PIN, HIGH);
-    } else {
-      Serial.println("WiFi terputus! Reconnecting...");
-      WiFi.reconnect();
-    }
-    digitalWrite(LED_PIN, HIGH);
-  }
-}
-`;
-  }
-}
- ======================================================
-  BAJA IoT Trash Monitor -- ESP32 / ESP8266 Sketch
-  Version : 2.0 (Firebase_ESP_Client)
-  Perangkat : TRS-${deviceCode}
-  Dibuat    : ${new Date().toLocaleDateString('id-ID', {day:'numeric',month:'long',year:'numeric'})}
-  Hardware:
-    - ESP32 (DevKit / Wemos D1 R32) ATAU NodeMCU ESP8266
-    - Sensor Ultrasonik HC-SR04 (Level Kepenuhan)
-    - Sensor Gas MQ-135 (Kadar Gas)
-    - (Opsional) Voltage Divider untuk cek baterai
-
-  Library yang dibutuhkan (Install via Library Manager):
-    - Firebase Arduino Client Library for ESP8266 and ESP32
-      by Mobizt  (versi 4.x ke atas)
-    - ArduinoJson by Benoit Blanchon
-// ─── Register: Buat Perangkat Baru ──────────────────
-btnRegister.addEventListener('click', async () => {
-  if (!currentUser) { alert('Silakan login terlebih dahulu.'); return; }
-  const name      = document.getElementById('regName').value.trim();
-  const location  = document.getElementById('regLocation').value.trim();
-  const boardType = document.getElementById('regBoard').value;
-  if (!name || !location) { regError.textContent = 'Mohon isi semua field terlebih dahulu.'; regError.classList.add('show'); return; }
-  regError.classList.remove('show');
-  btnRegText.textContent = 'Membuat kode'; btnRegText.classList.add('loading-dots');
-  regSpinner.style.display = 'flex'; btnRegister.disabled = true;
-  try {
-    const fullCode  = await registerDevice(name, location, currentUser.uid);
-    const shortCode = fullCode.replace('TRS-', '');
-    await db.ref(`users/${currentUser.uid}/iot_devices/${fullCode}`).set({ name, location, board_type: boardType, createdAt: Date.now(), isOwner: true });
-    loadMyDevices();
-    document.getElementById('generatedCode').textContent = fullCode;
-    linkMonitor.href = `trash-monitor.html?code=${shortCode}`;
-    regResult.classList.add('show');
-    arduinoCodeEl.textContent = buildArduinoCode(shortCode, boardType);
-    inoSection.classList.add('show');
-    setTimeout(() => inoSection.scrollIntoView({ behavior:'smooth', block:'start' }), 300);
-  } catch (e) { regError.textContent = 'Gagal membuat kode: ' + e.message; regError.classList.add('show'); }
-  finally {
-    btnRegText.textContent = '✅ Generate Kode Perangkat'; btnRegText.classList.remove('loading-dots');
-    regSpinner.style.display = 'none'; btnRegister.disabled = false;
-  }
-});
-
-// ─── Salin Kode Arduino ──────────────────────────
-document.getElementById('btnCopyArduino').addEventListener('click', () => {
-  navigator.clipboard.writeText(arduinoCodeEl.textContent).then(() => {
-    const btn = document.getElementById('btnCopyArduino');
-    btn.textContent = '✅ Tersalin!';
-    setTimeout(() => { btn.textContent = '📋 Salin Semua Kode'; }, 2500);
-  });
-});
-
-// ─── Tambah via Kode (Join Device) ────────────────
-document.getElementById('joinCodeInput').addEventListener('input', e => {
-  e.target.value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
-  document.getElementById('joinError').style.display = 'none';
-});
-document.getElementById('btnJoinDevice').addEventListener('click', async () => {
-  if (!currentUser) { alert('Silakan login terlebih dahulu.'); return; }
-  const raw      = document.getElementById('joinCodeInput').value.trim().toUpperCase();
-  const joinErr  = document.getElementById('joinError');
-  const fullCode = 'TRS-' + raw;
-  if (raw.length !== 4) { joinErr.textContent = 'Masukkan tepat 4 karakter.'; joinErr.style.display = 'block'; return; }
-  if (allDevices[fullCode]) { joinErr.textContent = 'Perangkat ini sudah ada di daftar Anda.'; joinErr.style.display = 'block'; return; }
-  joinErr.style.display = 'none';
-  const btn = document.getElementById('btnJoinDevice');
-  btn.textContent = '...'; btn.disabled = true;
-  try {
-    const info = await getDeviceInfo(fullCode);
-    if (!info) { joinErr.textContent = 'Kode tidak ditemukan.'; joinErr.style.display = 'block'; return; }
-    await db.ref(`users/${currentUser.uid}/iot_devices/${fullCode}`).set({ name: info.name || 'Perangkat', location: info.location || '—', createdAt: Date.now(), isOwner: false });
-    document.getElementById('joinCodeInput').value = '';
-    loadMyDevices();
-  } catch (err) { joinErr.textContent = 'Gagal: ' + err.message; joinErr.style.display = 'block'; }
-  finally { btn.textContent = 'Tambah'; btn.disabled = false; }
-});
-
-// ─── Buat Grup ──────────────────────────────────
-document.getElementById('btnCreateGroup').addEventListener('click', async () => {
-  if (!currentUser) { alert('Silakan login terlebih dahulu.'); return; }
-  const name = prompt('Masukkan nama grup baru:');
-  if (!name || !name.trim()) return;
-  try { await db.ref(`users/${currentUser.uid}/iot_groups`).push({ name: name.trim(), createdAt: Date.now() }); loadMyDevices(); }
-  catch (e) { alert('Gagal membuat grup: ' + e.message); }
-});
-
-// ─── Delegated: Semua Aksi Daftar Perangkat ──────────
-myDevicesList.addEventListener('click', async (e) => {
-  const btnScript = e.target.closest('.btn-view-script');
-  if (btnScript) { openScriptModal(btnScript.dataset.code, btnScript.dataset.name); return; }
-
-  const btnEdit = e.target.closest('.btn-edit-device');
-  if (btnEdit) { openEditModal(btnEdit.dataset.fullcode, btnEdit.dataset.name, btnEdit.dataset.loc, btnEdit.dataset.owner === 'true'); return; }
-
-  const btnGrp = e.target.closest('.btn-manage-groups');
-  if (btnGrp) { openGroupModal(btnGrp.dataset.fullcode, btnGrp.dataset.name); return; }
-
-  const btnRenGrp = e.target.closest('.btn-rename-group');
-  if (btnRenGrp) {
-    const newName = prompt('Nama grup baru:', btnRenGrp.dataset.name);
-    if (!newName || !newName.trim()) return;
-    try { await db.ref(`users/${currentUser.uid}/iot_groups/${btnRenGrp.dataset.groupid}/name`).set(newName.trim()); loadMyDevices(); }
-    catch(e) { alert('Gagal: ' + e.message); }
-    return;
-  }
-
-  const btnDelGrp = e.target.closest('.btn-delete-group');
-  if (btnDelGrp) {
-    if (!confirm(`Hapus grup "${btnDelGrp.dataset.name}"?\nPerangkat tidak akan terhapus, hanya dikeluarkan dari grup.`)) return;
-    try { await db.ref(`users/${currentUser.uid}/iot_groups/${btnDelGrp.dataset.groupid}`).remove(); loadMyDevices(); }
-    catch(e) { alert('Gagal: ' + e.message); }
-    return;
-  }
-
-  const btnDelete = e.target.closest('.btn-delete-device');
-  if (btnDelete) {
-    const fullCode = btnDelete.dataset.fullcode;
-    const isOwner  = btnDelete.dataset.owner === 'true';
-    const msg = isOwner
-      ? `Hapus perangkat "${btnDelete.dataset.name}" (${fullCode})?\n\nSEMUA data IoT terhapus permanen dan TIDAK BISA DIKEMBALIKAN.`
-      : `Lepaskan perangkat "${btnDelete.dataset.name}" dari daftar Anda?\nData di database tidak terhapus.`;
-    if (!confirm(msg)) return;
-    btnDelete.disabled = true; btnDelete.textContent = '...';
-    try {
-      if (isOwner) await iotDb.ref(`trash-bins/${fullCode}`).remove();
-      const updates = {};
-      Object.keys(allGroups).forEach(gid => {
-        if (allGroups[gid].devices && allGroups[gid].devices[fullCode])
-          updates[`users/${currentUser.uid}/iot_groups/${gid}/devices/${fullCode}`] = null;
-      });
-      updates[`users/${currentUser.uid}/iot_devices/${fullCode}`] = null;
-      await db.ref().update(updates);
-      loadMyDevices();
-    } catch (err) { alert('Gagal: ' + err.message); btnDelete.disabled = false; btnDelete.textContent = '🗑️'; }
-  }
-});
-
-// ─── Modal Edit Perangkat ──────────────────────────
-function openEditModal(fullCode, name, loc, isOwner) {
-  document.getElementById('editModal').style.display = 'flex';
-  document.getElementById('editModalTitle').textContent = fullCode;
-  document.getElementById('editNameInput').value = name;
-  document.getElementById('editLocInput').value  = loc;
-  document.getElementById('editOwnerNote').style.display = isOwner ? 'none' : 'block';
-  document.getElementById('editSaveBtn').onclick = async () => {
-    const newName = document.getElementById('editNameInput').value.trim();
-    const newLoc  = document.getElementById('editLocInput').value.trim();
-    if (!newName || !newLoc) { alert('Nama dan lokasi tidak boleh kosong.'); return; }
-    try {
-      await db.ref(`users/${currentUser.uid}/iot_devices/${fullCode}`).update({ name: newName, location: newLoc });
-      if (isOwner) await updateDeviceInfo(fullCode, newName, newLoc);
-      closeEditModal(); loadMyDevices();
-    } catch (e) { alert('Gagal: ' + e.message); }
-  };
-}
-function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
-
-// ─── Modal Kelola Grup ───────────────────────────
-function openGroupModal(fullCode, devName) {
-  document.getElementById('groupModal').style.display = 'flex';
-  document.getElementById('groupModalDevName').textContent = devName + ' (' + fullCode + ')';
-  renderGroupModalList(fullCode);
-}
-function closeGroupModal() { document.getElementById('groupModal').style.display = 'none'; }
-function renderGroupModalList(fullCode) {
-  const container = document.getElementById('groupModalList');
-  const entries   = Object.entries(allGroups);
-  if (!entries.length) { container.innerHTML = '<div style="color:var(--text-3);font-size:13px;padding:12px 0;">Belum ada grup. Buat grup terlebih dahulu.</div>'; return; }
-  container.innerHTML = entries.map(([gid, grp]) => {
-    const inGroup = grp.devices && grp.devices[fullCode];
-    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--bg-body);border:1px solid var(--border);border-radius:10px;">
-      <span style="font-weight:700;font-size:13px;color:var(--text-1)">📂 ${grp.name}</span>
-      <button onclick="toggleDeviceInGroup('${gid}','${fullCode}',${!inGroup})" style="background:${inGroup?'rgba(248,113,113,0.12)':'rgba(74,222,128,0.12)'};border:1px solid ${inGroup?'rgba(248,113,113,0.3)':'rgba(74,222,128,0.3)'};color:${inGroup?'#f87171':'#4ade80'};padding:5px 14px;border-radius:var(--r-full);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);">${inGroup?'✕ Keluarkan':'+ Masukkan'}</button>
-    </div>`;
-  }).join('');
-}
-window.toggleDeviceInGroup = async function(groupId, fullCode, add) {
-  try {
-    if (add) await db.ref(`users/${currentUser.uid}/iot_groups/${groupId}/devices/${fullCode}`).set(true);
-    else     await db.ref(`users/${currentUser.uid}/iot_groups/${groupId}/devices/${fullCode}`).remove();
-    if (!allGroups[groupId].devices) allGroups[groupId].devices = {};
-    if (add) allGroups[groupId].devices[fullCode] = true;
-    else delete allGroups[groupId].devices[fullCode];
-    renderGroupModalList(fullCode); renderDeviceList();
-  } catch(e) { alert('Gagal update grup: ' + e.message); }
-};
-
-// ─── Modal Skrip C++ ─────────────────────────────
-function openScriptModal(shortCode, deviceName) {
-  document.getElementById('scriptModal').style.display = 'flex';
-  document.getElementById('modalDeviceTitle').textContent = `${deviceName} — TRS-${shortCode}`;
-  // Cari board_type dari allDevices
-  const fullCode = 'TRS-' + shortCode;
-  const boardType = (allDevices[fullCode] && allDevices[fullCode].board_type) || 'esp32';
-  document.getElementById('modalArduinoCode').textContent = buildArduinoCode(shortCode, boardType);
-  document.body.style.overflow = 'hidden';
-}
-function closeScriptModal() {
-  document.getElementById('scriptModal').style.display = 'none';
-  document.body.style.overflow = '';
-}
-document.addEventListener('DOMContentLoaded', () => {
-  const btnModalCopy = document.getElementById('btnModalCopy');
-  if (btnModalCopy) {
-    btnModalCopy.addEventListener('click', () => {
-      navigator.clipboard.writeText(document.getElementById('modalArduinoCode').textContent).then(() => {
-        const orig = btnModalCopy.textContent;
-        btnModalCopy.textContent = '✅ Tersalin!';
-        setTimeout(() => { btnModalCopy.textContent = orig; }, 2500);
-      });
-    });
-  }
-});
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') { closeScriptModal(); closeEditModal(); closeGroupModal(); }
-});
-
-// ─── Board Selector: Update Catatan Live ───────────
-const boardNotes = {
-  esp32:        '✅ Tidak perlu modul tambahan. MQ-4 (pin 34), MQ-135 (pin 35), MQ-2 (pin 32) dibaca langsung.',
-  esp8266:      '⚠️ Perlu CD74HC4067 Multiplexer. Semua sensor dibaca bergantian melalui 1 pin A0. Wiring: SIG→A0, S0→D5, S1→D6, S2→D7, S3→D8.',
-  wemos:        '⚠️ Perlu CD74HC4067 Multiplexer. Sama seperti ESP8266. Wiring: SIG→A0, S0→D5, S1→D6, S2→D7, S3→D8.',
-  arduino_esp01:'⚠️ Perlu CD74HC4067 Multiplexer. Arduino tidak punya WiFi, ESP-01 hanya sebagai modem AT. Wiring sensor ke MUX, SIG→pin analog Arduino.'
-};
-const boardSel  = document.getElementById('regBoard');
-const boardNote = document.getElementById('boardNote');
-function updateBoardNote() {
-  if (boardNote && boardSel) boardNote.textContent = boardNotes[boardSel.value] || '';
-}
-if (boardSel) {
-  boardSel.addEventListener('change', updateBoardNote);
-  updateBoardNote(); // Inisialisasi saat halaman load
-}
-
-</script>
-
-<!-- ════ Modal Edit Perangkat ════ -->
-<div id="editModal" onclick="if(event.target===this)closeEditModal()" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(5,9,18,0.88);backdrop-filter:blur(14px);z-index:9998;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;">
-  <div style="max-width:480px;width:100%;background:var(--bg-surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:0 32px 90px rgba(0,0,0,0.75);">
-    <div style="background:linear-gradient(135deg,#facc15,#f59e0b);padding:18px 22px;display:flex;justify-content:space-between;align-items:center;">
-      <div><div style="font-weight:800;font-size:17px;color:#1a0a00;">✏️ Edit Perangkat</div><div id="editModalTitle" style="font-size:12px;color:rgba(0,0,0,0.55);margin-top:3px;font-family:'Courier New',monospace;"></div></div>
-      <button onclick="closeEditModal()" style="background:rgba(0,0,0,0.12);border:none;color:#1a0a00;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;">✕</button>
-    </div>
-    <div style="padding:22px;">
-      <div id="editOwnerNote" style="display:none;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.25);border-radius:1
+    <!-- ── Cara Pakai ── -->
+    <div class="tm-monitor-card reg-card-custom" style="margin-top:24px;">
+      <div class="reg-steps">
+        <div class="tm-monitor-label" style="font-size:20px; font-family:var(--font-heading); margin-bottom:16px;">&#x1F4D6; Cara Menggunakan</div>
+        <div class="reg-step">
+          <div class="reg-step-num bg-green">1</div>
+          <div class="reg-step-text">Isi form dan klik <strong>Generate Kode Perangkat</strong></div>
+        </div>
+        <div class="reg-step">
+          <div class="reg-step-num bg-blue">2</div>
+          <div class="reg-step-text"><strong>Salin semua kode Arduino</strong> yang muncul &mdash; kode sudah lengkap &amp; siap pakai!</div>
+        </div>
+        <div class="reg-step">
+          <div class="reg-step-num bg-pink">3</div>
+          <div class="reg-step-text">Buka <strong>Arduino IDE</strong>, tempel kode, ganti <code class="code-hl">NAMA_WIFI_ANDA</code></div>
+        </div>
+        <div class="reg-step">
+          <div class="reg-step-num bg-green">4</div>
+          <div class="reg-step-text">Upload ke ESP32/ESP8266, buka <strong>Serial Monitor</strong> untuk verifikasi koneksi</div>
+        </div>
+        <div class="reg-step">
+          <div class="reg-step-num bg-blue">5</div>
+          <div class="reg-step-text">Pantau data real-time di <a href="trash-monitor.html" class="code-hl">IoT Monitor</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- ════ Modal Edit Perangkat ════ -->
 <div id="editModal" onclick="if(event.target===this)closeEditModal()" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(5,9,18,0.88);backdrop-filter:blur(14px);z-index:9998;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;">
   <div style="max-width:480px;width:100%;background:var(--bg-surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:0 32px 90px rgba(0,0,0,0.75);">
     <div style="background:linear-gradient(135deg,#facc15,#f59e0b);padding:18px 22px;display:flex;justify-content:space-between;align-items:center;">
-      <div><div style="font-weight:800;font-size:17px;color:#1a0a00;">✏️ Edit Perangkat</div><div id="editModalTitle" style="font-size:12px;color:rgba(0,0,0,0.55);margin-top:3px;font-family:'Courier New',monospace;"></div></div>
-      <button onclick="closeEditModal()" style="background:rgba(0,0,0,0.12);border:none;color:#1a0a00;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;">✕</button>
+      <div><div style="font-weight:800;font-size:17px;color:#1a0a00;">&#x270F;&#xFE0F; Edit Perangkat</div><div id="editModalTitle" style="font-size:12px;color:rgba(0,0,0,0.55);margin-top:3px;font-family:'Courier New',monospace;"></div></div>
+      <button onclick="closeEditModal()" style="background:rgba(0,0,0,0.12);border:none;color:#1a0a00;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;">&#x2715;</button>
     </div>
     <div style="padding:22px;">
-      <div id="editOwnerNote" style="display:none;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.25);border-radius:10px;padding:10px 14px;font-size:12px;color:#818cf8;margin-bottom:16px;">ℹ️ Anda bukan pemilik. Perubahan hanya tersimpan di profil Anda.</div>
+      <div id="editOwnerNote" style="display:none;background:rgba(99,102,241,0.08);border:1px solid rgba(99,102,241,0.25);border-radius:10px;padding:10px 14px;font-size:12px;color:#818cf8;margin-bottom:16px;">&#x2139;&#xFE0F; Anda bukan pemilik. Perubahan hanya tersimpan di profil Anda.</div>
       <div style="margin-bottom:14px;">
         <label style="font-size:12px;font-weight:700;color:var(--text-2);display:block;margin-bottom:6px;">Nama Perangkat</label>
         <input id="editNameInput" type="text" maxlength="60" style="width:100%;background:var(--bg-body);border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text-1);font-size:14px;font-family:var(--font);box-sizing:border-box;outline:none;">
@@ -996,7 +189,7 @@ if (boardSel) {
       </div>
       <div style="display:flex;gap:8px;">
         <button onclick="closeEditModal()" style="flex:1;background:var(--bg-body);border:1px solid var(--border);color:var(--text-2);padding:11px;border-radius:var(--r-full);font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font);">Batal</button>
-        <button id="editSaveBtn" style="flex:2;background:linear-gradient(135deg,#facc15,#f59e0b);border:none;color:#1a0a00;padding:11px;border-radius:var(--r-full);font-size:13px;font-weight:800;cursor:pointer;font-family:var(--font);">💾 Simpan</button>
+        <button id="editSaveBtn" style="flex:2;background:linear-gradient(135deg,#facc15,#f59e0b);border:none;color:#1a0a00;padding:11px;border-radius:var(--r-full);font-size:13px;font-weight:800;cursor:pointer;font-family:var(--font);">&#x1F4BE; Simpan</button>
       </div>
     </div>
   </div>
@@ -1006,8 +199,8 @@ if (boardSel) {
 <div id="groupModal" onclick="if(event.target===this)closeGroupModal()" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(5,9,18,0.88);backdrop-filter:blur(14px);z-index:9998;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;">
   <div style="max-width:440px;width:100%;background:var(--bg-surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:0 32px 90px rgba(0,0,0,0.75);">
     <div style="background:linear-gradient(135deg,rgba(99,102,241,0.85),rgba(139,92,246,0.85));padding:18px 22px;display:flex;justify-content:space-between;align-items:center;">
-      <div><div style="font-weight:800;font-size:17px;color:#fff;">📂 Kelola Grup</div><div id="groupModalDevName" style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:3px;"></div></div>
-      <button onclick="closeGroupModal()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;">✕</button>
+      <div><div style="font-weight:800;font-size:17px;color:#fff;">&#x1F4C2; Kelola Grup</div><div id="groupModalDevName" style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:3px;"></div></div>
+      <button onclick="closeGroupModal()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;">&#x2715;</button>
     </div>
     <div style="padding:18px;">
       <p style="font-size:12px;color:var(--text-3);margin:0 0 12px;">Pilih grup untuk memasukkan atau mengeluarkan perangkat ini:</p>
@@ -1017,29 +210,25 @@ if (boardSel) {
   </div>
 </div>
 
-
 <!-- ════ Modal Skrip C++ ════ -->
 <div id="scriptModal" onclick="if(event.target===this)closeScriptModal()" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(5,9,18,0.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:9999;overflow-y:auto;padding:16px;box-sizing:border-box;align-items:flex-start;justify-content:center;">
   <div style="max-width:860px;width:100%;margin:0 auto;background:var(--bg-surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:0 32px 90px rgba(0,0,0,0.75);">
-    <!-- Header -->
     <div style="background:var(--grad-tools);padding:20px 24px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
       <div>
-        <div style="font-weight:800;font-size:18px;color:#fff;display:flex;align-items:center;gap:8px;">⚡ Skrip C++ / Arduino</div>
+        <div style="font-weight:800;font-size:18px;color:#fff;">&#x26A1; Skrip C++ / Arduino</div>
         <div id="modalDeviceTitle" style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:5px;font-family:'Courier New',monospace;letter-spacing:0.5px;"></div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
-        <button id="btnModalCopy" style="background:rgba(255,255,255,0.18);border:1.5px solid rgba(255,255,255,0.3);color:#fff;padding:9px 18px;border-radius:var(--r-full);cursor:pointer;font-weight:700;font-size:13px;font-family:var(--font);transition:all 0.2s;white-space:nowrap;">📋 Salin Kode</button>
-        <button onclick="closeScriptModal()" style="background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.18);color:#fff;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;transition:background 0.2s;" onmouseenter="this.style.background='rgba(255,255,255,0.22)'" onmouseleave="this.style.background='rgba(255,255,255,0.12)'">✕</button>
+        <button id="btnModalCopy" style="background:rgba(255,255,255,0.18);border:1.5px solid rgba(255,255,255,0.3);color:#fff;padding:9px 18px;border-radius:var(--r-full);cursor:pointer;font-weight:700;font-size:13px;font-family:var(--font);transition:all 0.2s;white-space:nowrap;">&#x1F4CB; Salin Kode</button>
+        <button onclick="closeScriptModal()" style="background:rgba(255,255,255,0.12);border:1.5px solid rgba(255,255,255,0.18);color:#fff;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">&#x2715;</button>
       </div>
     </div>
-    <!-- Warning -->
-    <div style="padding:11px 24px;background:rgba(250,204,21,0.07);border-bottom:1px solid rgba(250,204,21,0.2);font-size:13px;color:var(--text-2);line-height:1.65;">
-      ⚠️ <strong style="color:#facc15;">Yang perlu diubah hanya 2 baris:</strong>
-      Ganti <code style="color:#facc15;background:rgba(250,204,21,0.12);padding:2px 7px;border-radius:5px;font-size:12px;">NAMA_WIFI_ANDA</code>
-      dan <code style="color:#facc15;background:rgba(250,204,21,0.12);padding:2px 7px;border-radius:5px;font-size:12px;">PASSWORD_WIFI_ANDA</code>.
-      <strong>Kode perangkat sudah terisi otomatis — jangan diubah!</strong>
+    <div style="padding:11px 24px;background:rgba(250,204,21,0.07);border-bottom:1px solid rgba(250,204,21,0.2);font-size:13px;color:var(--text-2);">
+      &#x26A0;&#xFE0F; <strong style="color:#facc15;">Yang perlu diubah hanya 2 baris:</strong>
+      Ganti <code style="color:#facc15;background:rgba(250,204,21,0.12);padding:2px 7px;border-radius:5px;">NAMA_WIFI_ANDA</code>
+      dan <code style="color:#facc15;background:rgba(250,204,21,0.12);padding:2px 7px;border-radius:5px;">PASSWORD_WIFI_ANDA</code>.
+      <strong>Kode perangkat sudah terisi otomatis!</strong>
     </div>
-    <!-- Kode Arduino -->
     <div style="position:relative;">
       <pre id="modalArduinoCode" style="margin:0;padding:22px 24px;font-family:'Courier New',Courier,monospace;font-size:12px;line-height:1.7;background:#04070f;color:#cdd6f4;overflow-x:auto;max-height:68vh;overflow-y:auto;tab-size:2;"></pre>
     </div>
@@ -1049,89 +238,29 @@ if (boardSel) {
 <!-- Bottom Navigation -->
 <nav class="bottom-nav">
   <a href="/public/index.html" class="bottom-nav-link">
-    <span class="bottom-nav-icon">🏠</span>
+    <span class="bottom-nav-icon">&#x1F3E0;</span>
     <span class="bottom-nav-text">Home</span>
   </a>
   <a href="/public/index.html" class="bottom-nav-link active">
-    <span class="bottom-nav-icon">🛠️</span>
+    <span class="bottom-nav-icon">&#x1F6E0;&#xFE0F;</span>
     <span class="bottom-nav-text">Tools</span>
   </a>
   <a href="/src/pages/finance/index.html" class="bottom-nav-link">
-    <span class="bottom-nav-icon">📈</span>
+    <span class="bottom-nav-icon">&#x1F4C8;</span>
     <span class="bottom-nav-text">Finance</span>
   </a>
   <a href="/src/pages/tutorial/index.html" class="bottom-nav-link">
-    <span class="bottom-nav-icon">📚</span>
+    <span class="bottom-nav-icon">&#x1F4DA;</span>
     <span class="bottom-nav-text">Tutorial</span>
   </a>
 </nav>
+
 <script src="/src/App.js"></script>
+
+<!-- ════ Script Utama IoT Register ════ -->
+<script src="/src/pages/tools/register-logic.js"></script>
+
+<!-- Cloudflare Beacon -->
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v3d52b47920f24c319d37e2661827c42b1787588026925" integrity="sha512-d9sL6GJLXn6fInD1+TVXhTcQOsmxeHfmHAvwGDIxp5TO+uo1fiWW7mHomMj4MLRlCsJDTqXzWLHJFFlPCEIj/A==" data-cf-beacon='{"version":"2024.11.0","token":"eed07e53e123488192259813d71ad93e","r":1}' crossorigin="anonymous"></script>
-
-<!-- ══ DEBUG BOX (hapus setelah selesai debug) ══ -->
-<script>
-(function() {
-  var box = document.createElement('div');
-  box.id = 'authDebugBox';
-  Object.assign(box.style, {
-    position:'fixed', bottom:'10px', left:'10px', zIndex:'9999999',
-    background:'rgba(160,0,0,0.95)', color:'#fff', padding:'10px 14px',
-    borderRadius:'10px', fontSize:'11px', maxWidth:'340px', maxHeight:'260px',
-    overflowY:'auto', lineHeight:'1.7', fontFamily:'monospace',
-    boxShadow:'0 4px 24px rgba(0,0,0,0.7)', border:'1px solid rgba(255,100,100,0.4)'
-  });
-  box.innerHTML = '<b>🔴 AUTH DEBUG LOG</b><br/>';
-  document.body.appendChild(box);
-
-  function log(msg, color) {
-    console.log('[AUTH DEBUG]', msg);
-    box.innerHTML += '<span style="color:' + (color||'#fff') + '">' + msg + '</span><br/>';
-    box.scrollTop = box.scrollHeight;
-  }
-
-  log('📄 Script jalan OK', '#4ade80');
-
-  function runAuthFix() {
-    if (typeof auth === 'undefined') {
-      log('⚠️ auth belum ada, retry...', '#fb923c');
-      setTimeout(runAuthFix, 300);
-      return;
-    }
-    log('firebase:✅ auth:✅ db:' + (typeof db!=='undefined'?'✅':'❌') + ' iotDb:' + (typeof iotDb!=='undefined'?'✅':'❌'), '#facc15');
-    log('📡 onAuthStateChanged...', '#facc15');
-
-    auth.onAuthStateChanged(function(user) {
-      var overlay = document.getElementById('unauthOverlay');
-      var devList = document.getElementById('myDevicesList');
-      if (user) {
-        log('✅ LOGIN: ' + user.email, '#4ade80');
-        // FIX: sembunyikan overlay, tampilkan konten
-        if (overlay) overlay.style.display = 'none';
-        log('overlay → none ✅', '#4ade80');
-        // Panggil loadMyDevices jika tersedia (dari script utama)
-        if (typeof loadMyDevices === 'function') {
-          log('loadMyDevices() dipanggil', '#4ade80');
-          if (typeof currentUser === 'undefined' || !window.currentUser) {
-            window.currentUser = user;
-          }
-          loadMyDevices();
-        } else {
-          log('⚠️ loadMyDevices tidak ada (script utama error)', '#fb923c');
-          if (devList) devList.innerHTML = '<div style="text-align:center;color:var(--text-3);padding:20px;">Script utama error — lihat console browser (F12)</div>';
-        }
-      } else {
-        log('🔒 Belum login', '#f87171');
-        if (overlay) overlay.style.display = 'flex';
-        if (devList) devList.innerHTML = '<div style="text-align:center;color:var(--text-2);">Silakan login.</div>';
-      }
-    }, function(err) {
-      log('💥 ERROR: ' + err.message, '#f87171');
-    });
-  }
-  runAuthFix();
-})();
-</script>
 </body>
 </html>
-
-
