@@ -14,6 +14,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="/src/services/firebase.js"></script>
+  <script src="/src/services/firebase-iot.js"></script>
+  <script src="/src/App.js" defer></script>
 
 </head>
 <body>
@@ -189,19 +191,27 @@ const unauthOverlay = document.getElementById('unauthOverlay');
 const myDevicesList = document.getElementById('myDevicesList');
 
 // ─── Setup Auth & Load Devices ──────────────────────
-window.addEventListener('DOMContentLoaded', () => {
-  if (typeof initBajaAuth === 'function') {
-    initBajaAuth((user) => {
-      currentUser = user;
+// Gunakan auth.onAuthStateChanged langsung sebagai sumber kebenaran,
+// dengan fallback ke initBajaAuth dari App.js (jika sudah load)
+function setupIoTAuth() {
+  // Pendekatan robust: subscribe langsung ke Firebase Auth state
+  // Ini bekerja tanpa bergantung pada timing load App.js
+  auth.onAuthStateChanged(async user => {
+    if (user) {
+      currentUser = { uid: user.uid, email: user.email, displayName: user.displayName || 'Pengguna' };
       unauthOverlay.style.display = 'none';
       loadMyDevices();
-    }, () => {
+    } else {
       currentUser = null;
       unauthOverlay.style.display = 'flex';
       myDevicesList.innerHTML = '<div style="text-align: center; color: var(--text-3); font-size: 14px;">Silakan login untuk melihat perangkat Anda.</div>';
-    });
-  }
-});
+    }
+  });
+}
+
+// Mulai auth segera — tidak perlu tunggu DOMContentLoaded karena
+// script sudah berada setelah elemen DOM yang dibutuhkan
+setupIoTAuth();
 
 // ─── Load Perangkat & Grup ───────────────────────
 async function loadMyDevices() {
@@ -1243,7 +1253,7 @@ if (boardSel) {
     <span class="bottom-nav-text">Tutorial</span>
   </a>
 </nav>
-
 <script src="/src/App.js"></script>
 </body>
 </html> 
+
