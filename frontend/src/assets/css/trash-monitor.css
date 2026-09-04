@@ -9,6 +9,138 @@
 
 .tm-wrap { position: relative; z-index: 1; }
 
+/* ─── DASHBOARD SIDEBAR LAYOUT ──────────────── */
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-surface); /* Keep clean white background like the image */
+  position: relative;
+  z-index: 10;
+}
+
+/* Override globals to prevent double padding if global bottom nav exists */
+body.dashboard-mode {
+  padding-bottom: 0 !important;
+  background: var(--bg-surface) !important;
+}
+body.dashboard-mode .navbar, 
+body.dashboard-mode .bottom-nav,
+body.dashboard-mode .footer {
+  display: none !important;
+}
+
+.app-sidebar {
+  width: 80px;
+  background: var(--bg-surface);
+  border-right: 1.5px solid rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 0;
+  gap: 30px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 100;
+}
+
+.app-sidebar .sidebar-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: transparent;
+  color: #8b5cf6;
+  border: 1.5px solid transparent;
+  transition: all 0.2s ease;
+  font-size: 20px;
+}
+.app-sidebar .sidebar-btn:hover {
+  background: rgba(139, 92, 246, 0.1);
+}
+.app-sidebar .sidebar-btn.active {
+  background: #4f46e5;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+}
+
+.app-sidebar .sidebar-bottom {
+  margin-top: auto;
+}
+
+.app-main-content {
+  flex: 1;
+  margin-left: 80px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.app-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 32px;
+  background: #4f46e5;
+  color: #fff;
+}
+.app-topbar-title {
+  font-weight: 800;
+  font-size: 24px;
+  letter-spacing: 1px;
+}
+.app-topbar-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,0.1);
+  padding: 6px 16px 6px 6px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.app-topbar-profile img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.app-view-container {
+  padding: 32px;
+  flex: 1;
+}
+
+.app-view {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+.app-view.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+  .app-sidebar {
+    width: 60px;
+    padding: 20px 0;
+    gap: 20px;
+  }
+  .app-main-content { margin-left: 60px; }
+  .app-topbar { padding: 12px 20px; }
+  .app-view-container { padding: 20px; }
+}
+
 /* ─── NEO-BRUTALISM LAYOUT STYLES ──────────────── */
 .tm-landing-content { padding-top: 32px; }
 

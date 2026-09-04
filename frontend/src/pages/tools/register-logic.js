@@ -220,52 +220,94 @@ function buildGroupCard(groupId, group) {
 }
 
 // ─── Render Daftar ────────────────────────────────────────────────
+// ─── Render Daftar ────────────────────────────────────────────────
 function renderDeviceList() {
   var myDevicesList = document.getElementById('myDevicesList');
+  var myGroupsList = document.getElementById('myGroupsList');
+  
   if (!myDevicesList) return;
-  var codesInGroups = new Set();
-  Object.values(allGroups).forEach(function(g) {
-    if (g.devices) Object.keys(g.devices).forEach(function(c) { codesInGroups.add(c); });
-  });
-  var html = '';
+  
+  // -- 1. HOME VIEW (Semua Perangkat Flat + Tombol Tambah) --
+  var allDevEntries = Object.entries(allDevices);
+  var homeHtml = '';
+  if (allDevEntries.length > 0) {
+    homeHtml += allDevEntries.map(function(e) { return buildDeviceCard(e[0], e[1]); }).join('');
+  }
+  // Tambahkan card "+" di akhir
+  homeHtml += '<div class="reg-device-card" style="display:flex;align-items:center;justify-content:center;background:rgba(99,102,241,0.1);border:2px dashed rgba(99,102,241,0.5);cursor:pointer;min-height:220px;" onclick="switchAppView(\'view-add-device\')">'
+           + '<div style="text-align:center;color:#818cf8;">'
+           + '<div style="font-size:40px;margin-bottom:8px;">+</div>'
+           + '<div style="font-size:14px;font-weight:800;font-family:var(--font-heading);">Tambah Sampah</div>'
+           + '</div></div>';
+  
+  myDevicesList.innerHTML = homeHtml;
 
-  // ── Bagian Grup (Folder Grid) ──
-  var groupEntries = Object.entries(allGroups);
-  if (groupEntries.length > 0) {
-    html += '<div style="margin-bottom:20px;">'
-      + '<div style="font-size:12px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">📂 Grup Saya</div>'
-      + '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;">'
-      + groupEntries.map(function(e) { return buildGroupCard(e[0], e[1]); }).join('')
-      + '</div>';
-    // Perangkat di dalam masing-masing grup
-    groupEntries.forEach(function(entry) {
-      var groupId = entry[0], group = entry[1];
-      var devCodes = group.devices ? Object.keys(group.devices) : [];
-      if (devCodes.length > 0) {
-        html += '<div style="margin-top:14px;">'
-          + '<div style="font-size:11px;font-weight:700;color:#818cf8;margin-bottom:8px;">📁 ' + group.name + '</div>'
-          + '<div class="reg-devices-grid">'
-          + devCodes.map(function(fc) { return allDevices[fc] ? buildDeviceCard(fc, allDevices[fc]) : ''; }).join('')
-          + '</div>'
-          + '</div>';
-      }
+
+  // -- 2. GROUPS VIEW --
+  if (myGroupsList) {
+    var groupEntries = Object.entries(allGroups);
+    var codesInGroups = new Set();
+    groupEntries.forEach(function(g) {
+      if (g[1].devices) Object.keys(g[1].devices).forEach(function(c) { codesInGroups.add(c); });
     });
-    html += '</div>';
-  }
 
-  // ── Perangkat Tanpa Grup ──
-  var ungrouped = Object.entries(allDevices).filter(function(e) { return !codesInGroups.has(e[0]); });
-  if (ungrouped.length > 0) {
-    html += '<div>'
-      + '<div style="font-size:12px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">📋 Semua Perangkat</div>'
-      + '<div class="reg-devices-grid">'
-      + ungrouped.map(function(e) { return buildDeviceCard(e[0], e[1]); }).join('')
-      + '</div>'
-      + '</div>';
-  }
+    var groupsHtml = '';
+    
+    // Render Folders first
+    if (groupEntries.length > 0) {
+      groupsHtml += '<div style="grid-column:1/-1;font-size:12px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">📂 Folder Grup</div>';
+      groupsHtml += groupEntries.map(function(e) { return buildGroupCard(e[0], e[1]); }).join('');
+      
+      // Render devices grouped
+      groupsHtml += '<div style="grid-column:1/-1;height:10px;"></div>'; // spacer
+      groupEntries.forEach(function(entry) {
+        var groupId = entry[0], group = entry[1];
+        var devCodes = group.devices ? Object.keys(group.devices) : [];
+        if (devCodes.length > 0) {
+          groupsHtml += '<div style="grid-column:1/-1;margin-top:14px;">'
+            + '<div style="font-size:11px;font-weight:700;color:#818cf8;margin-bottom:8px;">📁 ' + group.name + '</div>'
+            + '<div class="reg-devices-grid">'
+            + devCodes.map(function(fc) { return allDevices[fc] ? buildDeviceCard(fc, allDevices[fc]) : ''; }).join('')
+            + '</div>'
+            + '</div>';
+        }
+      });
+    }
 
-  myDevicesList.innerHTML = html || '<div style="text-align:center;color:var(--text-3);font-size:14px;padding:28px;">Belum ada perangkat.</div>';
+    // Ungrouped
+    var ungrouped = allDevEntries.filter(function(e) { return !codesInGroups.has(e[0]); });
+    if (ungrouped.length > 0) {
+      groupsHtml += '<div style="grid-column:1/-1;margin-top:20px;font-size:12px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">📋 Perangkat Tanpa Grup</div>';
+      groupsHtml += ungrouped.map(function(e) { return buildDeviceCard(e[0], e[1]); }).join('');
+    }
+    
+    myGroupsList.innerHTML = groupsHtml || '<div style="grid-column:1/-1;text-align:center;color:var(--text-3);font-size:14px;padding:28px;">Belum ada perangkat atau grup.</div>';
+  }
 }
+
+// ─── Navigasi Sidebar (Switch View) ──────────────────────────────
+window.switchAppView = function(viewId, el) {
+  // Update sidebar active classes if triggered via sidebar button
+  if (el) {
+    var btns = document.querySelectorAll('.app-sidebar .sidebar-btn');
+    btns.forEach(function(b) { b.classList.remove('active'); });
+    el.classList.add('active');
+  } else {
+    // If triggered programmatically (like + button), remove active from all sidebar buttons
+    var btns = document.querySelectorAll('.app-sidebar .sidebar-btn');
+    btns.forEach(function(b) { b.classList.remove('active'); });
+  }
+
+  // Hide all views
+  var views = document.querySelectorAll('.app-view');
+  views.forEach(function(v) { v.classList.remove('active'); });
+
+  // Show target view
+  var target = document.getElementById(viewId);
+  if (target) {
+    target.classList.add('active');
+  }
+};
 
 // ─── Generate Arduino Code ────────────────────────────────────────
 function buildArduinoCode(deviceCode, boardType) {

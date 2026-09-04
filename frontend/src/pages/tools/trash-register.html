@@ -16,160 +16,170 @@
   <script src="/src/services/firebase.js"></script>
   <script src="/src/services/firebase-iot.js"></script>
 </head>
-<body>
+<body class="dashboard-mode">
 
-<!-- TOP NAVBAR -->
-<nav class="navbar" id="navbar">
-  <div class="nav-container">
-    <a href="/public/index.html" class="nav-logo" style="text-decoration:none">
-      <div class="logo-badge"><img src="/src/assets/img/Logo.svg" alt="BAJA"></div>
-      <div class="logo-text">BAJA</div>
-    </a>
-    <div class="nav-actions">
-      <!-- navClock and navAuthSlot injected here -->
+<div class="dashboard-layout">
+  <!-- SIDEBAR -->
+  <aside class="app-sidebar">
+    <div class="sidebar-btn active" id="nav-home" title="Semua Perangkat (Home)" onclick="switchAppView('view-home', this)">🏠</div>
+    <div class="sidebar-btn" id="nav-dashboard" title="Dashboard Statistik" onclick="switchAppView('view-dashboard', this)">⏱️</div>
+    <div class="sidebar-btn" id="nav-groups" title="Kelola Grup" onclick="switchAppView('view-groups', this)">👥</div>
+    <div class="sidebar-bottom">
+      <a href="/public/index.html" class="sidebar-btn" title="Kembali ke Beranda">⬅️</a>
     </div>
-  </div>
-</nav>
+  </aside>
 
-<!-- HEADER -->
-<div class="page-header" style="padding-bottom: 0;">
-  <div class="container" style="position: relative;">
-    <a href="/public/index.html" class="tm-btn-back" style="position: absolute; left: 16px; top: 0; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 800; color: var(--text-1); background: var(--bg-surface); padding: 8px 16px; border-radius: var(--r-full); border: 2px solid var(--border); box-shadow: var(--shadow-sm); transition: all var(--tr); z-index: 10;">
-      <span>&larr;</span> <span data-en="Back" data-id="Kembali">Kembali</span>
-    </a>
-    <div class="section-badge" style="margin-top: 40px;">&#xFF0B; <span data-en="Register Device" data-id="Daftar Perangkat">Register Device</span></div>
-    <h1 data-en="Register New IoT Bin" data-id="Daftarkan Tempat Sampah Baru">Register New IoT Bin</h1>
-    <p>Dapatkan kode unik perangkat dan kode Arduino lengkap secara otomatis. Mendukung semua mikrokontroler (ESP32, ESP8266, Wemos, dll).</p>
-  </div>
+  <!-- MAIN CONTENT -->
+  <main class="app-main-content">
+    
+    <!-- TOP BAR -->
+    <header class="app-topbar">
+      <div class="app-topbar-title">BAJA</div>
+      <div class="app-topbar-profile" id="navAuthSlot">
+        <!-- Injected via App.js or firebase.js -->
+        <span style="font-size:12px;color:rgba(255,255,255,0.8);">Memuat Profil...</span>
+      </div>
+    </header>
+
+    <div class="app-view-container">
+
+      <!-- ============================================== -->
+      <!-- VIEW: HOME (SEMUA PERANGKAT) -->
+      <!-- ============================================== -->
+      <div class="app-view active" id="view-home">
+        
+        <!-- Overlay Belum Login -->
+        <div id="unauthOverlay" style="display: none; background: rgba(var(--bg-surface-rgb, 15,23,42), 0.85); backdrop-filter: blur(4px); z-index: 100; text-align: center; padding: 40px; border-radius: 20px; border: 2px solid var(--border); max-width: 600px; margin: 0 auto 30px;">
+          <h2 style="margin-bottom: 12px; font-size: 20px;">Anda Belum Login</h2>
+          <p style="margin-bottom: 20px; color: var(--text-2);">Silakan login terlebih dahulu untuk mengakses perangkat Anda.</p>
+          <a href="/src/pages/auth.html" style="display:inline-block; background: var(--grad-tools); color: #fff; text-decoration: none; padding: 12px 24px; border-radius: var(--r-full); font-weight: bold; box-shadow: var(--glow-blue);">Masuk / Daftar</a>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:24px;">
+          <h2 style="font-family:var(--font-heading); letter-spacing:1px; margin:0;">📋 SEMUA PERANGKAT</h2>
+        </div>
+
+        <!-- The grid where devices and the "+" button will be rendered -->
+        <div class="reg-devices-grid" id="myDevicesList">
+           <div style="text-align:center;color:var(--text-3);font-size:14px;padding:28px;font-weight:700;width:100%;">Memuat data...</div>
+        </div>
+      </div>
+
+
+      <!-- ============================================== -->
+      <!-- VIEW: DASHBOARD GRAFIK -->
+      <!-- ============================================== -->
+      <div class="app-view" id="view-dashboard">
+        <h2 style="font-family:var(--font-heading); margin-bottom: 20px; letter-spacing:1px; margin-top:0;">⏱️ DASHBOARD STATISTIK</h2>
+        <div style="color:var(--text-3); font-weight:700;">Fitur grafik sedang dikembangkan...</div>
+      </div>
+
+
+      <!-- ============================================== -->
+      <!-- VIEW: GRUP (FOLDER) -->
+      <!-- ============================================== -->
+      <div class="app-view" id="view-groups">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:24px;">
+          <h2 style="font-family:var(--font-heading); letter-spacing:1px; margin:0;">👥 KELOLA GRUP</h2>
+          <button id="btnCreateGroup" style="background:var(--bg-surface);border:2px solid var(--border);color:var(--text-1);padding:10px 16px;border-radius:var(--r-full);font-size:13px;font-weight:800;cursor:pointer;font-family:var(--font-heading);box-shadow:2px 2px 0 var(--border); transition:all 0.2s;" onmousedown="this.style.transform='translate(2px,2px)';this.style.boxShadow='none';" onmouseup="this.style.transform='none';this.style.boxShadow='2px 2px 0 var(--border)';">&#x1F4C2; + Buat Grup</button>
+        </div>
+        
+        <div class="reg-devices-grid" id="myGroupsList">
+           <div style="text-align:center;color:var(--text-3);font-size:14px;padding:28px;font-weight:700;width:100%;">Memuat grup...</div>
+        </div>
+      </div>
+
+
+      <!-- ============================================== -->
+      <!-- VIEW: TAMBAH PERANGKAT (FORM) -->
+      <!-- ============================================== -->
+      <div class="app-view" id="view-add-device">
+        <h2 style="font-family:var(--font-heading); margin-bottom: 20px; letter-spacing:1px; margin-top:0;">➕ DAFTAR PERANGKAT BARU</h2>
+        
+        <div class="tm-monitor-card reg-card-custom" style="max-width: 800px; margin: 0; box-sizing: border-box;">
+          
+          <div class="reg-field">
+            <label for="regName" class="tm-monitor-label">Nama Tempat Sampah</label>
+            <input type="text" id="regName" class="reg-input" placeholder="Contoh: Tempat Sampah Kantor Lt.3" maxlength="60"/>
+          </div>
+
+          <div class="reg-field">
+            <label for="regLocation" class="tm-monitor-label">Lokasi / Keterangan</label>
+            <input type="text" id="regLocation" class="reg-input" placeholder="Contoh: Jl. Merdeka No.1, Bandung" maxlength="100"/>
+          </div>
+
+          <div class="tm-error-msg" id="regError">Mohon isi semua field terlebih dahulu.</div>
+
+          <div class="reg-field" style="margin-top:14px;">
+            <label for="regBoard" class="tm-monitor-label">Pilih Board Mikrokontroler</label>
+            <select id="regBoard" class="reg-input" style="cursor:pointer;">
+              <option value="esp32">ESP32 (DevKit / NodeMCU-32) &mdash; 2 ADC, Tidak perlu Multiplexer</option>
+              <option value="esp8266">ESP8266 / NodeMCU &mdash; 1 ADC (A0), Perlu CD74HC4067</option>
+              <option value="wemos">Wemos D1 Mini &mdash; 1 ADC (A0), Perlu CD74HC4067</option>
+              <option value="arduino_esp01">Arduino Uno/Nano + ESP-01 &mdash; Tidak ada ADC, Perlu CD74HC4067</option>
+            </select>
+            <div id="boardNote" style="font-size:12px;color:var(--text-3);margin-top:8px;padding:8px 12px;background:rgba(99,102,241,0.07);border-radius:8px;border-left:3px solid #818cf8;"></div>
+          </div>
+
+          <button id="btnRegister" style="background:var(--grad-tools); color:#fff; border:none; padding:16px 32px; border-radius:var(--r-full); font-size:16px; font-weight:800; font-family:var(--font); cursor:pointer; width:100%; margin-top:24px; transition:all var(--tr); box-shadow:var(--glow-blue); display:flex; align-items:center; justify-content:center; gap:12px;">
+            <span id="btnRegText">&#x2705; Generate Kode Perangkat</span>
+            <div class="iso-loader-wrap" id="regSpinner" style="display:none; padding: 0;">
+              <div class="iso-loader" style="transform: scale(0.4); margin: -20px;">
+                <div class="iso-layer iso-layer-3"></div>
+                <div class="iso-layer iso-layer-2"></div>
+                <div class="iso-layer iso-layer-1"></div>
+              </div>
+            </div>
+          </button>
+
+          <!-- Hasil Kode -->
+          <div class="reg-result" id="regResult">
+            <div class="reg-result-title">&#x2705; Perangkat Berhasil Didaftarkan!</div>
+            <div class="reg-code-display" id="generatedCode">TRS-&mdash;</div>
+            <a class="link-monitor" id="linkMonitor" href="#">&#x1F50D; Pantau Sekarang</a>
+          </div>
+
+          <!-- Kode Arduino -->
+          <div class="ino-section" id="inoSection">
+            <div class="ino-header">
+              <div class="ino-header-title">
+                <span style="font-size:18px;">&#x26A1;</span>
+                Kode Arduino (ESP32 / ESP8266 / Wemos dll) &mdash; Siap Copy-Paste
+              </div>
+              <button class="ino-copy-btn" id="btnCopyArduino">&#x1F4CB; Salin Semua Kode</button>
+            </div>
+            <pre class="ino-code" id="arduinoCode"></pre>
+            <div class="ino-wifi-note">
+              &#x26A0;&#xFE0F; <strong>Yang perlu Anda ubah hanya 2 baris:</strong><br>
+              Ganti <code style="color:#facc15;">NAMA_WIFI_ANDA</code> dan <code style="color:#facc15;">PASSWORD_WIFI_ANDA</code> dengan WiFi Anda.<br>
+              <strong>Kode perangkat sudah otomatis terisi. Jangan ubah!</strong>
+            </div>
+          </div>
+          
+        </div>
+        
+        <!-- Tambah via Kode (Tamu) -->
+        <div style="margin-top: 40px; max-width: 800px;">
+          <div style="background:var(--bg-body);border:2px solid var(--border);border-radius:14px;padding:14px 16px;box-shadow:3px 3px 0 rgba(0,0,0,0.05);">
+            <div style="font-size:14px;font-weight:800;color:var(--text-1);margin-bottom:10px;font-family:var(--font-heading);">&#x1F517; ATAU TAMBAH PERANGKAT VIA KODE</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <div style="display:flex;align-items:center;background:var(--bg-surface);border:2px solid var(--border);border-radius:var(--r-full);overflow:hidden;flex:1;min-width:160px;">
+                <span style="padding:0 10px 0 16px;font-weight:800;font-size:15px;color:var(--text-2);white-space:nowrap;">TRS-</span>
+                <input type="text" id="joinCodeInput" maxlength="4" placeholder="XXXX" spellcheck="false" autocomplete="off"
+                  style="border:none;background:transparent;color:var(--text-1);font-size:15px;font-weight:800;font-family:'Courier New',monospace;padding:12px 16px 12px 0;width:100%;outline:none;text-transform:uppercase;letter-spacing:3px;">
+              </div>
+              <button id="btnJoinDevice" style="background:var(--blue);color:#fff;border:2px solid var(--border);padding:10px 24px;border-radius:var(--r-full);font-size:14px;font-weight:800;cursor:pointer;font-family:var(--font-heading);white-space:nowrap;box-shadow:2px 2px 0 var(--border); transition:all 0.2s;" onmousedown="this.style.transform='translate(2px,2px)';this.style.boxShadow='none';" onmouseup="this.style.transform='none';this.style.boxShadow='2px 2px 0 var(--border)';">Tambah</button>
+            </div>
+            <div id="joinError" style="font-size:13px;font-weight:700;color:#ef4444;margin-top:8px;display:none;"></div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
 </div>
 
-<section class="section tm-landing-content">
-  <div class="container">
-
-    <!-- ── Kartu Register ── -->
-    <div class="tm-monitor-card reg-card-custom" style="position: relative; overflow: hidden;">
-
-      <!-- Overlay Belum Login (tersembunyi by default, tampil jika belum login) -->
-      <div id="unauthOverlay" style="display: none; flex-direction: column; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(var(--bg-surface-rgb, 15,23,42), 0.85); backdrop-filter: blur(4px); z-index: 100; justify-content: center; align-items: center; text-align: center; padding: 20px;">
-        <h2 style="margin-bottom: 12px; font-size: 20px;">Anda Belum Login</h2>
-        <p style="margin-bottom: 20px; color: var(--text-2);">Silakan login terlebih dahulu untuk mendaftarkan perangkat IoT dan menyimpannya di akun Anda.</p>
-        <a href="/src/pages/auth.html" style="background: var(--grad-tools); color: #fff; text-decoration: none; padding: 12px 24px; border-radius: var(--r-full); font-weight: bold; box-shadow: var(--glow-blue);">Masuk / Daftar</a>
-      </div>
-
-      <div class="reg-field">
-        <label for="regName" class="tm-monitor-label">Nama Tempat Sampah</label>
-        <input type="text" id="regName" class="reg-input" placeholder="Contoh: Tempat Sampah Kantor Lt.3" maxlength="60"/>
-      </div>
-
-      <div class="reg-field">
-        <label for="regLocation" class="tm-monitor-label">Lokasi / Keterangan</label>
-        <input type="text" id="regLocation" class="reg-input" placeholder="Contoh: Jl. Merdeka No.1, Bandung" maxlength="100"/>
-      </div>
-
-      <div class="tm-error-msg" id="regError">Mohon isi semua field terlebih dahulu.</div>
-
-      <div class="reg-field" style="margin-top:14px;">
-        <label for="regBoard" class="tm-monitor-label">Pilih Board Mikrokontroler</label>
-        <select id="regBoard" class="reg-input" style="cursor:pointer;">
-          <option value="esp32">ESP32 (DevKit / NodeMCU-32) &mdash; 2 ADC, Tidak perlu Multiplexer</option>
-          <option value="esp8266">ESP8266 / NodeMCU &mdash; 1 ADC (A0), Perlu CD74HC4067</option>
-          <option value="wemos">Wemos D1 Mini &mdash; 1 ADC (A0), Perlu CD74HC4067</option>
-          <option value="arduino_esp01">Arduino Uno/Nano + ESP-01 &mdash; Tidak ada ADC, Perlu CD74HC4067</option>
-        </select>
-        <div id="boardNote" style="font-size:12px;color:var(--text-3);margin-top:8px;padding:8px 12px;background:rgba(99,102,241,0.07);border-radius:8px;border-left:3px solid #818cf8;"></div>
-      </div>
-
-      <button id="btnRegister" style="background:var(--grad-tools); color:#fff; border:none; padding:16px 32px; border-radius:var(--r-full); font-size:16px; font-weight:800; font-family:var(--font); cursor:pointer; width:100%; margin-top:24px; transition:all var(--tr); box-shadow:var(--glow-blue); display:flex; align-items:center; justify-content:center; gap:12px;">
-        <span id="btnRegText">&#x2705; Generate Kode Perangkat</span>
-        <div class="iso-loader-wrap" id="regSpinner" style="display:none; padding: 0;">
-          <div class="iso-loader" style="transform: scale(0.4); margin: -20px;">
-            <div class="iso-layer iso-layer-3"></div>
-            <div class="iso-layer iso-layer-2"></div>
-            <div class="iso-layer iso-layer-1"></div>
-          </div>
-        </div>
-      </button>
-
-      <!-- Hasil Kode -->
-      <div class="reg-result" id="regResult">
-        <div class="reg-result-title">&#x2705; Perangkat Berhasil Didaftarkan!</div>
-        <div class="reg-code-display" id="generatedCode">TRS-&mdash;</div>
-        <a class="link-monitor" id="linkMonitor" href="#">&#x1F50D; Pantau Sekarang</a>
-      </div>
-
-      <!-- Kode Arduino -->
-      <div class="ino-section" id="inoSection">
-        <div class="ino-header">
-          <div class="ino-header-title">
-            <span style="font-size:18px;">&#x26A1;</span>
-            Kode Arduino (ESP32 / ESP8266 / Wemos dll) &mdash; Siap Copy-Paste
-          </div>
-          <button class="ino-copy-btn" id="btnCopyArduino">&#x1F4CB; Salin Semua Kode</button>
-        </div>
-        <pre class="ino-code" id="arduinoCode"></pre>
-        <div class="ino-wifi-note">
-          &#x26A0;&#xFE0F; <strong>Yang perlu Anda ubah hanya 2 baris:</strong><br>
-          Ganti <code style="color:#facc15;">NAMA_WIFI_ANDA</code> dan <code style="color:#facc15;">PASSWORD_WIFI_ANDA</code> dengan WiFi Anda.<br>
-          <strong>Kode perangkat sudah otomatis terisi. Jangan ubah!</strong>
-        </div>
-      </div>
-    </div>
-
-
-    <!-- ── Perangkat Saya ── -->
-    <div class="tm-monitor-card reg-card-custom" style="margin-top:24px;max-width:960px;" id="myDevicesContainer">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
-        <div class="tm-monitor-label" style="font-size:20px;font-family:var(--font-heading);margin:0;">&#x1F4CB; SEMUA PERANGKAT</div>
-        <button id="btnCreateGroup" style="background:var(--bg-surface);border:2px solid var(--border);color:var(--text-1);padding:10px 16px;border-radius:var(--r-full);font-size:13px;font-weight:800;cursor:pointer;font-family:var(--font-heading);box-shadow:2px 2px 0 var(--border);transition:all 0.2s;" onmousedown="this.style.transform='translate(2px,2px)';this.style.boxShadow='none';" onmouseup="this.style.transform='none';this.style.boxShadow='2px 2px 0 var(--border)';">&#x1F4C2; + Buat Grup</button>
-      </div>
-
-      <!-- Tambah via Kode -->
-      <div style="background:var(--bg-body);border:2px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:24px;box-shadow:3px 3px 0 rgba(0,0,0,0.05);">
-        <div style="font-size:14px;font-weight:800;color:var(--text-1);margin-bottom:10px;font-family:var(--font-heading);">&#x1F517; TAMBAH PERANGKAT (KODE)</div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <div style="display:flex;align-items:center;background:var(--bg-surface);border:2px solid var(--border);border-radius:var(--r-full);overflow:hidden;flex:1;min-width:160px;">
-            <span style="padding:0 10px 0 16px;font-weight:800;font-size:15px;color:var(--text-2);white-space:nowrap;">TRS-</span>
-            <input type="text" id="joinCodeInput" maxlength="4" placeholder="XXXX" spellcheck="false" autocomplete="off"
-              style="border:none;background:transparent;color:var(--text-1);font-size:15px;font-weight:800;font-family:'Courier New',monospace;padding:12px 16px 12px 0;width:100%;outline:none;text-transform:uppercase;letter-spacing:3px;">
-          </div>
-          <button id="btnJoinDevice" style="background:var(--blue);color:#fff;border:2px solid var(--border);padding:10px 24px;border-radius:var(--r-full);font-size:14px;font-weight:800;cursor:pointer;font-family:var(--font-heading);white-space:nowrap;box-shadow:2px 2px 0 var(--border);transition:all 0.2s;" onmousedown="this.style.transform='translate(2px,2px)';this.style.boxShadow='none';" onmouseup="this.style.transform='none';this.style.boxShadow='2px 2px 0 var(--border)';">Tambah</button>
-        </div>
-        <div id="joinError" style="font-size:13px;font-weight:700;color:#ef4444;margin-top:8px;display:none;"></div>
-      </div>
-
-      <div id="myDevicesList">
-        <div style="text-align:center;color:var(--text-3);font-size:14px;padding:28px;font-weight:700;">Memuat data...</div>
-      </div>
-    </div>
-
-    <!-- ── Cara Pakai ── -->
-    <div class="tm-monitor-card reg-card-custom" style="margin-top:24px;">
-      <div class="reg-steps">
-        <div class="tm-monitor-label" style="font-size:20px; font-family:var(--font-heading); margin-bottom:16px;">&#x1F4D6; Cara Menggunakan</div>
-        <div class="reg-step">
-          <div class="reg-step-num bg-green">1</div>
-          <div class="reg-step-text">Isi form dan klik <strong>Generate Kode Perangkat</strong></div>
-        </div>
-        <div class="reg-step">
-          <div class="reg-step-num bg-blue">2</div>
-          <div class="reg-step-text"><strong>Salin semua kode Arduino</strong> yang muncul &mdash; kode sudah lengkap &amp; siap pakai!</div>
-        </div>
-        <div class="reg-step">
-          <div class="reg-step-num bg-pink">3</div>
-          <div class="reg-step-text">Buka <strong>Arduino IDE</strong>, tempel kode, ganti <code class="code-hl">NAMA_WIFI_ANDA</code></div>
-        </div>
-        <div class="reg-step">
-          <div class="reg-step-num bg-green">4</div>
-          <div class="reg-step-text">Upload ke ESP32/ESP8266, buka <strong>Serial Monitor</strong> untuk verifikasi koneksi</div>
-        </div>
-        <div class="reg-step">
-          <div class="reg-step-num bg-blue">5</div>
-          <div class="reg-step-text">Pantau data real-time di <a href="trash-monitor.html" class="code-hl">IoT Monitor</a></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
 <!-- ════ Modal Edit Perangkat ════ -->
 <div id="editModal" onclick="if(event.target===this)closeEditModal()" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(5,9,18,0.88);backdrop-filter:blur(14px);z-index:9998;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;">

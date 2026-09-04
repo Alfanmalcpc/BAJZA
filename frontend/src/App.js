@@ -86,19 +86,18 @@ const BAJA = {
   initAuthUI() {
     if (typeof firebase === 'undefined' || typeof auth === 'undefined') return;
 
-    const actions = document.querySelector('.nav-actions');
-    if (!actions) return;
+    let slot = document.getElementById('navAuthSlot');
+    if (!slot) {
+      const actions = document.querySelector('.nav-actions');
+      if (!actions) return;
+      slot = document.createElement('div');
+      slot.id = 'navAuthSlot';
+      slot.style.cssText = 'display:flex;align-items:center;gap:8px';
 
-    /* Cegah duplikasi slot */
-    if (document.getElementById('navAuthSlot')) return;
-
-    const slot = document.createElement('div');
-    slot.id = 'navAuthSlot';
-    slot.style.cssText = 'display:flex;align-items:center;gap:8px';
-
-    const hamburger = actions.querySelector('.hamburger');
-    if (hamburger) actions.insertBefore(slot, hamburger);
-    else actions.appendChild(slot);
+      const hamburger = actions.querySelector('.hamburger');
+      if (hamburger) actions.insertBefore(slot, hamburger);
+      else actions.appendChild(slot);
+    }
 
     const profileHref = '/src/pages/profile.html';
     const authHref    = '/src/pages/auth.html';
