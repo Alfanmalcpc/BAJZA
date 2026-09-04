@@ -15,7 +15,8 @@
 /* ─── DEVICE CARD GRID (Register Page) ─────────────────── */
 .reg-devices-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  /* 3 kolom di desktop (960px+), 2 di tablet, 1 di HP */
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
   gap: 14px;
 }
 
@@ -36,10 +37,15 @@
   border-color: rgba(139, 92, 246, 0.65);
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
   .reg-devices-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
+  }
+}
+@media (max-width: 380px) {
+  .reg-devices-grid {
+    grid-template-columns: 1fr;
   }
 }
 .tm-monitor-card {
