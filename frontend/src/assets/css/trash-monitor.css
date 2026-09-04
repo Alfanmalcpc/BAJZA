@@ -15,14 +15,31 @@
 /* ─── DEVICE CARD GRID (Register Page) ─────────────────── */
 .reg-devices-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 14px;
+}
+
+/* Kartu perangkat — background indigo gelap seperti referensi */
+.reg-device-card {
+  background: linear-gradient(145deg, #1e1b4b 0%, #2d2566 50%, #312e81 100%);
+  border: 1.5px solid rgba(139, 92, 246, 0.35);
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.reg-device-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(99, 102, 241, 0.4);
+  border-color: rgba(139, 92, 246, 0.65);
 }
 
 @media (max-width: 480px) {
   .reg-devices-grid {
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 8px;
+    gap: 10px;
   }
 }
 .tm-monitor-card {

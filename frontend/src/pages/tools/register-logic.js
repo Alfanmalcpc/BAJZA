@@ -62,20 +62,32 @@ async function loadMyDevices() {
   }
 }
 
-// ─── Mini Gauge SVG ──────────────────────────────────────────────
+// ─── Speedometer Gauge SVG (besar, seperti referensi) ──────────────
 function miniGaugeSVG(pct, id) {
   var p = Math.min(100, Math.max(0, pct || 0));
-  var r = 28, cx = 32, cy = 32;
-  var circ = 2 * Math.PI * r;
-  // Half-circle gauge (bottom arc removed): use 75% of circle
-  var arcLen = circ * 0.75;
-  var fillLen = arcLen * (p / 100);
-  var rotation = 135; // start from bottom-left
+  // Speedometer: arc dari 225 derajat ke 315 derajat (225 total derajat)
+  var cx = 60, cy = 60, r = 46;
+  var startAngle = 225, totalAngle = 270;
+  var endAngle   = startAngle + (totalAngle * p / 100);
   var color = p < 50 ? '#4ade80' : p < 80 ? '#facc15' : '#f87171';
-  return '<svg width="64" height="52" viewBox="0 0 64 52" style="flex-shrink:0;">'
-    + '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="6" stroke-dasharray="' + arcLen + ' ' + circ + '" stroke-dashoffset="0" transform="rotate(' + rotation + ' ' + cx + ' ' + cy + ')" stroke-linecap="round"/>'
-    + '<circle id="mgf-' + id + '" cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="' + color + '" stroke-width="6" stroke-dasharray="' + fillLen + ' ' + circ + '" stroke-dashoffset="0" transform="rotate(' + rotation + ' ' + cx + ' ' + cy + ')" stroke-linecap="round" style="transition:all 0.8s ease;"/>'
-    + '<text id="mgt-' + id + '" x="' + cx + '" y="' + (cy + 6) + '" text-anchor="middle" font-size="11" font-weight="800" fill="' + color + '" font-family="inherit">' + p + '%</text>'
+  function polar(angle) {
+    var a = (angle - 90) * Math.PI / 180;
+    return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+  }
+  function arc(startDeg, endDeg, c) {
+    var s = polar(startDeg), e = polar(endDeg);
+    var large = (endDeg - startDeg) > 180 ? 1 : 0;
+    return '<path d="M ' + s.x + ' ' + s.y + ' A ' + r + ' ' + r + ' 0 ' + large + ' 1 ' + e.x + ' ' + e.y + '" fill="none" stroke="' + c + '" stroke-width="9" stroke-linecap="round"/>';
+  }
+  var trackArc = arc(startAngle, startAngle + totalAngle, 'rgba(255,255,255,0.12)');
+  var fillArc  = p > 0 ? arc(startAngle, endAngle, color) : '';
+  return '<svg id="gauge-' + id + '" width="120" height="90" viewBox="0 0 120 90" style="display:block;margin:0 auto;">'
+    + trackArc
+    + '<g id="mgf-' + id + '">' + fillArc + '</g>'
+    + '<text id="mgt-' + id + '" x="60" y="66" text-anchor="middle" font-size="16" font-weight="800" fill="' + color + '" font-family="inherit">' + p + '%</text>'
+    + '<text x="60" y="79" text-anchor="middle" font-size="8" font-weight="600" fill="rgba(255,255,255,0.45)" font-family="inherit">PENUH</text>'
+    + '<text x="17" y="78" text-anchor="middle" font-size="7" fill="rgba(255,255,255,0.4)" font-family="inherit">0</text>'
+    + '<text x="103" y="78" text-anchor="middle" font-size="7" fill="rgba(255,255,255,0.4)" font-family="inherit">100</text>'
     + '</svg>';
 }
 
@@ -88,35 +100,43 @@ function loadCardLiveData(fullCode) {
       if (badge) { badge.textContent = '\u25cb Belum aktif'; }
       return;
     }
-    var st  = snap.val();
-    var now = Math.floor(Date.now() / 1000);
-    var diff = now - (st.last_updated || 0);
-    // Online badge
+    var st   = snap.val();
+    var diff = Math.floor(Date.now() / 1000) - (st.last_updated || 0);
+    // Badge
     if (badge) {
       if (diff < 60) {
-        badge.style.background = 'rgba(74,222,128,0.15)';
+        badge.style.background = 'rgba(74,222,128,0.22)';
         badge.style.color = '#4ade80';
         badge.textContent = '\u25cf LIVE';
       } else {
-        badge.style.background = 'rgba(248,113,113,0.1)';
+        badge.style.background = 'rgba(248,113,113,0.15)';
         badge.style.color = '#f87171';
         badge.textContent = '\u25cb Offline';
       }
     }
-    // Update mini gauge
-    var fill = st.fill_level || 0;
-    var gFill = document.getElementById('mgf-' + shortCode);
+    // Update gauge
+    var fill  = st.fill_level || 0;
+    var color = fill < 50 ? '#4ade80' : fill < 80 ? '#facc15' : '#f87171';
+    var gWrap = document.getElementById('mgf-' + shortCode);
     var gTxt  = document.getElementById('mgt-' + shortCode);
-    if (gFill && gTxt) {
-      var r = 28, circ = 2 * Math.PI * r, arcLen = circ * 0.75;
-      var fillLen = arcLen * (fill / 100);
-      var color = fill < 50 ? '#4ade80' : fill < 80 ? '#facc15' : '#f87171';
-      gFill.setAttribute('stroke-dasharray', fillLen + ' ' + circ);
-      gFill.setAttribute('stroke', color);
-      gTxt.textContent = fill + '%';
-      gTxt.setAttribute('fill', color);
+    if (gWrap) {
+      var cx = 60, cy = 60, r = 46, startAngle = 225, totalAngle = 270;
+      var endAngle = startAngle + (totalAngle * fill / 100);
+      function polar(angle) {
+        var a = (angle - 90) * Math.PI / 180;
+        return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+      }
+      var s = polar(startAngle), e = polar(endAngle);
+      var large = (endAngle - startAngle) > 180 ? 1 : 0;
+      if (fill > 0) {
+        gWrap.innerHTML = '<path d="M ' + s.x + ' ' + s.y + ' A ' + r + ' ' + r + ' 0 ' + large + ' 1 ' + e.x + ' ' + e.y + '" fill="none" stroke="' + color + '" stroke-width="9" stroke-linecap="round" style="transition:all 0.8s ease;"/>';
+      }
     }
-    // Update gas labels
+    if (gTxt) { gTxt.textContent = fill + '%'; gTxt.setAttribute('fill', color); }
+    // Update fill pct label
+    var pctEl = document.getElementById('cpct-' + shortCode);
+    if (pctEl) { pctEl.textContent = fill + '%'; pctEl.style.color = color; }
+    // Gas labels
     var mq4   = st.gas_mq4   != null ? st.gas_mq4   : (st.gas_level != null ? st.gas_level : null);
     var mq135 = st.gas_mq135 != null ? st.gas_mq135 : (st.gas_level != null ? st.gas_level : null);
     var mq2   = st.gas_mq2   != null ? st.gas_mq2   : (st.gas_level != null ? st.gas_level : null);
@@ -129,56 +149,57 @@ function loadCardLiveData(fullCode) {
   }).catch(function() {});
 }
 
-// ─── Render Kartu Perangkat (Grid Style) ──────────────────────────
+// ─── Render Kartu Perangkat (Mirip Referensi) ──────────────────────
 function buildDeviceCard(fullCode, dev) {
-  var shortCode  = fullCode.replace('TRS-', '');
-  var safeName   = (dev.name     || '').replace(/"/g, '&quot;');
-  var safeLoc    = (dev.location || '').replace(/"/g, '&quot;');
-  var isOwner    = dev.isOwner !== false;
-  var ownerBadge = isOwner ? '' : '<span style="font-size:9px;background:rgba(99,102,241,0.22);color:#818cf8;padding:2px 7px;border-radius:4px;font-weight:700;margin-left:5px;">Dipantau</span>';
+  var shortCode = fullCode.replace('TRS-', '');
+  var safeName  = (dev.name     || '').replace(/"/g, '&quot;');
+  var safeLoc   = (dev.location || '').replace(/"/g, '&quot;');
+  var isOwner   = dev.isOwner !== false;
+  var ownerBadge = isOwner ? '' : '<span style="font-size:9px;background:rgba(255,255,255,0.15);color:#c4b5fd;padding:1px 6px;border-radius:4px;font-weight:700;margin-left:4px;">Dipantau</span>';
   var scriptBtn  = isOwner
-    ? '<button class="btn-view-script" data-code="' + shortCode + '" data-name="' + safeName + '" style="background:var(--bg-surface);border:1.5px solid var(--border);color:var(--text-2);padding:7px 10px;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);flex:1;" title="Lihat Skrip Arduino">\uD83D\uDCCB Skrip</button>'
+    ? '<button class="btn-view-script" data-code="' + shortCode + '" data-name="' + safeName + '" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);padding:6px 8px;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--font);flex:1;">\uD83D\uDCCB Skrip</button>'
     : '';
 
-  return '<div class="reg-device-card" style="background:var(--bg-body);border:1.5px solid var(--border);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;transition:all 0.2s;" onmouseenter="this.style.borderColor=\'rgba(99,102,241,0.5)\';this.style.transform=\'translateY(-2px)\';this.style.boxShadow=\'0 8px 24px rgba(0,0,0,0.25)\'" onmouseleave="this.style.borderColor=\'var(--border)\';this.style.transform=\'none\';this.style.boxShadow=\'none\'">'
-    // ── Header strip ──
-    + '<div style="background:linear-gradient(135deg,rgba(99,102,241,0.15),rgba(139,92,246,0.1));padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid var(--border);">'
-    +   '<div style="min-width:0;">'
-    +     '<div style="font-weight:800;font-size:13px;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;">' + (dev.name || '—') + ownerBadge + '</div>'
-    +     '<div style="font-size:10px;color:var(--text-3);margin-top:1px;font-family:monospace;">' + fullCode + '</div>'
+  return '<div class="reg-device-card" onclick="location.href=\'trash-monitor.html?code=' + shortCode + '\'">'
+    // ── Header ──
+    + '<div style="padding:12px 14px 8px;display:flex;justify-content:space-between;align-items:flex-start;">'
+    +   '<div style="min-width:0;flex:1;">'
+    +     '<div style="font-weight:800;font-size:13px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (dev.name || 'Perangkat') + ownerBadge + '</div>'
+    +     '<div style="font-size:9.5px;color:rgba(255,255,255,0.45);margin-top:1px;font-family:monospace;">' + fullCode + '</div>'
     +   '</div>'
-    +   '<div id="badge-' + shortCode + '" style="flex-shrink:0;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;background:rgba(100,100,100,0.12);color:var(--text-3);white-space:nowrap;">⏳ Cek...</div>'
+    +   '<div id="badge-' + shortCode + '" style="flex-shrink:0;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);">⏳ Cek...</div>'
     + '</div>'
-    // ── Sensor body ──
-    + '<div style="padding:14px;display:flex;gap:10px;align-items:center;">'
+    // ── Gauge tengah ──
+    + '<div style="padding:4px 14px 2px;display:flex;align-items:center;gap:10px;">'
     +   miniGaugeSVG(0, shortCode)
     +   '<div style="flex:1;">'
-    +     '<div style="font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Kepenuhan</div>'
-    +     '<div style="font-size:11px;color:var(--text-2);">📍 ' + (dev.location || '—') + '</div>'
+    +     '<div style="font-size:10px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.5px;">kepenuhan sampah</div>'
+    +     '<div id="cpct-' + shortCode + '" style="font-size:26px;font-weight:800;color:#4ade80;line-height:1.1;">0%</div>'
+    +     '<div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px;">📍 ' + (dev.location || '—') + '</div>'
     +   '</div>'
     + '</div>'
-    // ── Gas readings ──
-    + '<div style="padding:0 14px 14px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">'
-    +   '<div style="background:rgba(249,115,22,0.1);border-radius:10px;padding:7px 6px;text-align:center;">'
-    +     '<div style="font-size:9px;font-weight:700;color:#fb923c;text-transform:uppercase;">Metana</div>'
-    +     '<div id="cg4-' + shortCode + '" style="font-size:11px;font-weight:800;color:#fed7aa;margin-top:2px;">— ppm</div>'
+    // ── Gas chips ──
+    + '<div style="padding:10px 12px;display:grid;grid-template-columns:repeat(3,1fr);gap:5px;">'
+    +   '<div style="background:rgba(249,115,22,0.25);border-radius:8px;padding:6px 4px;text-align:center;">'
+    +     '<div style="font-size:8px;font-weight:700;color:#fb923c;text-transform:uppercase;">Metana</div>'
+    +     '<div id="cg4-' + shortCode + '" style="font-size:11px;font-weight:800;color:#fff;margin-top:1px;">— ppm</div>'
     +   '</div>'
-    +   '<div style="background:rgba(167,139,250,0.1);border-radius:10px;padding:7px 6px;text-align:center;">'
-    +     '<div style="font-size:9px;font-weight:700;color:#c4b5fd;text-transform:uppercase;">NH₃/CO₂</div>'
-    +     '<div id="cg135-' + shortCode + '" style="font-size:11px;font-weight:800;color:#e9d5ff;margin-top:2px;">— ppm</div>'
+    +   '<div style="background:rgba(139,92,246,0.25);border-radius:8px;padding:6px 4px;text-align:center;">'
+    +     '<div style="font-size:8px;font-weight:700;color:#c4b5fd;text-transform:uppercase;">NH₃/CO₂</div>'
+    +     '<div id="cg135-' + shortCode + '" style="font-size:11px;font-weight:800;color:#fff;margin-top:1px;">— ppm</div>'
     +   '</div>'
-    +   '<div style="background:rgba(34,211,238,0.1);border-radius:10px;padding:7px 6px;text-align:center;">'
-    +     '<div style="font-size:9px;font-weight:700;color:#67e8f9;text-transform:uppercase;">Gas Umum</div>'
-    +     '<div id="cg2-' + shortCode + '" style="font-size:11px;font-weight:800;color:#a5f3fc;margin-top:2px;">— ppm</div>'
+    +   '<div style="background:rgba(6,182,212,0.25);border-radius:8px;padding:6px 4px;text-align:center;">'
+    +     '<div style="font-size:8px;font-weight:700;color:#67e8f9;text-transform:uppercase;">Gas Umum</div>'
+    +     '<div id="cg2-' + shortCode + '" style="font-size:11px;font-weight:800;color:#fff;margin-top:1px;">— ppm</div>'
     +   '</div>'
     + '</div>'
-    // ── Action buttons ──
-    + '<div style="padding:0 10px 10px;display:flex;gap:5px;flex-wrap:wrap;">'
-    +   '<a href="trash-monitor.html?code=' + shortCode + '" style="flex:2;min-width:60px;background:var(--blue);color:#fff;padding:7px 8px;border-radius:10px;text-decoration:none;font-size:11px;font-weight:700;text-align:center;">🔍 Pantau</a>'
-    +   '<button class="btn-edit-device" data-fullcode="' + fullCode + '" data-name="' + safeName + '" data-loc="' + safeLoc + '" data-owner="' + isOwner + '" style="flex:1;min-width:50px;background:rgba(250,204,21,0.1);border:1px solid rgba(250,204,21,0.25);color:#facc15;padding:7px 6px;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);">✏️ Edit</button>'
+    // ── Tombol aksi (click tidak propagate ke card link) ──
+    + '<div style="padding:0 10px 10px;display:flex;gap:4px;" onclick="event.stopPropagation();">'
+    +   '<a href="trash-monitor.html?code=' + shortCode + '" style="flex:2;background:rgba(255,255,255,0.12);color:#fff;padding:6px 8px;border-radius:8px;text-decoration:none;font-size:10px;font-weight:700;text-align:center;border:1px solid rgba(255,255,255,0.15);" onclick="event.stopPropagation();">🔍 Pantau</a>'
+    +   '<button class="btn-edit-device" data-fullcode="' + fullCode + '" data-name="' + safeName + '" data-loc="' + safeLoc + '" data-owner="' + isOwner + '" style="flex:1;background:rgba(250,204,21,0.15);border:1px solid rgba(250,204,21,0.3);color:#facc15;padding:6px;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--font);">✏️ Edit</button>'
     +   scriptBtn
-    +   '<button class="btn-manage-groups" data-fullcode="' + fullCode + '" data-name="' + safeName + '" style="width:30px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.25);color:#818cf8;border-radius:10px;font-size:12px;cursor:pointer;" title="Kelola Grup">📂</button>'
-    +   '<button class="btn-delete-device" data-fullcode="' + fullCode + '" data-name="' + safeName + '" data-owner="' + isOwner + '" style="width:30px;background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.2);color:#f87171;border-radius:10px;font-size:12px;cursor:pointer;" title="Hapus">🗑️</button>'
+    +   '<button class="btn-manage-groups" data-fullcode="' + fullCode + '" data-name="' + safeName + '" style="width:28px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);color:#c4b5fd;border-radius:8px;font-size:11px;cursor:pointer;">📂</button>'
+    +   '<button class="btn-delete-device" data-fullcode="' + fullCode + '" data-name="' + safeName + '" data-owner="' + isOwner + '" style="width:28px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.25);color:#f87171;border-radius:8px;font-size:11px;cursor:pointer;">🗑️</button>'
     + '</div>'
     + '</div>';
 }
@@ -187,17 +208,13 @@ function buildDeviceCard(fullCode, dev) {
 function buildGroupCard(groupId, group) {
   var safeGrpName = (group.name || '').replace(/"/g, '&quot;');
   var devCodes    = group.devices ? Object.keys(group.devices) : [];
-  return '<div style="background:var(--bg-body);border:1.5px solid rgba(99,102,241,0.25);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;transition:all 0.2s;" onmouseenter="this.style.borderColor=\'rgba(99,102,241,0.6)\';this.style.transform=\'translateY(-2px)\'" onmouseleave="this.style.borderColor=\'rgba(99,102,241,0.25)\';this.style.transform=\'none\'">'
-    // Folder header
-    + '<div style="background:linear-gradient(135deg,rgba(99,102,241,0.2),rgba(139,92,246,0.15));padding:16px 14px 10px;display:flex;flex-direction:column;align-items:center;text-align:center;">'
-    +   '<div style="font-size:36px;margin-bottom:4px;">📁</div>'
-    +   '<div style="font-weight:800;font-size:13px;color:#c4b5fd;">' + (group.name || 'Grup') + '</div>'
-    +   '<div style="font-size:10px;color:var(--text-3);margin-top:2px;">' + devCodes.length + ' perangkat</div>'
-    + '</div>'
-    // Folder actions
-    + '<div style="padding:8px 10px;display:flex;gap:5px;border-top:1px solid var(--border);">'
-    +   '<button class="btn-rename-group" data-groupid="' + groupId + '" data-name="' + safeGrpName + '" style="flex:1;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.3);color:#818cf8;padding:6px;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--font);">✏️ Rename</button>'
-    +   '<button class="btn-delete-group" data-groupid="' + groupId + '" data-name="' + safeGrpName + '" style="width:28px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);color:#f87171;border-radius:8px;font-size:11px;cursor:pointer;">🗑️</button>'
+  return '<div style="background:linear-gradient(135deg,rgba(99,102,241,0.6),rgba(124,58,237,0.5));border:1.5px solid rgba(139,92,246,0.4);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 12px 10px;gap:4px;text-align:center;cursor:pointer;transition:all 0.2s;min-height:130px;" onmouseenter="this.style.transform=\'translateY(-3px)\';this.style.boxShadow=\'0 10px 28px rgba(99,102,241,0.35)\'" onmouseleave="this.style.transform=\'none\';this.style.boxShadow=\'none\'">'
+    + '<div style="font-size:40px;margin-bottom:2px;">📁</div>'
+    + '<div style="font-weight:800;font-size:12px;color:#fff;letter-spacing:0.5px;">' + (group.name || 'Grup').toUpperCase() + '</div>'
+    + '<div style="font-size:10px;color:rgba(255,255,255,0.55);margin-bottom:6px;">' + devCodes.length + ' perangkat</div>'
+    + '<div style="display:flex;gap:4px;" onclick="event.stopPropagation();">'
+    +   '<button class="btn-rename-group" data-groupid="' + groupId + '" data-name="' + safeGrpName + '" style="flex:1;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:4px 8px;border-radius:6px;font-size:9px;font-weight:700;cursor:pointer;font-family:var(--font);">✏️ Rename</button>'
+    +   '<button class="btn-delete-group" data-groupid="' + groupId + '" data-name="' + safeGrpName + '" style="width:24px;background:rgba(248,113,113,0.2);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:6px;font-size:10px;cursor:pointer;">🗑️</button>'
     + '</div>'
     + '</div>';
 }
