@@ -307,7 +307,102 @@ window.switchAppView = function(viewId, el) {
   if (target) {
     target.classList.add('active');
   }
+
+  // Trigger dashboard render if switching to it
+  if (viewId === 'view-dashboard') {
+    if (typeof renderGlobalDashboard === 'function') {
+      renderGlobalDashboard();
+    }
+  }
 };
+
+let globalDashboardChart = null;
+
+function renderGlobalDashboard() {
+  const devices = Object.values(allDevices);
+  const total = devices.length;
+  
+  let criticalCount = 0;
+  let sumFill = 0;
+  
+  const labels = [];
+  const fillData = [];
+  const bgColors = [];
+
+  devices.forEach((dev, i) => {
+    const fill = dev.status && dev.status.fill_level ? dev.status.fill_level : 0;
+    sumFill += fill;
+    if (fill >= 80) criticalCount++;
+    
+    // Sort logic could be added, but for now we just list them
+    const devName = dev.name || 'Sampah ' + (i+1);
+    labels.push(devName);
+    fillData.push(fill);
+    
+    // Colors matching the monitor gauge
+    let color = 'rgba(74, 222, 128, 0.8)'; // green
+    if (fill >= 80) color = 'rgba(248, 113, 113, 0.8)'; // red
+    else if (fill >= 50) color = 'rgba(250, 204, 21, 0.8)'; // yellow
+    
+    bgColors.push(color);
+  });
+
+  const avgFill = total > 0 ? Math.round(sumFill / total) : 0;
+
+  // Update summary cards
+  const elTotal = document.getElementById('dashTotalDevices');
+  const elCrit = document.getElementById('dashCriticalDevices');
+  const elAvg = document.getElementById('dashAvgFill');
+  
+  if (elTotal) elTotal.textContent = total;
+  if (elCrit) elCrit.textContent = criticalCount;
+  if (elAvg) elAvg.textContent = avgFill + '%';
+
+  // Update Chart
+  const ctxEl = document.getElementById('globalDashboardChart');
+  if (!ctxEl) return;
+  const ctx = ctxEl.getContext('2d');
+
+  if (globalDashboardChart) {
+    globalDashboardChart.data.labels = labels;
+    globalDashboardChart.data.datasets[0].data = fillData;
+    globalDashboardChart.data.datasets[0].backgroundColor = bgColors;
+    globalDashboardChart.update();
+  } else {
+    // Requires Chart.js to be loaded in trash-register.html
+    if (typeof Chart !== 'undefined') {
+      globalDashboardChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels.length > 0 ? labels : ['Belum ada perangkat'],
+          datasets: [{
+            label: 'Kepenuhan (%)',
+            data: fillData.length > 0 ? fillData : [0],
+            backgroundColor: fillData.length > 0 ? bgColors : ['rgba(0,0,0,0.1)'],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100,
+              grid: { color: 'rgba(0,0,0,0.05)' }
+            },
+            x: {
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    }
+  }
+}
 
 // ─── Generate Arduino Code ────────────────────────────────────────
 function buildArduinoCode(deviceCode, boardType) {

@@ -15,17 +15,26 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
   <script src="/src/services/firebase.js"></script>
   <script src="/src/services/firebase-iot.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body class="dashboard-mode">
 
 <div class="dashboard-layout">
   <!-- SIDEBAR -->
   <aside class="app-sidebar">
-    <div class="sidebar-btn active" id="nav-home" title="Semua Perangkat (Home)" onclick="switchAppView('view-home', this)">🏠</div>
-    <div class="sidebar-btn" id="nav-dashboard" title="Dashboard Statistik" onclick="switchAppView('view-dashboard', this)">⏱️</div>
-    <div class="sidebar-btn" id="nav-groups" title="Kelola Grup" onclick="switchAppView('view-groups', this)">👥</div>
+    <div class="sidebar-btn active" id="nav-home" title="Semua Perangkat (Home)" onclick="switchAppView('view-home', this)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </div>
+    <div class="sidebar-btn" id="nav-dashboard" title="Dashboard Statistik" onclick="switchAppView('view-dashboard', this)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
+    </div>
+    <div class="sidebar-btn" id="nav-groups" title="Kelola Grup" onclick="switchAppView('view-groups', this)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </div>
     <div class="sidebar-bottom">
-      <a href="/public/index.html" class="sidebar-btn" title="Kembali ke Beranda">⬅️</a>
+      <a href="/public/index.html" class="sidebar-btn" title="Kembali ke Beranda">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+      </a>
     </div>
   </aside>
 
@@ -70,8 +79,33 @@
       <!-- VIEW: DASHBOARD GRAFIK -->
       <!-- ============================================== -->
       <div class="app-view" id="view-dashboard">
-        <h2 style="font-family:var(--font-heading); margin-bottom: 20px; letter-spacing:1px; margin-top:0;">⏱️ DASHBOARD STATISTIK</h2>
-        <div style="color:var(--text-3); font-weight:700;">Fitur grafik sedang dikembangkan...</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:24px;">
+          <h2 style="font-family:var(--font-heading); letter-spacing:1px; margin:0;">📊 DASHBOARD STATISTIK</h2>
+        </div>
+        
+        <!-- Summary Cards -->
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-bottom:32px;">
+          <div style="background:var(--blue); border-radius:12px; padding:20px; color:#fff; box-shadow: 4px 4px 0 rgba(0,0,0,0.1); display:flex; flex-direction:column; justify-content:center;">
+            <div style="font-size:14px; font-weight:700; opacity:0.8; margin-bottom:8px;">Total Perangkat</div>
+            <div id="dashTotalDevices" style="font-size:32px; font-family:var(--font-heading);">0</div>
+          </div>
+          <div style="background:var(--blue); border-radius:12px; padding:20px; color:#fff; box-shadow: 4px 4px 0 rgba(0,0,0,0.1); display:flex; flex-direction:column; justify-content:center;">
+            <div style="font-size:14px; font-weight:700; opacity:0.8; margin-bottom:8px;">Perangkat Kritis (>80%)</div>
+            <div id="dashCriticalDevices" style="font-size:32px; font-family:var(--font-heading);">0</div>
+          </div>
+          <div style="background:var(--blue); border-radius:12px; padding:20px; color:#fff; box-shadow: 4px 4px 0 rgba(0,0,0,0.1); display:flex; flex-direction:column; justify-content:center;">
+            <div style="font-size:14px; font-weight:700; opacity:0.8; margin-bottom:8px;">Rata-rata Kepenuhan</div>
+            <div id="dashAvgFill" style="font-size:32px; font-family:var(--font-heading);">0%</div>
+          </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div style="background:transparent; border-radius:12px;">
+          <h3 style="font-family:var(--font-heading); font-size:16px; color:var(--text-2); margin-top:0; margin-bottom:16px;">KEPENUHAN PER PERANGKAT</h3>
+          <div style="position:relative; height:300px; width:100%;">
+            <canvas id="globalDashboardChart"></canvas>
+          </div>
+        </div>
       </div>
 
 

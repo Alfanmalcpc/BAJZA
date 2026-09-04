@@ -16,223 +16,182 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
-<body>
+<body class="dashboard-mode">
 
-<!-- TOP NAVBAR -->
-<nav class="navbar" id="navbar">
-  <div class="nav-container">
-    <a href="/public/index.html" class="nav-logo" style="text-decoration:none">
-      <div class="logo-badge"><img src="/src/assets/img/Logo.svg" alt="BAJA"></div>
-      <div class="logo-text">BAJA</div>
+<div class="dashboard-layout">
+  <!-- SIDEBAR -->
+  <aside class="app-sidebar">
+    <a href="/src/pages/tools/trash-register.html" class="sidebar-btn" title="Semua Perangkat (Home)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     </a>
-    <div class="nav-actions">
-      <!-- navClock and navAuthSlot injected here -->
+    <div class="sidebar-btn active" id="nav-dashboard" title="Dashboard Statistik">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>
     </div>
-  </div>
-</nav>
-
-<!-- HEADER (ganti tm-landing header) -->
-<div class="page-header tm-landing" id="tmLanding" style="padding-bottom: 0;">
-  <div class="container" style="position: relative;">
-    <a href="/public/index.html" class="tm-btn-back" style="position: absolute; left: 16px; top: 0; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-weight: 800; color: var(--text-1); background: var(--bg-surface); padding: 8px 16px; border-radius: var(--r-full); border: 2px solid var(--border); box-shadow: var(--shadow-sm); transition: all var(--tr); z-index: 10;">
-      <span>←</span> <span data-en="Back" data-id="Kembali">Kembali</span>
+    <a href="/src/pages/tools/trash-register.html" class="sidebar-btn" title="Kelola Grup">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     </a>
-    <div class="section-badge" style="margin-top: 40px;">🗑️ <span data-en="IoT Monitor" data-id="Monitor IoT">IoT Monitor</span></div>
-    <h1 data-en="IoT Trash Monitor" data-id="Monitor Sampah IoT">IoT Trash Monitor</h1>
-    <p data-en="Real-time fill level and gas monitor for your smart trash bin." data-id="Pantau tingkat kepenuhan & kadar gas tempat sampah Anda secara real-time dari mana saja.">Pantau tingkat kepenuhan & kadar gas tempat sampah Anda secara real-time dari mana saja.</p>
-  </div>
-</div>
-
-<section class="section tm-landing-content" id="tmLandingContent">
-  <div class="container">
-    <div class="tm-monitor-card">
-      <label for="codeInput" class="tm-monitor-label">Kode Perangkat</label>
-      <div class="tm-code-input-wrap">
-        <span class="tm-code-prefix">TRS-</span>
-        <input
-          type="text"
-          id="codeInput"
-          class="tm-code-input"
-          placeholder="XXXX"
-          maxlength="4"
-          autocomplete="off"
-          spellcheck="false"
-        />
-      </div>
-      <div class="tm-error-msg" id="errorMsg">Kode tidak ditemukan. Pastikan kode benar.</div>
-      <button class="tm-btn-primary tm-btn-monitor" id="btnMonitor">
-        <span id="btnMonitorText">🔍 Pantau Sekarang</span>
-        <div class="tm-spinner" id="monitorSpinner" style="display:none;"></div>
-      </button>
-      <a href="trash-register.html" class="tm-btn-link">
-        ➕ Belum punya kode? Daftarkan perangkat
+    <div class="sidebar-bottom">
+      <a href="/public/index.html" class="sidebar-btn" title="Kembali ke Beranda">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
       </a>
     </div>
+  </aside>
 
-    <!-- Fitur Overview -->
-    <div class="tm-features-grid">
-      <div class="tm-feature-card">
-        <div class="tm-feature-icon">📊</div>
-        <div class="tm-feature-title">Real-time</div>
-        <div class="tm-feature-desc">Update 10 detik</div>
+  <!-- MAIN CONTENT -->
+  <main class="app-main-content">
+    
+    <!-- TOP BAR -->
+    <header class="app-topbar">
+      <div class="app-topbar-title">BAJA</div>
+      <div class="app-topbar-profile" id="navAuthSlot">
+        <span style="font-size:12px;color:rgba(255,255,255,0.8);">Memuat Profil...</span>
       </div>
-      <div class="tm-feature-card">
-        <div class="tm-feature-icon">🔬</div>
-        <div class="tm-feature-title">3 Sensor Gas</div>
-        <div class="tm-feature-desc">MQ-4 · MQ-135 · MQ-2</div>
-      </div>
-      <div class="tm-feature-card">
-        <div class="tm-feature-icon">📈</div>
-        <div class="tm-feature-title">Histori</div>
-        <div class="tm-feature-desc">100 data terakhir</div>
-      </div>
-    </div>
-  </div>
-</section>
+    </header>
 
-  <!-- ════════ DASHBOARD ════════ -->
-  <div class="tm-dashboard" id="tmDashboard">
+    <div class="app-view-container">
 
-    <!-- Header -->
-    <div class="tm-db-header">
-      <div>
-        <div class="tm-db-title" id="dbDeviceName">—</div>
-        <div class="tm-db-subtitle">
-          <span class="tm-db-location" id="dbDeviceLocation">📍 —</span>
-          <span class="tm-db-code-badge" id="dbDeviceCode">TRS-—</span>
+      <!-- ============================================== -->
+      <!-- VIEW: LANDING (Cari Perangkat) -->
+      <!-- ============================================== -->
+      <div class="app-view active" id="tmLanding">
+        <div class="tm-monitor-card" style="max-width: 600px; margin: 0 auto; margin-top: 40px;">
+          <h2 style="font-family:var(--font-heading); margin-bottom: 20px; letter-spacing:1px; margin-top:0;">🔍 CARI PERANGKAT</h2>
+          <p style="color:var(--text-3); font-size:14px; margin-bottom:20px;">Masukkan kode perangkat (TRS-XXXX) untuk memantau data tempat sampah secara real-time.</p>
+          <label for="codeInput" class="tm-monitor-label">Kode Perangkat</label>
+          <div class="tm-code-input-wrap">
+            <span class="tm-code-prefix">TRS-</span>
+            <input type="text" id="codeInput" class="tm-code-input" placeholder="XXXX" maxlength="4" autocomplete="off" spellcheck="false"/>
+          </div>
+          <div class="tm-error-msg" id="errorMsg">Kode tidak ditemukan. Pastikan kode benar.</div>
+          <button class="tm-btn-primary tm-btn-monitor" id="btnMonitor" style="width: 100%; margin-top:20px;">
+            <span id="btnMonitorText">🔍 Pantau Sekarang</span>
+            <div class="tm-spinner" id="monitorSpinner" style="display:none;"></div>
+          </button>
+          <a href="trash-register.html" class="tm-btn-link" style="display:block; text-align:center; margin-top:16px;">
+            ➕ Belum punya kode? Daftarkan perangkat
+          </a>
         </div>
       </div>
-      <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
-        <div id="onlineStatus" class="tm-online-dot">LIVE</div>
-        <button class="tm-btn-back" id="btnBack">← Ganti Perangkat</button>
-      </div>
-    </div>
 
-    <!-- Alert Penuh -->
-    <div class="tm-alert-full" id="alertFull">
-      <div class="tm-alert-icon">🚨</div>
-      <div class="tm-alert-text">
-        <h3>TEMPAT SAMPAH PENUH!</h3>
-        <p>Segera kosongkan tempat sampah untuk menghindari meluap.</p>
-      </div>
-    </div>
-
-    <!-- Cards Grid -->
-    <div class="tm-cards-grid">
-
-    <!-- Unified Hero Card (Sesuai Referensi Gambar) -->
-    <div class="tm-card" style="background: linear-gradient(145deg, #1e1b4b 0%, #2d2566 50%, #312e81 100%); border: 1.5px solid rgba(139, 92, 246, 0.35); border-radius: 20px; padding: 24px; box-shadow: 0 12px 32px rgba(99, 102, 241, 0.25); display: flex; flex-direction: column; align-items: center; gap: 20px;">
-      
-      <!-- Gauge Section -->
-      <div style="text-align: center; width: 100%;">
-        <div style="font-size: 13px; font-weight: 800; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 1px; margin-bottom: -10px;">Kepenuhan Sampah</div>
-        <div class="tm-gauge-wrap" style="margin: 0 auto; margin-top: 10px;">
-          <svg class="tm-gauge-svg" viewBox="0 0 160 160">
-            <!-- Full arc length is ~329 for 270 deg (circumference = 439) -->
-            <path d="M 30.5 129.5 A 70 70 0 1 1 129.5 129.5" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="14" stroke-linecap="round"/>
-            <path id="gaugeFill" d="M 30.5 129.5 A 70 70 0 1 1 129.5 129.5" fill="none" stroke="#4ade80" stroke-width="14" stroke-linecap="round" stroke-dasharray="330" stroke-dashoffset="330" style="transition: stroke-dashoffset 1s ease-out, stroke 1s ease;"/>
-          </svg>
-          <div class="tm-gauge-text" style="transform: translateY(15px);">
-            <div class="tm-gauge-pct" id="gaugePct" style="color: #4ade80; font-size: 42px; line-height: 1;">—</div>
-            <div class="tm-gauge-lbl" style="color: rgba(255,255,255,0.45); font-size: 12px; margin-top: 2px;">PENUH</div>
+      <!-- ============================================== -->
+      <!-- VIEW: DASHBOARD (Monitor) -->
+      <!-- ============================================== -->
+      <div class="app-view" id="tmDashboard" style="display: none;">
+        
+        <!-- Header -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 24px;">
+          <div>
+            <h1 style="color:var(--blue); font-family:var(--font-heading); font-size:32px; font-weight:800; letter-spacing:1px; margin:0; text-transform:uppercase;" id="dbDeviceName">SAMPAH 1</h1>
+            <div style="font-size:14px; font-weight:700; color:var(--text-3); margin-top:4px;">
+              <span id="dbDeviceLocation">📍 —</span> • <span id="dbDeviceCode">TRS-—</span>
+            </div>
+          </div>
+          <div style="display:flex; gap:16px; align-items:center;">
+            <div id="onlineStatus" style="font-size:12px; font-weight:800; padding:6px 16px; border-radius:50px; background:rgba(74,222,128,0.15); color:#4ade80;">LIVE</div>
+            <button id="btnBack" style="background:transparent; border:none; color:var(--blue); font-weight:700; font-family:var(--font-heading); cursor:pointer; font-size:14px;">⬅️ Ganti Perangkat</button>
           </div>
         </div>
-        <div class="tm-status-label" id="statusLabel" style="background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); padding: 4px 14px; font-size: 11px; margin-top: 10px; display: inline-block;">Memuat Status...</div>
-      </div>
 
-      <!-- Gas Chips Section -->
-      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%;">
-        <div style="background: rgba(249,115,22,0.25); border-radius: 12px; padding: 12px 6px; text-align: center;">
-          <div style="font-size: 10px; font-weight: 700; color: #fb923c; text-transform: uppercase;">Metana</div>
-          <div id="statMQ4" style="font-size: 16px; font-weight: 800; color: #fff; margin-top: 4px;">— <span style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.6);">ppm</span></div>
+        <!-- Alert Penuh -->
+        <div class="tm-alert-full" id="alertFull" style="display:none; margin-bottom:24px;">
+          <div class="tm-alert-icon">🚨</div>
+          <div class="tm-alert-text">
+            <h3>TEMPAT SAMPAH PENUH!</h3>
+            <p>Segera kosongkan tempat sampah untuk menghindari meluap.</p>
+          </div>
         </div>
-        <div style="background: rgba(139,92,246,0.25); border-radius: 12px; padding: 12px 6px; text-align: center;">
-          <div style="font-size: 10px; font-weight: 700; color: #c4b5fd; text-transform: uppercase;">NH₃/CO₂</div>
-          <div id="statMQ135" style="font-size: 16px; font-weight: 800; color: #fff; margin-top: 4px;">— <span style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.6);">ppm</span></div>
-        </div>
-        <div style="background: rgba(6,182,212,0.25); border-radius: 12px; padding: 12px 6px; text-align: center;">
-          <div style="font-size: 10px; font-weight: 700; color: #67e8f9; text-transform: uppercase;">Gas Umum</div>
-          <div id="statMQ2" style="font-size: 16px; font-weight: 800; color: #fff; margin-top: 4px;">— <span style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.6);">ppm</span></div>
-        </div>
-      </div>
 
-      <!-- Action Buttons (Menyamai tampilan kartu) -->
-      <div style="display: flex; gap: 8px; width: 100%; margin-top: 5px;">
-        <a href="trash-register.html" style="flex: 2; background: rgba(255,255,255,0.12); color: #fff; padding: 10px; border-radius: 10px; text-decoration: none; font-size: 12px; font-weight: 700; text-align: center; border: 1px solid rgba(255,255,255,0.15); transition: all 0.2s;" onmouseenter="this.style.background='rgba(255,255,255,0.2)'" onmouseleave="this.style.background='rgba(255,255,255,0.12)'">⬅️ Kembali ke Daftar</a>
-        <button style="flex: 1; background: rgba(250,204,21,0.15); border: 1px solid rgba(250,204,21,0.3); color: #facc15; padding: 10px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--font); transition: all 0.2s;" onclick="alert('Fitur edit tersedia di halaman Semua Perangkat')">✏️ Edit</button>
-        <button style="width: 42px; background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.3); color: #c4b5fd; border-radius: 10px; font-size: 14px; cursor: pointer; transition: all 0.2s;" onclick="alert('Pengaturan skrip tersedia di halaman Semua Perangkat')">📄</button>
+        <!-- Row 1: Gas Cards & Fill Level -->
+        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:24px; margin-bottom:40px;">
+          
+          <!-- 3 Blue Gas Cards -->
+          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;">
+            
+            <div style="background:var(--blue); border-radius:12px; padding:24px 16px; text-align:center; color:#fff; box-shadow: 4px 4px 0 rgba(0,0,0,0.1); display:flex; flex-direction:column; justify-content:center;">
+              <div style="font-size:16px; font-family:var(--font-heading); margin-bottom:12px; opacity:0.9;">Metana</div>
+              <div id="statMQ4" style="font-size:24px; font-weight:800;">— <span style="font-size:14px; opacity:0.8;">ppm</span></div>
+            </div>
+
+            <div style="background:var(--blue); border-radius:12px; padding:24px 16px; text-align:center; color:#fff; box-shadow: 4px 4px 0 rgba(0,0,0,0.1); display:flex; flex-direction:column; justify-content:center;">
+              <div style="font-size:16px; font-family:var(--font-heading); margin-bottom:12px; opacity:0.9;">NH₃ / CO₂</div>
+              <div id="statMQ135" style="font-size:24px; font-weight:800;">— <span style="font-size:14px; opacity:0.8;">ppm</span></div>
+            </div>
+
+            <div style="background:var(--blue); border-radius:12px; padding:24px 16px; text-align:center; color:#fff; box-shadow: 4px 4px 0 rgba(0,0,0,0.1); display:flex; flex-direction:column; justify-content:center;">
+              <div style="font-size:16px; font-family:var(--font-heading); margin-bottom:12px; opacity:0.9;">GAS UMUM</div>
+              <div id="statMQ2" style="font-size:24px; font-weight:800;">— <span style="font-size:14px; opacity:0.8;">ppm</span></div>
+            </div>
+
+          </div>
+
+          <!-- Fill Level Summary (replaces Production Costs) -->
+          <div style="display:flex; flex-direction:column; justify-content:center; gap:20px; padding-left:24px;">
+            <div>
+              <div style="font-size:14px; color:var(--text-2); font-weight:700; margin-bottom:8px;">Status Perangkat</div>
+              <div id="statusLabel" style="font-size:20px; font-weight:800; color:var(--blue);">Memuat...</div>
+            </div>
+            <div>
+              <div style="font-size:14px; color:var(--text-2); font-weight:700; margin-bottom:8px;">Kepenuhan Sampah</div>
+              <div id="gaugePct" style="font-size:32px; font-weight:800; color:var(--blue);">—%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Charts & Info -->
+        <div style="display:grid; grid-template-columns: 1fr 2fr; gap:24px;">
+          
+          <!-- Doughnut Chart Area (replaces Racikan Kimia) -->
+          <div>
+            <div style="display:flex; gap:16px;">
+              <div style="flex:1;">
+                <div style="font-size:14px; color:var(--text-2); font-weight:700; margin-bottom:4px;">Rekomendasi</div>
+                <div id="recLevelBadge" style="font-size:24px; font-weight:800; color:var(--blue);">Aman</div>
+                <div id="recContent" style="font-size:12px; color:var(--text-3); font-weight:600; margin-top:8px; line-height:1.5;">Menunggu data...</div>
+              </div>
+              <div style="flex:1;">
+                <h3 style="font-family:var(--font-heading); font-size:18px; color:var(--text-2); margin-top:0; margin-bottom:16px;">KOMPOSISI GAS</h3>
+                <div style="position:relative; height:140px; width:140px;">
+                  <canvas id="gasDoughnutChart"></canvas>
+                </div>
+              </div>
+            </div>
+            
+            <div class="tm-last-update" style="margin-top:40px; background:transparent; border:none; box-shadow:none; padding:0; flex-direction:column; align-items:flex-start; gap:8px;">
+              <div style="font-size:12px; color:var(--text-3); font-weight:700;">⏱️ Update terakhir: <strong id="lastUpdateTime">—</strong></div>
+              <div class="tm-countdown" style="font-size:11px;">
+                <span>Update berikutnya:</span>
+                <div class="tm-countdown-bar-wrap" style="width:100px;">
+                  <div class="tm-countdown-bar" id="countdownBar" style="width:100%; background:var(--blue);"></div>
+                </div>
+                <span id="countdownSec">10s</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Line Chart Area -->
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:16px;">
+              <h3 style="font-family:var(--font-heading); font-size:18px; color:var(--text-2); margin:0;">📈 RIWAYAT KEPENUHAN & GAS</h3>
+              <div class="tm-chart-tabs" style="display:flex; gap:4px;">
+                <button class="tm-chart-tab active" id="tabFill" onclick="switchChart('fill')" style="padding:4px 8px; font-size:11px; border-radius:4px; cursor:pointer; background:var(--blue); color:#fff; border:none;">Kepenuhan</button>
+                <button class="tm-chart-tab" id="tabMQ4" onclick="switchChart('mq4')" style="padding:4px 8px; font-size:11px; border-radius:4px; cursor:pointer; background:transparent; border:1px solid var(--border); color:var(--text-2);">MQ-4</button>
+                <button class="tm-chart-tab" id="tabMQ135" onclick="switchChart('mq135')" style="padding:4px 8px; font-size:11px; border-radius:4px; cursor:pointer; background:transparent; border:1px solid var(--border); color:var(--text-2);">MQ-135</button>
+                <button class="tm-chart-tab" id="tabMQ2" onclick="switchChart('mq2')" style="padding:4px 8px; font-size:11px; border-radius:4px; cursor:pointer; background:transparent; border:1px solid var(--border); color:var(--text-2);">MQ-2</button>
+              </div>
+            </div>
+            
+            <div class="tm-chart-wrap" id="chartCanvasWrap" style="height: 240px; position:relative; background:transparent; border:none; padding:0;">
+              <canvas id="historyChart"></canvas>
+            </div>
+          </div>
+
+        </div>
+
       </div>
 
     </div>
-
-      <!-- ═══ PANEL REKOMENDASI BAHAN ═══ -->
-      <div class="tm-card" id="recPanel" style="padding:18px 20px;margin-top:4px;border:1.5px solid rgba(74,222,128,0.2);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
-          <div style="font-weight:800;font-size:15px;color:var(--text-1);">💊 Rekomendasi Penanganan</div>
-          <div id="recLevelBadge" style="font-size:11px;font-weight:700;padding:4px 12px;border-radius:var(--r-full);background:rgba(74,222,128,0.15);color:#4ade80;">✅ Aman</div>
-        </div>
-        <div id="recContent">
-          <div style="color:var(--text-3);font-size:13px;text-align:center;padding:10px 0;">Menunggu data sensor...</div>
-        </div>
-      </div>
-
-    <!-- Bar Update + Countdown -->
-    <div class="tm-last-update">
-      <div>⏱️ Update terakhir: <strong id="lastUpdateTime">—</strong></div>
-      <div class="tm-countdown">
-        <span>Update berikutnya:</span>
-        <div class="tm-countdown-bar-wrap">
-          <div class="tm-countdown-bar" id="countdownBar" style="width:100%;"></div>
-        </div>
-        <span id="countdownSec">10s</span>
-      </div>
-      <span class="tm-refresh-badge">⚡ AUTO REFRESH</span>
-    </div>
-
-    <!-- Chart -->
-    <div class="tm-chart-card">
-      <div class="tm-chart-header">
-        <div class="tm-chart-title">📈 Riwayat Data</div>
-        <div class="tm-chart-tabs" style="flex-wrap:wrap;gap:4px;">
-          <button class="tm-chart-tab active" id="tabFill" onclick="switchChart('fill')">Kepenuhan</button>
-          <button class="tm-chart-tab" id="tabMQ4" onclick="switchChart('mq4')">🔥 MQ-4</button>
-          <button class="tm-chart-tab" id="tabMQ135" onclick="switchChart('mq135')">☁️ MQ-135</button>
-          <button class="tm-chart-tab" id="tabMQ2" onclick="switchChart('mq2')">🌿 MQ-2</button>
-          <button class="tm-chart-tab" id="tabLog" onclick="switchChart('log')">📋 Log</button>
-        </div>
-      </div>
-      <!-- Chart canvas -->
-      <div class="tm-chart-wrap" id="chartCanvasWrap">
-        <canvas id="historyChart"></canvas>
-      </div>
-      <!-- Histori Log Table -->
-      <div id="historyLogWrap" style="display:none;padding:4px 0 8px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 4px 12px;flex-wrap:wrap;gap:8px;">
-          <div style="font-size:12px;color:var(--text-3);" id="histLogCount">Memuat histori...</div>
-          <button onclick="exportHistoryCSV()" style="background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.28);color:#4ade80;padding:7px 16px;border-radius:var(--r-full);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font);transition:all 0.2s;" onmouseenter="this.style.background='rgba(74,222,128,0.22)'" onmouseleave="this.style.background='rgba(74,222,128,0.12)'">⬇️ Export CSV</button>
-        </div>
-        <div style="overflow-x:auto;border-radius:12px;border:1px solid var(--border);max-height:340px;overflow-y:auto;">
-          <table id="historyTable" style="width:100%;border-collapse:collapse;font-size:12px;min-width:520px;">
-            <thead>
-              <tr style="background:rgba(255,255,255,0.04);position:sticky;top:0;z-index:1;">
-                <th style="padding:10px 14px;text-align:left;color:var(--text-2);font-weight:700;border-bottom:1px solid var(--border);white-space:nowrap;">🕐 Waktu</th>
-                <th style="padding:10px 14px;text-align:right;color:var(--text-2);font-weight:700;border-bottom:1px solid var(--border);">Fill %</th>
-                <th style="padding:10px 14px;text-align:right;color:#fb923c;font-weight:700;border-bottom:1px solid var(--border);">🔥 MQ-4</th>
-                <th style="padding:10px 14px;text-align:right;color:#a78bfa;font-weight:700;border-bottom:1px solid var(--border);">☁️ MQ-135</th>
-                <th style="padding:10px 14px;text-align:right;color:#22d3ee;font-weight:700;border-bottom:1px solid var(--border);">🌿 MQ-2</th>
-                <th style="padding:10px 14px;text-align:center;color:var(--text-2);font-weight:700;border-bottom:1px solid var(--border);">Status</th>
-              </tr>
-            </thead>
-            <tbody id="historyTableBody">
-              <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text-3);">Belum ada data histori.</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</div><!-- /tm-wrap -->
+  </main>
+</div>
 
 <!-- Firebase IoT Script -->
 <script src="/src/services/firebase-iot.js"></script>
@@ -252,7 +211,8 @@ const spinner    = document.getElementById('monitorSpinner');
 const btnMonitorText = document.getElementById('btnMonitorText');
 
 let unsubscribe = null;         // Firebase listener cleanup
-let historyChart = null;        // Chart.js instance
+let historyChart = null;        // Chart.js instance (Line)
+let doughnutChart = null;       // Chart.js instance (Doughnut)
 let currentChartMode = 'fill';  // 'fill' | 'mq4' | 'mq135' | 'mq2'
 let historyData = [];           // Cache data histori
 let countdownInterval = null;   // Interval countdown bar
@@ -412,9 +372,10 @@ function buildChart(entries) {
     case 'mq4':   data = mq4Data;   label = 'MQ-4 Metana (ppm)';    color = '#f97316'; break;
     case 'mq135': data = mq135Data; label = 'MQ-135 NH₃/CO₂ (ppm)'; color = '#a78bfa'; break;
     case 'mq2':   data = mq2Data;   label = 'MQ-2 Gas Umum (ppm)';  color = '#22d3ee'; break;
-    default:      data = fillData;  label = 'Kepenuhan (%)';         color = '#4ade80';
+    default:      data = fillData;  label = 'Kepenuhan (%)';         color = '#4ade80'; // Note: matches var(--blue) in modern theme if we wanted, but keeping green for fill is okay
   }
 
+  // ==== Update Line Chart ====
   if (historyChart) {
     historyChart.data.labels = labels;
     historyChart.data.datasets[0].data = data;
@@ -422,53 +383,98 @@ function buildChart(entries) {
     historyChart.data.datasets[0].borderColor = color;
     historyChart.data.datasets[0].backgroundColor = color.replace(')', ', 0.15)').replace('rgb', 'rgba');
     historyChart.update('none');
-    return;
-  }
-
-  const ctx = document.getElementById('historyChart').getContext('2d');
-  historyChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{
-        label,
-        data,
-        borderColor: color,
-        backgroundColor: 'rgba(74,222,128,0.08)',
-        borderWidth: 2.5,
-        pointRadius: 3,
-        pointBackgroundColor: color,
-        tension: 0.4,
-        fill: true,
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#0e1a10',
-          borderColor: 'rgba(74,222,128,0.3)',
-          borderWidth: 1,
-          titleColor: '#86efac',
-          bodyColor: '#f0fdf4',
-        }
+  } else {
+    const ctx = document.getElementById('historyChart').getContext('2d');
+    historyChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label,
+          data,
+          borderColor: color,
+          backgroundColor: 'rgba(74,222,128,0.08)',
+          borderWidth: 2.5,
+          pointRadius: 3,
+          pointBackgroundColor: color,
+          tension: 0.4,
+          fill: true,
+        }]
       },
-      scales: {
-        x: {
-          ticks: { color: '#4b7a56', font: { size: 11 }, maxTicksLimit: 8 },
-          grid: { color: 'rgba(74,222,128,0.05)' }
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#0e1a10',
+            borderColor: 'rgba(74,222,128,0.3)',
+            borderWidth: 1,
+            titleColor: '#86efac',
+            bodyColor: '#f0fdf4',
+          }
         },
-        y: {
-          ticks: { color: '#4b7a56', font: { size: 11 } },
-          grid: { color: 'rgba(74,222,128,0.05)' },
-          min: 0
+        scales: {
+          x: {
+            ticks: { color: 'var(--text-3)', font: { size: 11 }, maxTicksLimit: 8 },
+            grid: { color: 'rgba(0,0,0,0.05)' }
+          },
+          y: {
+            ticks: { color: 'var(--text-3)', font: { size: 11 } },
+            grid: { color: 'rgba(0,0,0,0.05)' },
+            min: 0
+          }
         }
       }
-    }
-  });
+    });
+  }
+
+  // ==== Update Doughnut Chart ====
+  const latestMQ4 = mq4Data[mq4Data.length - 1] || 0;
+  const latestMQ135 = mq135Data[mq135Data.length - 1] || 0;
+  const latestMQ2 = mq2Data[mq2Data.length - 1] || 0;
+  const totalGas = latestMQ4 + latestMQ135 + latestMQ2;
+  
+  // If all are zero, just put dummy equal data to show the empty circle
+  const dData = totalGas > 0 ? [latestMQ4, latestMQ135, latestMQ2] : [1, 1, 1];
+  
+  if (doughnutChart) {
+    doughnutChart.data.datasets[0].data = dData;
+    doughnutChart.update('none');
+  } else {
+    const dctx = document.getElementById('gasDoughnutChart').getContext('2d');
+    doughnutChart = new Chart(dctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Metana', 'NH₃/CO₂', 'Gas Umum'],
+        datasets: [{
+          data: dData,
+          backgroundColor: ['#f97316', '#a78bfa', '#22d3ee'],
+          borderWidth: 0,
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '75%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                if(totalGas === 0) return context.label + ': 0 ppm';
+                return context.label + ': ' + context.raw + ' ppm';
+              }
+            }
+          }
+        }
+      }
+    });
+  }
 }
+
+
 
 window.switchChart = function(mode) {
   currentChartMode = mode;
@@ -610,7 +616,9 @@ async function startMonitoring(code) {
   if (unsubscribe) { unsubscribe(); unsubscribe = null; }
 
   // Tampilkan dashboard
-  landing.classList.add('hidden');
+  landing.classList.remove('active');
+  landing.style.display = 'none';
+  dashboard.style.display = '';
   dashboard.classList.add('active');
 
   // Subscribe real-time status
