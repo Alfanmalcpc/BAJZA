@@ -120,62 +120,50 @@
     <!-- Cards Grid -->
     <div class="tm-cards-grid">
 
-      <!-- Gauge Kepenuhan -->
-      <div class="tm-card tm-gauge-card">
-        <div style="font-size:12px; font-weight:700; color:#86efac; text-transform:uppercase; letter-spacing:1px;">Tingkat Kepenuhan</div>
-        <div class="tm-gauge-wrap">
+    <!-- Unified Hero Card (Sesuai Referensi Gambar) -->
+    <div class="tm-card" style="background: linear-gradient(145deg, #1e1b4b 0%, #2d2566 50%, #312e81 100%); border: 1.5px solid rgba(139, 92, 246, 0.35); border-radius: 20px; padding: 24px; box-shadow: 0 12px 32px rgba(99, 102, 241, 0.25); display: flex; flex-direction: column; align-items: center; gap: 20px;">
+      
+      <!-- Gauge Section -->
+      <div style="text-align: center; width: 100%;">
+        <div style="font-size: 13px; font-weight: 800; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 1px; margin-bottom: -10px;">Kepenuhan Sampah</div>
+        <div class="tm-gauge-wrap" style="margin: 0 auto; margin-top: 10px;">
           <svg class="tm-gauge-svg" viewBox="0 0 160 160">
-            <circle class="tm-gauge-track" cx="80" cy="80" r="70"/>
-            <circle class="tm-gauge-fill" id="gaugeFill" cx="80" cy="80" r="70"/>
+            <!-- Full arc length is ~329 for 270 deg (circumference = 439) -->
+            <path d="M 30.5 129.5 A 70 70 0 1 1 129.5 129.5" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="14" stroke-linecap="round"/>
+            <path id="gaugeFill" d="M 30.5 129.5 A 70 70 0 1 1 129.5 129.5" fill="none" stroke="#4ade80" stroke-width="14" stroke-linecap="round" stroke-dasharray="330" stroke-dashoffset="330" style="transition: stroke-dashoffset 1s ease-out, stroke 1s ease;"/>
           </svg>
-          <div class="tm-gauge-text">
-            <div class="tm-gauge-pct" id="gaugePct">—</div>
-            <div class="tm-gauge-lbl">PENUH</div>
+          <div class="tm-gauge-text" style="transform: translateY(15px);">
+            <div class="tm-gauge-pct" id="gaugePct" style="color: #4ade80; font-size: 42px; line-height: 1;">—</div>
+            <div class="tm-gauge-lbl" style="color: rgba(255,255,255,0.45); font-size: 12px; margin-top: 2px;">PENUH</div>
           </div>
         </div>
-        <div class="tm-status-label" id="statusLabel" style="background:rgba(74,222,128,0.15); color:#4ade80;">Memuat...</div>
+        <div class="tm-status-label" id="statusLabel" style="background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); padding: 4px 14px; font-size: 11px; margin-top: 10px; display: inline-block;">Memuat Status...</div>
       </div>
 
-      <!-- ═══ 3 KARTU SENSOR GAS ═══ -->
-      <div class="tm-gas-grid">
-
-        <!-- MQ-4: Metana -->
-        <div class="tm-card tm-stat-card" style="border-top:3px solid #f97316;">
-          <div class="tm-stat-icon" style="background:rgba(249,115,22,0.15);">🔥</div>
-          <div style="flex:1;">
-            <div class="tm-stat-label" style="color:#fb923c;">MQ-4 — Metana</div>
-            <div class="tm-stat-value" id="statMQ4">
-              <span style="color:#fb923c;">—</span><span class="tm-stat-unit"> ppm</span>
-            </div>
-            <div id="mq4Status" style="font-size:11px;color:#4ade80;margin-top:5px;font-weight:700;">Memuat...</div>
-          </div>
+      <!-- Gas Chips Section -->
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%;">
+        <div style="background: rgba(249,115,22,0.25); border-radius: 12px; padding: 12px 6px; text-align: center;">
+          <div style="font-size: 10px; font-weight: 700; color: #fb923c; text-transform: uppercase;">Metana</div>
+          <div id="statMQ4" style="font-size: 16px; font-weight: 800; color: #fff; margin-top: 4px;">— <span style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.6);">ppm</span></div>
         </div>
-
-        <!-- MQ-135: Kualitas Udara -->
-        <div class="tm-card tm-stat-card" style="border-top:3px solid #a78bfa;">
-          <div class="tm-stat-icon" style="background:rgba(167,139,250,0.15);">☁️</div>
-          <div style="flex:1;">
-            <div class="tm-stat-label" style="color:#c4b5fd;">MQ-135 — NH₃/CO₂</div>
-            <div class="tm-stat-value" id="statMQ135">
-              <span style="color:#a78bfa;">—</span><span class="tm-stat-unit"> ppm</span>
-            </div>
-            <div id="mq135Status" style="font-size:11px;color:#4ade80;margin-top:5px;font-weight:700;">Memuat...</div>
-          </div>
+        <div style="background: rgba(139,92,246,0.25); border-radius: 12px; padding: 12px 6px; text-align: center;">
+          <div style="font-size: 10px; font-weight: 700; color: #c4b5fd; text-transform: uppercase;">NH₃/CO₂</div>
+          <div id="statMQ135" style="font-size: 16px; font-weight: 800; color: #fff; margin-top: 4px;">— <span style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.6);">ppm</span></div>
         </div>
-
-        <!-- MQ-2: Gas Umum -->
-        <div class="tm-card tm-stat-card" style="border-top:3px solid #22d3ee;">
-          <div class="tm-stat-icon" style="background:rgba(34,211,238,0.15);">🌿</div>
-          <div style="flex:1;">
-            <div class="tm-stat-label" style="color:#67e8f9;">MQ-2 — Gas Umum</div>
-            <div class="tm-stat-value" id="statMQ2">
-              <span style="color:#22d3ee;">—</span><span class="tm-stat-unit"> ppm</span>
-            </div>
-            <div id="mq2Status" style="font-size:11px;color:#4ade80;margin-top:5px;font-weight:700;">Memuat...</div>
-          </div>
+        <div style="background: rgba(6,182,212,0.25); border-radius: 12px; padding: 12px 6px; text-align: center;">
+          <div style="font-size: 10px; font-weight: 700; color: #67e8f9; text-transform: uppercase;">Gas Umum</div>
+          <div id="statMQ2" style="font-size: 16px; font-weight: 800; color: #fff; margin-top: 4px;">— <span style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.6);">ppm</span></div>
         </div>
-
       </div>
+
+      <!-- Action Buttons (Menyamai tampilan kartu) -->
+      <div style="display: flex; gap: 8px; width: 100%; margin-top: 5px;">
+        <a href="trash-register.html" style="flex: 2; background: rgba(255,255,255,0.12); color: #fff; padding: 10px; border-radius: 10px; text-decoration: none; font-size: 12px; font-weight: 700; text-align: center; border: 1px solid rgba(255,255,255,0.15); transition: all 0.2s;" onmouseenter="this.style.background='rgba(255,255,255,0.2)'" onmouseleave="this.style.background='rgba(255,255,255,0.12)'">⬅️ Kembali ke Daftar</a>
+        <button style="flex: 1; background: rgba(250,204,21,0.15); border: 1px solid rgba(250,204,21,0.3); color: #facc15; padding: 10px; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: var(--font); transition: all 0.2s;" onclick="alert('Fitur edit tersedia di halaman Semua Perangkat')">✏️ Edit</button>
+        <button style="width: 42px; background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.3); color: #c4b5fd; border-radius: 10px; font-size: 14px; cursor: pointer; transition: all 0.2s;" onclick="alert('Pengaturan skrip tersedia di halaman Semua Perangkat')">📄</button>
+      </div>
+
+    </div>
 
       <!-- ═══ PANEL REKOMENDASI BAHAN ═══ -->
       <div class="tm-card" id="recPanel" style="padding:18px 20px;margin-top:4px;border:1.5px solid rgba(74,222,128,0.2);">
@@ -332,7 +320,7 @@ function gasLabel(ppm) {
 
 function renderGasSensor(elId, statusId, ppm, accentColor) {
   const el = document.getElementById(elId);
-  if (el) el.innerHTML = `<span style="color:${accentColor};">${ppm ?? '—'}</span><span class="tm-stat-unit"> ppm</span>`;
+  if (el) el.innerHTML = `${ppm ?? '—'} <span style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.6);">ppm</span>`;
   const st = document.getElementById(statusId);
   if (st && ppm != null) {
     const lbl = gasLabel(ppm);
