@@ -11,6 +11,20 @@
 
 /* ─── NEO-BRUTALISM LAYOUT STYLES ──────────────── */
 .tm-landing-content { padding-top: 32px; }
+
+/* ─── DEVICE CARD GRID (Register Page) ─────────────────── */
+.reg-devices-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 480px) {
+  .reg-devices-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px;
+  }
+}
 .tm-monitor-card {
   margin: 0 auto;
   max-width: 500px;
