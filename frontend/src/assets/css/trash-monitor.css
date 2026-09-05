@@ -122,8 +122,15 @@ body.dashboard-mode .footer {
 }
 
 .app-view-container {
-  padding: 24px;
+  padding: 32px;
   flex: 1;
+  background-color: var(--bg-surface);
+  border: 3px solid var(--border);
+  border-radius: var(--r-xl);
+  box-shadow: 8px 8px 0 rgba(0,0,0,1);
+  margin: 24px auto;
+  max-width: 1200px;
+  width: calc(100% - 48px);
 }
 
 .app-view {
@@ -147,7 +154,7 @@ body.dashboard-mode .footer {
   }
   .app-main-content { margin-left: 60px; }
   .app-topbar { padding: 8px 16px; }
-  .app-view-container { padding: 12px; }
+  .app-view-container { padding: 16px; margin: 16px auto; width: calc(100% - 32px); border-width: 2px; box-shadow: 4px 4px 0 rgba(0,0,0,1); }
 }
 
 /* ─── NEO-BRUTALISM LAYOUT STYLES ──────────────── */
