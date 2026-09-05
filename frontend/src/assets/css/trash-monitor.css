@@ -13,7 +13,7 @@
 .dashboard-layout {
   display: flex;
   min-height: 100vh;
-  background: var(--bg-surface); /* Keep clean white background like the image */
+  background-color: transparent;
   position: relative;
   z-index: 10;
 }
@@ -21,7 +21,7 @@
 /* Override globals to prevent double padding if global bottom nav exists */
 body.dashboard-mode {
   padding-bottom: 0 !important;
-  background: var(--bg-surface) !important;
+  background-color: var(--bg-surface) !important;
 }
 body.dashboard-mode .navbar, 
 body.dashboard-mode .bottom-nav,
@@ -31,8 +31,8 @@ body.dashboard-mode .footer {
 
 .app-sidebar {
   width: 80px;
-  background: var(--bg-surface);
-  border-right: 1.5px solid rgba(0,0,0,0.1);
+  background-color: var(--bg-surface);
+  border-right: 3px solid var(--border);
   display: flex;
   flex-direction: column;
   align-items: center;
