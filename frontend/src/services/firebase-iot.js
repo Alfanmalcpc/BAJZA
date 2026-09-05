@@ -133,7 +133,7 @@ function subscribeToDevice(code, onUpdate) {
   return () => ref.off('value');
 }
 
-async function getDeviceHistory(code, limit = 100) {
+async function getDeviceHistory(code, limit = 2880) {
   const snap = await iotDb.ref(`trash-bins/${code.toUpperCase()}/history`)
     .orderByChild('timestamp')
     .limitToLast(limit)
@@ -150,9 +150,9 @@ async function getDeviceHistory(code, limit = 100) {
  * Hapus entri histori terlama jika jumlahnya melebihi batas maksimum.
  * Dipanggil otomatis setiap kali ada update real-time dari perangkat.
  * @param {string} code - Kode perangkat (misal: TRS-ABCD)
- * @param {number} maxEntries - Batas maksimum entri (default: 100)
+ * @param {number} maxEntries - Batas maksimum entri (default: 2880, untuk 8 jam dengan interval 10s)
  */
-async function pruneHistory(code, maxEntries = 100) {
+async function pruneHistory(code, maxEntries = 2880) {
   const ref = iotDb.ref(`trash-bins/${code.toUpperCase()}/history`);
   // Ambil semua key diurutkan dari terlama ke terbaru
   const snap = await ref.orderByChild('timestamp').once('value');
