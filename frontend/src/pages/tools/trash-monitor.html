@@ -79,10 +79,10 @@
       <div class="app-view" id="tmDashboard" style="display: none;">
         
         <!-- Header -->
-        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 24px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 16px;">
           <div>
-            <h1 style="color:var(--blue); font-family:var(--font-heading); font-size:32px; font-weight:800; letter-spacing:1px; margin:0; text-transform:uppercase;" id="dbDeviceName">SAMPAH 1</h1>
-            <div style="font-size:14px; font-weight:700; color:var(--text-3); margin-top:4px;">
+            <h1 style="color:var(--blue); font-family:var(--font-heading); font-size:24px; font-weight:800; letter-spacing:1px; margin:0; text-transform:uppercase;" id="dbDeviceName">SAMPAH 1</h1>
+            <div style="font-size:13px; font-weight:700; color:var(--text-3); margin-top:4px;">
               <span id="dbDeviceLocation">📍 —</span> • <span id="dbDeviceCode">TRS-—</span>
             </div>
           </div>
@@ -102,65 +102,65 @@
         </div>
 
         <!-- Row 1: Gas Cards & Fill Level -->
-        <div style="display:flex; flex-wrap:wrap; gap:24px; margin-bottom:40px;">
+        <div style="display:flex; flex-wrap:wrap; gap:16px; margin-bottom:24px;">
           
           <!-- 3 Blue Gas Cards -->
-          <div style="flex:1; min-width:300px; display:grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap:16px;">
+          <div style="flex:1; min-width:300px; display:grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap:12px;">
             
-            <div style="background:var(--blue); border-radius:12px; padding:24px 16px; text-align:center; color:#fff; box-shadow: 4px 4px 0 rgba(0,0,0,0.1); display:flex; flex-direction:column; justify-content:center;">
-              <div style="font-size:16px; font-family:var(--font-heading); margin-bottom:12px; opacity:0.9;">Metana</div>
-              <div id="statMQ4" style="font-size:24px; font-weight:800;">— <span style="font-size:14px; opacity:0.8;">ppm</span></div>
+            <div style="background:var(--blue); border-radius:12px; padding:16px 12px; text-align:center; color:#fff; box-shadow: 4px 4px 0 rgba(0,0,0,0.1); display:flex; flex-direction:column; justify-content:center;">
+              <div style="font-size:14px; font-family:var(--font-heading); margin-bottom:8px; opacity:0.9;">Metana</div>
+              <div id="statMQ4" style="font-size:20px; font-weight:800;">— <span style="font-size:12px; opacity:0.8;">ppm</span></div>
             </div>
 
-            <div style="background:var(--blue); border-radius:12px; padding:24px 16px; text-align:center; color:#fff; box-shadow: 4px 4px 0 rgba(0,0,0,0.1); display:flex; flex-direction:column; justify-content:center;">
-              <div style="font-size:16px; font-family:var(--font-heading); margin-bottom:12px; opacity:0.9;">NH₃ / CO₂</div>
-              <div id="statMQ135" style="font-size:24px; font-weight:800;">— <span style="font-size:14px; opacity:0.8;">ppm</span></div>
+            <div style="background:var(--blue); border-radius:12px; padding:16px 12px; text-align:center; color:#fff; box-shadow: 4px 4px 0 rgba(0,0,0,0.1); display:flex; flex-direction:column; justify-content:center;">
+              <div style="font-size:14px; font-family:var(--font-heading); margin-bottom:8px; opacity:0.9;">NH₃ / CO₂</div>
+              <div id="statMQ135" style="font-size:20px; font-weight:800;">— <span style="font-size:12px; opacity:0.8;">ppm</span></div>
             </div>
 
-            <div style="background:var(--blue); border-radius:12px; padding:24px 16px; text-align:center; color:#fff; box-shadow: 4px 4px 0 rgba(0,0,0,0.1); display:flex; flex-direction:column; justify-content:center;">
-              <div style="font-size:16px; font-family:var(--font-heading); margin-bottom:12px; opacity:0.9;">GAS UMUM</div>
-              <div id="statMQ2" style="font-size:24px; font-weight:800;">— <span style="font-size:14px; opacity:0.8;">ppm</span></div>
+            <div style="background:var(--blue); border-radius:12px; padding:16px 12px; text-align:center; color:#fff; box-shadow: 4px 4px 0 rgba(0,0,0,0.1); display:flex; flex-direction:column; justify-content:center;">
+              <div style="font-size:14px; font-family:var(--font-heading); margin-bottom:8px; opacity:0.9;">GAS UMUM</div>
+              <div id="statMQ2" style="font-size:20px; font-weight:800;">— <span style="font-size:12px; opacity:0.8;">ppm</span></div>
             </div>
 
           </div>
 
           <!-- Fill Level Summary (replaces Production Costs) -->
-          <div style="display:flex; flex-direction:column; justify-content:center; gap:20px; padding-left:24px;">
+          <div style="display:flex; flex-direction:column; justify-content:center; gap:16px; padding-left:16px;">
             <div>
-              <div style="font-size:14px; color:var(--text-2); font-weight:700; margin-bottom:8px;">Status Perangkat</div>
-              <div id="statusLabel" style="font-size:20px; font-weight:800; color:var(--blue);">Memuat...</div>
+              <div style="font-size:13px; color:var(--text-2); font-weight:700; margin-bottom:4px;">Status Perangkat</div>
+              <div id="statusLabel" style="font-size:18px; font-weight:800; color:var(--blue);">Memuat...</div>
             </div>
             <div>
-              <div style="font-size:14px; color:var(--text-2); font-weight:700; margin-bottom:8px;">Kepenuhan Sampah</div>
-              <div id="gaugePct" style="font-size:32px; font-weight:800; color:var(--blue);">—%</div>
+              <div style="font-size:13px; color:var(--text-2); font-weight:700; margin-bottom:4px;">Kepenuhan Sampah</div>
+              <div id="gaugePct" style="font-size:28px; font-weight:800; color:var(--blue);">—%</div>
             </div>
           </div>
         </div>
 
         <!-- Row 2: Charts & Info -->
-        <div style="display:flex; flex-wrap:wrap; gap:24px;">
+        <div style="display:flex; flex-wrap:wrap; gap:16px;">
           
           <!-- Doughnut Chart Area (replaces Racikan Kimia) -->
           <div style="flex:1; min-width:300px;">
-            <div style="display:flex; gap:16px;">
+            <div style="display:flex; gap:12px;">
               <div style="flex:1;">
-                <div style="font-size:14px; color:var(--text-2); font-weight:700; margin-bottom:4px;">Rekomendasi</div>
-                <div id="recLevelBadge" style="font-size:24px; font-weight:800; color:var(--blue);">Aman</div>
-                <div id="recContent" style="font-size:12px; color:var(--text-3); font-weight:600; margin-top:8px; line-height:1.5;">Menunggu data...</div>
+                <div style="font-size:13px; color:var(--text-2); font-weight:700; margin-bottom:4px;">Rekomendasi</div>
+                <div id="recLevelBadge" style="font-size:20px; font-weight:800; color:var(--blue);">Aman</div>
+                <div id="recContent" style="font-size:11px; color:var(--text-3); font-weight:600; margin-top:6px; line-height:1.4;">Menunggu data...</div>
               </div>
               <div style="flex:1;">
-                <h3 style="font-family:var(--font-heading); font-size:18px; color:var(--text-2); margin-top:0; margin-bottom:16px;">KOMPOSISI GAS</h3>
-                <div style="position:relative; height:140px; width:140px;">
+                <h3 style="font-family:var(--font-heading); font-size:15px; color:var(--text-2); margin-top:0; margin-bottom:12px;">KOMPOSISI GAS</h3>
+                <div style="position:relative; height:120px; width:120px;">
                   <canvas id="gasDoughnutChart"></canvas>
                 </div>
               </div>
             </div>
             
-            <div class="tm-last-update" style="margin-top:40px; background:transparent; border:none; box-shadow:none; padding:0; flex-direction:column; align-items:flex-start; gap:8px;">
-              <div style="font-size:12px; color:var(--text-3); font-weight:700;">⏱️ Update terakhir: <strong id="lastUpdateTime">—</strong></div>
-              <div class="tm-countdown" style="font-size:11px;">
+            <div class="tm-last-update" style="margin-top:24px; background:transparent; border:none; box-shadow:none; padding:0; flex-direction:column; align-items:flex-start; gap:6px;">
+              <div style="font-size:11px; color:var(--text-3); font-weight:700;">⏱️ Update terakhir: <strong id="lastUpdateTime">—</strong></div>
+              <div class="tm-countdown" style="font-size:10px;">
                 <span>Update berikutnya:</span>
-                <div class="tm-countdown-bar-wrap" style="width:100px;">
+                <div class="tm-countdown-bar-wrap" style="width:80px;">
                   <div class="tm-countdown-bar" id="countdownBar" style="width:100%; background:var(--blue);"></div>
                 </div>
                 <span id="countdownSec">10s</span>
@@ -170,17 +170,17 @@
 
           <!-- Line Chart Area -->
           <div style="flex:2; min-width:300px;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:16px;">
-              <h3 style="font-family:var(--font-heading); font-size:18px; color:var(--text-2); margin:0;">📈 RIWAYAT KEPENUHAN & GAS</h3>
-              <div class="tm-chart-tabs" style="display:flex; gap:4px;">
-                <button class="tm-chart-tab active" id="tabFill" onclick="switchChart('fill')" style="padding:4px 8px; font-size:11px; border-radius:4px; cursor:pointer; background:var(--blue); color:#fff; border:none;">Kepenuhan</button>
-                <button class="tm-chart-tab" id="tabMQ4" onclick="switchChart('mq4')" style="padding:4px 8px; font-size:11px; border-radius:4px; cursor:pointer; background:transparent; border:1px solid var(--border); color:var(--text-2);">MQ-4</button>
-                <button class="tm-chart-tab" id="tabMQ135" onclick="switchChart('mq135')" style="padding:4px 8px; font-size:11px; border-radius:4px; cursor:pointer; background:transparent; border:1px solid var(--border); color:var(--text-2);">MQ-135</button>
-                <button class="tm-chart-tab" id="tabMQ2" onclick="switchChart('mq2')" style="padding:4px 8px; font-size:11px; border-radius:4px; cursor:pointer; background:transparent; border:1px solid var(--border); color:var(--text-2);">MQ-2</button>
+            <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:12px;">
+              <h3 style="font-family:var(--font-heading); font-size:15px; color:var(--text-2); margin:0;">📈 RIWAYAT KEPENUHAN & GAS</h3>
+              <div class="tm-chart-tabs" style="display:flex; gap:6px; flex-wrap:wrap;">
+                <button class="tm-chart-tab active" id="tabFill" onclick="switchChart('fill')" style="padding:4px 10px; font-size:11px; border-radius:6px; cursor:pointer; background:var(--blue); color:#fff; border:2px solid var(--border); font-family:var(--font-heading); font-weight:800; box-shadow:2px 2px 0 var(--border);">Kepenuhan</button>
+                <button class="tm-chart-tab" id="tabMQ4" onclick="switchChart('mq4')" style="padding:4px 10px; font-size:11px; border-radius:6px; cursor:pointer; background:var(--bg-card); border:2px solid var(--border); color:var(--text-2); font-family:var(--font-heading); font-weight:800; box-shadow:2px 2px 0 var(--border);">MQ-4</button>
+                <button class="tm-chart-tab" id="tabMQ135" onclick="switchChart('mq135')" style="padding:4px 10px; font-size:11px; border-radius:6px; cursor:pointer; background:var(--bg-card); border:2px solid var(--border); color:var(--text-2); font-family:var(--font-heading); font-weight:800; box-shadow:2px 2px 0 var(--border);">MQ-135</button>
+                <button class="tm-chart-tab" id="tabMQ2" onclick="switchChart('mq2')" style="padding:4px 10px; font-size:11px; border-radius:6px; cursor:pointer; background:var(--bg-card); border:2px solid var(--border); color:var(--text-2); font-family:var(--font-heading); font-weight:800; box-shadow:2px 2px 0 var(--border);">MQ-2</button>
               </div>
             </div>
             
-            <div class="tm-chart-wrap" id="chartCanvasWrap" style="height: 240px; position:relative; background:transparent; border:none; padding:0;">
+            <div class="tm-chart-wrap" id="chartCanvasWrap" style="height: 180px; position:relative; background:transparent; border:none; padding:0;">
               <canvas id="historyChart"></canvas>
             </div>
           </div>
@@ -484,27 +484,29 @@ function buildChart(entries) {
 
 
 window.switchChart = function(mode) {
+  if (currentChartMode === mode) return;
   currentChartMode = mode;
-  const isLog = mode === 'log';
-  ['fill','mq4','mq135','mq2','log'].forEach(m => {
-    const el = document.getElementById('tab' + m.charAt(0).toUpperCase() + m.slice(1));
-    if (el) el.classList.toggle('active', m === mode);
+  
+  // Update UI Tabs
+  document.querySelectorAll('.tm-chart-tab').forEach(btn => {
+    if (btn.id === 'tab' + (mode === 'fill' ? 'Fill' : mode.toUpperCase())) {
+      btn.classList.add('active');
+      btn.style.background = 'var(--blue)';
+      btn.style.color = '#fff';
+    } else {
+      btn.classList.remove('active');
+      btn.style.background = 'var(--bg-card)';
+      btn.style.color = 'var(--text-2)';
+    }
   });
 
-  const canvasWrap = document.getElementById('chartCanvasWrap');
-  const logWrap    = document.getElementById('historyLogWrap');
-  if (isLog) {
-    canvasWrap.style.display = 'none';
-    logWrap.style.display    = 'block';
-    renderHistoryTable(historyData);
-  } else {
-    canvasWrap.style.display = '';
-    logWrap.style.display    = 'none';
-    if (historyData.length) buildChart(historyData);
+  // Re-build chart
+  if (historyData.length > 0) {
+    buildChart(historyData);
   }
-};
+}
 
-// ─── Render Tabel Histori ───────────────────────────────
+// ─── Tabel History ───────────────────────────────
 function renderHistoryTable(entries) {
   const tbody   = document.getElementById('historyTableBody');
   const countEl = document.getElementById('histLogCount');

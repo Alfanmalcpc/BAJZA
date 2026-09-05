@@ -160,7 +160,7 @@ function buildDeviceCard(fullCode, dev) {
     ? '<button class="btn-view-script" data-code="' + shortCode + '" data-name="' + safeName + '" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);padding:6px 8px;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--font);flex:1;">\uD83D\uDCCB Skrip</button>'
     : '';
 
-  return '<div class="reg-device-card" onclick="location.href=\'trash-monitor.html?code=' + shortCode + '\'">'
+  return '<div class="reg-device-card" data-code="' + shortCode + '">'
     // ── Header ──
     + '<div style="padding:12px 14px 8px;display:flex;justify-content:space-between;align-items:flex-start;">'
     +   '<div style="min-width:0;flex:1;">'
@@ -193,9 +193,9 @@ function buildDeviceCard(fullCode, dev) {
     +     '<div id="cg2-' + shortCode + '" style="font-size:11px;font-weight:800;color:#fff;margin-top:1px;">— ppm</div>'
     +   '</div>'
     + '</div>'
-    // ── Tombol aksi (click tidak propagate ke card link) ──
-    + '<div style="padding:0 10px 10px;display:flex;gap:4px;" onclick="event.stopPropagation();">'
-    +   '<a href="trash-monitor.html?code=' + shortCode + '" style="flex:2;background:rgba(255,255,255,0.12);color:#fff;padding:6px 8px;border-radius:8px;text-decoration:none;font-size:10px;font-weight:700;text-align:center;border:1px solid rgba(255,255,255,0.15);" onclick="event.stopPropagation();">🔍 Pantau</a>'
+    // ── Tombol aksi (click dikendalikan lewat event delegation) ──
+    + '<div style="padding:0 10px 10px;display:flex;gap:4px;">'
+    +   '<a href="trash-monitor.html?code=' + shortCode + '" style="flex:2;background:rgba(255,255,255,0.12);color:#fff;padding:6px 8px;border-radius:8px;text-decoration:none;font-size:10px;font-weight:700;text-align:center;border:1px solid rgba(255,255,255,0.15);">🔍 Pantau</a>'
     +   '<button class="btn-edit-device" data-fullcode="' + fullCode + '" data-name="' + safeName + '" data-loc="' + safeLoc + '" data-owner="' + isOwner + '" style="flex:1;background:rgba(250,204,21,0.15);border:1px solid rgba(250,204,21,0.3);color:#facc15;padding:6px;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--font);">✏️ Edit</button>'
     +   scriptBtn
     +   '<button class="btn-manage-groups" data-fullcode="' + fullCode + '" data-name="' + safeName + '" style="width:28px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);color:#c4b5fd;border-radius:8px;font-size:11px;cursor:pointer;">📂</button>'
@@ -212,7 +212,7 @@ function buildGroupCard(groupId, group) {
     + '<div style="font-size:40px;margin-bottom:2px;">📁</div>'
     + '<div style="font-weight:800;font-size:12px;color:#fff;letter-spacing:0.5px;">' + (group.name || 'Grup').toUpperCase() + '</div>'
     + '<div style="font-size:10px;color:rgba(255,255,255,0.55);margin-bottom:6px;">' + devCodes.length + ' perangkat</div>'
-    + '<div style="display:flex;gap:4px;" onclick="event.stopPropagation();">'
+    + '<div style="display:flex;gap:4px;">'
     +   '<button class="btn-rename-group" data-groupid="' + groupId + '" data-name="' + safeGrpName + '" style="flex:1;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:4px 8px;border-radius:6px;font-size:9px;font-weight:700;cursor:pointer;font-family:var(--font);">✏️ Rename</button>'
     +   '<button class="btn-delete-group" data-groupid="' + groupId + '" data-name="' + safeGrpName + '" style="width:24px;background:rgba(248,113,113,0.2);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:6px;font-size:10px;cursor:pointer;">🗑️</button>'
     + '</div>'
@@ -872,6 +872,13 @@ document.addEventListener('DOMContentLoaded', function() {
         await db.ref().update(updates);
         loadMyDevices();
       } catch(err) { alert('Gagal: ' + err.message); btnDelete.disabled = false; btnDelete.textContent = '\uD83D\uDDD1\uFE0F'; }
+    }
+    
+    // Jika tidak ada tombol yang diklik, cek apakah user mengklik keseluruhan kartu
+    var card = e.target.closest('.reg-device-card');
+    if (card && !e.target.closest('button, a')) {
+      var code = card.dataset.code;
+      if (code) location.href = 'trash-monitor.html?code=' + code;
     }
   }
 
