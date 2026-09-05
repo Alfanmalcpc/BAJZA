@@ -102,10 +102,10 @@
         </div>
 
         <!-- Row 1: Gas Cards & Fill Level -->
-        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:24px; margin-bottom:40px;">
+        <div style="display:flex; flex-wrap:wrap; gap:24px; margin-bottom:40px;">
           
           <!-- 3 Blue Gas Cards -->
-          <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px;">
+          <div style="flex:1; min-width:300px; display:grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap:16px;">
             
             <div style="background:var(--blue); border-radius:12px; padding:24px 16px; text-align:center; color:#fff; box-shadow: 4px 4px 0 rgba(0,0,0,0.1); display:flex; flex-direction:column; justify-content:center;">
               <div style="font-size:16px; font-family:var(--font-heading); margin-bottom:12px; opacity:0.9;">Metana</div>
@@ -138,10 +138,10 @@
         </div>
 
         <!-- Row 2: Charts & Info -->
-        <div style="display:grid; grid-template-columns: 1fr 2fr; gap:24px;">
+        <div style="display:flex; flex-wrap:wrap; gap:24px;">
           
           <!-- Doughnut Chart Area (replaces Racikan Kimia) -->
-          <div>
+          <div style="flex:1; min-width:300px;">
             <div style="display:flex; gap:16px;">
               <div style="flex:1;">
                 <div style="font-size:14px; color:var(--text-2); font-weight:700; margin-bottom:4px;">Rekomendasi</div>
@@ -169,7 +169,7 @@
           </div>
 
           <!-- Line Chart Area -->
-          <div>
+          <div style="flex:2; min-width:300px;">
             <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:16px;">
               <h3 style="font-family:var(--font-heading); font-size:18px; color:var(--text-2); margin:0;">📈 RIWAYAT KEPENUHAN & GAS</h3>
               <div class="tm-chart-tabs" style="display:flex; gap:4px;">
@@ -243,8 +243,10 @@ function renderGauge(pct) {
   const offset = circumference - (clamped / 100) * circumference;
 
   const fill = document.getElementById('gaugeFill');
-  fill.style.strokeDasharray  = circumference;
-  fill.style.strokeDashoffset = offset;
+  if (fill) {
+    fill.style.strokeDasharray  = circumference;
+    fill.style.strokeDashoffset = offset;
+  }
 
   // Warna gauge
   let color, statusText, statusStyle;
@@ -262,13 +264,18 @@ function renderGauge(pct) {
     statusStyle = 'background:rgba(248,113,113,0.15); color:#f87171;';
   }
 
-  fill.style.stroke = color;
-  document.getElementById('gaugePct').textContent = clamped + '%';
-  document.getElementById('gaugePct').style.color = color;
+  if (fill) fill.style.stroke = color;
+  const pctEl = document.getElementById('gaugePct');
+  if (pctEl) {
+    pctEl.textContent = clamped + '%';
+    pctEl.style.color = color;
+  }
 
   const lbl = document.getElementById('statusLabel');
-  lbl.textContent = statusText;
-  lbl.style.cssText += statusStyle;
+  if (lbl) {
+    lbl.textContent = statusText;
+    lbl.style.cssText += statusStyle;
+  }
 }
 
 // ─── Render 3 Sensor Gas ─────────────────────────

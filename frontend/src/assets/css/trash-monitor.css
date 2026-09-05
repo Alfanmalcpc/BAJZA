@@ -169,15 +169,16 @@ body.dashboard-mode .footer {
   border-color: rgba(139, 92, 246, 0.65);
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .reg-devices-grid {
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 12px;
   }
 }
-@media (max-width: 380px) {
+@media (max-width: 500px) {
   .reg-devices-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 }
 .tm-monitor-card {

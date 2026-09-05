@@ -826,53 +826,60 @@ document.addEventListener('DOMContentLoaded', function() {
     boardNote.textContent = boardNotes[boardSel.value] || '';
   }
 
-  // Delegated events: daftar perangkat
+  // Delegated events: daftar perangkat dan grup
   var myDevicesList = document.getElementById('myDevicesList');
+  var myGroupsList = document.getElementById('myGroupsList');
+
+  async function handleDeviceActionClick(e) {
+    var btnScript = e.target.closest('.btn-view-script');
+    if (btnScript) { openScriptModal(btnScript.dataset.code, btnScript.dataset.name); return; }
+    var btnEdit = e.target.closest('.btn-edit-device');
+    if (btnEdit) { openEditModal(btnEdit.dataset.fullcode, btnEdit.dataset.name, btnEdit.dataset.loc, btnEdit.dataset.owner === 'true'); return; }
+    var btnGrp = e.target.closest('.btn-manage-groups');
+    if (btnGrp) { openGroupModal(btnGrp.dataset.fullcode, btnGrp.dataset.name); return; }
+    var btnRenGrp = e.target.closest('.btn-rename-group');
+    if (btnRenGrp) {
+      var newName = prompt('Nama grup baru:', btnRenGrp.dataset.name);
+      if (!newName || !newName.trim()) return;
+      try { await db.ref('users/' + currentUser.uid + '/iot_groups/' + btnRenGrp.dataset.groupid + '/name').set(newName.trim()); loadMyDevices(); }
+      catch(e) { alert('Gagal: ' + e.message); }
+      return;
+    }
+    var btnDelGrp = e.target.closest('.btn-delete-group');
+    if (btnDelGrp) {
+      if (!confirm('Hapus grup "' + btnDelGrp.dataset.name + '"?\nPerangkat tidak akan terhapus.')) return;
+      try { await db.ref('users/' + currentUser.uid + '/iot_groups/' + btnDelGrp.dataset.groupid).remove(); loadMyDevices(); }
+      catch(e) { alert('Gagal: ' + e.message); }
+      return;
+    }
+    var btnDelete = e.target.closest('.btn-delete-device');
+    if (btnDelete) {
+      var fullCode = btnDelete.dataset.fullcode;
+      var isOwner  = btnDelete.dataset.owner === 'true';
+      var msg = isOwner
+        ? 'Hapus perangkat "' + btnDelete.dataset.name + '" (' + fullCode + ')?\n\nSEMUA data IoT terhapus permanen!'
+        : 'Lepaskan perangkat "' + btnDelete.dataset.name + '" dari daftar Anda?';
+      if (!confirm(msg)) return;
+      btnDelete.disabled = true; btnDelete.textContent = '...';
+      try {
+        if (isOwner) await iotDb.ref('trash-bins/' + fullCode).remove();
+        var updates = {};
+        Object.keys(allGroups).forEach(function(gid) {
+          if (allGroups[gid].devices && allGroups[gid].devices[fullCode])
+            updates['users/' + currentUser.uid + '/iot_groups/' + gid + '/devices/' + fullCode] = null;
+        });
+        updates['users/' + currentUser.uid + '/iot_devices/' + fullCode] = null;
+        await db.ref().update(updates);
+        loadMyDevices();
+      } catch(err) { alert('Gagal: ' + err.message); btnDelete.disabled = false; btnDelete.textContent = '\uD83D\uDDD1\uFE0F'; }
+    }
+  }
+
   if (myDevicesList) {
-    myDevicesList.addEventListener('click', async function(e) {
-      var btnScript = e.target.closest('.btn-view-script');
-      if (btnScript) { openScriptModal(btnScript.dataset.code, btnScript.dataset.name); return; }
-      var btnEdit = e.target.closest('.btn-edit-device');
-      if (btnEdit) { openEditModal(btnEdit.dataset.fullcode, btnEdit.dataset.name, btnEdit.dataset.loc, btnEdit.dataset.owner === 'true'); return; }
-      var btnGrp = e.target.closest('.btn-manage-groups');
-      if (btnGrp) { openGroupModal(btnGrp.dataset.fullcode, btnGrp.dataset.name); return; }
-      var btnRenGrp = e.target.closest('.btn-rename-group');
-      if (btnRenGrp) {
-        var newName = prompt('Nama grup baru:', btnRenGrp.dataset.name);
-        if (!newName || !newName.trim()) return;
-        try { await db.ref('users/' + currentUser.uid + '/iot_groups/' + btnRenGrp.dataset.groupid + '/name').set(newName.trim()); loadMyDevices(); }
-        catch(e) { alert('Gagal: ' + e.message); }
-        return;
-      }
-      var btnDelGrp = e.target.closest('.btn-delete-group');
-      if (btnDelGrp) {
-        if (!confirm('Hapus grup "' + btnDelGrp.dataset.name + '"?\nPerangkat tidak akan terhapus.')) return;
-        try { await db.ref('users/' + currentUser.uid + '/iot_groups/' + btnDelGrp.dataset.groupid).remove(); loadMyDevices(); }
-        catch(e) { alert('Gagal: ' + e.message); }
-        return;
-      }
-      var btnDelete = e.target.closest('.btn-delete-device');
-      if (btnDelete) {
-        var fullCode = btnDelete.dataset.fullcode;
-        var isOwner  = btnDelete.dataset.owner === 'true';
-        var msg = isOwner
-          ? 'Hapus perangkat "' + btnDelete.dataset.name + '" (' + fullCode + ')?\n\nSEMUA data IoT terhapus permanen!'
-          : 'Lepaskan perangkat "' + btnDelete.dataset.name + '" dari daftar Anda?';
-        if (!confirm(msg)) return;
-        btnDelete.disabled = true; btnDelete.textContent = '...';
-        try {
-          if (isOwner) await iotDb.ref('trash-bins/' + fullCode).remove();
-          var updates = {};
-          Object.keys(allGroups).forEach(function(gid) {
-            if (allGroups[gid].devices && allGroups[gid].devices[fullCode])
-              updates['users/' + currentUser.uid + '/iot_groups/' + gid + '/devices/' + fullCode] = null;
-          });
-          updates['users/' + currentUser.uid + '/iot_devices/' + fullCode] = null;
-          await db.ref().update(updates);
-          loadMyDevices();
-        } catch(err) { alert('Gagal: ' + err.message); btnDelete.disabled = false; btnDelete.textContent = '\uD83D\uDDD1\uFE0F'; }
-      }
-    });
+    myDevicesList.addEventListener('click', handleDeviceActionClick);
+  }
+  if (myGroupsList) {
+    myGroupsList.addEventListener('click', handleDeviceActionClick);
   }
 
   // Escape key
