@@ -38,7 +38,10 @@
 
 // Firebase Configuration
 #define FIREBASE_HOST   "baja-iot-default-rtdb.asia-southeast1.firebasedatabase.app"
-#define FIREBASE_AUTH   "AIzaSyDCh3CQHqdi7SxhDHLJ6IsQ7hq4GSOi6yI"
+// PENTING: FIREBASE_AUTH harus diisi dengan "Database Secret" (40+ karakter acak),
+// BUKAN Web API Key yang berawalan "AIzaSy...". 
+// Jika menggunakan API Key, Firebase akan menolak koneksi (Unauthorized).
+#define FIREBASE_AUTH   "AIzaSyDCh3CQHqdi7SxhDHLJ6IsQ7hq4GSOi6yI" // GANTI DENGAN DATABASE SECRET ANDA!
 
 // --- PIN & ADC ------------------------------------------------
 #if USE_MUX
@@ -148,10 +151,27 @@ void setup() {
   Serial.println("\nWiFi Terhubung!");
 
   configTime(25200, 0, "pool.ntp.org", "time.nist.gov");
-  while (time(nullptr) < 100000) { delay(200); }
+  Serial.print("Sinkronisasi waktu NTP");
+  int ntp_retry = 0;
+  while (time(nullptr) < 100000 && ntp_retry < 30) { 
+    delay(500); 
+    Serial.print("."); 
+    ntp_retry++;
+  }
+  Serial.println();
 
   fbConfig.database_url = FIREBASE_HOST;
-  fbConfig.signer.tokens.legacy_token = FIREBASE_AUTH;
+  
+  // Deteksi apakah user memasukkan API Key atau Database Secret
+  String authStr = String(FIREBASE_AUTH);
+  if (authStr.startsWith("AIzaSy")) {
+    // Jika berawalan AIzaSy, berarti ini Web API Key. Gunakan sebagai api_key (tanpa auth khusus).
+    fbConfig.api_key = FIREBASE_AUTH;
+  } else {
+    // Jika bukan API Key, asumsikan ini adalah Database Secret (Legacy Token)
+    fbConfig.signer.tokens.legacy_token = FIREBASE_AUTH;
+  }
+  
   fbConfig.token_status_callback = tokenStatusCallback;
 
   Firebase.begin(&fbConfig, &fbAuth);
@@ -187,6 +207,10 @@ int readBatteryPercent(int pin_or_ch) {
 
 void sendToFirebase(int fillLevel, int mq4, int mq135, int mq2, int battery, bool isFull) {
   time_t now = time(nullptr);
+  
+  // Jika fillLevel negatif (sensor ultrasonik bermasalah), atur ke 0 agar dashboard tidak error
+  if (fillLevel < 0) fillLevel = 0;
+
   Firebase.RTDB.setInt(&fbdo, devicePath + "/fill_level", fillLevel);
   Firebase.RTDB.setInt(&fbdo, devicePath + "/gas_level", mq135);
   Firebase.RTDB.setInt(&fbdo, devicePath + "/gas_mq4", mq4);
@@ -233,11 +257,12 @@ void loop() {
 #endif
     bool isFull = (fillLevel >= 90);
 
-    if (fillLevel >= 0 && WiFi.status() == WL_CONNECTED) {
+    if (WiFi.status() == WL_CONNECTED) {
+      // Meskipun fillLevel bernilai -1 (error sensor ultrasonik), kita tetap kirim data sensor gas & baterai
       sendToFirebase(fillLevel, mq4, mq135, mq2, battery, isFull);
       digitalWrite(LED_RED_PIN, LOW);
       digitalWrite(LED_GREEN_PIN, HIGH);
-    } else if (WiFi.status() != WL_CONNECTED) {
+    } else {
       digitalWrite(LED_GREEN_PIN, LOW);
       digitalWrite(LED_RED_PIN, HIGH);
       WiFi.reconnect();
