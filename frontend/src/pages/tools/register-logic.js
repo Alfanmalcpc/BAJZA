@@ -157,49 +157,49 @@ function buildDeviceCard(fullCode, dev) {
   var isOwner   = dev.isOwner !== false;
   var ownerBadge = isOwner ? '' : '<span style="font-size:9px;background:rgba(255,255,255,0.15);color:#c4b5fd;padding:1px 6px;border-radius:4px;font-weight:700;margin-left:4px;">Dipantau</span>';
   var scriptBtn  = isOwner
-    ? '<button class="btn-view-script" data-code="' + shortCode + '" data-name="' + safeName + '" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);padding:6px 8px;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--font);flex:1;">\uD83D\uDCCB Skrip</button>'
+    ? '<button class="btn-view-script" data-code="' + shortCode + '" data-name="' + safeName + '" style="background:var(--bg-surface);border:2px solid var(--border);color:var(--text-1);padding:6px 8px;border-radius:8px;font-size:10px;font-weight:800;cursor:pointer;font-family:var(--font);flex:1;box-shadow:1px 1px 0 var(--border);">\uD83D\uDCCB Skrip</button>'
     : '';
 
   return '<div class="reg-device-card" data-code="' + shortCode + '">'
     // ── Header ──
     + '<div style="padding:12px 14px 8px;display:flex;justify-content:space-between;align-items:flex-start;">'
     +   '<div style="min-width:0;flex:1;">'
-    +     '<div style="font-weight:800;font-size:13px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (dev.name || 'Perangkat') + ownerBadge + '</div>'
-    +     '<div style="font-size:9.5px;color:rgba(255,255,255,0.45);margin-top:1px;font-family:monospace;">' + fullCode + '</div>'
+    +     '<div style="font-weight:800;font-size:13px;color:var(--text-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (dev.name || 'Perangkat') + ownerBadge + '</div>'
+    +     '<div style="font-size:9.5px;color:var(--text-3);margin-top:1px;font-family:monospace;">' + fullCode + '</div>'
     +   '</div>'
-    +   '<div id="badge-' + shortCode + '" style="flex-shrink:0;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);">⏳ Cek...</div>'
+    +   '<div id="badge-' + shortCode + '" style="flex-shrink:0;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;border:2px solid var(--border);background:var(--bg-surface);color:var(--text-2);box-shadow:1px 1px 0 var(--border);">⏳ Cek...</div>'
     + '</div>'
     // ── Gauge tengah ──
     + '<div style="padding:4px 14px 2px;display:flex;align-items:center;gap:10px;">'
     +   miniGaugeSVG(0, shortCode)
     +   '<div style="flex:1;">'
-    +     '<div style="font-size:10px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.5px;">kepenuhan sampah</div>'
-    +     '<div id="cpct-' + shortCode + '" style="font-size:26px;font-weight:800;color:#4ade80;line-height:1.1;">0%</div>'
-    +     '<div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px;">📍 ' + (dev.location || '—') + '</div>'
+    +     '<div style="font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px;">kepenuhan sampah</div>'
+    +     '<div id="cpct-' + shortCode + '" style="font-size:26px;font-weight:800;color:var(--green);line-height:1.1;">0%</div>'
+    +     '<div style="font-size:10px;color:var(--text-3);margin-top:2px;">📍 ' + (dev.location || '—') + '</div>'
     +   '</div>'
     + '</div>'
     // ── Gas chips ──
     + '<div style="padding:10px 12px;display:grid;grid-template-columns:repeat(3,1fr);gap:5px;">'
-    +   '<div style="background:rgba(249,115,22,0.25);border-radius:8px;padding:6px 4px;text-align:center;">'
-    +     '<div style="font-size:8px;font-weight:700;color:#fb923c;text-transform:uppercase;">Metana</div>'
-    +     '<div id="cg4-' + shortCode + '" style="font-size:11px;font-weight:800;color:#fff;margin-top:1px;">— ppm</div>'
+    +   '<div style="background:var(--orange);border:2px solid var(--border);border-radius:8px;padding:6px 4px;text-align:center;box-shadow:1px 1px 0 var(--border);">'
+    +     '<div style="font-size:8px;font-weight:800;color:#fff;text-transform:uppercase;text-shadow:1px 1px 0 #000;">Metana</div>'
+    +     '<div id="cg4-' + shortCode + '" style="font-size:11px;font-weight:800;color:#fff;margin-top:1px;text-shadow:1px 1px 0 #000;">— ppm</div>'
     +   '</div>'
-    +   '<div style="background:rgba(139,92,246,0.25);border-radius:8px;padding:6px 4px;text-align:center;">'
-    +     '<div style="font-size:8px;font-weight:700;color:#c4b5fd;text-transform:uppercase;">NH₃/CO₂</div>'
-    +     '<div id="cg135-' + shortCode + '" style="font-size:11px;font-weight:800;color:#fff;margin-top:1px;">— ppm</div>'
+    +   '<div style="background:var(--purple);border:2px solid var(--border);border-radius:8px;padding:6px 4px;text-align:center;box-shadow:1px 1px 0 var(--border);">'
+    +     '<div style="font-size:8px;font-weight:800;color:#fff;text-transform:uppercase;text-shadow:1px 1px 0 #000;">NH₃/CO₂</div>'
+    +     '<div id="cg135-' + shortCode + '" style="font-size:11px;font-weight:800;color:#fff;margin-top:1px;text-shadow:1px 1px 0 #000;">— ppm</div>'
     +   '</div>'
-    +   '<div style="background:rgba(6,182,212,0.25);border-radius:8px;padding:6px 4px;text-align:center;">'
-    +     '<div style="font-size:8px;font-weight:700;color:#67e8f9;text-transform:uppercase;">Gas Umum</div>'
-    +     '<div id="cg2-' + shortCode + '" style="font-size:11px;font-weight:800;color:#fff;margin-top:1px;">— ppm</div>'
+    +   '<div style="background:var(--cyan);border:2px solid var(--border);border-radius:8px;padding:6px 4px;text-align:center;box-shadow:1px 1px 0 var(--border);">'
+    +     '<div style="font-size:8px;font-weight:800;color:#fff;text-transform:uppercase;text-shadow:1px 1px 0 #000;">Gas Umum</div>'
+    +     '<div id="cg2-' + shortCode + '" style="font-size:11px;font-weight:800;color:#fff;margin-top:1px;text-shadow:1px 1px 0 #000;">— ppm</div>'
     +   '</div>'
     + '</div>'
     // ── Tombol aksi (click dikendalikan lewat event delegation) ──
     + '<div style="padding:0 10px 10px;display:flex;gap:4px;">'
-    +   '<a href="trash-monitor.html?code=' + shortCode + '" style="flex:2;background:rgba(255,255,255,0.12);color:#fff;padding:6px 8px;border-radius:8px;text-decoration:none;font-size:10px;font-weight:700;text-align:center;border:1px solid rgba(255,255,255,0.15);">🔍 Pantau</a>'
-    +   '<button class="btn-edit-device" data-fullcode="' + fullCode + '" data-name="' + safeName + '" data-loc="' + safeLoc + '" data-owner="' + isOwner + '" style="flex:1;background:rgba(250,204,21,0.15);border:1px solid rgba(250,204,21,0.3);color:#facc15;padding:6px;border-radius:8px;font-size:10px;font-weight:700;cursor:pointer;font-family:var(--font);">✏️ Edit</button>'
+    +   '<a href="trash-monitor.html?code=' + shortCode + '" style="flex:2;background:var(--blue);color:#fff;padding:6px 8px;border-radius:8px;text-decoration:none;font-size:10px;font-weight:800;text-align:center;border:2px solid var(--border);box-shadow:1px 1px 0 var(--border);text-shadow:1px 1px 0 #000;">🔍 Pantau</a>'
+    +   '<button class="btn-edit-device" data-fullcode="' + fullCode + '" data-name="' + safeName + '" data-loc="' + safeLoc + '" data-owner="' + isOwner + '" style="flex:1;background:var(--gold);border:2px solid var(--border);color:#000;padding:6px;border-radius:8px;font-size:10px;font-weight:800;cursor:pointer;font-family:var(--font);box-shadow:1px 1px 0 var(--border);">✏️ Edit</button>'
     +   scriptBtn
-    +   '<button class="btn-manage-groups" data-fullcode="' + fullCode + '" data-name="' + safeName + '" style="width:28px;background:rgba(139,92,246,0.15);border:1px solid rgba(139,92,246,0.3);color:#c4b5fd;border-radius:8px;font-size:11px;cursor:pointer;">📂</button>'
-    +   '<button class="btn-delete-device" data-fullcode="' + fullCode + '" data-name="' + safeName + '" data-owner="' + isOwner + '" style="width:28px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.25);color:#f87171;border-radius:8px;font-size:11px;cursor:pointer;">🗑️</button>'
+    +   '<button class="btn-manage-groups" data-fullcode="' + fullCode + '" data-name="' + safeName + '" style="width:28px;background:var(--purple);border:2px solid var(--border);color:#fff;border-radius:8px;font-size:11px;cursor:pointer;box-shadow:1px 1px 0 var(--border);">📂</button>'
+    +   '<button class="btn-delete-device" data-fullcode="' + fullCode + '" data-name="' + safeName + '" data-owner="' + isOwner + '" style="width:28px;background:var(--red);border:2px solid var(--border);color:#fff;border-radius:8px;font-size:11px;cursor:pointer;box-shadow:1px 1px 0 var(--border);">🗑️</button>'
     + '</div>'
     + '</div>';
 }
@@ -208,13 +208,13 @@ function buildDeviceCard(fullCode, dev) {
 function buildGroupCard(groupId, group) {
   var safeGrpName = (group.name || '').replace(/"/g, '&quot;');
   var devCodes    = group.devices ? Object.keys(group.devices) : [];
-  return '<div style="background:linear-gradient(135deg,rgba(99,102,241,0.6),rgba(124,58,237,0.5));border:1.5px solid rgba(139,92,246,0.4);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 12px 10px;gap:4px;text-align:center;cursor:pointer;transition:all 0.2s;min-height:130px;" onmouseenter="this.style.transform=\'translateY(-3px)\';this.style.boxShadow=\'0 10px 28px rgba(99,102,241,0.35)\'" onmouseleave="this.style.transform=\'none\';this.style.boxShadow=\'none\'">'
+  return '<div style="background:var(--pink);border:3px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px 12px 10px;gap:4px;text-align:center;cursor:pointer;transition:all 0.2s;min-height:130px;box-shadow:3px 3px 0 var(--border);" onmouseenter="this.style.transform=\'translateY(-3px)\';this.style.boxShadow=\'5px 5px 0 var(--border)\'" onmouseleave="this.style.transform=\'none\';this.style.boxShadow=\'3px 3px 0 var(--border)\'">'
     + '<div style="font-size:40px;margin-bottom:2px;">📁</div>'
-    + '<div style="font-weight:800;font-size:12px;color:#fff;letter-spacing:0.5px;">' + (group.name || 'Grup').toUpperCase() + '</div>'
-    + '<div style="font-size:10px;color:rgba(255,255,255,0.55);margin-bottom:6px;">' + devCodes.length + ' perangkat</div>'
+    + '<div style="font-weight:800;font-size:12px;color:#fff;letter-spacing:0.5px;text-shadow:1px 1px 0 #000;">' + (group.name || 'Grup').toUpperCase() + '</div>'
+    + '<div style="font-size:10px;color:rgba(255,255,255,0.9);margin-bottom:6px;font-weight:700;">' + devCodes.length + ' perangkat</div>'
     + '<div style="display:flex;gap:4px;">'
-    +   '<button class="btn-rename-group" data-groupid="' + groupId + '" data-name="' + safeGrpName + '" style="flex:1;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:4px 8px;border-radius:6px;font-size:9px;font-weight:700;cursor:pointer;font-family:var(--font);">✏️ Rename</button>'
-    +   '<button class="btn-delete-group" data-groupid="' + groupId + '" data-name="' + safeGrpName + '" style="width:24px;background:rgba(248,113,113,0.2);border:1px solid rgba(248,113,113,0.3);color:#f87171;border-radius:6px;font-size:10px;cursor:pointer;">🗑️</button>'
+    +   '<button class="btn-rename-group" data-groupid="' + groupId + '" data-name="' + safeGrpName + '" style="flex:1;background:var(--gold);border:2px solid var(--border);color:#000;padding:4px 8px;border-radius:6px;font-size:9px;font-weight:800;cursor:pointer;font-family:var(--font);box-shadow:1px 1px 0 var(--border);">✏️ Rename</button>'
+    +   '<button class="btn-delete-group" data-groupid="' + groupId + '" data-name="' + safeGrpName + '" style="width:24px;background:var(--red);border:2px solid var(--border);color:#fff;border-radius:6px;font-size:10px;cursor:pointer;box-shadow:1px 1px 0 var(--border);">🗑️</button>'
     + '</div>'
     + '</div>';
 }
@@ -234,8 +234,8 @@ function renderDeviceList() {
     homeHtml += allDevEntries.map(function(e) { return buildDeviceCard(e[0], e[1]); }).join('');
   }
   // Tambahkan card "+" di akhir
-  homeHtml += '<div class="reg-device-card" style="display:flex;align-items:center;justify-content:center;background:rgba(99,102,241,0.1);border:2px dashed rgba(99,102,241,0.5);cursor:pointer;min-height:220px;" onclick="switchAppView(\'view-add-device\')">'
-           + '<div style="text-align:center;color:#818cf8;">'
+  homeHtml += '<div class="reg-device-card" style="display:flex;align-items:center;justify-content:center;background:var(--bg-card);border:3px dashed var(--border);cursor:pointer;min-height:220px;box-shadow:none;" onclick="switchAppView(\'view-add-device\')" onmouseenter="this.style.background=\'var(--bg-card-hover)\'" onmouseleave="this.style.background=\'var(--bg-card)\'">'
+           + '<div style="text-align:center;color:var(--text-2);">'
            + '<div style="font-size:40px;margin-bottom:8px;">+</div>'
            + '<div style="font-size:14px;font-weight:800;font-family:var(--font-heading);">Tambah Sampah</div>'
            + '</div></div>';
