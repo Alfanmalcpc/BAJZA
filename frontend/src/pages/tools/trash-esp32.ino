@@ -37,11 +37,8 @@
 // --------------------------------------------------------------
 
 // Firebase Configuration
-#define FIREBASE_HOST   "baja-iot-default-rtdb.asia-southeast1.firebasedatabase.app"
-// PENTING: FIREBASE_AUTH harus diisi dengan "Database Secret" (40+ karakter acak),
-// BUKAN Web API Key yang berawalan "AIzaSy...". 
-// Jika menggunakan API Key, Firebase akan menolak koneksi (Unauthorized).
-#define FIREBASE_AUTH   "AIzaSyDCh3CQHqdi7SxhDHLJ6IsQ7hq4GSOi6yI" // GANTI DENGAN DATABASE SECRET ANDA!
+#define FIREBASE_HOST   "https://baja-iot-default-rtdb.asia-southeast1.firebasedatabase.app"
+#define FIREBASE_AUTH   "AIzaSyDCh3CQHqdi7SxhDHLJ6IsQ7hq4GSOi6yI"
 
 // --- PIN & ADC ------------------------------------------------
 #if USE_MUX
@@ -165,10 +162,11 @@ void setup() {
   // Deteksi apakah user memasukkan API Key atau Database Secret
   String authStr = String(FIREBASE_AUTH);
   if (authStr.startsWith("AIzaSy")) {
-    // Jika berawalan AIzaSy, berarti ini Web API Key. Gunakan sebagai api_key (tanpa auth khusus).
+    // Mode API Key (Test Mode) -> Memungkinkan penulisan tanpa login jika rules di Firebase diset true
     fbConfig.api_key = FIREBASE_AUTH;
+    fbConfig.signer.test_mode = true;
   } else {
-    // Jika bukan API Key, asumsikan ini adalah Database Secret (Legacy Token)
+    // Mode Database Secret (Legacy Token)
     fbConfig.signer.tokens.legacy_token = FIREBASE_AUTH;
   }
   
@@ -211,7 +209,12 @@ void sendToFirebase(int fillLevel, int mq4, int mq135, int mq2, int battery, boo
   // Jika fillLevel negatif (sensor ultrasonik bermasalah), atur ke 0 agar dashboard tidak error
   if (fillLevel < 0) fillLevel = 0;
 
-  Firebase.RTDB.setInt(&fbdo, devicePath + "/fill_level", fillLevel);
+  bool ok = Firebase.RTDB.setInt(&fbdo, devicePath + "/fill_level", fillLevel);
+  if (!ok) {
+    Serial.print("[FIREBASE ERROR] Gagal kirim data! Alasan: ");
+    Serial.println(fbdo.errorReason());
+    return;
+  }
   Firebase.RTDB.setInt(&fbdo, devicePath + "/gas_level", mq135);
   Firebase.RTDB.setInt(&fbdo, devicePath + "/gas_mq4", mq4);
   Firebase.RTDB.setInt(&fbdo, devicePath + "/gas_mq135", mq135);
@@ -229,7 +232,7 @@ void sendToFirebase(int fillLevel, int mq4, int mq135, int mq2, int battery, boo
   histJson.set("timestamp", (int)now);
   Firebase.RTDB.pushJSON(&fbdo, histPath, &histJson);
   
-  Serial.print("Data Terkirim | Fill: "); Serial.print(fillLevel);
+  Serial.print("✅ Data Terkirim ke Firebase | Fill: "); Serial.print(fillLevel);
   Serial.print("% | MQ4: "); Serial.print(mq4);
   Serial.print(" | MQ135: "); Serial.print(mq135);
   Serial.print(" | MQ2: "); Serial.print(mq2);
@@ -258,10 +261,14 @@ void loop() {
     bool isFull = (fillLevel >= 90);
 
     if (WiFi.status() == WL_CONNECTED) {
-      // Meskipun fillLevel bernilai -1 (error sensor ultrasonik), kita tetap kirim data sensor gas & baterai
-      sendToFirebase(fillLevel, mq4, mq135, mq2, battery, isFull);
-      digitalWrite(LED_RED_PIN, LOW);
-      digitalWrite(LED_GREEN_PIN, HIGH);
+      if (Firebase.ready()) {
+        sendToFirebase(fillLevel, mq4, mq135, mq2, battery, isFull);
+        digitalWrite(LED_RED_PIN, LOW);
+        digitalWrite(LED_GREEN_PIN, HIGH);
+      } else {
+        Serial.print("Menunggu Firebase siap... Error: ");
+        Serial.println(fbdo.errorReason());
+      }
     } else {
       digitalWrite(LED_GREEN_PIN, LOW);
       digitalWrite(LED_RED_PIN, HIGH);
