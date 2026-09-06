@@ -37,7 +37,7 @@
 // --------------------------------------------------------------
 
 // Firebase Configuration
-#define FIREBASE_HOST   "https://baja-iot-default-rtdb.asia-southeast1.firebasedatabase.app"
+#define FIREBASE_HOST   "baja-iot-default-rtdb.asia-southeast1.firebasedatabase.app"
 #define FIREBASE_AUTH   "AIzaSyDCh3CQHqdi7SxhDHLJ6IsQ7hq4GSOi6yI"
 
 // --- PIN & ADC ------------------------------------------------
