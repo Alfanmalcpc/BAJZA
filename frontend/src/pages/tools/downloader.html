@@ -35,7 +35,7 @@
   <div class="dl-hero-orb dl-hero-orb-2"></div>
   <div class="dl-hero-orb dl-hero-orb-3"></div>
   <div class="container" style="position:relative;z-index:1;">
-    <div class="dl-hero-badge">⬇️ Video &amp; Audio Downloader</div>
+    <div class="dl-hero-badge">Video &amp; Audio Downloader</div>
     <h1 class="dl-hero-title">
       Download dari<br/>
       <span class="grad">TikTok, IG &amp; YouTube</span>
@@ -63,12 +63,12 @@
     <!-- URL Input -->
     <div class="dl-input-wrap">
       <div class="dl-input-box">
-        <span id="inputIcon" style="font-size:20px;">🎵</span>
+        <span id="inputIcon" style="font-size:12px;font-weight:800;color:#a78bfa;padding:2px 8px;background:rgba(124,58,237,.2);border-radius:6px;">TIKTOK</span>
         <input type="url" id="videoUrl" class="dl-input"
           placeholder="Tempel link video di sini..."
           autocomplete="off" spellcheck="false"/>
-        <button class="paste-btn" id="pasteBtn" title="Paste from clipboard">📋 Paste</button>
-        <button class="dl-btn-go" id="goBtn">⬇️ Download</button>
+        <button class="paste-btn" id="pasteBtn" title="Paste from clipboard">Paste</button>
+        <button class="dl-btn-go" id="goBtn">Download</button>
       </div>
       <p class="dl-hint" id="urlHint">Contoh: https://www.tiktok.com/@user/video/123...</p>
     </div>
@@ -278,6 +278,21 @@
   </div>
 </div>
 
+<!-- Sponsor Gate: kualitas tinggi -->
+<div class="quality-gate-overlay" id="qualityGate" role="dialog" aria-modal="true" aria-labelledby="qualityGateTitle">
+  <div class="quality-gate">
+    <button class="quality-gate-close" type="button" aria-label="Tutup" onclick="closeQualityGate()">×</button>
+    <div class="quality-gate-kicker">AKSES KUALITAS TINGGI</div>
+    <h2 id="qualityGateTitle">Buka kualitas video pilihanmu</h2>
+    <p id="qualityGateText">Dukung BAJA dengan melihat iklan sponsor singkat. Setelah iklan dipicu, unduhan akan diproses otomatis.</p>
+    <div class="quality-gate-summary" id="qualityGateSummary"></div>
+    <div class="quality-ad-frame-wrap">
+      <iframe id="qualityAdFrame" title="Iklan sponsor untuk akses kualitas tinggi" src="/src/pages/tools/monetag-video-hd-btn.html" loading="lazy"></iframe>
+    </div>
+    <p class="quality-gate-footnote">Akses gratis tersedia untuk 360p/480p dan audio MP3. Kualitas akhir bergantung pada video sumber.</p>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="dl-toast" id="dlToast"></div>
 
@@ -397,18 +412,28 @@ const SERVICES = {
 // ─── FORMAT OPTIONS (untuk kartu pilihan di result card) ───────────────────
 const FORMATS = {
   tiktok: [
-    { name:'Video (No WM)', icon:'🎬', desc:'Tanpa Watermark · HD', isAudio:false, supported:['No Watermark','HD'] },
-    { name:'Audio MP3',     icon:'🎵', desc:'Hanya suara · MP3',    isAudio:true,  supported:['MP3','Audio'] }
+    { name:'Video 480p', icon:'Video', desc:'Tanpa watermark · MP4', isAudio:false, quality:'480', supported:['480p','MP4'] },
+    { name:'Video HD 720p', icon:'HD', desc:'Kualitas tinggi · perlu iklan sponsor', isAudio:false, quality:'720', requiresAd:true, supported:['720p','Sponsor'] },
+    { name:'Video Full HD', icon:'FHD', desc:'Resolusi sumber terbaik · perlu iklan sponsor', isAudio:false, quality:'max', requiresAd:true, supported:['1080p+','Sponsor'] },
+    { name:'Audio MP3', icon:'Audio', desc:'Hanya suara · MP3', isAudio:true, supported:['MP3','Audio'] }
   ],
   instagram: [
-    { name:'Video / Reels', icon:'🎬', desc:'Video & Reels HD', isAudio:false, supported:['Reels','HD'] },
-    { name:'Audio MP3',     icon:'🎵', desc:'Hanya suara · MP3',isAudio:true,  supported:['MP3','Audio'] }
+    { name:'Video 480p', icon:'Video', desc:'Reels & video · MP4', isAudio:false, quality:'480', supported:['480p','MP4'] },
+    { name:'Video HD 720p', icon:'HD', desc:'Kualitas tinggi · perlu iklan sponsor', isAudio:false, quality:'720', requiresAd:true, supported:['720p','Sponsor'] },
+    { name:'Video Full HD', icon:'FHD', desc:'Resolusi sumber terbaik · perlu iklan sponsor', isAudio:false, quality:'max', requiresAd:true, supported:['1080p+','Sponsor'] },
+    { name:'Audio MP3', icon:'Audio', desc:'Hanya suara · MP3', isAudio:true, supported:['MP3','Audio'] }
   ],
   youtube: [
-    { name:'Video HD',  icon:'🎬', desc:'Hingga 1080p MP4',          isAudio:false, supported:['1080p','MP4'] },
-    { name:'Audio MP3', icon:'🎵', desc:'Hanya audio berkualitas',    isAudio:true,  supported:['MP3','Audio'] }
+    { name:'Video 360p', icon:'Video', desc:'Hemat data · MP4', isAudio:false, quality:'360', supported:['360p','MP4'] },
+    { name:'Video 480p', icon:'Video', desc:'Kualitas standar · MP4', isAudio:false, quality:'480', supported:['480p','MP4'] },
+    { name:'Video HD 720p', icon:'HD', desc:'Kualitas tinggi · perlu iklan sponsor', isAudio:false, quality:'720', requiresAd:true, supported:['720p','Sponsor'] },
+    { name:'Video Full HD 1080p', icon:'FHD', desc:'Resolusi tinggi · perlu iklan sponsor', isAudio:false, quality:'1080', requiresAd:true, supported:['1080p','Sponsor'] },
+    { name:'Video 2K / 4K', icon:'4K', desc:'Resolusi sumber terbaik · perlu iklan sponsor', isAudio:false, quality:'max', requiresAd:true, supported:['2K/4K','Sponsor'] },
+    { name:'Audio MP3', icon:'Audio', desc:'Hanya suara · MP3', isAudio:true, supported:['MP3','Audio'] }
   ]
 };
+
+const HIGH_QUALITY_NOTE = 'Kualitas akhir bergantung pada resolusi video sumber dan ketersediaan dari platform.';
 
 const HINTS = {
   tiktok:'Contoh: https://www.tiktok.com/@user/video/1234567890',
@@ -506,21 +531,21 @@ function showResults(url) {
   resultArea.innerHTML = `
     <div class="result-card">
       <div class="result-media">
-        <div class="result-thumb">${ICONS[currentPlatform]}</div>
+        <div class="result-thumb" style="font-size:16px;font-weight:800;color:#fff;background:linear-gradient(135deg,#7c3aed,#06b6d4);">${currentPlatform.toUpperCase()}</div>
         <div class="result-info">
-          <div class="result-title">🔗 Link Berhasil Terdeteksi</div>
+          <div class="result-title">Tautan Berhasil Terdeteksi</div>
           <div class="result-meta" title="${url}">${shortUrl}</div>
           <div class="result-badges">
             <span class="badge-platform badge-${currentPlatform}">${currentPlatform.toUpperCase()}</span>
-            <span style="padding:4px 12px;border-radius:99px;font-size:11px;font-weight:700;background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.2);">✓ URL Valid</span>
+            <span style="padding:4px 12px;border-radius:99px;font-size:11px;font-weight:700;background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.2);">URL Valid</span>
           </div>
         </div>
       </div>
-      <div style="padding:0 24px 8px;color:rgba(255,255,255,.5);font-size:13px;font-weight:600;">⬇️ Pilih format — download langsung tanpa meninggalkan halaman:</div>
+      <div style="padding:0 24px 8px;color:rgba(255,255,255,.7);font-size:13px;font-weight:600;">Pilih Resolusi &amp; Format:</div>
       <div class="dl-options">
         ${fmts.map((s,i)=>`
           <button class="dl-option-btn ${i===0?'primary':''}" id="dlOptBtn-${i}" onclick="triggerDownloadFromResult(${i})">
-            <span>${s.icon}</span>
+            <span style="font-weight:800;font-size:11px;background:rgba(255,255,255,.15);padding:2px 8px;border-radius:6px;">${s.icon}</span>
             <div>
               <div>${s.name}</div>
               <div class="dl-quality">${s.supported.slice(0,2).join(' · ')}</div>
@@ -541,6 +566,40 @@ function triggerDownloadFromResult(idx) { triggerDownload(idx); }
 // ─── MODAL PILIHAN LAYANAN ────────────────────────────────────────────────
 
 // ─── TRIGGER DOWNLOAD — PROSES API LANGSUNG ─────────────────────────────
+let pendingDownloadTask = null;
+
+window.addEventListener('message', function(event) {
+  if (event.data === 'unlock_hd_download') {
+    closeQualityGate();
+    showToast('🎉 Akses HD terbuka! Mulai mengambil video...');
+    if (pendingDownloadTask) {
+      const task = pendingDownloadTask;
+      pendingDownloadTask = null;
+      fetchVideoDirect(task.url, task.platform, task.isAudio, task.fmt);
+    }
+  }
+});
+
+function openQualityGate(fmt, url, platform) {
+  pendingDownloadTask = { fmt, url, platform, isAudio: fmt.isAudio };
+  const gate = document.getElementById('qualityGate');
+  const title = document.getElementById('qualityGateTitle');
+  const summary = document.getElementById('qualityGateSummary');
+  title.textContent = `Buka Unduhan ${fmt.name}`;
+  summary.innerHTML = `Platform: <strong>${platform.toUpperCase()}</strong> · Format: <strong>${fmt.name}</strong><br><span style="color:#f59e0b;font-size:12px;">Tonton / klik iklan sponsor singkat di bawah untuk melanjutkan unduhan resolusi tinggi.</span>`;
+  
+  const frame = document.getElementById('qualityAdFrame');
+  if (frame) {
+    frame.src = '/src/pages/tools/monetag-video-hd-btn.html?t=' + Date.now();
+  }
+  gate.classList.add('open');
+}
+
+function closeQualityGate() {
+  const gate = document.getElementById('qualityGate');
+  if (gate) gate.classList.remove('open');
+}
+
 function triggerDownload(idx) {
   const url = window._currentDlUrl || document.getElementById('videoUrl').value.trim();
   if (!url) {
@@ -553,7 +612,12 @@ function triggerDownload(idx) {
   }
   
   const fmt = FORMATS[currentPlatform][idx];
-  const isAudio = fmt.id === 'audio' || fmt.id === 'mp3';
+  const isAudio = fmt.isAudio;
+  
+  if (fmt.requiresAd) {
+    openQualityGate(fmt, url, currentPlatform);
+    return;
+  }
   
   fetchVideoDirect(url, currentPlatform, isAudio, fmt);
 }
@@ -564,19 +628,26 @@ async function fetchVideoDirect(url, platform, isAudio, fmt) {
 
   try {
     let resultUrl = '';
-    let resultTitle = `BAJA_${platform}_${isAudio ? 'audio' : 'video'}`;
+    let resultTitle = `BAJA_${platform}_${isAudio ? 'audio' : (fmt.quality || 'video')}`;
 
     if (platform === 'tiktok') {
       setModalProgress(40, 'Mengekstrak data TikTok...');
       const res = await fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`);
       const json = await res.json();
       if (json.code !== 0) throw new Error(json.msg || 'Gagal ekstrak dari TikTok');
-      resultUrl = isAudio ? json.data.music : json.data.play;
+      // TikWM provides hdplay for higher quality if available
+      if (isAudio) {
+        resultUrl = json.data.music;
+      } else if (fmt.quality === 'max' && json.data.hdplay) {
+        resultUrl = json.data.hdplay;
+      } else {
+        resultUrl = json.data.play;
+      }
       resultTitle = json.data.title ? json.data.title.substring(0,30) : resultTitle;
     } 
     else {
       // YouTube / IG using public API aggregators
-      setModalProgress(30, `Memproses link ${platform}...`);
+      setModalProgress(30, `Memproses link ${platform} (${fmt.name})...`);
       
       const cobaltInstances = [
         { url: 'https://api.cobalt.tools', v: 11 },
@@ -586,13 +657,14 @@ async function fetchVideoDirect(url, platform, isAudio, fmt) {
       ];
       
       let success = false;
+      const requestedQuality = fmt.quality || '720';
       for (let instance of cobaltInstances) {
         try {
-          if (instance.v === 'get') continue; // skip if not cobalt
+          if (instance.v === 'get') continue;
           const ep = instance.v === 11 ? instance.url : `${instance.url}/api/json`;
           const reqBody = instance.v === 11 
-            ? JSON.stringify({ url: url, isAudioOnly: isAudio, filenamePattern: 'nerdy' })
-            : JSON.stringify({ url: url, isAudioOnly: isAudio });
+            ? JSON.stringify({ url: url, isAudioOnly: isAudio, videoQuality: requestedQuality, filenamePattern: 'nerdy' })
+            : JSON.stringify({ url: url, isAudioOnly: isAudio, vQuality: requestedQuality });
             
           const res = await fetch(ep, {
             method: 'POST',
@@ -612,7 +684,6 @@ async function fetchVideoDirect(url, platform, isAudio, fmt) {
       }
       
       if (!success) {
-        // Fallback fallback mechanism! If APIs fail, we fallback to showing the manual services links
         console.warn("Direct APIs failed, falling back to manual services mode.");
         showServiceModalFallback(url, fmt);
         return; 
@@ -621,14 +692,12 @@ async function fetchVideoDirect(url, platform, isAudio, fmt) {
 
     setModalProgress(100, 'Berhasil! Menyiapkan file...');
     
-    // Tampilkan link download
     const safeTitle = resultTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase();
     const ext = isAudio ? 'mp3' : 'mp4';
     showModalDownload(resultUrl, `${safeTitle}.${ext}`);
 
   } catch(e) {
     console.error(e);
-    // Fallback if error
     showServiceModalFallback(url, fmt);
   }
 }
