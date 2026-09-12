@@ -66,23 +66,13 @@
       <div class="dl-input-box">
         <span id="inputIcon" style="font-size:12px;font-weight:800;color:#a78bfa;padding:2px 8px;background:rgba(124,58,237,.2);border-radius:6px;">TIKTOK</span>
         <input type="url" id="videoUrl" class="dl-input"
-          placeholder="Tempel link video di sini..."
+          placeholder="Tempel link TikTok, Instagram, atau YouTube..."
           autocomplete="off" spellcheck="false"/>
         <button class="paste-btn" id="pasteBtn" title="Paste from clipboard">Paste</button>
-        <button class="dl-btn-go" id="goBtn">Cek & Unduh</button>
+        <button class="dl-btn-go" id="goBtn">Deteksi Video</button>
       </div>
       <p class="dl-hint" id="urlHint">Contoh: https://www.tiktok.com/@user/video/123...</p>
-      
-      <!-- DIRECT FORMAT SELECTOR (DI ATAS) -->
-      <div class="dl-format-selector" id="dlFormatSelector" style="margin-top:24px; text-align:left; background:#fff; border:4px solid #000; border-radius:12px; padding:20px; box-shadow:6px 6px 0 #000;">
-        <div style="font-family:var(--font-heading); font-size:22px; color:#000; margin-bottom:4px; letter-spacing:1px; text-transform:uppercase;">Pilih Kualitas Target</div>
-        <div style="font-size:13px; color:#444; font-weight:600; margin-bottom:16px;">Format akan otomatis disesuaikan saat tautan ditemukan.</div>
-        <div class="dl-options" id="fqsGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:10px;">
-          <!-- Injected by JS -->
-        </div>
-      </div>
     </div>
-
   </div>
 </section>
 
@@ -202,12 +192,7 @@
           </div>
         </div>
 
-        <hr class="dl-divider">
 
-        <div class="dl-section-label">⬇️ Format Download</div>
-        <div class="dl-panel-title">Pilih Format & Kualitas</div>
-        <div class="dl-panel-sub">Tempel link di atas lalu pilih format yang kamu inginkan untuk mengunduh langsung.</div>
-        <div class="services-grid" id="servicesGrid"></div>
       </div>
 
       <!-- Right sidebar -->
@@ -476,21 +461,10 @@ function switchPlatform(p) {
   document.getElementById('inputIcon').textContent = ICONS[p];
   selectedFormatIndex = 0;
   renderServices(p);
-  renderTopServices(p);
+  
   document.getElementById('resultArea').style.display = 'none';
 }
 
-
-function renderTopServices(p) {
-  const grid = document.getElementById('fqsGrid');
-  if (!grid) return;
-  grid.innerHTML = FORMATS[p].map((s,i) => `
-    <button class="dl-option-btn ${i===0?'primary':''}" id="topDlOptBtn-${i}" onclick="selectQuality(${i})" style="flex-direction:column; padding:12px; align-items:center; text-align:center; gap:8px;">
-      <span style="font-weight:900; font-size:16px; background:${s.requiresAd ? 'rgba(245,158,11,.2)' : 'rgba(124,58,237,.1)'}; color:${s.requiresAd ? '#f59e0b' : '#7c3aed'}; padding:6px; border-radius:8px; display:inline-block; width:100%;">${s.icon} ${s.name}</span>
-      <div style="font-size:11px; font-weight:700; color:#555;">${s.supported.join(' • ')}</div>
-    </button>
-  `).join('');
-}
 
 function renderServices(p) {
   const grid = document.getElementById('servicesGrid');
@@ -530,23 +504,23 @@ document.getElementById('videoUrl').addEventListener('keydown', e => { if (e.key
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 document.getElementById('goBtn').addEventListener('click', handleDownload);
 // Initialize top services on load
-document.addEventListener('DOMContentLoaded', () => renderTopServices(currentPlatform));
+
 
 // ─── HANDLE DOWNLOAD (main entry) ─────────────────────────────────────────
 function handleDownload() {
   const url = document.getElementById('videoUrl').value.trim();
   if (!url) {
-    showToast('⚠️ Tempel link video terlebih dahulu!');
+    showToast('Tempel link video terlebih dahulu.');
     document.getElementById('videoUrl').focus();
     return;
   }
   try { new URL(url); } catch(e) {
-    showToast('❌ Link tidak valid. Pastikan dimulai dengan https://');
+    showToast('Link tidak valid. Pastikan dimulai dengan https://');
     return;
   }
   window._currentDlUrl = url;
+  showToast('Mendeteksi video dan opsi kualitas...');
   showResults(url);
-  triggerDownload(selectedFormatIndex);
 }
 
 // ─── SHOW RESULT CARD ────────────────────────────────────────────────────
@@ -554,47 +528,37 @@ function showResults(url) {
   const fmts = FORMATS[currentPlatform];
   const resultArea = document.getElementById('resultArea');
   resultArea.style.display = 'block';
-  const shortUrl = url.length > 60 ? url.substring(0, 60) + '...' : url;
+  const shortUrl = url.length > 55 ? url.substring(0, 55) + '...' : url;
 
   resultArea.innerHTML = `
-    <div class="result-card" style="margin-bottom:24px;">
+    <div class="result-card result-detected">
       <div class="result-media">
-        <div class="result-thumb" style="font-size:16px;font-weight:800;color:#fff;background:linear-gradient(135deg,#7c3aed,#06b6d4);">${currentPlatform.toUpperCase()}</div>
+        <div class="result-thumb" style="font-size:15px;font-weight:800;color:#fff;background:linear-gradient(135deg,#7c3aed,#06b6d4);">${currentPlatform.toUpperCase()}</div>
         <div class="result-info">
-          <div class="result-title">Tautan Berhasil Terdeteksi</div>
+          <div class="result-title">Video Berhasil Terdeteksi</div>
           <div class="result-meta" title="${url}">${shortUrl}</div>
           <div class="result-badges">
             <span class="badge-platform badge-${currentPlatform}">${currentPlatform.toUpperCase()}</span>
-            <span style="padding:4px 12px;border-radius:99px;font-size:11px;font-weight:700;background:rgba(16,185,129,.15);color:#6ee7b7;border:1px solid rgba(16,185,129,.2);">✅ URL Valid, silakan klik kualitas di atas!</span>
+            <span class="detected-status">SIAP DIUNDUH</span>
           </div>
         </div>
       </div>
-    </div>
-  `;
-  document.getElementById('dlFormatSelector').scrollIntoView({ behavior:'smooth', block:'center' });
-  
-  // Highlight options
-  document.querySelectorAll('#fqsGrid .dl-option-btn').forEach(btn => {
-      btn.style.boxShadow = '6px 6px 0 #10b981';
-      btn.style.borderColor = '#10b981';
-  });
-  setTimeout(() => {
-     document.querySelectorAll('#fqsGrid .dl-option-btn').forEach(btn => {
-         btn.style.boxShadow = '4px 4px 0 #000';
-         btn.style.borderColor = '#000';
-     });
-  }, 1000);
-}
-
-let selectedFormatIndex = 0;
-function selectQuality(idx) {
-  selectedFormatIndex = idx;
-  document.querySelectorAll('#fqsGrid .dl-option-btn').forEach((btn, i) => {
-    btn.classList.toggle('primary', i === idx);
-    btn.setAttribute('aria-pressed', String(i === idx));
-  });
-  const selected = FORMATS[currentPlatform][idx];
-  showToast(`${selected.name} dipilih. Tempel link lalu klik Cek & Unduh.`);
+      <div class="quality-picker">
+        <div class="quality-picker-head">
+          <div><div class="quality-picker-title">Pilih Kualitas</div><div class="quality-picker-sub">Kualitas yang tersedia disesuaikan dengan platform dan video sumber.</div></div>
+          <span class="quality-note">HD perlu sponsor</span>
+        </div>
+        <div class="quality-picker-grid">
+          ${fmts.map((s, i) => `
+            <button class="quality-choice ${i===0?'selected':''}" type="button" onclick="triggerDownload(${i})">
+              <strong>${s.requiresAd ? 'LOCK ' : ''}${s.name}</strong>
+              <small>${s.requiresAd ? 'Buka dengan sponsor' : 'Unduh langsung'}</small>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    </div>`;
+  resultArea.scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
 function triggerDownloadFromResult(idx) { triggerDownload(idx); }
