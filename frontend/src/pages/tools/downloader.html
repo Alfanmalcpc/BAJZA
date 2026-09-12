@@ -536,6 +536,11 @@ function showResults(url) {
 function triggerDownloadFromResult(idx) { triggerDownload(idx); }
 
 // ─── TRIGGER DOWNLOAD — buka layanan terpilih ─────────────────────────────
+
+
+// ─── MODAL PILIHAN LAYANAN ────────────────────────────────────────────────
+
+// ─── TRIGGER DOWNLOAD — PROSES API LANGSUNG ─────────────────────────────
 function triggerDownload(idx) {
   const url = window._currentDlUrl || document.getElementById('videoUrl').value.trim();
   if (!url) {
@@ -546,25 +551,100 @@ function triggerDownload(idx) {
     showToast('❌ Link tidak valid.');
     return;
   }
-  // Tampilkan modal pilihan layanan
-  showServiceModal(url, idx);
+  
+  const fmt = FORMATS[currentPlatform][idx];
+  const isAudio = fmt.id === 'audio' || fmt.id === 'mp3';
+  
+  fetchVideoDirect(url, currentPlatform, isAudio, fmt);
 }
 
-// ─── MODAL PILIHAN LAYANAN ────────────────────────────────────────────────
-function showServiceModal(videoUrl, fmtIdx) {
-  const services = SERVICES[currentPlatform];
-  const fmt = FORMATS[currentPlatform][fmtIdx];
+async function fetchVideoDirect(url, platform, isAudio, fmt) {
+  openModal(fmt.icon, fmt.name, isAudio);
+  setModalProgress(15, 'Menganalisis link...');
 
+  try {
+    let resultUrl = '';
+    let resultTitle = `BAJA_${platform}_${isAudio ? 'audio' : 'video'}`;
+
+    if (platform === 'tiktok') {
+      setModalProgress(40, 'Mengekstrak data TikTok...');
+      const res = await fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`);
+      const json = await res.json();
+      if (json.code !== 0) throw new Error(json.msg || 'Gagal ekstrak dari TikTok');
+      resultUrl = isAudio ? json.data.music : json.data.play;
+      resultTitle = json.data.title ? json.data.title.substring(0,30) : resultTitle;
+    } 
+    else {
+      // YouTube / IG using public API aggregators
+      setModalProgress(30, `Memproses link ${platform}...`);
+      
+      const cobaltInstances = [
+        { url: 'https://api.cobalt.tools', v: 11 },
+        { url: 'https://co.wuk.sh', v: 7 },
+        { url: 'https://cobalt.api.sbe.sh', v: 11 },
+        { url: 'https://api.vreden.web.id/api/ytmp4?url=', v: 'get' }
+      ];
+      
+      let success = false;
+      for (let instance of cobaltInstances) {
+        try {
+          if (instance.v === 'get') continue; // skip if not cobalt
+          const ep = instance.v === 11 ? instance.url : `${instance.url}/api/json`;
+          const reqBody = instance.v === 11 
+            ? JSON.stringify({ url: url, isAudioOnly: isAudio, filenamePattern: 'nerdy' })
+            : JSON.stringify({ url: url, isAudioOnly: isAudio });
+            
+          const res = await fetch(ep, {
+            method: 'POST',
+            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+            body: reqBody
+          });
+          
+          const data = await res.json();
+          if (data && data.url) {
+            resultUrl = data.url; success = true; break;
+          } else if (data && data.status === 'redirect') {
+             resultUrl = data.url; success = true; break;
+          }
+        } catch(e) {
+          // ignore instance fail
+        }
+      }
+      
+      if (!success) {
+        // Fallback fallback mechanism! If APIs fail, we fallback to showing the manual services links
+        console.warn("Direct APIs failed, falling back to manual services mode.");
+        showServiceModalFallback(url, fmt);
+        return; 
+      }
+    }
+
+    setModalProgress(100, 'Berhasil! Menyiapkan file...');
+    
+    // Tampilkan link download
+    const safeTitle = resultTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    const ext = isAudio ? 'mp3' : 'mp4';
+    showModalDownload(resultUrl, `${safeTitle}.${ext}`);
+
+  } catch(e) {
+    console.error(e);
+    // Fallback if error
+    showServiceModalFallback(url, fmt);
+  }
+}
+
+// ─── FALLBACK JIKA API GAGAL (MANUAL MODE) ────────────────────────────────
+function showServiceModalFallback(videoUrl, fmt) {
+  const services = SERVICES[currentPlatform];
+  
   document.getElementById('modalIcon').textContent = fmt.icon;
-  document.getElementById('modalTitle').textContent = `Pilih Layanan — ${fmt.name}`;
+  document.getElementById('modalTitle').textContent = `Server Penuh — Pilih Layanan Alternatif`;
   document.getElementById('modalBody').innerHTML =
-    `Klik salah satu layanan di bawah. Layanan akan terbuka di tab baru dengan link video sudah otomatis ter-isi.<br><br>
-    <span style="font-size:11px;color:rgba(255,255,255,.5);">⚡ Gratis & tanpa perlu login</span>`;
+    `<span style="color:#ff6b6b;">⚠️ Sistem download otomatis sedang sibuk.</span><br>Silakan klik salah satu layanan alternatif di bawah ini (Gratis & Tanpa Login).`;
   document.getElementById('modalUrl').style.display = 'none';
   document.getElementById('modalProgress').style.display = 'none';
   document.getElementById('modalError').style.display = 'none';
 
-  // Render service buttons inside download wrap
   const wrap = document.getElementById('modalDownloadWrap');
   wrap.style.display = 'block';
   wrap.innerHTML = services.map(svc => `
@@ -584,6 +664,7 @@ function showServiceModal(videoUrl, fmtIdx) {
 
   document.getElementById('dlModal').classList.add('open');
 }
+
 
 // ─── MODAL HELPERS ────────────────────────────────────────────────────────
 function openModal(icon, name, isAudio) {
