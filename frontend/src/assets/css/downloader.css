@@ -626,3 +626,13 @@
   .downloader-page .platform-tab svg { width:20px; height:20px; }
   .downloader-page .dl-options { grid-template-columns:1fr; }
 }
+
+/* Format Selector Top Positioning */
+.downloader-page .dl-format-selector { transition: all 0.3s ease; }
+@media (max-width: 600px) {
+  .downloader-page .dl-format-selector { padding: 14px; }
+  .downloader-page #fqsGrid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+}
+@media (max-width: 380px) {
+  .downloader-page #fqsGrid { grid-template-columns: 1fr !important; }
+}
