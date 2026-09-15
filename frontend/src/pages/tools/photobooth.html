@@ -419,6 +419,40 @@
   btnFlipCam.addEventListener('click', switchCamera);
   btnFlipCam.style.transition = 'transform 0.4s ease, box-shadow 0.2s';
 
+  // Helper: Gambar frame video ke canvas dengan object-fit: cover proporsional (anti-gepeng)
+  function drawCover(ctx, videoEl, destX, destY, destW, destH, mirror = false) {
+    const sw = videoEl.videoWidth || 1280;
+    const sh = videoEl.videoHeight || 720;
+    if (!sw || !sh) return;
+
+    const sAspect = sw / sh;
+    const dAspect = destW / destH;
+
+    let cropW = sw;
+    let cropH = sh;
+    let cropX = 0;
+    let cropY = 0;
+
+    if (sAspect > dAspect) {
+      // Source lebih lebar dari kotak tujuan: crop horizontal (kiri & kanan)
+      cropW = sh * dAspect;
+      cropX = (sw - cropW) / 2;
+    } else {
+      // Source lebih tinggi dari kotak tujuan: crop vertikal (atas & bawah)
+      cropH = sw / dAspect;
+      cropY = (sh - cropH) / 2;
+    }
+
+    ctx.save();
+    ctx.translate(destX, destY);
+    if (mirror) {
+      ctx.translate(destW, 0);
+      ctx.scale(-1, 1);
+    }
+    ctx.drawImage(videoEl, cropX, cropY, cropW, cropH, 0, 0, destW, destH);
+    ctx.restore();
+  }
+
   // Capture Logic
   btnCapture.addEventListener('click', () => {
     if (photos.length >= maxSlots) return;
@@ -441,46 +475,24 @@
     capCtx.filter = currentFilter;
     
     if (isMultiplayer) {
-      // Gambar 2 pemain berdampingan: masing-masing setengah frame tanpa terdistorsi
+      // Gambar 2 pemain berdampingan: masing-masing setengah frame proporsional anti-gepeng
       const vW = video.videoWidth  || 1280;
       const vH = video.videoHeight || 720;
       captureCanvas.width  = vW;
       captureCanvas.height = vH;
       const halfW = vW / 2;
 
-      // Crop bagian tengah kamera lokal agar proporsional
-      const srcCropW = vW / 2;
-      const srcCropX = (vW - srcCropW) / 2;
+      // Kiri — Player 1 (Local)
+      drawCover(capCtx, video, 0, 0, halfW, vH, facingMode === 'user');
 
-      // Kiri — Player 1 (Local), mirror
-      capCtx.save();
-      capCtx.scale(-1, 1);
-      capCtx.drawImage(video, srcCropX, 0, srcCropW, vH, -halfW, 0, halfW, vH);
-      capCtx.restore();
-
-      // Kanan — Player 2 (Remote), mirror
-      const rvW = remoteVideo.videoWidth  || vW;
-      const rvH = remoteVideo.videoHeight || vH;
-      const rSrcCropW = rvW / 2;
-      const rSrcCropX = (rvW - rSrcCropW) / 2;
-      capCtx.save();
-      capCtx.translate(halfW, 0);
-      capCtx.scale(-1, 1);
-      capCtx.drawImage(remoteVideo, rSrcCropX, 0, rSrcCropW, rvH, -halfW, 0, halfW, vH);
-      capCtx.restore();
+      // Kanan — Player 2 (Remote)
+      drawCover(capCtx, remoteVideo, halfW, 0, halfW, vH, true);
     } else {
       // Single player
-      captureCanvas.width  = video.videoWidth;
-      captureCanvas.height = video.videoHeight;
+      captureCanvas.width  = video.videoWidth  || 1280;
+      captureCanvas.height = video.videoHeight || 720;
 
-      if (facingMode === 'user') {
-        // Kamera depan: mirror horizontal agar tampak natural
-        capCtx.scale(-1, 1);
-        capCtx.drawImage(video, -captureCanvas.width, 0, captureCanvas.width, captureCanvas.height);
-      } else {
-        // Kamera belakang: gambar langsung tanpa mirror
-        capCtx.drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
-      }
+      drawCover(capCtx, video, 0, 0, captureCanvas.width, captureCanvas.height, facingMode === 'user');
     }
     
     capCtx.restore();
