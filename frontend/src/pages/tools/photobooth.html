@@ -227,7 +227,7 @@
   const capCtx = captureCanvas.getContext('2d');
 
   // State
-  let stream       = null;
+  var stream       = null;
   let photos       = [];          // Array of Image objects atau DataURLs
   let maxSlots     = 3;
   let currentTheme = { type: 'solid', bg: '#ffffff', text: '#000000' };
@@ -244,11 +244,11 @@
   logoImg.onload = () => { isLogoLoaded = true; if(photos.length > 0) renderStrip(); };
 
   // Multiplayer State
-  let isMultiplayer = false;
-  let isHost = false;
-  let currentRoomId = null;
-  let peerConnection = null;
-  let remoteStream = null;
+  var isMultiplayer = false;
+  var isHost = false;
+  var currentRoomId = null;
+  var peerConnection = null;
+  var remoteStream = null;
   let iceCandidateQueue = []; // Queue ICE candidates until remote description is set
   let heartbeatInterval = null; // Keep room alive
   
@@ -441,27 +441,32 @@
     capCtx.filter = currentFilter;
     
     if (isMultiplayer) {
-      // Gambar 2 pemain berdampingan: masing-masing setengah frame
-      // Canvas tetap 4:3 (sama dengan satu kamera)
+      // Gambar 2 pemain berdampingan: masing-masing setengah frame tanpa terdistorsi
       const vW = video.videoWidth  || 1280;
       const vH = video.videoHeight || 720;
       captureCanvas.width  = vW;
       captureCanvas.height = vH;
       const halfW = vW / 2;
 
+      // Crop bagian tengah kamera lokal agar proporsional
+      const srcCropW = vW / 2;
+      const srcCropX = (vW - srcCropW) / 2;
+
       // Kiri — Player 1 (Local), mirror
       capCtx.save();
       capCtx.scale(-1, 1);
-      capCtx.drawImage(video, 0, 0, vW, vH, -halfW, 0, halfW, vH);
+      capCtx.drawImage(video, srcCropX, 0, srcCropW, vH, -halfW, 0, halfW, vH);
       capCtx.restore();
 
       // Kanan — Player 2 (Remote), mirror
       const rvW = remoteVideo.videoWidth  || vW;
       const rvH = remoteVideo.videoHeight || vH;
+      const rSrcCropW = rvW / 2;
+      const rSrcCropX = (rvW - rSrcCropW) / 2;
       capCtx.save();
       capCtx.translate(halfW, 0);
       capCtx.scale(-1, 1);
-      capCtx.drawImage(remoteVideo, 0, 0, rvW, rvH, -halfW, 0, halfW, vH);
+      capCtx.drawImage(remoteVideo, rSrcCropX, 0, rSrcCropW, rvH, -halfW, 0, halfW, vH);
       capCtx.restore();
     } else {
       // Single player

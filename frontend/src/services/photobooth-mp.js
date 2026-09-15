@@ -115,18 +115,16 @@ function initMultiplayerSocket() {
 
   // Keduanya: terima ICE candidate
   socket.on('ice-candidate', async (data) => {
-    if (!peerConnection) return;
     const candidate = new RTCIceCandidate(data.candidate);
-    // Hanya tambahkan jika remoteDescription sudah ada, kalau belum → antri dulu
-    if (peerConnection.remoteDescription && peerConnection.remoteDescription.type) {
-      try {
-        await peerConnection.addIceCandidate(candidate);
-      } catch (e) {
-        console.warn('[MP] Gagal addIceCandidate:', e);
-      }
-    } else {
-      console.log('[MP] ICE candidate dimasukkan ke antrian (remote desc belum siap)');
+    if (!peerConnection || !peerConnection.remoteDescription || !peerConnection.remoteDescription.type) {
+      console.log('[MP] ICE candidate dimasukkan ke antrian (peerConnection/remote desc belum siap)');
       mpIceCandidateQueue.push(candidate);
+      return;
+    }
+    try {
+      await peerConnection.addIceCandidate(candidate);
+    } catch (e) {
+      console.warn('[MP] Gagal addIceCandidate:', e);
     }
   });
 
@@ -258,6 +256,13 @@ function createPeerConnection() {
 // HOST: Buat Offer
 // ──────────────────────────────────────
 async function makeWebRTCOffer() {
+  if (!stream && typeof startCamera === 'function') {
+    try {
+      await startCamera(typeof facingMode !== 'undefined' ? facingMode : 'user');
+    } catch (e) {
+      console.warn('[MP] Gagal startCamera sebelum makeWebRTCOffer:', e);
+    }
+  }
   createPeerConnection();
   try {
     const offer = await peerConnection.createOffer();
@@ -277,6 +282,13 @@ async function makeWebRTCOffer() {
 // GUEST: Terima Offer & Balas Answer
 // ──────────────────────────────────────
 async function handleWebRTCOffer(data) {
+  if (!stream && typeof startCamera === 'function') {
+    try {
+      await startCamera(typeof facingMode !== 'undefined' ? facingMode : 'user');
+    } catch (e) {
+      console.warn('[MP] Gagal startCamera sebelum handleWebRTCOffer:', e);
+    }
+  }
   createPeerConnection();
   try {
     await peerConnection.setRemoteDescription(new RTCSessionDescription(data.sdp));
