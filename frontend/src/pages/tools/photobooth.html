@@ -419,37 +419,41 @@
   btnFlipCam.addEventListener('click', switchCamera);
   btnFlipCam.style.transition = 'transform 0.4s ease, box-shadow 0.2s';
 
-  // Helper: Gambar frame video ke canvas dengan object-fit: cover proporsional (anti-gepeng)
-  function drawCover(ctx, videoEl, destX, destY, destW, destH, mirror = false) {
+  // Helper: Gambar frame video ke canvas dengan object-fit: contain (seluruh isi kamera masuk ke frame tanpa terpotong/zoom)
+  function drawContain(ctx, videoEl, destX, destY, destW, destH, mirror = false, bgColor = '#111111') {
     const sw = videoEl.videoWidth || 1280;
     const sh = videoEl.videoHeight || 720;
     if (!sw || !sh) return;
 
+    // Fill background agar area kosong (jika ada perbedaan rasio) rapi
+    ctx.save();
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(destX, destY, destW, destH);
+
     const sAspect = sw / sh;
     const dAspect = destW / destH;
 
-    let cropW = sw;
-    let cropH = sh;
-    let cropX = 0;
-    let cropY = 0;
+    let drawW = destW;
+    let drawH = destH;
+    let drawX = destX;
+    let drawY = destY;
 
     if (sAspect > dAspect) {
-      // Source lebih lebar dari kotak tujuan: crop horizontal (kiri & kanan)
-      cropW = sh * dAspect;
-      cropX = (sw - cropW) / 2;
-    } else {
-      // Source lebih tinggi dari kotak tujuan: crop vertikal (atas & bawah)
-      cropH = sw / dAspect;
-      cropY = (sh - cropH) / 2;
+      // Source lebih lebar: letterbox atas & bawah
+      drawH = destW / sAspect;
+      drawY = destY + (destH - drawH) / 2;
+    } else if (sAspect < dAspect) {
+      // Source lebih tinggi: pillarbox kiri & kanan
+      drawW = destH * sAspect;
+      drawX = destX + (destW - drawW) / 2;
     }
 
-    ctx.save();
-    ctx.translate(destX, destY);
+    ctx.translate(drawX, drawY);
     if (mirror) {
-      ctx.translate(destW, 0);
+      ctx.translate(drawW, 0);
       ctx.scale(-1, 1);
     }
-    ctx.drawImage(videoEl, cropX, cropY, cropW, cropH, 0, 0, destW, destH);
+    ctx.drawImage(videoEl, 0, 0, sw, sh, 0, 0, drawW, drawH);
     ctx.restore();
   }
 
@@ -475,7 +479,7 @@
     capCtx.filter = currentFilter;
     
     if (isMultiplayer) {
-      // Gambar 2 pemain berdampingan: masing-masing setengah frame proporsional anti-gepeng
+      // Gambar 2 pemain berdampingan: masing-masing setengah frame dengan object-fit: contain (tidak ada yang terpotong)
       const vW = video.videoWidth  || 1280;
       const vH = video.videoHeight || 720;
       captureCanvas.width  = vW;
@@ -483,16 +487,16 @@
       const halfW = vW / 2;
 
       // Kiri — Player 1 (Local)
-      drawCover(capCtx, video, 0, 0, halfW, vH, facingMode === 'user');
+      drawContain(capCtx, video, 0, 0, halfW, vH, facingMode === 'user');
 
       // Kanan — Player 2 (Remote)
-      drawCover(capCtx, remoteVideo, halfW, 0, halfW, vH, true);
+      drawContain(capCtx, remoteVideo, halfW, 0, halfW, vH, true);
     } else {
       // Single player
       captureCanvas.width  = video.videoWidth  || 1280;
       captureCanvas.height = video.videoHeight || 720;
 
-      drawCover(capCtx, video, 0, 0, captureCanvas.width, captureCanvas.height, facingMode === 'user');
+      drawContain(capCtx, video, 0, 0, captureCanvas.width, captureCanvas.height, facingMode === 'user');
     }
     
     capCtx.restore();
