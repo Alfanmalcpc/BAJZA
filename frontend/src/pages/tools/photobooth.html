@@ -28,26 +28,7 @@
       #bgColorPicker { margin: 10px 0; }
       .multiplayer-voice { padding: 10px; background: #eef; border-radius: 5px; margin: 10px 0; }
     </style>
-    <div id="new-features" style="padding: 10px; border: 1px dashed #666; margin-bottom: 10px;">
-        <h4>Fitur Baru Photobooth</h4>
-        <label>Warna Background Kanvas: <input type="color" id="bgColorPicker" onchange="document.getElementById('canvas').style.backgroundColor = this.value"></label><br>
-        <button class="btn-collapse" onclick="document.getElementById('elemenDropdown').style.display = document.getElementById('elemenDropdown').style.display === 'none' ? 'block' : 'none'">+ Elemen (Stiker/Frame)</button>
-        <div id="elemenDropdown" class="elemen-dropdown">
-            <!-- Pindahkan tombol elemen lama ke sini secara dinamis via JS atau masukkan elemen baru -->
-            <p>Pilih Elemen di sini (Tampilan disederhanakan)</p>
-        </div>
-        <div class="multiplayer-voice">
-            <strong>🎤 Voice Chat (Multiplayer)</strong>
-            <button onclick="alert('Mic dihidupkan via WebRTC (Mock)')">Unmute Mic</button>
-            <button onclick="alert('Speaker dihidupkan')">Speaker On</button>
-        </div>
-    </div>
-    <script>
-      // Automatically hide messy buttons on mobile
-      if(window.innerWidth < 600) {
-          console.log('Mobile view: UI disederhanakan');
-      }
-    </script>
+    
     
 
 <!-- TOP NAVBAR -->
@@ -67,7 +48,12 @@
   <button id="btnToggleMp" style="margin-top:16px; background:#fff; color:#000; font-family:'Bangers',cursive; font-size:18px; padding:8px 24px; border:3px solid #000; border-radius:8px; box-shadow:4px 4px 0 #000; cursor:pointer; transition:all 0.2s; letter-spacing:1px;">👥 MULTIPLAYER MODE</button>
 </div>
 
-<div id="mpPanel" class="mp-panel" style="max-width:600px; margin:24px auto 0;">
+<div id="mpPanel"
+      <!-- Voice Chat Multiplayer -->
+      <div id="voice-chat-mp" style="padding:10px; background:#eef; border-radius:5px; margin:10px 0;">
+          <strong>🎤 Voice Chat</strong>
+          <button onclick="alert('Mic dihidupkan (WebRTC mock)')" style="padding:5px; border-radius:4px; border:1px solid #000; background:#fff; cursor:pointer;">Unmute</button>
+      </div> class="mp-panel" style="max-width:600px; margin:24px auto 0;">
   <div id="mpAuthBlock" style="text-align:center;">
     <h3 style="font-family:'Bangers',cursive; font-size:24px; letter-spacing:1px;">🔒 Login Dibutuhkan</h3>
     <p style="margin:12px 0;">Anda harus login untuk menggunakan fitur Multiplayer WebRTC.</p>
@@ -208,7 +194,9 @@
       </div>
 
 
-      <div class="control-label" style="margin-top:20px;">3. Tambah Stiker (Bisa digeser & diubah ukuran)</div>
+      <details style="margin-top:20px; background:#f9f9f9; padding:10px; border-radius:8px; border:2px solid #000; cursor:pointer;">
+<summary style="font-weight:bold; font-size:16px;">📸 Elemen (Stiker & Frame)</summary>
+<div class="control-label" style="margin-top:10px;">3. Tambah Stiker (Bisa digeser & diubah ukuran)</div>
       <div class="sticker-menu-grid">
         <button class="sticker-btn" data-src="/src/assets/img/stickers/crown.svg"><img src="/src/assets/img/stickers/crown.svg"></button>
         <button class="sticker-btn" data-src="/src/assets/img/stickers/sunglasses.svg"><img src="/src/assets/img/stickers/sunglasses.svg"></button>
@@ -219,6 +207,7 @@
 
     <div class="strip-container">
       <div class="canvas-wrapper" style="position: relative; display: inline-block;">
+        <label style="display:block; margin: 10px 0; font-weight:bold;">Warna Frame / Background Manual: <input type="color" id="frameBgColor" value="#ffffff" onchange="document.getElementById('stripCanvas').style.backgroundColor = this.value"></label>
         <canvas id="stripCanvas"></canvas>
         <div id="stickerLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden;"></div>
       </div>
