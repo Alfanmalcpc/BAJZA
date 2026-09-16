@@ -100,12 +100,23 @@
             overflow: hidden;
             transition: background 0.5s ease;
         }
+        /* Seabed floor for decorations */
+        .seabed {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 35px;
+            background: linear-gradient(180deg, rgba(217,119,6,0.3) 0%, rgba(180,83,9,0.7) 100%);
+            border-top: 2px solid rgba(255,255,255,0.2);
+            pointer-events: none;
+            z-index: 2;
+        }
         .tank-glass {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 40%, rgba(0,0,0,0.2) 100%);
             pointer-events: none;
             border-radius: 15px;
+            z-index: 10;
         }
         .bubble {
             position: absolute;
@@ -114,25 +125,26 @@
             border-radius: 50%;
             pointer-events: none;
             animation: floatUp 5s infinite linear;
+            z-index: 3;
         }
         @keyframes floatUp {
             0% { transform: translateY(0); opacity: 0.8; }
             100% { transform: translateY(-520px); opacity: 0; }
         }
 
-        /* Fish Element */
+        /* Dynamic Fish Element */
         .fish {
             position: absolute;
             cursor: pointer;
             transition: left 2s linear, top 2s ease-in-out, transform 0.3s;
             user-select: none;
+            z-index: 5;
         }
         .fish img {
             display: block;
-            max-width: 110px;
-            max-height: 80px;
             pointer-events: none;
             filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.5));
+            transition: width 0.5s ease, height 0.5s ease;
         }
         .fish-badge {
             position: absolute;
@@ -148,6 +160,24 @@
             white-space: nowrap;
             pointer-events: none;
             border: 1px solid #fff;
+        }
+
+        /* Custom Dragable Seabed Decoration Elements */
+        .decor-item {
+            position: absolute;
+            bottom: 5px; /* Locked to bottom seabed floor */
+            cursor: grab;
+            z-index: 4;
+            user-select: none;
+            transition: transform 0.1s;
+        }
+        .decor-item:active {
+            cursor: grabbing;
+            transform: scale(1.05);
+        }
+        .decor-item svg, .decor-item img {
+            display: block;
+            pointer-events: none;
         }
 
         /* Controls Section */
@@ -239,7 +269,7 @@
 <div id="gameContent" style="display:none; padding: 0 16px;">
     <div class="aq-header-box">
         <div class="aq-title">🐠 VIRTUAL AQUARIUM STUDIO</div>
-        <p style="font-size:14px; font-weight:600; opacity:0.85;">Gambar ikan impianmu di kanvas, rawat di aquarium, dan jual dengan harga tinggi yang menguntungkan!</p>
+        <p style="font-size:14px; font-weight:600; opacity:0.85;">Gambar ikan kecilmu, rawat dan beri makan sampai tumbuh besar untuk dijual dengan keuntungan melimpah!</p>
         
         <div class="stats-bar">
             <div class="stat-pill">🪙 Token: <span id="tokenVal" style="color:#ca8a04;">100</span></div>
@@ -250,7 +280,9 @@
 
     <!-- TANK AQUARIUM -->
     <div class="tank-wrapper">
-        <div class="tank" id="aquariumTank"></div>
+        <div class="tank" id="aquariumTank">
+            <div class="seabed"></div>
+        </div>
         <div class="tank-glass"></div>
     </div>
 
@@ -261,7 +293,7 @@
             <button class="btn-baja btn-green" onclick="feedFish()">🦐 Beri Makan</button>
             <button class="btn-baja btn-cyan" onclick="openModal('foodModal')">🛒 Beli Pakan</button>
             <button class="btn-baja" onclick="openModal('themeModal')">🏝️ Beli & Ganti Tema Tank</button>
-            <button class="btn-baja" onclick="openModal('decorModal')">🪸 Beli Hiasan Tank</button>
+            <button class="btn-baja" onclick="openModal('decorModal')">🪸 Beli Hiasan Dasar Tank</button>
         </div>
     </div>
 </div>
@@ -270,7 +302,7 @@
 <div id="drawModal" class="baja-modal">
     <div class="baja-modal-card">
         <h2 style="font-family:'Bangers',cursive; font-size:26px; color:#0284c7;">🎨 GAMBAR IKAN CUSTOM</h2>
-        <p style="font-size:13px; font-weight:600; margin-bottom:10px;">Biaya buat: 25 Token. Harga jualnya nanti pasti jauh LEBIH MAHAL!</p>
+        <p style="font-size:13px; font-weight:600; color:#ef4444; margin-bottom:10px;">⚠️ Biaya buat: 25 Token. Ikan baru menetas harganya murah! Rawat & beri pakan agar besar dan bernilai mahal!</p>
         
         <canvas id="fishCanvas" width="280" height="180" style="border:3px solid #000; border-radius:12px; background:#fff; cursor:crosshair;"></canvas>
         
@@ -281,7 +313,7 @@
         </div>
 
         <div style="display:flex; gap:10px; justify-content:center; margin-top:14px;">
-            <button class="btn-baja btn-yellow" onclick="saveFish()">✨ Masukkan ke Tank</button>
+            <button class="btn-baja btn-yellow" onclick="saveFish()">✨ Ciptakan Ikan</button>
             <button class="btn-baja" onclick="closeModal('drawModal')">Batal</button>
         </div>
     </div>
@@ -290,7 +322,7 @@
 <!-- MODAL JUAL IKAN -->
 <div id="sellModal" class="baja-modal">
     <div class="baja-modal-card">
-        <h2 style="font-family:'Bangers',cursive; font-size:26px; color:#ca8a04;">💰 JUAL IKAN HASIL KREASIMU</h2>
+        <h2 style="font-family:'Bangers',cursive; font-size:26px; color:#ca8a04;">💰 PASAR PENJUALAN IKAN</h2>
         <div id="sellPreview" style="margin:12px 0;"></div>
         <div id="sellInfo" style="font-size:15px; font-weight:700; line-height:1.6; margin-bottom:15px;"></div>
         <div style="display:flex; gap:10px; justify-content:center;">
@@ -322,7 +354,8 @@
 <!-- MODAL BELI HIASAN TANK -->
 <div id="decorModal" class="baja-modal">
     <div class="baja-modal-card" style="max-width:600px;">
-        <h2 style="font-family:'Bangers',cursive; font-size:26px; color:#0284c7;">🪸 BELI HIASAN AQUARIUM</h2>
+        <h2 style="font-family:'Bangers',cursive; font-size:26px; color:#0284c7;">🪸 BELI HIASAN DASAR TANK</h2>
+        <p style="font-size:12px; font-weight:600; color:#475569; margin-bottom:10px;">Hiasan tersusun rapi di dasar laut dan bisa digeser secara horizontal di dasar tank!</p>
         <div class="catalog-grid" id="decorCatalog"></div>
         <button class="btn-baja" onclick="closeModal('decorModal')" style="margin-top:15px;">Tutup</button>
     </div>
@@ -343,6 +376,38 @@
     const tokenVal = document.getElementById('tokenVal');
     const foodVal = document.getElementById('foodVal');
     const foodName = document.getElementById('foodName');
+
+    // Custom Vector SVG Assets for Seabed Decorations (Anti-Emoji, Professional Sizing)
+    const DECORATION_ASSETS = [
+        {
+            id: 'coral', name: 'Karang Merah', cost: 15, width: 60, height: 70,
+            svg: `<svg viewBox="0 0 100 120" width="60" height="70"><path d="M50 110 C50 80 20 70 20 40 C20 20 35 20 35 35 C35 60 50 60 50 35 C50 15 65 15 65 30 C65 50 80 50 80 30 C80 15 95 20 90 40 C80 80 50 80 50 110 Z" fill="#ef4444" stroke="#000" stroke-width="3"/></svg>`
+        },
+        {
+            id: 'seaweed', name: 'Rumput Laut', cost: 10, width: 50, height: 90,
+            svg: `<svg viewBox="0 0 80 140" width="50" height="90"><path d="M40 130 Q20 90 50 60 Q20 30 40 10 Q30 30 10 60 Q40 90 20 130 Z M50 130 Q70 100 40 70 Q60 40 50 20 Q40 40 30 70 Q50 100 30 130 Z" fill="#22c55e" stroke="#000" stroke-width="3"/></svg>`
+        },
+        {
+            id: 'castle', name: 'Kastil Kuno', cost: 30, width: 85, height: 95,
+            svg: `<svg viewBox="0 0 120 130" width="85" height="95"><rect x="15" y="40" width="90" height="80" fill="#64748b" stroke="#000" stroke-width="4"/><rect x="25" y="20" width="20" height="20" fill="#475569" stroke="#000" stroke-width="3"/><rect x="75" y="20" width="20" height="20" fill="#475569" stroke="#000" stroke-width="3"/><rect x="50" y="10" width="20" height="30" fill="#334155" stroke="#000" stroke-width="3"/><path d="M45 80 A15 15 0 0 1 75 80 L75 120 L45 120 Z" fill="#0f172a" stroke="#000" stroke-width="3"/></svg>`
+        },
+        {
+            id: 'treasure', name: 'Peti Emas', cost: 25, width: 65, height: 55,
+            svg: `<svg viewBox="0 0 100 80" width="65" height="55"><rect x="10" y="30" width="80" height="45" rx="6" fill="#ca8a04" stroke="#000" stroke-width="4"/><path d="M10 30 Q50 5 90 30 Z" fill="#eab308" stroke="#000" stroke-width="4"/><circle cx="50" cy="45" r="7" fill="#fef08a" stroke="#000" stroke-width="2"/></svg>`
+        },
+        {
+            id: 'shipwreck', name: 'Kapal Karam', cost: 35, width: 110, height: 75,
+            svg: `<svg viewBox="0 0 140 90" width="110" height="75"><path d="M10 30 L40 80 L120 80 L130 40 L80 40 L60 20 Z" fill="#78350f" stroke="#000" stroke-width="4"/><line x1="50" y1="20" x2="50" y2="70" stroke="#000" stroke-width="4"/><line x1="90" y1="25" x2="80" y2="65" stroke="#000" stroke-width="4"/></svg>`
+        },
+        {
+            id: 'anchor', name: 'Jangkar Besi', cost: 20, width: 55, height: 70,
+            svg: `<svg viewBox="0 0 80 100" width="55" height="70"><circle cx="40" cy="20" r="10" fill="none" stroke="#000" stroke-width="5"/><line x1="40" y1="30" x2="40" y2="80" stroke="#000" stroke-width="6"/><path d="M15 60 C15 90 65 90 65 60" fill="none" stroke="#000" stroke-width="6"/></svg>`
+        },
+        {
+            id: 'pillar', name: 'Pilar Yunani', cost: 20, width: 45, height: 80,
+            svg: `<svg viewBox="0 0 60 110" width="45" height="80"><rect x="10" y="10" width="40" height="15" fill="#cbd5e1" stroke="#000" stroke-width="3"/><rect x="15" y="25" width="30" height="70" fill="#94a3b8" stroke="#000" stroke-width="3"/><rect x="10" y="95" width="40" height="10" fill="#cbd5e1" stroke="#000" stroke-width="3"/></svg>`
+        }
+    ];
 
     // 20+ Diverse Themes for Aquarium Tank ONLY
     const TANK_THEMES = [
@@ -371,23 +436,9 @@
 
     // Food Types
     const FOOD_ITEMS = [
-        { id: 'pellet', name: 'Pelet Standar', cost: 5, fill: 25, weight: 0.05, count: 5, color: '#b45309' },
-        { id: 'cacing', name: 'Cacing Sutra', cost: 12, fill: 50, weight: 0.15, count: 5, color: '#ef4444' },
-        { id: 'vitamin', name: 'Vitamin Super Gold', cost: 25, fill: 100, weight: 0.35, count: 3, color: '#facc15' }
-    ];
-
-    // Decorations Catalog
-    const DECORATIONS = [
-        { name: 'Karang Laut', emoji: '🪸', cost: 10 },
-        { name: 'Rumput Laut', emoji: '🌿', cost: 8 },
-        { name: 'Kastil Kerajaan', emoji: '🏰', cost: 25 },
-        { name: 'Kapal Karam Emas', emoji: '⛵', cost: 30 },
-        { name: 'Peti Harta Karun', emoji: '🪙', cost: 20 },
-        { name: 'Batu Karang', emoji: '🪨', cost: 12 },
-        { name: 'Bintang Laut', emoji: '⭐', cost: 10 },
-        { name: 'Patung Romawi', emoji: '🗿', cost: 25 },
-        { name: 'Cangkang Kerang', emoji: '🐚', cost: 10 },
-        { name: 'Kepiting Kecil', emoji: '🦀', cost: 15 }
+        { id: 'pellet', name: 'Pelet Standar', cost: 5, fill: 25, weight: 0.15, count: 5, color: '#b45309' },
+        { id: 'cacing', name: 'Cacing Sutra', cost: 12, fill: 50, weight: 0.35, count: 5, color: '#ef4444' },
+        { id: 'vitamin', name: 'Vitamin Super Gold', cost: 25, fill: 100, weight: 0.75, count: 3, color: '#facc15' }
     ];
 
     // Check Firebase Login First
@@ -484,15 +535,16 @@
         const isSuper = strokes > 80 || Math.random() > 0.4;
         const quality = isSuper ? (strokes > 140 ? 'Legendaris' : 'Bagus') : 'Biasa';
         
-        // Harga jual ikan SELALU LEBIH MAHAL dari biaya pembuatannya (25 token)!
-        // Minimal harga dasar: 38 token untuk Biasa, 70 untuk Bagus, 130 untuk Legendaris
-        const basePrice = quality === 'Legendaris' ? 140 : (quality === 'Bagus' ? 75 : 38);
+        // SANGAT PENTING: Ikan BARU MENETAS harganya SANGAT MURAH (5-8 token)!
+        // Pemain TIDAK BISA SPAM buat & langsung jual untuk cari untung.
+        // Ikan harus dirawat & diberi makan agar tumbuh beratnya & nilainya melonjak naik!
+        const basePrice = quality === 'Legendaris' ? 12 : (quality === 'Bagus' ? 8 : 5);
 
         const fish = {
             id: Date.now(),
             src: imgData,
             age: 0,
-            weight: (0.8 + Math.random() * 0.4).toFixed(2),
+            weight: 0.20, // Ikan baru sangat kecil (0.2 kg)
             hunger: 100,
             quality: quality,
             basePrice: basePrice,
@@ -514,18 +566,21 @@
 
         const img = document.createElement('img');
         img.src = f.src;
+        // Visual size scales dynamically with weight!
+        const initialWidth = Math.min(130, Math.max(45, Math.floor(45 + (f.weight * 22))));
+        img.style.width = initialWidth + 'px';
         el.appendChild(img);
 
         const badge = document.createElement('div');
         badge.className = 'fish-badge';
-        badge.innerText = `${f.quality} • ${f.weight}kg`;
+        badge.innerText = `${f.quality} • ${f.weight.toFixed(2)}kg`;
         el.appendChild(badge);
 
         el.addEventListener('click', () => openSellFishModal(f));
         tank.appendChild(el);
     }
 
-    // Fish Loop: Hunger, Aging, Movement
+    // Fish Loop: Hunger, Aging, Movement & Dynamic Size Scaling
     setInterval(() => {
         fishes.forEach(f => {
             const el = document.getElementById('fish-' + f.id);
@@ -544,14 +599,21 @@
             el.style.left = f.x + 'px';
             el.style.top = f.y + 'px';
 
+            // Scale visual size dynamically as weight grows!
+            const img = el.querySelector('img');
+            if (img) {
+                const scaledWidth = Math.min(140, Math.max(45, Math.floor(45 + (parseFloat(f.weight) * 22))));
+                img.style.width = scaledWidth + 'px';
+            }
+
             const badge = el.querySelector('.fish-badge');
             if (f.hunger < 30) {
                 el.style.opacity = '0.5';
-                badge.innerText = `⚠️ Lapar! • ${f.weight}kg`;
+                badge.innerText = `⚠️ Lapar! • ${parseFloat(f.weight).toFixed(2)}kg`;
                 badge.style.background = '#ef4444';
             } else {
                 el.style.opacity = '1';
-                badge.innerText = `${f.quality} • ${f.weight}kg`;
+                badge.innerText = `${f.quality} • ${parseFloat(f.weight).toFixed(2)}kg`;
                 badge.style.background = '#000';
             }
         });
@@ -581,6 +643,7 @@
             p.style.left = (Math.random() * (tank.offsetWidth - 40) + 20) + 'px';
             p.style.top = '10px';
             p.style.transition = 'top 3s ease';
+            p.style.zIndex = '6';
             tank.appendChild(p);
 
             setTimeout(() => { p.style.top = (tank.offsetHeight - 20) + 'px'; }, 40);
@@ -589,7 +652,7 @@
 
         fishes.forEach(f => {
             f.hunger = Math.min(100, f.hunger + curFood.fill);
-            f.weight = (parseFloat(f.weight) + curFood.weight).toFixed(2);
+            f.weight = (parseFloat(f.weight) + curFood.weight);
         });
     }
 
@@ -602,15 +665,23 @@
 
         preview.innerHTML = `<img src="${f.src}" style="max-width:140px; border:2px solid #000; border-radius:10px; background:#f1f5f9; padding:8px;">`;
         
-        // Jual ikan LEBIH MAHAL dari biaya pembuatan (25 Token)!
-        const sellPrice = Math.floor(f.basePrice + (parseFloat(f.weight) * 15));
+        // Dynamic Pricing:
+        // Fresh fish (0.2kg) = 5 to 10 tokens (LOSS, no spam possible!)
+        // Raised fish (2.0kg - 4.0kg) = base + (weight * 25) + (age * 2) = 60 to 180+ tokens (BIG PROFIT for caring!)
+        const wVal = parseFloat(f.weight);
+        const sellPrice = Math.floor(f.basePrice + (wVal * 25) + (f.age * 2));
+
+        const isProfitable = sellPrice > 25;
 
         info.innerHTML = `
-            <div>Kualitas Ikan: <strong style="color:#0284c7;">${f.quality}</strong></div>
-            <div>Berat Ikan: <strong>${f.weight} kg</strong></div>
-            <div>Umur Ikan: <strong>${f.age} hari</strong></div>
+            <div>Kualitas: <strong style="color:#0284c7;">${f.quality}</strong></div>
+            <div>Berat saat ini: <strong>${wVal.toFixed(2)} kg</strong></div>
+            <div>Umur perawatan: <strong>${f.age} hari</strong></div>
             <div>Tingkat Kenyang: <strong>${Math.round(f.hunger)}%</strong></div>
-            <div style="font-size:18px; color:#16a34a; margin-top:8px;">Harga Jual: <strong>+${sellPrice} Token</strong> (Untung!)</div>
+            <div style="font-size:18px; color:${isProfitable ? '#16a34a' : '#dc2626'}; margin-top:8px;">
+                Harga Jual: <strong>${sellPrice} Token</strong> 
+                ${isProfitable ? '💰 (Untung!)' : '📉 (Ikan masih terlalu kecil, rawat lagi!)'}
+            </div>
         `;
 
         document.getElementById('btnConfirmSell').onclick = () => {
@@ -620,7 +691,7 @@
             if (dom) dom.remove();
             fishes = fishes.filter(x => x.id !== f.id);
             closeModal('sellModal');
-            alert(`🎉 Ikan berhasil dijual! Kamu mendapatkan +${sellPrice} Token!`);
+            alert(`🎉 Ikan dijual seharga ${sellPrice} Token!`);
         };
 
         openModal('sellModal');
@@ -636,7 +707,7 @@
             c.innerHTML = `
                 <div style="font-size:20px; color:${item.color}">●</div>
                 <div style="font-weight:800; font-size:14px;">${item.name}</div>
-                <div style="font-size:12px; opacity:0.8;">Kenyang +${item.fill}%</div>
+                <div style="font-size:12px; opacity:0.8;">Kenyang +${item.fill}% • Berat +${item.weight}kg</div>
                 <div style="font-size:12px; color:#ca8a04; font-weight:700; margin-top:4px;">${item.cost} Token / ${item.count} Pcs</div>
                 <button class="btn-baja btn-cyan" style="margin-top:6px; padding:4px 10px; font-size:12px;">Beli</button>
             `;
@@ -692,12 +763,12 @@
     function renderDecorCatalog() {
         const wrap = document.getElementById('decorCatalog');
         wrap.innerHTML = '';
-        DECORATIONS.forEach(d => {
+        DECORATION_ASSETS.forEach(d => {
             const c = document.createElement('div');
             c.className = 'item-card';
             c.innerHTML = `
-                <div style="font-size:28px;">${d.emoji}</div>
-                <div style="font-weight:800; font-size:13px;">${d.name}</div>
+                <div style="display:flex; justify-content:center; align-items:center; height:60px;">${d.svg}</div>
+                <div style="font-weight:800; font-size:13px; margin-top:4px;">${d.name}</div>
                 <div style="font-size:12px; color:#ca8a04; font-weight:700; margin-top:4px;">🪙 ${d.cost} Token</div>
             `;
             c.onclick = () => {
@@ -705,18 +776,43 @@
                 tokens -= d.cost;
                 updateStats();
                 
-                const decorEl = document.createElement('div');
-                decorEl.style.position = 'absolute';
-                decorEl.style.bottom = '8px';
-                decorEl.style.left = (Math.random() * (tank.offsetWidth - 70) + 15) + 'px';
-                decorEl.style.fontSize = '38px';
-                decorEl.style.pointerEvents = 'none';
-                decorEl.innerText = d.emoji;
-                tank.appendChild(decorEl);
+                spawnDecorOnSeabed(d);
                 closeModal('decorModal');
             };
             wrap.appendChild(c);
         });
+    }
+
+    // Spawn & Drag Seabed Decorations (Locked firmly on seabed, draggable horizontally)
+    function spawnDecorOnSeabed(d) {
+        const item = document.createElement('div');
+        item.className = 'decor-item';
+        item.innerHTML = d.svg;
+        
+        // Initial random horizontal position on seabed floor
+        let initialX = Math.random() * (tank.offsetWidth - d.width - 20) + 10;
+        item.style.left = initialX + 'px';
+        item.style.bottom = '5px'; // Strictly locked on seabed floor, cannot float!
+
+        // Drag along seabed (Horizontal Dragging only, bottom fixed)
+        item.addEventListener('pointerdown', (e) => {
+            item.setPointerCapture(e.pointerId);
+            const startX = e.clientX - item.offsetLeft;
+            
+            item.onpointermove = (ev) => {
+                let newX = ev.clientX - startX;
+                newX = Math.max(5, Math.min(tank.offsetWidth - d.width - 5, newX));
+                item.style.left = newX + 'px';
+                item.style.bottom = '5px'; // Ensure it stays on seabed
+            };
+
+            item.onpointerup = (ev) => {
+                item.releasePointerCapture(ev.pointerId);
+                item.onpointermove = null;
+            };
+        });
+
+        tank.appendChild(item);
     }
 
     updateStats();
