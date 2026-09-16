@@ -1,127 +1,130 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aquarium Ikan 8K — BAJA WEB</title>
+    <title>Peliharaan Ikan Aquarium — BAJA</title>
+    <meta name="description" content="Pelihara ikan virtual custom kreasi sendiri di aquarium digital BAJA WEB."/>
+    <link rel="icon" href="/src/assets/img/Logo.svg"/>
+    <link rel="stylesheet" href="/src/assets/css/style.css"/>
+    <link rel="stylesheet" href="/src/assets/css/responsive.css"/>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script src="/src/services/firebase.js"></script>
     <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/sw.js"></script>
     <style>
-        :root {
-            --bg-glow: #38bdf8;
-            --glass-bg: rgba(15, 23, 42, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.15);
+        .aq-header-box {
+            text-align: center;
+            padding: 24px;
+            background: #fff;
+            color: #000;
+            border: 3px solid #000;
+            border-radius: 16px;
+            box-shadow: 6px 6px 0 #000;
+            margin: 20px auto;
+            max-width: 1000px;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            background: radial-gradient(circle at 50% 20%, #0c192e 0%, #030712 100%);
-            color: #f8fafc;
-            min-height: 100vh;
-            padding: 20px;
-            overflow-x: hidden;
+        .aq-title {
+            font-family: 'Bangers', cursive, sans-serif;
+            font-size: 32px;
+            letter-spacing: 1.5px;
+            margin-bottom: 6px;
+            color: #0284c7;
         }
-        .container { max-width: 1200px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
-        
-        /* 8K Cinematic Glassmorphism Header */
-        .header {
+        .stats-bar {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border);
-            padding: 18px 24px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.1);
-            flex-wrap: wrap;
             gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
         }
-        .logo-title {
-            font-size: 24px;
+        .stat-pill {
+            background: #f8fafc;
+            border: 2px solid #000;
+            border-radius: 10px;
+            padding: 6px 14px;
             font-weight: 800;
-            background: linear-gradient(135deg, #38bdf8, #818cf8, #c084fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
-        }
-        .stats-badge {
+            font-size: 15px;
+            box-shadow: 3px 3px 0 #000;
             display: flex;
-            gap: 12px;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 8px 16px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.1);
+            align-items: center;
+            gap: 6px;
         }
-        .stat-item { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
-        .token-val { color: #facc15; text-shadow: 0 0 10px rgba(250, 204, 21, 0.5); }
-        .food-val { color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
-
-        /* Metallic Action Buttons */
-        .btn {
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 10px 20px;
-            border-radius: 12px;
+        .btn-baja {
+            background: #fff;
+            color: #000;
+            font-family: 'Bangers', cursive, sans-serif;
+            font-size: 17px;
+            letter-spacing: 1px;
+            padding: 10px 18px;
+            border: 3px solid #000;
+            border-radius: 10px;
+            box-shadow: 4px 4px 0 #000;
             cursor: pointer;
-            font-weight: 700;
-            font-size: 14px;
-            transition: all 0.25s ease;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+            transition: all 0.15s ease;
+            text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(37, 99, 235, 0.6); }
-        .btn-ad { background: linear-gradient(135deg, #ec4899, #be185d); box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4); }
-        .btn-ad:hover { box-shadow: 0 8px 25px rgba(236, 72, 153, 0.6); }
-        .btn-gold { background: linear-gradient(135deg, #eab308, #ca8a04); color: #000; box-shadow: 0 4px 15px rgba(234, 179, 8, 0.4); }
+        .btn-baja:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 #000;
+        }
+        .btn-baja:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 #000;
+        }
+        .btn-cyan { background: #38bdf8; color: #000; }
+        .btn-pink { background: #f472b6; color: #fff; }
+        .btn-yellow { background: #facc15; color: #000; }
+        .btn-green { background: #4ade80; color: #000; }
 
-        /* 8K Aquarium Stage */
-        .aquarium-wrapper {
+        /* Aquarium Tank ONLY */
+        .tank-wrapper {
             position: relative;
-            width: 100%;
-            border-radius: 24px;
+            max-width: 1000px;
+            margin: 0 auto 20px auto;
+            border: 5px solid #000;
+            border-radius: 20px;
+            box-shadow: 8px 8px 0 #000;
             overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8), 0 0 40px rgba(56, 189, 248, 0.25);
-            border: 4px solid rgba(255,255,255,0.15);
-            transition: height 0.4s ease;
+            background: #0284c7;
         }
-        .aquarium {
+        .tank {
             width: 100%;
-            height: 520px;
+            height: 480px;
             position: relative;
             overflow: hidden;
-            transition: background 0.6s ease;
+            transition: background 0.5s ease;
         }
-        
-        /* Water Shimmer & Bubble Animations */
-        .water-glare {
+        .tank-glass {
             position: absolute;
-            top: 0; left: 0; right: 0; height: 100%;
-            background: radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.15) 0%, transparent 60%);
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 40%, rgba(0,0,0,0.2) 100%);
             pointer-events: none;
-            mix-blend-mode: overlay;
+            border-radius: 15px;
         }
         .bubble {
             position: absolute;
             bottom: -20px;
-            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), rgba(255,255,255,0.1));
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), rgba(255,255,255,0.2));
             border-radius: 50%;
             pointer-events: none;
-            animation: rise 5s infinite linear;
+            animation: floatUp 5s infinite linear;
         }
-        @keyframes rise {
-            0% { transform: translateY(0) scale(1); opacity: 0.8; }
-            100% { transform: translateY(-560px) scale(1.3); opacity: 0; }
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 0.8; }
+            100% { transform: translateY(-520px); opacity: 0; }
         }
 
-        /* Swimming Custom Fish */
+        /* Fish Element */
         .fish {
             position: absolute;
             cursor: pointer;
-            transition: transform 0.3s ease, left 1.8s linear, top 1.8s ease-in-out;
-            filter: drop-shadow(0 8px 12px rgba(0,0,0,0.5));
+            transition: left 2s linear, top 2s ease-in-out, transform 0.3s;
             user-select: none;
         }
         .fish img {
@@ -129,570 +132,594 @@
             max-width: 110px;
             max-height: 80px;
             pointer-events: none;
+            filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.5));
         }
-        .fish-tag {
+        .fish-badge {
             position: absolute;
-            bottom: -24px;
+            bottom: -22px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0,0,0,0.75);
-            backdrop-filter: blur(6px);
-            border: 1px solid rgba(255,255,255,0.2);
+            background: #000;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
             padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 10px;
+            border-radius: 6px;
             white-space: nowrap;
             pointer-events: none;
+            border: 1px solid #fff;
         }
 
-        /* Food particle falling */
-        .food-pellet {
-            position: absolute;
-            border-radius: 50%;
-            pointer-events: none;
-            box-shadow: 0 0 6px rgba(255,255,255,0.5);
-            transition: top 3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-
-        /* Controls Panel */
-        .panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
+        /* Controls Section */
+        .controls-card {
+            max-width: 1000px;
+            margin: 0 auto 30px auto;
+            background: #fff;
+            border: 3px solid #000;
+            border-radius: 16px;
+            box-shadow: 6px 6px 0 #000;
             padding: 20px;
             display: flex;
             flex-direction: column;
             gap: 16px;
         }
-        .grid-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 10px;
-            max-height: 180px;
-            overflow-y: auto;
-            padding: 6px;
-        }
-        .opt-card {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 13px;
-        }
-        .opt-card:hover, .opt-card.active {
-            border-color: #38bdf8;
-            background: rgba(56,189,248,0.15);
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
-            transform: translateY(-2px);
-        }
 
-        /* Fish Draw Canvas Modal */
-        #drawModal {
+        /* Modal Overlay */
+        .baja-modal {
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(12px);
+            background: rgba(0,0,0,0.7);
             z-index: 1000;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 16px;
         }
-        .canvas-box {
-            background: #0f172a;
-            border: 2px solid #38bdf8;
-            border-radius: 20px;
-            padding: 24px;
+        .baja-modal-card {
+            background: #fff;
+            color: #000;
+            border: 4px solid #000;
+            border-radius: 18px;
+            box-shadow: 10px 10px 0 #000;
             max-width: 500px;
             width: 100%;
-            text-align: center;
-            box-shadow: 0 0 50px rgba(56, 189, 248, 0.3);
-        }
-        canvas#fishDraw {
-            background: rgba(255,255,255,0.04);
-            border: 2px dashed rgba(255,255,255,0.2);
-            border-radius: 16px;
-            cursor: crosshair;
-            margin: 15px 0;
-        }
-
-        /* Sell Fish Modal */
-        #sellModal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(8px);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        .sell-box {
-            background: #0f172a;
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
             padding: 24px;
             text-align: center;
-            max-width: 360px;
-            width: 90%;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        /* Catalog grid */
+        .catalog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+            text-align: center;
+        }
+        .item-card {
+            background: #f8fafc;
+            border: 2px solid #000;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 3px 3px 0 #000;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .item-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 5px 5px 0 #000;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <!-- Header -->
-    <div class="header">
-        <div style="display:flex; align-items:center; gap:12px;">
-            <a href="photobooth.html" class="btn" style="padding:8px 14px; background:rgba(255,255,255,0.1);">⬅ Photobooth</a>
-            <div class="logo-title">🌊 AQUARIUM DIGITAL 8K</div>
-        </div>
-        <div class="stats-badge">
-            <div class="stat-item">🪙 <span class="token-val" id="tokenDisplay">100</span> Token</div>
-            <div class="stat-item">🦐 Pakan: <span class="food-val" id="foodDisplay">15</span></div>
-        </div>
-        <button class="btn btn-ad" onclick="watchMonetagAd()">
-            ⚡ Tonton Iklan (+50 Token)
-        </button>
+<!-- TOP NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="/public/index.html" class="nav-logo" style="text-decoration:none">
+      <div class="logo-badge"><img src="/src/assets/img/Logo.svg" alt="BAJA"></div>
+      <div class="logo-text">BAJA</div>
+    </a>
+    <div class="nav-actions">
+      <a href="photobooth.html" class="btn-baja" style="padding:6px 14px; font-size:14px;">📸 Photobooth</a>
+      <a href="/src/pages/tools/index.html" class="btn-baja" style="padding:6px 14px; font-size:14px;">🛠️ Semua Tools</a>
     </div>
+  </div>
+</nav>
 
-    <!-- Live Aquarium Canvas -->
-    <div class="aquarium-wrapper" id="aquariumWrap">
-        <div class="water-glare"></div>
-        <div class="aquarium" id="aquariumArea"></div>
-    </div>
-
-    <!-- Quick Action Bar -->
-    <div style="display:flex; gap:12px; flex-wrap:wrap;">
-        <button class="btn btn-gold" onclick="openDrawModal()">🎨 Gambar Ikan Baru (25 Token)</button>
-        <button class="btn" onclick="feedCurrentFood()">🦐 Beri Makan Ikan</button>
-        <button class="btn" onclick="toggleShop('food')">🛒 Toko Pakan</button>
-        <button class="btn" onclick="toggleShop('decor')">🌿 Hiasan Aquarium</button>
-        <button class="btn" onclick="toggleShop('theme')">🎨 15+ Tema & Ukuran</button>
-    </div>
-
-    <!-- Toko & Pilihan Panel -->
-    <div class="panel" id="shopPanel" style="display:none;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h3 id="shopTitle" style="color:#38bdf8;">Pilih Opsi</h3>
-            <button onclick="document.getElementById('shopPanel').style.display='none'" style="background:none; border:none; color:#fff; font-size:18px; cursor:pointer;">✕</button>
-        </div>
-        <div class="grid-options" id="shopContent"></div>
-    </div>
+<!-- LOGIN CHECK WRAPPER -->
+<div id="authRequiredNotice" class="aq-header-box" style="display:none; max-width:600px; margin-top:50px;">
+    <h2 style="font-family:'Bangers',cursive; font-size:28px; color:#ef4444;">🔒 LOGIN DIBUTUHKAN</h2>
+    <p style="margin:12px 0 20px 0; font-size:15px; font-weight:600;">Kamu harus login ke akun BAJA terlebih dahulu untuk memelihara dan menggambar ikan virtual!</p>
+    <a href="/src/pages/auth.html" class="btn-baja btn-cyan" style="font-size:18px; padding:12px 28px;">🔑 Masuk / Login Sekarang</a>
 </div>
 
-<!-- Modal Gambar Ikan -->
-<div id="drawModal">
-    <div class="canvas-box">
-        <h3 style="color:#38bdf8; margin-bottom:6px;">🎨 Gambar Ikan Custom Kamu</h3>
-        <p style="font-size:13px; opacity:0.8;">Gunakan kuas untuk membuat ikan impianmu. Gambar rapi & berwarna bernilai jual sangat tinggi!</p>
+<!-- MAIN AQUARIUM GAME CONTENT (HANYA MUNCUL JIKA SUDAH LOGIN) -->
+<div id="gameContent" style="display:none; padding: 0 16px;">
+    <div class="aq-header-box">
+        <div class="aq-title">🐠 VIRTUAL AQUARIUM STUDIO</div>
+        <p style="font-size:14px; font-weight:600; opacity:0.85;">Gambar ikan impianmu di kanvas, rawat di aquarium, dan jual dengan harga tinggi yang menguntungkan!</p>
         
-        <canvas id="fishDraw" width="280" height="180"></canvas>
+        <div class="stats-bar">
+            <div class="stat-pill">🪙 Token: <span id="tokenVal" style="color:#ca8a04;">100</span></div>
+            <div class="stat-pill">🦐 Pakan: <span id="foodVal" style="color:#0284c7;">15</span> (<span id="foodName">Pelet</span>)</div>
+            <button class="btn-baja btn-pink" onclick="watchMonetagAd()">⚡ Tonton Iklan (+50 Token)</button>
+        </div>
+    </div>
+
+    <!-- TANK AQUARIUM -->
+    <div class="tank-wrapper">
+        <div class="tank" id="aquariumTank"></div>
+        <div class="tank-glass"></div>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="controls-card">
+        <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+            <button class="btn-baja btn-yellow" onclick="openDrawModal()">🎨 Buat Ikan Baru (25 Token)</button>
+            <button class="btn-baja btn-green" onclick="feedFish()">🦐 Beri Makan</button>
+            <button class="btn-baja btn-cyan" onclick="openModal('foodModal')">🛒 Beli Pakan</button>
+            <button class="btn-baja" onclick="openModal('themeModal')">🏝️ Beli & Ganti Tema Tank</button>
+            <button class="btn-baja" onclick="openModal('decorModal')">🪸 Beli Hiasan Tank</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL GAMBAR IKAN -->
+<div id="drawModal" class="baja-modal">
+    <div class="baja-modal-card">
+        <h2 style="font-family:'Bangers',cursive; font-size:26px; color:#0284c7;">🎨 GAMBAR IKAN CUSTOM</h2>
+        <p style="font-size:13px; font-weight:600; margin-bottom:10px;">Biaya buat: 25 Token. Harga jualnya nanti pasti jauh LEBIH MAHAL!</p>
         
-        <div style="display:flex; justify-content:center; gap:10px; margin-bottom:15px; align-items:center;">
-            <input type="color" id="brushColor" value="#38bdf8" style="border:none; width:36px; height:36px; border-radius:8px; cursor:pointer; background:transparent;">
-            <input type="range" id="brushSize" min="2" max="18" value="6" style="width:120px;">
-            <button class="btn" onclick="clearDrawCanvas()" style="padding:6px 12px; background:rgba(255,255,255,0.1);">Hapus</button>
+        <canvas id="fishCanvas" width="280" height="180" style="border:3px solid #000; border-radius:12px; background:#fff; cursor:crosshair;"></canvas>
+        
+        <div style="display:flex; justify-content:center; align-items:center; gap:10px; margin:12px 0;">
+            <label style="font-weight:700;">Warna: <input type="color" id="brushColor" value="#0284c7" style="border:none; cursor:pointer; width:32px; height:32px;"></label>
+            <label style="font-weight:700;">Tebal: <input type="range" id="brushSize" min="2" max="16" value="6" style="width:100px;"></label>
+            <button class="btn-baja" onclick="clearCanvas()" style="padding:4px 10px; font-size:13px;">Hapus</button>
         </div>
 
-        <div style="display:flex; gap:10px; justify-content:center;">
-            <button class="btn btn-gold" onclick="saveCustomFish()">✨ Ciptakan Ikan</button>
-            <button class="btn" onclick="closeDrawModal()" style="background:#ef4444;">Batal</button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Jual Ikan -->
-<div id="sellModal">
-    <div class="sell-box">
-        <h3 style="color:#facc15; margin-bottom:10px;">🏷️ Pasar Penjualan Ikan</h3>
-        <div id="sellFishPreview" style="margin:15px 0;"></div>
-        <div id="sellFishDetails" style="font-size:14px; margin-bottom:18px; line-height:1.6;"></div>
-        <div style="display:flex; gap:10px; justify-content:center;">
-            <button class="btn btn-gold" id="confirmSellBtn">💰 Jual Ikan</button>
-            <button class="btn" onclick="document.getElementById('sellModal').style.display='none'" style="background:rgba(255,255,255,0.1);">Batal</button>
+        <div style="display:flex; gap:10px; justify-content:center; margin-top:14px;">
+            <button class="btn-baja btn-yellow" onclick="saveFish()">✨ Masukkan ke Tank</button>
+            <button class="btn-baja" onclick="closeModal('drawModal')">Batal</button>
         </div>
     </div>
 </div>
 
+<!-- MODAL JUAL IKAN -->
+<div id="sellModal" class="baja-modal">
+    <div class="baja-modal-card">
+        <h2 style="font-family:'Bangers',cursive; font-size:26px; color:#ca8a04;">💰 JUAL IKAN HASIL KREASIMU</h2>
+        <div id="sellPreview" style="margin:12px 0;"></div>
+        <div id="sellInfo" style="font-size:15px; font-weight:700; line-height:1.6; margin-bottom:15px;"></div>
+        <div style="display:flex; gap:10px; justify-content:center;">
+            <button class="btn-baja btn-green" id="btnConfirmSell">Jual Sekarang</button>
+            <button class="btn-baja" onclick="closeModal('sellModal')">Batal</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL BELI PAKAN -->
+<div id="foodModal" class="baja-modal">
+    <div class="baja-modal-card">
+        <h2 style="font-family:'Bangers',cursive; font-size:26px; color:#0284c7;">🦐 TOKO PAKAN IKAN</h2>
+        <div class="catalog-grid" id="foodCatalog"></div>
+        <button class="btn-baja" onclick="closeModal('foodModal')" style="margin-top:15px;">Tutup</button>
+    </div>
+</div>
+
+<!-- MODAL BELI & GANTI TEMA TANK (20+ TEMA) -->
+<div id="themeModal" class="baja-modal">
+    <div class="baja-modal-card" style="max-width:650px;">
+        <h2 style="font-family:'Bangers',cursive; font-size:26px; color:#0284c7;">🏝️ BELI TEMA AQUARIUM</h2>
+        <p style="font-size:13px; font-weight:600;">Tema hanya mengubah tampilan di dalam tank aquarium tanpa mengubah halaman!</p>
+        <div class="catalog-grid" id="themeCatalog"></div>
+        <button class="btn-baja" onclick="closeModal('themeModal')" style="margin-top:15px;">Tutup</button>
+    </div>
+</div>
+
+<!-- MODAL BELI HIASAN TANK -->
+<div id="decorModal" class="baja-modal">
+    <div class="baja-modal-card" style="max-width:600px;">
+        <h2 style="font-family:'Bangers',cursive; font-size:26px; color:#0284c7;">🪸 BELI HIASAN AQUARIUM</h2>
+        <div class="catalog-grid" id="decorCatalog"></div>
+        <button class="btn-baja" onclick="closeModal('decorModal')" style="margin-top:15px;">Tutup</button>
+    </div>
+</div>
+
+<script src="/src/App.js"></script>
 <script>
-    // System State
+    // Game State
     let tokens = 100;
-    let selectedFoodType = 'pellet'; // pellet, worms, vitamin
-    let foodInventory = { pellet: 15, worms: 5, vitamin: 2 };
+    let selectedFood = 'pellet';
+    let inventoryFood = { pellet: 15, cacing: 5, vitamin: 2 };
     let fishes = [];
-    let decorations = [];
-    let selectedFishForSale = null;
+    let unlockedThemes = ['deep-ocean']; // Default unlocked
+    let activeThemeId = 'deep-ocean';
+    let currentSellingFish = null;
 
-    const aq = document.getElementById('aquariumArea');
-    const tokenDisplay = document.getElementById('tokenDisplay');
-    const foodDisplay = document.getElementById('foodDisplay');
+    const tank = document.getElementById('aquariumTank');
+    const tokenVal = document.getElementById('tokenVal');
+    const foodVal = document.getElementById('foodVal');
+    const foodName = document.getElementById('foodName');
 
-    // 16 Diverse 8K Cinematic Themes
-    const THEMES = [
-        { id: 'deep-ocean', name: '🌊 Deep Ocean', bg: 'linear-gradient(180deg, #0284c7 0%, #0369a1 40%, #082f49 100%)' },
-        { id: 'cyberpunk', name: '🌆 Cyberpunk 8K', bg: 'linear-gradient(180deg, #581c87 0%, #1e1b4b 60%, #09090b 100%)' },
-        { id: 'golden-reef', name: '🌅 Golden Sunset', bg: 'linear-gradient(180deg, #f59e0b 0%, #b45309 40%, #451a03 100%)' },
-        { id: 'atlantis', name: '🏛️ Atlantis Ruins', bg: 'linear-gradient(180deg, #0d9488 0%, #115e59 50%, #042f2e 100%)' },
-        { id: 'coral-lagoon', name: '🪸 Coral Lagoon', bg: 'linear-gradient(180deg, #06b6d4 0%, #0e7490 60%, #164e63 100%)' },
-        { id: 'bioluminescent', name: '✨ Abyss Glow', bg: 'linear-gradient(180deg, #4338ca 0%, #312e81 50%, #020617 100%)' },
-        { id: 'frozen-arctic', name: '❄️ Arctic Chill', bg: 'linear-gradient(180deg, #e0f2fe 0%, #38bdf8 50%, #0369a1 100%)' },
-        { id: 'volcanic-lava', name: '🌋 Lava Trench', bg: 'linear-gradient(180deg, #991b1b 0%, #7f1d1d 50%, #1c1917 100%)' },
-        { id: 'zen-koi', name: '🎋 Zen Garden', bg: 'linear-gradient(180deg, #10b981 0%, #047857 50%, #064e3b 100%)' },
-        { id: 'amazon-mangrove', name: '🌿 Emerald Amazon', bg: 'linear-gradient(180deg, #15803d 0%, #166534 60%, #14532d 100%)' },
-        { id: 'cosmic-water', name: '🌌 Cosmic Nebula', bg: 'linear-gradient(180deg, #701a75 0%, #4c0519 50%, #020617 100%)' },
-        { id: 'vaporwave', name: '🌴 Vaporwave Dream', bg: 'linear-gradient(180deg, #c026d3 0%, #4f46e5 60%, #1e1b4b 100%)' },
-        { id: 'phantom-midnight', name: '🌑 Midnight Phantom', bg: 'linear-gradient(180deg, #1e293b 0%, #0f172a 60%, #020617 100%)' },
-        { id: 'sunken-temple', name: '⛩️ Sunken Shrine', bg: 'linear-gradient(180deg, #e11d48 0%, #881337 50%, #4c0519 100%)' },
-        { id: 'desert-oasis', name: '🏜️ Desert Oasis', bg: 'linear-gradient(180deg, #fbbf24 0%, #d97706 50%, #78350f 100%)' },
-        { id: 'crystal-cave', name: '💎 Crystal Quartz', bg: 'linear-gradient(180deg, #a855f7 0%, #6b21a8 50%, #3b0764 100%)' }
-    ];
-
-    // Aquarium Sizes
-    const SIZES = [
-        { name: 'Mini Desktop', height: '400px' },
-        { name: 'Standar Studio', height: '520px' },
-        { name: 'Ultra Wide 8K', height: '640px' }
-    ];
-
-    // Decorations Catalog
-    const DECOR_CATALOG = [
-        { name: 'Karang Neon', cost: 15, emoji: '🪸', w: 60, h: 60 },
-        { name: 'Kastil Kerajaan', cost: 35, emoji: '🏰', w: 80, h: 90 },
-        { name: 'Kapal Karam Emas', cost: 45, emoji: '⛵', w: 100, h: 80 },
-        { name: 'Rumput Laut Goyang', cost: 10, emoji: '🌿', w: 50, h: 80 },
-        { name: 'Peti Harta Karun', cost: 25, emoji: '🪙', w: 50, h: 50 },
-        { name: 'Batu Karang Purba', cost: 15, emoji: '🪨', w: 70, h: 60 }
+    // 20+ Diverse Themes for Aquarium Tank ONLY
+    const TANK_THEMES = [
+        { id: 'deep-ocean', name: 'Deep Ocean', cost: 0, bg: 'linear-gradient(180deg, #0284c7 0%, #0369a1 50%, #082f49 100%)' },
+        { id: 'coral-reef', name: 'Coral Lagoon', cost: 15, bg: 'linear-gradient(180deg, #06b6d4 0%, #0891b2 50%, #164e63 100%)' },
+        { id: 'neon-cyber', name: 'Neon Cyberpunk', cost: 20, bg: 'linear-gradient(180deg, #6b21a8 0%, #3b0764 50%, #09090b 100%)' },
+        { id: 'golden-sunset', name: 'Golden Sunset', cost: 20, bg: 'linear-gradient(180deg, #f59e0b 0%, #b45309 50%, #451a03 100%)' },
+        { id: 'atlantis-temple', name: 'Kuil Atlantis', cost: 25, bg: 'linear-gradient(180deg, #0d9488 0%, #115e59 50%, #042f2e 100%)' },
+        { id: 'abyss-glow', name: 'Abyss Bercahaya', cost: 25, bg: 'linear-gradient(180deg, #4338ca 0%, #312e81 50%, #020617 100%)' },
+        { id: 'arctic-ice', name: 'Arctic Ice Chill', cost: 20, bg: 'linear-gradient(180deg, #e0f2fe 0%, #38bdf8 50%, #0369a1 100%)' },
+        { id: 'lava-trench', name: 'Lava Trench', cost: 25, bg: 'linear-gradient(180deg, #b91c1c 0%, #7f1d1d 50%, #1c1917 100%)' },
+        { id: 'zen-bamboo', name: 'Zen Koi Bamboo', cost: 20, bg: 'linear-gradient(180deg, #10b981 0%, #047857 50%, #064e3b 100%)' },
+        { id: 'amazon-mangrove', name: 'Amazon Mangrove', cost: 20, bg: 'linear-gradient(180deg, #16a34a 0%, #15803d 50%, #14532d 100%)' },
+        { id: 'cosmic-nebula', name: 'Cosmic Nebula', cost: 30, bg: 'linear-gradient(180deg, #701a75 0%, #4c0519 50%, #020617 100%)' },
+        { id: 'vaporwave-retro', name: 'Vaporwave Sun', cost: 30, bg: 'linear-gradient(180deg, #c026d3 0%, #4f46e5 50%, #1e1b4b 100%)' },
+        { id: 'midnight-trench', name: 'Midnight Trench', cost: 25, bg: 'linear-gradient(180deg, #334155 0%, #0f172a 50%, #020617 100%)' },
+        { id: 'sunken-shipwreck', name: 'Kapal Karam Kuno', cost: 30, bg: 'linear-gradient(180deg, #1e3a8a 0%, #172554 50%, #030712 100%)' },
+        { id: 'sand-dunes', name: 'Golden Oasis', cost: 20, bg: 'linear-gradient(180deg, #fde047 0%, #ca8a04 50%, #713f12 100%)' },
+        { id: 'crystal-quartz', name: 'Kristal Ungu', cost: 35, bg: 'linear-gradient(180deg, #a855f7 0%, #7e22ce 50%, #3b0764 100%)' },
+        { id: 'emerald-lagoon', name: 'Emerald Lagoon', cost: 25, bg: 'linear-gradient(180deg, #34d399 0%, #059669 50%, #064e3b 100%)' },
+        { id: 'ruby-depths', name: 'Ruby Deep Ocean', cost: 30, bg: 'linear-gradient(180deg, #f43f5e 0%, #be123c 50%, #4c0519 100%)' },
+        { id: 'twilight-shadow', name: 'Twilight Glow', cost: 25, bg: 'linear-gradient(180deg, #818cf8 0%, #4338ca 50%, #1e1b4b 100%)' },
+        { id: 'sapphire-reef', name: 'Sapphire Reef', cost: 30, bg: 'linear-gradient(180deg, #38bdf8 0%, #1d4ed8 50%, #172554 100%)' },
+        { id: 'golden-glamour', name: 'Golden 8K Luxury', cost: 40, bg: 'linear-gradient(180deg, #fbbf24 0%, #d97706 50%, #451a03 100%)' }
     ];
 
     // Food Types
-    const FOOD_TYPES = {
-        pellet: { name: 'Pelet Harian', hungerBoost: 25, weightBoost: 0.05, cost: 5, color: '#b45309' },
-        worms: { name: 'Cacing Sutra', hungerBoost: 55, weightBoost: 0.15, cost: 12, color: '#ef4444' },
-        vitamin: { name: 'Vitamin Super Gold', hungerBoost: 100, weightBoost: 0.35, cost: 25, color: '#facc15' }
-    };
+    const FOOD_ITEMS = [
+        { id: 'pellet', name: 'Pelet Standar', cost: 5, fill: 25, weight: 0.05, count: 5, color: '#b45309' },
+        { id: 'cacing', name: 'Cacing Sutra', cost: 12, fill: 50, weight: 0.15, count: 5, color: '#ef4444' },
+        { id: 'vitamin', name: 'Vitamin Super Gold', cost: 25, fill: 100, weight: 0.35, count: 3, color: '#facc15' }
+    ];
 
-    function updateStatsUI() {
-        tokenDisplay.innerText = tokens;
-        foodDisplay.innerText = `${foodInventory[selectedFoodType]} (${FOOD_TYPES[selectedFoodType].name})`;
+    // Decorations Catalog
+    const DECORATIONS = [
+        { name: 'Karang Laut', emoji: '🪸', cost: 10 },
+        { name: 'Rumput Laut', emoji: '🌿', cost: 8 },
+        { name: 'Kastil Kerajaan', emoji: '🏰', cost: 25 },
+        { name: 'Kapal Karam Emas', emoji: '⛵', cost: 30 },
+        { name: 'Peti Harta Karun', emoji: '🪙', cost: 20 },
+        { name: 'Batu Karang', emoji: '🪨', cost: 12 },
+        { name: 'Bintang Laut', emoji: '⭐', cost: 10 },
+        { name: 'Patung Romawi', emoji: '🗿', cost: 25 },
+        { name: 'Cangkang Kerang', emoji: '🐚', cost: 10 },
+        { name: 'Kepiting Kecil', emoji: '🦀', cost: 15 }
+    ];
+
+    // Check Firebase Login First
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            document.getElementById('authRequiredNotice').style.display = 'none';
+            document.getElementById('gameContent').style.display = 'block';
+            loadTheme(activeThemeId);
+        } else {
+            document.getElementById('authRequiredNotice').style.display = 'block';
+            document.getElementById('gameContent').style.display = 'none';
+        }
+    });
+
+    function updateStats() {
+        tokenVal.innerText = tokens;
+        foodVal.innerText = inventoryFood[selectedFood];
+        const cur = FOOD_ITEMS.find(x => x.id === selectedFood);
+        foodName.innerText = cur ? cur.name : 'Pelet';
     }
 
-    // Set Initial Theme
-    aq.style.background = THEMES[0].bg;
-
-    // Bubbles Generator
+    // Bubbles generator
     setInterval(() => {
-        const bubble = document.createElement('div');
-        bubble.className = 'bubble';
-        const size = Math.random() * 12 + 6;
-        bubble.style.width = size + 'px';
-        bubble.style.height = size + 'px';
-        bubble.style.left = (Math.random() * aq.offsetWidth) + 'px';
-        bubble.style.animationDuration = (Math.random() * 3 + 3) + 's';
-        aq.appendChild(bubble);
-        setTimeout(() => bubble.remove(), 6000);
+        if (!tank) return;
+        const b = document.createElement('div');
+        b.className = 'bubble';
+        const s = Math.random() * 10 + 6;
+        b.style.width = s + 'px';
+        b.style.height = s + 'px';
+        b.style.left = (Math.random() * tank.offsetWidth) + 'px';
+        b.style.animationDuration = (Math.random() * 2 + 3) + 's';
+        tank.appendChild(b);
+        setTimeout(() => b.remove(), 5000);
     }, 450);
 
     // Watch Monetag Ad
     function watchMonetagAd() {
-        // Direct integration with Monetag zone
         window.open('https://5gvci.com/act/files/tag.min.js?z=11493748', '_blank');
         tokens += 50;
-        updateStatsUI();
-        alert('🎉 Terima kasih telah menonton iklan! Anda mendapatkan +50 Token!');
+        updateStats();
+        alert('🎉 Terima kasih! Kamu mendapatkan +50 Token dari iklan!');
     }
 
-    // Canvas Draw System
-    const dCanvas = document.getElementById('fishDraw');
-    const dCtx = dCanvas.getContext('2d');
+    // Modal Helpers
+    function openModal(id) {
+        if (id === 'foodModal') renderFoodCatalog();
+        if (id === 'themeModal') renderThemeCatalog();
+        if (id === 'decorModal') renderDecorCatalog();
+        document.getElementById(id).style.display = 'flex';
+    }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    // Canvas Drawing Logic
+    const canvas = document.getElementById('fishCanvas');
+    const ctx = canvas.getContext('2d');
     let isDrawing = false;
-    let strokePoints = 0;
+    let strokes = 0;
 
-    dCanvas.addEventListener('pointerdown', (e) => {
+    canvas.addEventListener('pointerdown', (e) => {
         isDrawing = true;
-        dCtx.beginPath();
-        dCtx.moveTo(e.offsetX, e.offsetY);
+        ctx.beginPath();
+        ctx.moveTo(e.offsetX, e.offsetY);
     });
-
-    dCanvas.addEventListener('pointermove', (e) => {
+    canvas.addEventListener('pointermove', (e) => {
         if (!isDrawing) return;
-        dCtx.strokeStyle = document.getElementById('brushColor').value;
-        dCtx.lineWidth = document.getElementById('brushSize').value;
-        dCtx.lineCap = 'round';
-        dCtx.lineJoin = 'round';
-        dCtx.lineTo(e.offsetX, e.offsetY);
-        dCtx.stroke();
-        strokePoints++;
+        ctx.strokeStyle = document.getElementById('brushColor').value;
+        ctx.lineWidth = document.getElementById('brushSize').value;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.stroke();
+        strokes++;
     });
+    canvas.addEventListener('pointerup', () => isDrawing = false);
 
-    dCanvas.addEventListener('pointerup', () => isDrawing = false);
-
-    function clearDrawCanvas() {
-        dCtx.clearRect(0, 0, dCanvas.width, dCanvas.height);
-        strokePoints = 0;
+    function clearCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        strokes = 0;
     }
 
     function openDrawModal() {
-        if (tokens < 25) return alert('Token tidak mencukupi! Dibutuhkan 25 Token.');
-        clearDrawCanvas();
-        document.getElementById('drawModal').style.display = 'flex';
+        if (tokens < 25) return alert('Token tidak cukup! Biaya membuat ikan adalah 25 Token.');
+        clearCanvas();
+        openModal('drawModal');
     }
 
-    function closeDrawModal() {
-        document.getElementById('drawModal').style.display = 'none';
-    }
-
-    function saveCustomFish() {
-        if (strokePoints < 15) return alert('Gambar ikanmu terlebih dahulu!');
+    function saveFish() {
+        if (strokes < 10) return alert('Silakan gambar bentuk ikan terlebih dahulu!');
         tokens -= 25;
-        updateStatsUI();
+        updateStats();
 
-        const imgData = dCanvas.toDataURL('image/png');
-        // AI Evaluator for Fish Quality based on strokes & complexity
-        const isGood = strokePoints > 60 || Math.random() > 0.4;
-        const quality = isGood ? (strokePoints > 140 ? 'Legendaris' : 'Bagus') : 'Biasa';
+        const imgData = canvas.toDataURL('image/png');
+        // Kualitas ikan: Bagus / Legendaris / Biasa
+        const isSuper = strokes > 80 || Math.random() > 0.4;
+        const quality = isSuper ? (strokes > 140 ? 'Legendaris' : 'Bagus') : 'Biasa';
         
-        // Base Price calculation: heavily influenced by quality, slightly by weight
-        const basePrice = quality === 'Legendaris' ? 180 : (quality === 'Bagus' ? 85 : 30);
-        
+        // Harga jual ikan SELALU LEBIH MAHAL dari biaya pembuatannya (25 token)!
+        // Minimal harga dasar: 38 token untuk Biasa, 70 untuk Bagus, 130 untuk Legendaris
+        const basePrice = quality === 'Legendaris' ? 140 : (quality === 'Bagus' ? 75 : 38);
+
         const fish = {
             id: Date.now(),
             src: imgData,
-            name: `Ikan #${fishes.length + 1}`,
             age: 0,
             weight: (0.8 + Math.random() * 0.4).toFixed(2),
             hunger: 100,
             quality: quality,
             basePrice: basePrice,
-            x: Math.random() * (aq.offsetWidth - 120),
-            y: Math.random() * (aq.offsetHeight - 100),
-            vx: (Math.random() - 0.5) * 2,
-            vy: (Math.random() - 0.5) * 1.5
+            x: Math.random() * (tank.offsetWidth - 110),
+            y: Math.random() * (tank.offsetHeight - 90)
         };
 
         fishes.push(fish);
         spawnFishDOM(fish);
-        closeDrawModal();
+        closeModal('drawModal');
     }
 
-    function spawnFishDOM(fish) {
+    function spawnFishDOM(f) {
         const el = document.createElement('div');
         el.className = 'fish';
-        el.id = 'fish-' + fish.id;
-        el.style.left = fish.x + 'px';
-        el.style.top = fish.y + 'px';
+        el.id = 'fish-' + f.id;
+        el.style.left = f.x + 'px';
+        el.style.top = f.y + 'px';
 
         const img = document.createElement('img');
-        img.src = fish.src;
+        img.src = f.src;
         el.appendChild(img);
 
-        const tag = document.createElement('div');
-        tag.className = 'fish-tag';
-        tag.innerText = `${fish.quality} | ${fish.weight}kg`;
-        el.appendChild(tag);
+        const badge = document.createElement('div');
+        badge.className = 'fish-badge';
+        badge.innerText = `${f.quality} • ${f.weight}kg`;
+        el.appendChild(badge);
 
-        el.addEventListener('click', () => openSellModal(fish));
-        aq.appendChild(el);
+        el.addEventListener('click', () => openSellFishModal(f));
+        tank.appendChild(el);
     }
 
-    // Fish Loop Animation & Hunger Lifecycle
+    // Fish Loop: Hunger, Aging, Movement
     setInterval(() => {
         fishes.forEach(f => {
             const el = document.getElementById('fish-' + f.id);
             if (!el) return;
 
-            // Update age & hunger
             f.age += 1;
             f.hunger = Math.max(0, f.hunger - 1.5);
 
-            // Move fish
             f.x += (Math.random() - 0.5) * 80;
             f.y += (Math.random() - 0.5) * 60;
-            f.x = Math.max(20, Math.min(aq.offsetWidth - 120, f.x));
-            f.y = Math.max(20, Math.min(aq.offsetHeight - 100, f.y));
+            f.x = Math.max(20, Math.min(tank.offsetWidth - 120, f.x));
+            f.y = Math.max(20, Math.min(tank.offsetHeight - 100, f.y));
 
-            // Flip facing
-            const isLeft = Math.random() > 0.5;
-            el.style.transform = isLeft ? 'scaleX(-1)' : 'scaleX(1)';
+            const flip = Math.random() > 0.5;
+            el.style.transform = flip ? 'scaleX(-1)' : 'scaleX(1)';
             el.style.left = f.x + 'px';
             el.style.top = f.y + 'px';
 
-            // Hungry state: pale & slow
-            if (f.hunger < 25) {
-                el.style.opacity = '0.45';
-                el.querySelector('.fish-tag').innerText = `⚠️ Lapar! | ${f.weight}kg`;
+            const badge = el.querySelector('.fish-badge');
+            if (f.hunger < 30) {
+                el.style.opacity = '0.5';
+                badge.innerText = `⚠️ Lapar! • ${f.weight}kg`;
+                badge.style.background = '#ef4444';
             } else {
                 el.style.opacity = '1';
-                el.querySelector('.fish-tag').innerText = `${f.quality} | ${f.weight}kg`;
+                badge.innerText = `${f.quality} • ${f.weight}kg`;
+                badge.style.background = '#000';
             }
         });
     }, 2200);
 
     // Feed Fish
-    function feedCurrentFood() {
-        if (foodInventory[selectedFoodType] <= 0) {
-            return alert(`Pakan ${FOOD_TYPES[selectedFoodType].name} habis! Beli di Toko Pakan.`);
+    function feedFish() {
+        if (inventoryFood[selectedFood] <= 0) {
+            return alert('Pakan jenis ini habis! Beli di Toko Pakan.');
         }
-        if (fishes.length === 0) return alert('Belum ada ikan di aquarium!');
+        if (fishes.length === 0) return alert('Belum ada ikan di aquarium! Buat ikan terlebih dahulu.');
 
-        foodInventory[selectedFoodType]--;
-        updateStatsUI();
+        inventoryFood[selectedFood]--;
+        updateStats();
 
-        const foodData = FOOD_TYPES[selectedFoodType];
-        
-        // Spawn falling pellets
+        const curFood = FOOD_ITEMS.find(x => x.id === selectedFood);
+
+        // Falling food pellet animation
         for (let i = 0; i < 4; i++) {
-            const pellet = document.createElement('div');
-            pellet.className = 'food-pellet';
-            pellet.style.width = '8px';
-            pellet.style.height = '8px';
-            pellet.style.background = foodData.color;
-            pellet.style.left = (Math.random() * (aq.offsetWidth - 40) + 20) + 'px';
-            pellet.style.top = '10px';
-            aq.appendChild(pellet);
+            const p = document.createElement('div');
+            p.style.position = 'absolute';
+            p.style.width = '8px';
+            p.style.height = '8px';
+            p.style.borderRadius = '50%';
+            p.style.background = curFood.color;
+            p.style.border = '1px solid #fff';
+            p.style.left = (Math.random() * (tank.offsetWidth - 40) + 20) + 'px';
+            p.style.top = '10px';
+            p.style.transition = 'top 3s ease';
+            tank.appendChild(p);
 
-            setTimeout(() => { pellet.style.top = (aq.offsetHeight - 20) + 'px'; }, 50);
-            setTimeout(() => { pellet.remove(); }, 3200);
+            setTimeout(() => { p.style.top = (tank.offsetHeight - 20) + 'px'; }, 40);
+            setTimeout(() => { p.remove(); }, 3100);
         }
 
-        // Apply feed effects to fishes
         fishes.forEach(f => {
-            f.hunger = Math.min(100, f.hunger + foodData.hungerBoost);
-            f.weight = (parseFloat(f.weight) + foodData.weightBoost).toFixed(2);
+            f.hunger = Math.min(100, f.hunger + curFood.fill);
+            f.weight = (parseFloat(f.weight) + curFood.weight).toFixed(2);
         });
     }
 
     // Sell Fish Modal
-    function openSellModal(fish) {
-        selectedFishForSale = fish;
-        const sellModal = document.getElementById('sellModal');
-        const preview = document.getElementById('sellFishPreview');
-        const details = document.getElementById('sellFishDetails');
+    function openSellFishModal(f) {
+        currentSellingFish = f;
+        const modal = document.getElementById('sellModal');
+        const preview = document.getElementById('sellPreview');
+        const info = document.getElementById('sellInfo');
 
-        preview.innerHTML = `<img src="${fish.src}" style="max-width:140px; border-radius:12px; background:rgba(255,255,255,0.05); padding:10px;">`;
+        preview.innerHTML = `<img src="${f.src}" style="max-width:140px; border:2px solid #000; border-radius:10px; background:#f1f5f9; padding:8px;">`;
         
-        // Price formula: Quality weight + small bonus per weight unit
-        const sellPrice = Math.floor(fish.basePrice + (parseFloat(fish.weight) * 12));
-        
-        details.innerHTML = `
-            <div><strong>Kualitas:</strong> <span style="color:#38bdf8;">${fish.quality}</span></div>
-            <div><strong>Berat:</strong> ${fish.weight} kg</div>
-            <div><strong>Umur:</strong> ${fish.age} hari</div>
-            <div><strong>Status Lapar:</strong> ${Math.round(fish.hunger)}%</div>
-            <div style="font-size:18px; color:#facc15; font-weight:800; margin-top:8px;">Harga Jual: +${sellPrice} Token</div>
+        // Jual ikan LEBIH MAHAL dari biaya pembuatan (25 Token)!
+        const sellPrice = Math.floor(f.basePrice + (parseFloat(f.weight) * 15));
+
+        info.innerHTML = `
+            <div>Kualitas Ikan: <strong style="color:#0284c7;">${f.quality}</strong></div>
+            <div>Berat Ikan: <strong>${f.weight} kg</strong></div>
+            <div>Umur Ikan: <strong>${f.age} hari</strong></div>
+            <div>Tingkat Kenyang: <strong>${Math.round(f.hunger)}%</strong></div>
+            <div style="font-size:18px; color:#16a34a; margin-top:8px;">Harga Jual: <strong>+${sellPrice} Token</strong> (Untung!)</div>
         `;
 
-        document.getElementById('confirmSellBtn').onclick = () => {
+        document.getElementById('btnConfirmSell').onclick = () => {
             tokens += sellPrice;
-            updateStatsUI();
-            const dom = document.getElementById('fish-' + fish.id);
+            updateStats();
+            const dom = document.getElementById('fish-' + f.id);
             if (dom) dom.remove();
-            fishes = fishes.filter(x => x.id !== fish.id);
-            sellModal.style.display = 'none';
+            fishes = fishes.filter(x => x.id !== f.id);
+            closeModal('sellModal');
+            alert(`🎉 Ikan berhasil dijual! Kamu mendapatkan +${sellPrice} Token!`);
         };
 
-        sellModal.style.display = 'flex';
+        openModal('sellModal');
     }
 
-    // Toggle Dynamic Shops (Food, Decor, Themes)
-    function toggleShop(category) {
-        const panel = document.getElementById('shopPanel');
-        const title = document.getElementById('shopTitle');
-        const content = document.getElementById('shopContent');
-        panel.style.display = 'flex';
-        content.innerHTML = '';
+    // Catalogs Renderers
+    function renderFoodCatalog() {
+        const wrap = document.getElementById('foodCatalog');
+        wrap.innerHTML = '';
+        FOOD_ITEMS.forEach(item => {
+            const c = document.createElement('div');
+            c.className = 'item-card';
+            c.innerHTML = `
+                <div style="font-size:20px; color:${item.color}">●</div>
+                <div style="font-weight:800; font-size:14px;">${item.name}</div>
+                <div style="font-size:12px; opacity:0.8;">Kenyang +${item.fill}%</div>
+                <div style="font-size:12px; color:#ca8a04; font-weight:700; margin-top:4px;">${item.cost} Token / ${item.count} Pcs</div>
+                <button class="btn-baja btn-cyan" style="margin-top:6px; padding:4px 10px; font-size:12px;">Beli</button>
+            `;
+            c.onclick = () => {
+                if (tokens < item.cost) return alert('Token tidak mencukupi!');
+                tokens -= item.cost;
+                inventoryFood[item.id] += item.count;
+                selectedFood = item.id;
+                updateStats();
+                closeModal('foodModal');
+            };
+            wrap.appendChild(c);
+        });
+    }
 
-        if (category === 'food') {
-            title.innerText = '🦐 Toko & Pilihan Jenis Pakan';
-            Object.keys(FOOD_TYPES).forEach(k => {
-                const f = FOOD_TYPES[k];
-                const card = document.createElement('div');
-                card.className = `opt-card ${selectedFoodType === k ? 'active' : ''}`;
-                card.innerHTML = `
-                    <div style="font-size:24px; color:${f.color};">●</div>
-                    <div style="font-weight:700;">${f.name}</div>
-                    <div style="font-size:11px; opacity:0.8;">Kenyang +${f.hungerBoost}%</div>
-                    <div style="font-size:11px; color:#facc15; margin-top:4px;">${f.cost} Token / 5 Pcs</div>
-                `;
-                card.onclick = () => {
-                    if (tokens >= f.cost) {
-                        tokens -= f.cost;
-                        foodInventory[k] += 5;
-                        selectedFoodType = k;
-                        updateStatsUI();
-                        toggleShop('food');
-                    } else {
-                        alert('Token kurang!');
-                    }
-                };
-                content.appendChild(card);
-            });
-        } else if (category === 'decor') {
-            title.innerText = '🌿 Beli Hiasan Aquarium';
-            DECOR_CATALOG.forEach(d => {
-                const card = document.createElement('div');
-                card.className = 'opt-card';
-                card.innerHTML = `
-                    <div style="font-size:32px;">${d.emoji}</div>
-                    <div style="font-weight:700;">${d.name}</div>
-                    <div style="color:#facc15; font-size:12px; margin-top:4px;">${d.cost} Token</div>
-                `;
-                card.onclick = () => {
-                    if (tokens < d.cost) return alert('Token tidak cukup!');
-                    tokens -= d.cost;
-                    updateStatsUI();
-                    
-                    const el = document.createElement('div');
-                    el.style.position = 'absolute';
-                    el.style.bottom = '10px';
-                    el.style.left = (Math.random() * (aq.offsetWidth - 80) + 20) + 'px';
-                    el.style.fontSize = `${d.w / 1.5}px`;
-                    el.style.pointerEvents = 'none';
-                    el.innerText = d.emoji;
-                    aq.appendChild(el);
-                    panel.style.display = 'none';
-                };
-                content.appendChild(card);
-            });
-        } else if (category === 'theme') {
-            title.innerText = '🎨 Pilih 15+ Tema & Ukuran Aquarium';
-            // Themes
-            THEMES.forEach(t => {
-                const card = document.createElement('div');
-                card.className = 'opt-card';
-                card.innerHTML = `
-                    <div style="height:35px; border-radius:6px; background:${t.bg}; margin-bottom:6px;"></div>
-                    <div style="font-size:12px; font-weight:700;">${t.name}</div>
-                `;
-                card.onclick = () => {
-                    aq.style.background = t.bg;
-                    panel.style.display = 'none';
-                };
-                content.appendChild(card);
-            });
-            // Sizes
-            SIZES.forEach(s => {
-                const card = document.createElement('div');
-                card.className = 'opt-card';
-                card.innerHTML = `
-                    <div style="font-weight:700;">📏 ${s.name}</div>
-                    <div style="font-size:11px; opacity:0.8;">Tinggi: ${s.height}</div>
-                `;
-                card.onclick = () => {
-                    aq.style.height = s.height;
-                    panel.style.display = 'none';
-                };
-                content.appendChild(card);
-            });
+    function renderThemeCatalog() {
+        const wrap = document.getElementById('themeCatalog');
+        wrap.innerHTML = '';
+        TANK_THEMES.forEach(t => {
+            const isUnlocked = unlockedThemes.includes(t.id);
+            const isActive = activeThemeId === t.id;
+            const c = document.createElement('div');
+            c.className = 'item-card';
+            c.innerHTML = `
+                <div style="height:35px; border-radius:6px; background:${t.bg}; border:1px solid #000; margin-bottom:6px;"></div>
+                <div style="font-weight:800; font-size:13px;">${t.name}</div>
+                <div style="font-size:11px; margin-top:4px; font-weight:700;">
+                    ${isUnlocked ? (isActive ? '✅ Aktif' : '🔓 Terbuka') : `🪙 ${t.cost} Token`}
+                </div>
+            `;
+            c.onclick = () => {
+                if (!isUnlocked) {
+                    if (tokens < t.cost) return alert('Token tidak cukup untuk membeli tema ini!');
+                    tokens -= t.cost;
+                    unlockedThemes.push(t.id);
+                    updateStats();
+                }
+                loadTheme(t.id);
+                closeModal('themeModal');
+            };
+            wrap.appendChild(c);
+        });
+    }
+
+    function loadTheme(id) {
+        activeThemeId = id;
+        const target = TANK_THEMES.find(x => x.id === id);
+        if (target && tank) {
+            tank.style.background = target.bg;
         }
     }
 
-    updateStatsUI();
+    function renderDecorCatalog() {
+        const wrap = document.getElementById('decorCatalog');
+        wrap.innerHTML = '';
+        DECORATIONS.forEach(d => {
+            const c = document.createElement('div');
+            c.className = 'item-card';
+            c.innerHTML = `
+                <div style="font-size:28px;">${d.emoji}</div>
+                <div style="font-weight:800; font-size:13px;">${d.name}</div>
+                <div style="font-size:12px; color:#ca8a04; font-weight:700; margin-top:4px;">🪙 ${d.cost} Token</div>
+            `;
+            c.onclick = () => {
+                if (tokens < d.cost) return alert('Token tidak cukup!');
+                tokens -= d.cost;
+                updateStats();
+                
+                const decorEl = document.createElement('div');
+                decorEl.style.position = 'absolute';
+                decorEl.style.bottom = '8px';
+                decorEl.style.left = (Math.random() * (tank.offsetWidth - 70) + 15) + 'px';
+                decorEl.style.fontSize = '38px';
+                decorEl.style.pointerEvents = 'none';
+                decorEl.innerText = d.emoji;
+                tank.appendChild(decorEl);
+                closeModal('decorModal');
+            };
+            wrap.appendChild(c);
+        });
+    }
+
+    updateStats();
 </script>
 </body>
 </html>
