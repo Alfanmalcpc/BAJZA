@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aquarium & Peliharaan Ikan - BAJA WEB</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a2e; color: #fff; margin: 0; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 20px; }
+        .header { display: flex; justify-content: space-between; background: #16213e; padding: 15px; border-radius: 10px; }
+        .stats span { margin-right: 15px; font-weight: bold; color: #e94560; }
+        .aquarium { width: 100%; height: 400px; background: linear-gradient(#006994, #003b59); border-radius: 15px; position: relative; overflow: hidden; border: 5px solid #0f3460; }
+        .fish { position: absolute; cursor: pointer; transition: top 1s, left 1s; }
+        .fish-info { position: absolute; background: rgba(0,0,0,0.7); font-size: 10px; padding: 3px; border-radius: 3px; pointer-events: none; }
+        .controls, .shop { background: #16213e; padding: 15px; border-radius: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+        button { background: #e94560; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #ff5c77; }
+        .canvas-area { display: none; background: #16213e; padding: 15px; border-radius: 10px; text-align: center; }
+        canvas { background: white; border-radius: 5px; cursor: crosshair; }
+        .food { position: absolute; width: 10px; height: 10px; background: brown; border-radius: 50%; }
+        .decoration { position: absolute; bottom: 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Baja Aquarium</h2>
+            <div class="stats">
+                <span>Token: <span id="tokenCount">50</span></span>
+                <span>Pakan: <span id="foodCount">10</span></span>
+            </div>
+            <button onclick="watchAd()">Tonton Iklan (Monetag) +50 Token</button>
+        </div>
+
+        <div class="aquarium" id="aquarium">
+            <!-- Fish and decorations go here -->
+        </div>
+
+        <div class="controls">
+            <button onclick="showDrawArea()">+ Buat Ikan Baru (20 Token)</button>
+            <button onclick="feedFish()">Beri Makan (1 Pakan)</button>
+            <button onclick="buyFood()">Beli Pakan (10 Token)</button>
+            <button onclick="alert('Menu Hiasan: Karang, Rumput Laut, Kapal Karam (Comming Soon)')">Beli Hiasan</button>
+            <button onclick="window.location.href='index.html'">Kembali</button>
+        </div>
+
+        <div class="canvas-area" id="drawArea">
+            <h3>Gambar Ikan Custom Kamu!</h3>
+            <canvas id="fishCanvas" width="150" height="100"></canvas><br>
+            <input type="color" id="brushColor" value="#ff0000">
+            <input type="range" id="brushSize" min="1" max="10" value="3">
+            <button onclick="saveFish()">Selesai & Masukkan Aquarium</button>
+            <button onclick="cancelDraw()">Batal</button>
+        </div>
+    </div>
+
+    <script>
+        let tokens = 50;
+        let food = 10;
+        let fishes = [];
+        let drawing = false;
+        
+        const canvas = document.getElementById('fishCanvas');
+        const ctx = canvas.getContext('2d');
+        const aq = document.getElementById('aquarium');
+        
+        function updateStats() {
+            document.getElementById('tokenCount').innerText = tokens;
+            document.getElementById('foodCount').innerText = food;
+        }
+
+        function watchAd() {
+            // Placeholder Monetag Link from other page
+            window.open('https://monetag.com', '_blank');
+            setTimeout(() => { tokens += 50; updateStats(); alert('Mendapat 50 Token!'); }, 3000);
+        }
+
+        // Canvas Drawing Logic
+        canvas.addEventListener('mousedown', () => drawing = true);
+        canvas.addEventListener('mouseup', () => drawing = false);
+        canvas.addEventListener('mousemove', draw);
+
+        function draw(e) {
+            if (!drawing) return;
+            ctx.fillStyle = document.getElementById('brushColor').value;
+            const size = document.getElementById('brushSize').value;
+            ctx.beginPath();
+            ctx.arc(e.offsetX, e.offsetY, size, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function showDrawArea() {
+            if(tokens < 20) return alert('Token tidak cukup!');
+            document.getElementById('drawArea').style.display = 'block';
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function cancelDraw() { document.getElementById('drawArea').style.display = 'none'; }
+
+        function saveFish() {
+            tokens -= 20; updateStats();
+            const imgData = canvas.toDataURL();
+            const quality = Math.random() > 0.5 ? 'Bagus' : 'Biasa';
+            const price = quality === 'Bagus' ? Math.floor(Math.random()*100 + 50) : Math.floor(Math.random()*30 + 10);
+            
+            const newFish = {
+                id: Date.now(),
+                src: imgData,
+                age: 1,
+                weight: 1.0,
+                hunger: 100,
+                quality: quality,
+                price: price,
+                x: Math.random() * (aq.offsetWidth - 100),
+                y: Math.random() * (aq.offsetHeight - 100)
+            };
+            
+            fishes.push(newFish);
+            renderFish(newFish);
+            cancelDraw();
+        }
+
+        function renderFish(f) {
+            const el = document.createElement('div');
+            el.className = 'fish';
+            el.id = 'fish-' + f.id;
+            el.style.left = f.x + 'px';
+            el.style.top = f.y + 'px';
+            
+            const img = document.createElement('img');
+            img.src = f.src;
+            el.appendChild(img);
+            
+            const info = document.createElement('div');
+            info.className = 'fish-info';
+            info.innerHTML = `Berat: ${f.weight}kg<br>Harga: ${f.price} T`;
+            el.appendChild(info);
+            
+            el.onclick = () => {
+                if(confirm(`Jual ikan ini seharga ${f.price} Token?`)) {
+                    tokens += f.price; updateStats();
+                    el.remove(); fishes = fishes.filter(x => x.id !== f.id);
+                }
+            };
+            
+            aq.appendChild(el);
+            animateFish(el, f);
+        }
+
+        function animateFish(el, f) {
+            setInterval(() => {
+                if(!document.getElementById('fish-'+f.id)) return;
+                f.x = Math.max(0, Math.min(aq.offsetWidth - 100, f.x + (Math.random() - 0.5) * 100));
+                f.y = Math.max(0, Math.min(aq.offsetHeight - 100, f.y + (Math.random() - 0.5) * 100));
+                el.style.left = f.x + 'px';
+                el.style.top = f.y + 'px';
+                f.hunger -= 2;
+                if(f.hunger < 50) el.style.opacity = 0.5; else el.style.opacity = 1;
+            }, 3000);
+        }
+
+        function feedFish() {
+            if(food < 1) return alert('Pakan habis!');
+            food--; updateStats();
+            fishes.forEach(f => {
+                f.hunger = 100;
+                f.weight = (parseFloat(f.weight) + 0.1).toFixed(1);
+                f.price += 2;
+                document.querySelector('#fish-'+f.id+' .fish-info').innerHTML = `Berat: ${f.weight}kg<br>Harga: ${f.price} T`;
+                document.getElementById('fish-'+f.id).style.opacity = 1;
+            });
+        }
+
+        function buyFood() {
+            if(tokens < 10) return alert('Token kurang!');
+            tokens -= 10; food += 5; updateStats();
+        }
+    </script>
+</body>
+</html>

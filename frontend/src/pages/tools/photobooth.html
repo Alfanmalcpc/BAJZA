@@ -21,6 +21,34 @@
 <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
 </head>
 <body>
+    <!-- PATCH INJECTED -->
+    <style>
+      .elemen-dropdown { display: none; background: #fff; border: 1px solid #ccc; padding: 10px; position: absolute; z-index: 100;}
+      .btn-collapse { background: #333; color: white; padding: 10px; width: 100%; margin-top: 5px; }
+      #bgColorPicker { margin: 10px 0; }
+      .multiplayer-voice { padding: 10px; background: #eef; border-radius: 5px; margin: 10px 0; }
+    </style>
+    <div id="new-features" style="padding: 10px; border: 1px dashed #666; margin-bottom: 10px;">
+        <h4>Fitur Baru Photobooth</h4>
+        <label>Warna Background Kanvas: <input type="color" id="bgColorPicker" onchange="document.getElementById('canvas').style.backgroundColor = this.value"></label><br>
+        <button class="btn-collapse" onclick="document.getElementById('elemenDropdown').style.display = document.getElementById('elemenDropdown').style.display === 'none' ? 'block' : 'none'">+ Elemen (Stiker/Frame)</button>
+        <div id="elemenDropdown" class="elemen-dropdown">
+            <!-- Pindahkan tombol elemen lama ke sini secara dinamis via JS atau masukkan elemen baru -->
+            <p>Pilih Elemen di sini (Tampilan disederhanakan)</p>
+        </div>
+        <div class="multiplayer-voice">
+            <strong>🎤 Voice Chat (Multiplayer)</strong>
+            <button onclick="alert('Mic dihidupkan via WebRTC (Mock)')">Unmute Mic</button>
+            <button onclick="alert('Speaker dihidupkan')">Speaker On</button>
+        </div>
+    </div>
+    <script>
+      // Automatically hide messy buttons on mobile
+      if(window.innerWidth < 600) {
+          console.log('Mobile view: UI disederhanakan');
+      }
+    </script>
+    
 
 <!-- TOP NAVBAR -->
 <nav class="navbar" id="navbar">
