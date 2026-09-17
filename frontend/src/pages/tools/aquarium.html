@@ -294,7 +294,7 @@
         
         <div class="stats-bar">
             <div class="stat-pill">🪙 Token: <span id="tokenVal" style="color:#ca8a04;">100</span></div>
-            <div class="stat-pill">🦐 Pakan: <span id="foodVal" style="color:#0284c7;">15</span> (<span id="foodName">Pelet</span>)</div>
+            <div class="stat-pill">Pakan Aktif: <span id="foodVal" style="color:#0284c7;">5</span> (<span id="foodName">Pelet Standar</span>)</div>
             <iframe src="monetag-aquarium-btn.html" style="width: 220px; height: 46px; border: none; overflow: hidden; border-radius: 10px;" scrolling="no"></iframe>
         </div>
     </div>
@@ -309,9 +309,15 @@
 
     <!-- ACTION BUTTONS -->
     <div class="controls-card">
+        <!-- Selector Pakan Aktif -->
+        <div style="display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; margin-bottom:14px;">
+            <span style="font-size:12px; font-weight:800; color:#475569; letter-spacing:0.5px;">PILIH PAKAN:</span>
+            <div id="foodSelectorBar" style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center;"></div>
+        </div>
+
         <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
             <button class="btn-baja btn-yellow" onclick="openDrawModal()">🎨 Buat Ikan Baru (25 Token)</button>
-            <button class="btn-baja btn-green" onclick="feedFish()">🦐 Beri Makan</button>
+            <button class="btn-baja btn-green" id="btnFeed" onclick="feedFish()">Beri Makan</button>
             <button class="btn-baja btn-cyan" onclick="openModal('foodModal')">🛒 Beli Pakan</button>
             <button class="btn-baja" onclick="openModal('themeModal')">🏝️ Beli & Ganti Tema Tank</button>
             <button class="btn-baja" onclick="openModal('decorModal')">🪸 Beli Hiasan Dasar Tank</button>
@@ -387,7 +393,7 @@
     // Game State (Hanya modal awal untuk pemula, tidak pernah reset/isi ulang otomatis)
     let tokens = 30;
     let selectedFood = 'pellet';
-    let inventoryFood = { pellet: 5, cacing: 0, vitamin: 0 };
+    let inventoryFood = { pellet: 5, cacing: 0, udang: 0, 'ikan-kecil': 0, vitamin: 0 };
     let fishes = [];
     let unlockedThemes = ['deep-ocean']; // Default unlocked
     let activeThemeId = 'deep-ocean';
@@ -455,12 +461,105 @@
         { id: 'golden-glamour', name: 'Golden 8K Luxury', cost: 40, bg: 'linear-gradient(180deg, #fbbf24 0%, #d97706 50%, #451a03 100%)' }
     ];
 
-    // Food Types
+    // Food Types with SVG Vectors (Anti-Emoji, Professional Styling)
     const FOOD_ITEMS = [
-        { id: 'pellet', name: 'Pelet Standar', cost: 5, fill: 25, weight: 0.15, count: 5, color: '#b45309' },
-        { id: 'cacing', name: 'Cacing Sutra', cost: 12, fill: 50, weight: 0.35, count: 5, color: '#ef4444' },
-        { id: 'vitamin', name: 'Vitamin Super Gold', cost: 25, fill: 100, weight: 0.75, count: 3, color: '#facc15' }
+        { 
+            id: 'pellet', 
+            name: 'Pelet Standar', 
+            cost: 5, 
+            fillPoints: 5, 
+            weightPercent: 0.5, 
+            count: 5, 
+            color: '#b45309',
+            svg: `<svg viewBox="0 0 24 24" width="22" height="22"><circle cx="12" cy="12" r="8" fill="#b45309" stroke="#000" stroke-width="2"/><circle cx="10" cy="9" r="2.5" fill="#d97706"/></svg>`
+        },
+        { 
+            id: 'cacing', 
+            name: 'Cacing Sutra', 
+            cost: 12, 
+            fillPoints: 12, 
+            weightPercent: 1.2, 
+            count: 5, 
+            color: '#ef4444',
+            svg: `<svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 18 Q8 10 12 18 Q16 26 20 12" fill="none" stroke="#ef4444" stroke-width="4" stroke-linecap="round"/><circle cx="20" cy="12" r="2" fill="#991b1b"/></svg>`
+        },
+        { 
+            id: 'udang', 
+            name: 'Udang Segar', 
+            cost: 18, 
+            fillPoints: 20, 
+            weightPercent: 2.5, 
+            count: 4, 
+            color: '#f97316',
+            svg: `<svg viewBox="0 0 24 24" width="22" height="22"><path d="M19 8 C18 4 12 3 7 7 C4 9 4 14 7 17 C9 19 12 19 14 17" fill="none" stroke="#f97316" stroke-width="3.5" stroke-linecap="round"/><path d="M19 8 L22 6 M19 9 L22 10" stroke="#ea580c" stroke-width="1.5"/><circle cx="7" cy="8" r="1.5" fill="#000"/></svg>`
+        },
+        { 
+            id: 'ikan-kecil', 
+            name: 'Ikan Kecil', 
+            cost: 28, 
+            fillPoints: 35, 
+            weightPercent: 5.0, 
+            count: 3, 
+            color: '#06b6d4',
+            svg: `<svg viewBox="0 0 24 24" width="22" height="22"><path d="M5 12 Q12 6 18 12 Q12 18 5 12 Z M18 12 L22 8 L22 16 Z" fill="#06b6d4" stroke="#000" stroke-width="1.5"/><circle cx="8" cy="11" r="1.5" fill="#fff"/></svg>`
+        },
+        { 
+            id: 'vitamin', 
+            name: 'Vitamin Super Gold', 
+            cost: 40, 
+            fillPoints: 50, 
+            weightPercent: 10.0, 
+            count: 3, 
+            isPremium: true, 
+            maxDaily: 3, 
+            color: '#eab308',
+            svg: `<svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 2 Q18 9 18 15 A6 6 0 0 1 6 15 Q6 9 12 2 Z" fill="#eab308" stroke="#000" stroke-width="1.5"/><circle cx="12" cy="14" r="3" fill="#fef08a"/></svg>`
+        }
     ];
+
+    function getFishMaxHunger(f) {
+        const weight = parseFloat(f.weight || 0.20);
+        return Math.max(100, Math.round(100 + Math.max(0, (weight - 0.20) * 250)));
+    }
+
+    function getFishHungerPercent(f) {
+        const maxCap = getFishMaxHunger(f);
+        if (f.hungerPoints === undefined) {
+            f.hungerPoints = Math.round(((f.hunger !== undefined ? f.hunger : 100) / 100) * maxCap);
+        }
+        return Math.min(100, Math.max(0, Math.round((f.hungerPoints / maxCap) * 100)));
+    }
+
+    function renderFoodSelector() {
+        const bar = document.getElementById('foodSelectorBar');
+        if (!bar) return;
+        bar.innerHTML = '';
+        FOOD_ITEMS.forEach(item => {
+            const isSel = selectedFood === item.id;
+            const count = inventoryFood[item.id] || 0;
+            const pill = document.createElement('button');
+            pill.type = 'button';
+            pill.style.display = 'inline-flex';
+            pill.style.alignItems = 'center';
+            pill.style.gap = '6px';
+            pill.style.padding = '5px 10px';
+            pill.style.borderRadius = '8px';
+            pill.style.cursor = 'pointer';
+            pill.style.border = isSel ? '2px solid #0284c7' : '1px solid #cbd5e1';
+            pill.style.background = isSel ? '#e0f2fe' : '#fff';
+            pill.style.color = isSel ? '#0369a1' : '#1e293b';
+            pill.style.fontWeight = isSel ? '800' : '600';
+            pill.style.fontSize = '12px';
+            pill.style.boxShadow = isSel ? '0 2px 6px rgba(2,132,199,0.25)' : 'none';
+            pill.style.transition = 'all 0.15s ease';
+            pill.innerHTML = `${item.svg} <span>${item.name} (${count})</span>`;
+            pill.onclick = () => {
+                selectedFood = item.id;
+                updateStats();
+            };
+            bar.appendChild(pill);
+        });
+    }
 
     // === FIREBASE PET DATABASE SYNC ===
     let currentUid = null;
@@ -474,7 +573,10 @@
             id: f.id, src: f.src,
             createdAt: f.createdAt || (Date.now() - ((f.age || 0) * 3600 * 1000)),
             weight: parseFloat(f.weight || 0.2),
-            hunger: Math.round(f.hunger || 100), quality: f.quality || 'Biasa', basePrice: f.basePrice || 5,
+            hunger: Math.round(f.hunger || 100),
+            hungerPoints: f.hungerPoints !== undefined ? f.hungerPoints : getFishMaxHunger(f),
+            premiumHistory: f.premiumHistory || {},
+            quality: f.quality || 'Biasa', basePrice: f.basePrice || 5,
             x: Math.round(f.x || 50), y: Math.round(f.y || 50)
         }));
 
@@ -504,7 +606,9 @@
     function applyAquariumState(data) {
         if (!data) return;
         if (data.tokens !== undefined) tokens = data.tokens;
-        if (data.inventoryFood) inventoryFood = data.inventoryFood;
+        if (data.inventoryFood) {
+            inventoryFood = Object.assign({ pellet: 5, cacing: 0, udang: 0, 'ikan-kecil': 0, vitamin: 0 }, data.inventoryFood);
+        }
         if (data.unlockedThemes) unlockedThemes = data.unlockedThemes;
         if (data.activeThemeId) { activeThemeId = data.activeThemeId; loadTheme(activeThemeId); }
         if (data.fishes) {
@@ -513,6 +617,11 @@
             fishes = [];
             list.forEach(f => {
                 if (!f.createdAt) f.createdAt = Date.now() - ((f.age || 0) * 3600 * 1000);
+                const maxCap = getFishMaxHunger(f);
+                if (f.hungerPoints === undefined) {
+                    f.hungerPoints = Math.round(((f.hunger !== undefined ? f.hunger : 100) / 100) * maxCap);
+                }
+                f.hunger = getFishHungerPercent(f);
                 fishes.push(f);
                 spawnFishDOM(f);
             });
@@ -576,9 +685,10 @@
 
     function updateStats() {
         tokenVal.innerText = tokens;
-        foodVal.innerText = inventoryFood[selectedFood];
+        foodVal.innerText = inventoryFood[selectedFood] !== undefined ? inventoryFood[selectedFood] : 0;
         const cur = FOOD_ITEMS.find(x => x.id === selectedFood);
-        foodName.innerText = cur ? cur.name : 'Pelet';
+        foodName.innerText = cur ? cur.name : 'Pelet Standar';
+        renderFoodSelector();
     }
 
     // Bubbles generator
@@ -732,8 +842,14 @@
             const el = document.getElementById('fish-' + f.id);
             if (!el) return;
 
-            // Pengurangan lapar sangat lambat dan santai (awet berjam-jam)
-            f.hunger = Math.max(0, f.hunger - 0.02);
+            const maxCap = getFishMaxHunger(f);
+            if (f.hungerPoints === undefined) {
+                f.hungerPoints = Math.round(((f.hunger !== undefined ? f.hunger : 100) / 100) * maxCap);
+            }
+
+            // Pengurangan lapar (poin) sangat lambat dan santai
+            f.hungerPoints = Math.max(0, f.hungerPoints - 0.05);
+            f.hunger = getFishHungerPercent(f);
 
             f.x += (Math.random() - 0.5) * 80;
             f.y += (Math.random() - 0.5) * 60;
@@ -772,27 +888,39 @@
         }
         if (fishes.length === 0) return alert('Belum ada ikan di aquarium! Buat ikan terlebih dahulu.');
 
-        inventoryFood[selectedFood]--;
-        updateStats();
-
         const curFood = FOOD_ITEMS.find(x => x.id === selectedFood);
 
-        // Cari 1 ikan yang paling lapar (hunger paling kecil)
-        const targetFish = fishes.slice().sort((a, b) => (a.hunger || 0) - (b.hunger || 0))[0];
+        // Cari 1 ikan yang paling lapar (persentase hunger paling kecil)
+        const targetFish = fishes.slice().sort((a, b) => (getFishHungerPercent(a)) - (getFishHungerPercent(b)))[0];
         const fishDom = document.getElementById('fish-' + targetFish.id);
+
+        if (getFishHungerPercent(targetFish) >= 100) {
+            return alert('Semua ikan sudah sangat kenyang! Tunggu beberapa saat lagi.');
+        }
+
+        // Cek limit harian pakan premium (Maks 3x per hari per ikan)
+        const todayStr = new Date().toISOString().split('T')[0];
+        if (curFood.isPremium) {
+            if (!targetFish.premiumHistory) targetFish.premiumHistory = {};
+            const countToday = targetFish.premiumHistory[todayStr] || 0;
+            if (countToday >= (curFood.maxDaily || 3)) {
+                return alert(`Ikan ini sudah mencapai batas ${curFood.maxDaily || 3}x pakan premium untuk hari ini! Silakan pilih pakan lain.`);
+            }
+            targetFish.premiumHistory[todayStr] = countToday + 1;
+        }
+
+        inventoryFood[selectedFood]--;
+        updateStats();
 
         // Tentukan koordinat jatuh 1 butir pakan
         const pelletX = targetFish ? Math.max(30, Math.min(tank.offsetWidth - 50, targetFish.x + 30)) : (Math.random() * (tank.offsetWidth - 60) + 30);
 
-        // HANYA 1 ELEMEN BUTIR PAKAN
+        // Render pakan dalam bentuk SVG Vector, bukan Emoji
         const p = document.createElement('div');
         p.style.position = 'absolute';
-        p.style.width = '10px';
-        p.style.height = '10px';
-        p.style.borderRadius = '50%';
-        p.style.background = curFood.color;
-        p.style.border = '2px solid #fff';
-        p.style.boxShadow = '0 0 6px ' + curFood.color;
+        p.style.width = '24px';
+        p.style.height = '24px';
+        p.innerHTML = curFood.svg;
         p.style.left = pelletX + 'px';
         p.style.top = '10px';
         p.style.transition = 'top 1.6s ease-in';
@@ -816,8 +944,14 @@
         setTimeout(() => {
             p.remove();
             
-            targetFish.hunger = Math.min(100, (targetFish.hunger || 0) + curFood.fill);
-            targetFish.weight = parseFloat((parseFloat(targetFish.weight || 0.2) + curFood.weight).toFixed(2));
+            const maxCap = getFishMaxHunger(targetFish);
+            targetFish.hungerPoints = Math.min(maxCap, (targetFish.hungerPoints || 0) + curFood.fillPoints);
+            targetFish.hunger = getFishHungerPercent(targetFish);
+
+            // Penambahan berat proporsional dengan persentase pakan (mencegah paradoks)
+            const currentWeight = parseFloat(targetFish.weight || 0.20);
+            const weightGain = currentWeight * (curFood.weightPercent / 100);
+            targetFish.weight = parseFloat((currentWeight + weightGain).toFixed(3));
 
             if (fishDom) {
                 const badge = fishDom.querySelector('.fish-badge');
@@ -868,18 +1002,22 @@
 
         // Total Harga Jual = Modal Awal + Harga Berat + Bonus Umur
         const sellPrice = parseFloat(((f.basePrice || 0) + weightValue + ageBonusTokens).toFixed(2));
-        const isProfitable = sellPrice > (f.basePrice || 0);
+        
+        // Modal pembuatan ikan adalah 25 Token!
+        const creationCost = 25;
+        const isProfitable = sellPrice > creationCost;
+        const diff = Math.abs(sellPrice - creationCost).toFixed(2);
 
         info.innerHTML = `
             <div>Kualitas: <strong style="color:#0284c7;">${f.quality}</strong></div>
             <div>Rate Jual: <strong>${ratePerKg} Token per Kg</strong></div>
-            <div>Berat saat ini: <strong>${wVal.toFixed(2)} kg</strong></div>
+            <div>Berat saat ini: <strong>${wVal.toFixed(3)} kg</strong></div>
+            <div>Kapasitas Kenyang: <strong>${f.hungerPoints !== undefined ? Math.round(f.hungerPoints) : 100} / ${getFishMaxHunger(f)} Poin (${Math.round(f.hunger || 100)}%)</strong></div>
             <div>Umur nyata: <strong>${formatFishAge(f)}</strong></div>
             <div>Bonus Umur (0.1%/minggu): <strong>${ageWeeks >= 1 ? `+${ageBonusPercent.toFixed(1)}% (+${ageBonusTokens.toFixed(3)} Token)` : '0% (minimal umur 1 minggu)'}</strong></div>
-            <div>Tingkat Kenyang: <strong>${Math.round(f.hunger)}%</strong></div>
             <div style="font-size:18px; color:${isProfitable ? '#16a34a' : '#dc2626'}; margin-top:8px;">
                 Harga Jual: <strong>${sellPrice} Token</strong> 
-                ${isProfitable ? '💰 (Untung!)' : '📉 (Tingkatkan beratnya lagi!)'}
+                ${isProfitable ? `💰 (Untung +${diff} Token dari modal 25 Token!)` : `📉 (Belum Untung / Rugi -${diff} Token dari modal 25 Token, rawat lagi!)`}
             </div>
         `;
 
@@ -905,16 +1043,17 @@
             const c = document.createElement('div');
             c.className = 'item-card';
             c.innerHTML = `
-                <div style="font-size:20px; color:${item.color}">●</div>
+                <div style="display:flex; justify-content:center; margin-bottom:4px;">${item.svg}</div>
                 <div style="font-weight:800; font-size:14px;">${item.name}</div>
-                <div style="font-size:12px; opacity:0.8;">Kenyang +${item.fill}% • Berat +${item.weight}kg</div>
+                <div style="font-size:12px; opacity:0.85;">Kenyang +${item.fillPoints} Poin • Berat +${item.weightPercent}%</div>
+                ${item.isPremium ? '<div style="font-size:11px; color:#e11d48; font-weight:700;">Maks 3x / hari per ikan</div>' : ''}
                 <div style="font-size:12px; color:#ca8a04; font-weight:700; margin-top:4px;">${item.cost} Token / ${item.count} Pcs</div>
                 <button class="btn-baja btn-cyan" style="margin-top:6px; padding:4px 10px; font-size:12px;">Beli</button>
             `;
             c.onclick = () => {
                 if (tokens < item.cost) return alert('Token tidak mencukupi!');
                 tokens -= item.cost;
-                inventoryFood[item.id] += item.count;
+                inventoryFood[item.id] = (inventoryFood[item.id] || 0) + item.count;
                 selectedFood = item.id;
                 updateStats();
                 closeModal('foodModal');
