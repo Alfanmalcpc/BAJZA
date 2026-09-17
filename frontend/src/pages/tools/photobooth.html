@@ -254,9 +254,18 @@
   const btnFlipCam = document.getElementById('btnFlipCam');
 
   const logoImg = new Image();
-  logoImg.src = '../img/Logo.svg';
+  // Path presisi ke Logo.svg dengan fallback aman untuk local server & GitHub Pages
+  logoImg.src = '../../assets/img/Logo.svg';
   let isLogoLoaded = false;
-  logoImg.onload = () => { isLogoLoaded = true; if(photos.length > 0) renderStrip(); };
+  logoImg.onload = () => { 
+    isLogoLoaded = true; 
+    if (photos.length > 0) renderStrip(); 
+  };
+  logoImg.onerror = () => {
+    if (!logoImg.src.endsWith('/src/assets/img/Logo.svg')) {
+      logoImg.src = '/src/assets/img/Logo.svg';
+    }
+  };
 
   // Multiplayer State
   var isMultiplayer = false;
