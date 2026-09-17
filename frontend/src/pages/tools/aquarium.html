@@ -331,7 +331,7 @@
         <h2 style="font-family:'Bangers',cursive; font-size:26px; color:#0284c7;">🎨 GAMBAR IKAN CUSTOM</h2>
         <p style="font-size:13px; font-weight:600; color:#ef4444; margin-bottom:10px;">⚠️ Biaya buat: 25 Token. Ikan baru menetas harganya murah! Rawat & beri pakan agar besar dan bernilai mahal!</p>
         
-        <canvas id="fishCanvas" width="280" height="180" style="border:3px solid #000; border-radius:12px; background:#fff; cursor:crosshair;"></canvas>
+        <canvas id="fishCanvas" width="280" height="180" style="border:3px solid #000; border-radius:12px; background:#fff; cursor:crosshair; touch-action: none; user-select: none; -webkit-user-select: none;"></canvas>
         
         <div style="display:flex; justify-content:center; align-items:center; gap:10px; margin:12px 0;">
             <label style="font-weight:700;">Warna: <input type="color" id="brushColor" value="#0284c7" style="border:none; cursor:pointer; width:32px; height:32px;"></label>
@@ -723,28 +723,61 @@
     }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    // Canvas Drawing Logic
+    // Canvas Drawing Logic (Optimasi Touch HP & Mouse Klik Kiri)
     const canvas = document.getElementById('fishCanvas');
     const ctx = canvas.getContext('2d');
     let isDrawing = false;
     let strokes = 0;
 
+    function getCanvasCoords(e) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        return {
+            x: (e.clientX - rect.left) * scaleX,
+            y: (e.clientY - rect.top) * scaleY
+        };
+    }
+
     canvas.addEventListener('pointerdown', (e) => {
+        // Hanya responsif terhadap klik kiri mouse (button 0) atau sentuhan layar HP (touch)
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        
         isDrawing = true;
-        ctx.beginPath();
-        ctx.moveTo(e.offsetX, e.offsetY);
-    });
-    canvas.addEventListener('pointermove', (e) => {
-        if (!isDrawing) return;
+        try { canvas.setPointerCapture(e.pointerId); } catch(err) {}
+
         ctx.strokeStyle = document.getElementById('brushColor').value;
         ctx.lineWidth = document.getElementById('brushSize').value;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-        ctx.lineTo(e.offsetX, e.offsetY);
+
+        const pos = getCanvasCoords(e);
+        ctx.beginPath();
+        ctx.moveTo(pos.x, pos.y);
+        ctx.lineTo(pos.x, pos.y);
         ctx.stroke();
         strokes++;
     });
-    canvas.addEventListener('pointerup', () => isDrawing = false);
+
+    canvas.addEventListener('pointermove', (e) => {
+        if (!isDrawing) return;
+        const pos = getCanvasCoords(e);
+        ctx.strokeStyle = document.getElementById('brushColor').value;
+        ctx.lineWidth = document.getElementById('brushSize').value;
+        ctx.lineTo(pos.x, pos.y);
+        ctx.stroke();
+        strokes++;
+    });
+
+    const stopDrawing = (e) => {
+        if (isDrawing) {
+            isDrawing = false;
+            try { canvas.releasePointerCapture(e.pointerId); } catch(err) {}
+        }
+    };
+
+    canvas.addEventListener('pointerup', stopDrawing);
+    canvas.addEventListener('pointercancel', stopDrawing);
 
     function clearCanvas() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
