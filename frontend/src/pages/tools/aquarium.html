@@ -436,29 +436,30 @@
         }
     ];
 
-    // 20+ Diverse Themes for Aquarium Tank ONLY
+    // 20+ Diverse Themes for Aquarium Tank ONLY with Iconic Embedded Decors & Boosters
+    // limitBoost: Batas harian penambahan berat badan per ikan (standar = 1, mahal = 2, 3, 4)
     const TANK_THEMES = [
-        { id: 'deep-ocean', name: 'Deep Ocean', cost: 0, bg: 'linear-gradient(180deg, #0284c7 0%, #0369a1 50%, #082f49 100%)' },
-        { id: 'coral-reef', name: 'Coral Lagoon', cost: 15, bg: 'linear-gradient(180deg, #06b6d4 0%, #0891b2 50%, #164e63 100%)' },
-        { id: 'neon-cyber', name: 'Neon Cyberpunk', cost: 20, bg: 'linear-gradient(180deg, #6b21a8 0%, #3b0764 50%, #09090b 100%)' },
-        { id: 'golden-sunset', name: 'Golden Sunset', cost: 20, bg: 'linear-gradient(180deg, #f59e0b 0%, #b45309 50%, #451a03 100%)' },
-        { id: 'atlantis-temple', name: 'Kuil Atlantis', cost: 25, bg: 'linear-gradient(180deg, #0d9488 0%, #115e59 50%, #042f2e 100%)' },
-        { id: 'abyss-glow', name: 'Abyss Bercahaya', cost: 25, bg: 'linear-gradient(180deg, #4338ca 0%, #312e81 50%, #020617 100%)' },
-        { id: 'arctic-ice', name: 'Arctic Ice Chill', cost: 20, bg: 'linear-gradient(180deg, #e0f2fe 0%, #38bdf8 50%, #0369a1 100%)' },
-        { id: 'lava-trench', name: 'Lava Trench', cost: 25, bg: 'linear-gradient(180deg, #b91c1c 0%, #7f1d1d 50%, #1c1917 100%)' },
-        { id: 'zen-bamboo', name: 'Zen Koi Bamboo', cost: 20, bg: 'linear-gradient(180deg, #10b981 0%, #047857 50%, #064e3b 100%)' },
-        { id: 'amazon-mangrove', name: 'Amazon Mangrove', cost: 20, bg: 'linear-gradient(180deg, #16a34a 0%, #15803d 50%, #14532d 100%)' },
-        { id: 'cosmic-nebula', name: 'Cosmic Nebula', cost: 30, bg: 'linear-gradient(180deg, #701a75 0%, #4c0519 50%, #020617 100%)' },
-        { id: 'vaporwave-retro', name: 'Vaporwave Sun', cost: 30, bg: 'linear-gradient(180deg, #c026d3 0%, #4f46e5 50%, #1e1b4b 100%)' },
-        { id: 'midnight-trench', name: 'Midnight Trench', cost: 25, bg: 'linear-gradient(180deg, #334155 0%, #0f172a 50%, #020617 100%)' },
-        { id: 'sunken-shipwreck', name: 'Kapal Karam Kuno', cost: 30, bg: 'linear-gradient(180deg, #1e3a8a 0%, #172554 50%, #030712 100%)' },
-        { id: 'sand-dunes', name: 'Golden Oasis', cost: 20, bg: 'linear-gradient(180deg, #fde047 0%, #ca8a04 50%, #713f12 100%)' },
-        { id: 'crystal-quartz', name: 'Kristal Ungu', cost: 35, bg: 'linear-gradient(180deg, #a855f7 0%, #7e22ce 50%, #3b0764 100%)' },
-        { id: 'emerald-lagoon', name: 'Emerald Lagoon', cost: 25, bg: 'linear-gradient(180deg, #34d399 0%, #059669 50%, #064e3b 100%)' },
-        { id: 'ruby-depths', name: 'Ruby Deep Ocean', cost: 30, bg: 'linear-gradient(180deg, #f43f5e 0%, #be123c 50%, #4c0519 100%)' },
-        { id: 'twilight-shadow', name: 'Twilight Glow', cost: 25, bg: 'linear-gradient(180deg, #818cf8 0%, #4338ca 50%, #1e1b4b 100%)' },
-        { id: 'sapphire-reef', name: 'Sapphire Reef', cost: 30, bg: 'linear-gradient(180deg, #38bdf8 0%, #1d4ed8 50%, #172554 100%)' },
-        { id: 'golden-glamour', name: 'Golden 8K Luxury', cost: 40, bg: 'linear-gradient(180deg, #fbbf24 0%, #d97706 50%, #451a03 100%)' }
+        { id: 'deep-ocean', name: 'Deep Ocean', cost: 0, limitBoost: 1, bg: 'linear-gradient(180deg, #0284c7 0%, #0369a1 50%, #082f49 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; left:10%; width:120px; opacity:0.6;"><path d="M50 100 Q40 50 30 0 Q60 40 50 100 Z" fill="#0c4a6e"/></svg>` },
+        { id: 'coral-reef', name: 'Coral Lagoon', cost: 15, limitBoost: 2, bg: 'linear-gradient(180deg, #06b6d4 0%, #0891b2 50%, #164e63 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; right:15%; width:150px; opacity:0.8;"><path d="M50 100 C30 80 10 70 20 40 C30 60 50 60 50 40 C50 20 70 20 70 40 C70 60 90 70 80 100 Z" fill="#be123c"/></svg>` },
+        { id: 'neon-cyber', name: 'Neon Cyberpunk', cost: 20, limitBoost: 2, bg: 'linear-gradient(180deg, #6b21a8 0%, #3b0764 50%, #09090b 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; left:50%; width:200px; transform:translateX(-50%); opacity:0.5;"><line x1="0" y1="100" x2="50" y2="0" stroke="#f0abfc" stroke-width="2"/><line x1="100" y1="100" x2="50" y2="0" stroke="#f0abfc" stroke-width="2"/><circle cx="50" cy="50" r="30" fill="none" stroke="#22d3ee" stroke-width="3"/></svg>` },
+        { id: 'golden-sunset', name: 'Golden Sunset', cost: 20, limitBoost: 2, bg: 'linear-gradient(180deg, #f59e0b 0%, #b45309 50%, #451a03 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:20%; left:20%; width:100px; opacity:0.4;"><circle cx="50" cy="50" r="40" fill="#fef08a"/></svg>` },
+        { id: 'atlantis-temple', name: 'Kuil Atlantis', cost: 25, limitBoost: 3, bg: 'linear-gradient(180deg, #0d9488 0%, #115e59 50%, #042f2e 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; left:5%; width:160px; opacity:0.7;"><rect x="10" y="20" width="20" height="80" fill="#0f766e"/><rect x="70" y="20" width="20" height="80" fill="#0f766e"/><path d="M0 20 L50 0 L100 20 Z" fill="#134e4a"/></svg>` },
+        { id: 'abyss-glow', name: 'Abyss Bercahaya', cost: 25, limitBoost: 3, bg: 'linear-gradient(180deg, #4338ca 0%, #312e81 50%, #020617 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:10%; right:10%; width:80px; opacity:0.8;"><circle cx="50" cy="50" r="10" fill="#818cf8" style="filter:blur(8px);"/><circle cx="50" cy="50" r="4" fill="#fff"/></svg>` },
+        { id: 'arctic-ice', name: 'Arctic Ice Chill', cost: 20, limitBoost: 2, bg: 'linear-gradient(180deg, #e0f2fe 0%, #38bdf8 50%, #0369a1 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; left:30%; width:140px; opacity:0.6;"><path d="M20 100 L50 40 L80 100 Z" fill="#bae6fd"/><path d="M10 100 L30 60 L50 100 Z" fill="#e0f2fe"/></svg>` },
+        { id: 'lava-trench', name: 'Lava Trench', cost: 25, limitBoost: 3, bg: 'linear-gradient(180deg, #b91c1c 0%, #7f1d1d 50%, #1c1917 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; right:20%; width:150px; opacity:0.7;"><path d="M20 100 Q40 70 50 100 Q70 60 80 100 Z" fill="#dc2626"/><circle cx="45" cy="65" r="5" fill="#fca5a5"/></svg>` },
+        { id: 'zen-bamboo', name: 'Zen Koi Bamboo', cost: 20, limitBoost: 2, bg: 'linear-gradient(180deg, #10b981 0%, #047857 50%, #064e3b 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; left:5%; width:100px; opacity:0.8;"><rect x="30" y="0" width="8" height="100" fill="#059669"/><rect x="60" y="20" width="8" height="80" fill="#059669"/><line x1="28" y1="30" x2="40" y2="30" stroke="#065f46" stroke-width="2"/></svg>` },
+        { id: 'amazon-mangrove', name: 'Amazon Mangrove', cost: 20, limitBoost: 2, bg: 'linear-gradient(180deg, #16a34a 0%, #15803d 50%, #14532d 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; top:0; right:0; width:180px; opacity:0.7;"><path d="M100 0 Q50 20 80 100" fill="none" stroke="#166534" stroke-width="12"/><path d="M100 0 Q70 50 40 100" fill="none" stroke="#166534" stroke-width="8"/></svg>` },
+        { id: 'cosmic-nebula', name: 'Cosmic Nebula', cost: 30, limitBoost: 3, bg: 'linear-gradient(180deg, #701a75 0%, #4c0519 50%, #020617 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; top:20%; left:20%; width:250px; opacity:0.3;"><circle cx="50" cy="50" r="40" fill="#f472b6" style="filter:blur(20px);"/></svg>` },
+        { id: 'vaporwave-retro', name: 'Vaporwave Sun', cost: 30, limitBoost: 3, bg: 'linear-gradient(180deg, #c026d3 0%, #4f46e5 50%, #1e1b4b 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:10%; left:50%; width:150px; transform:translateX(-50%); opacity:0.8;"><circle cx="50" cy="50" r="40" fill="#f43f5e"/><line x1="0" y1="60" x2="100" y2="60" stroke="#1e1b4b" stroke-width="4"/><line x1="0" y1="75" x2="100" y2="75" stroke="#1e1b4b" stroke-width="6"/></svg>` },
+        { id: 'midnight-trench', name: 'Midnight Trench', cost: 25, limitBoost: 3, bg: 'linear-gradient(180deg, #334155 0%, #0f172a 50%, #020617 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; left:15%; width:120px; opacity:0.3;"><polygon points="10,100 50,20 90,100" fill="#334155"/></svg>` },
+        { id: 'sunken-shipwreck', name: 'Kapal Karam Kuno', cost: 30, limitBoost: 3, bg: 'linear-gradient(180deg, #1e3a8a 0%, #172554 50%, #030712 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; right:10%; width:180px; opacity:0.5;"><path d="M10 80 L90 80 L100 40 L50 60 Z" fill="#1e3a8a"/><line x1="60" y1="60" x2="60" y2="10" stroke="#1e3a8a" stroke-width="6"/></svg>` },
+        { id: 'sand-dunes', name: 'Golden Oasis', cost: 20, limitBoost: 2, bg: 'linear-gradient(180deg, #fde047 0%, #ca8a04 50%, #713f12 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; left:0; width:300px; opacity:0.6;"><path d="M0 100 Q50 60 100 100 Z" fill="#a16207"/></svg>` },
+        { id: 'crystal-quartz', name: 'Kristal Ungu', cost: 35, limitBoost: 4, bg: 'linear-gradient(180deg, #a855f7 0%, #7e22ce 50%, #3b0764 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; left:40%; width:130px; opacity:0.8;"><polygon points="50,10 70,100 30,100" fill="#d8b4fe"/><polygon points="30,40 50,100 10,100" fill="#c084fc"/></svg>` },
+        { id: 'emerald-lagoon', name: 'Emerald Lagoon', cost: 25, limitBoost: 3, bg: 'linear-gradient(180deg, #34d399 0%, #059669 50%, #064e3b 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; right:5%; width:140px; opacity:0.7;"><circle cx="50" cy="80" r="30" fill="#047857"/><circle cx="20" cy="90" r="20" fill="#065f46"/></svg>` },
+        { id: 'ruby-depths', name: 'Ruby Deep Ocean', cost: 30, limitBoost: 3, bg: 'linear-gradient(180deg, #f43f5e 0%, #be123c 50%, #4c0519 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; left:25%; width:160px; opacity:0.6;"><polygon points="50,20 80,60 50,100 20,60" fill="#fb7185"/></svg>` },
+        { id: 'twilight-shadow', name: 'Twilight Glow', cost: 25, limitBoost: 3, bg: 'linear-gradient(180deg, #818cf8 0%, #4338ca 50%, #1e1b4b 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; top:10%; right:20%; width:80px; opacity:0.5;"><circle cx="50" cy="50" r="40" fill="#c7d2fe"/></svg>` },
+        { id: 'sapphire-reef', name: 'Sapphire Reef', cost: 30, limitBoost: 3, bg: 'linear-gradient(180deg, #38bdf8 0%, #1d4ed8 50%, #172554 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; right:30%; width:140px; opacity:0.7;"><polygon points="50,0 100,50 50,100 0,50" fill="#7dd3fc"/></svg>` },
+        { id: 'golden-glamour', name: 'Golden 8K Luxury', cost: 40, limitBoost: 4, bg: 'linear-gradient(180deg, #fbbf24 0%, #d97706 50%, #451a03 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; left:10%; width:180px; opacity:0.9;"><rect x="20" y="20" width="20" height="80" fill="#fde047"/><rect x="60" y="40" width="20" height="60" fill="#facc15"/><circle cx="30" cy="20" r="15" fill="#fef08a"/></svg>` }
     ];
 
     // Food Types with SVG Vectors (Anti-Emoji, Professional Styling)
@@ -888,8 +889,8 @@
 
         const curFood = FOOD_ITEMS.find(x => x.id === selectedFood);
 
-        // Cari 1 ikan yang paling lapar (persentase hunger paling kecil)
-        const targetFish = fishes.slice().sort((a, b) => (getFishHungerPercent(a)) - (getFishHungerPercent(b)))[0];
+        // Pilih 1 ikan secara acak agar pemberian pakan tidak selalu tertuju ke 1 ikan yang sama
+        const targetFish = fishes[Math.floor(Math.random() * fishes.length)];
         const fishDom = document.getElementById('fish-' + targetFish.id);
 
         inventoryFood[selectedFood]--;
@@ -910,7 +911,7 @@
         p.style.zIndex = '6';
         tank.appendChild(p);
 
-        // Ikan yang paling lapar langsung berenang mengejar pakan!
+        // Ikan tersebut berenang mengejar pakan!
         if (fishDom) {
             targetFish.x = Math.max(20, Math.min(tank.offsetWidth - 120, pelletX - 30));
             targetFish.y = Math.min(tank.offsetHeight - 90, Math.max(30, targetFish.y - 20));
@@ -923,7 +924,7 @@
             p.style.top = Math.max(30, Math.min(tank.offsetHeight - 45, targetFish.y + 15)) + 'px';
         }, 30);
 
-        // Saat pakan sampai, hanya ikan paling lapar tersebut yang memakannya
+        // Saat pakan sampai, ikan terpilih memakannya
         setTimeout(() => {
             p.remove();
             
@@ -932,12 +933,13 @@
             targetFish.hungerPoints = Math.min(maxCap, (targetFish.hungerPoints || 0) + curFood.fillPoints);
             targetFish.hunger = getFishHungerPercent(targetFish);
 
-            // Batas menambah berat badan: maks 3x sehari untuk semua pakan + roll probabilitas (contoh vitamin 10% peluang)
+            // Batas menambah berat badan: standar 1x sehari, tapi di tema yang lebih mahal di-boost menjadi 2x, 3x, hingga 4x sehari!
+            const boosterLimit = getThemeBoosterLimit();
             const todayStr = new Date().toISOString().split('T')[0];
             if (!targetFish.weightGainsToday) targetFish.weightGainsToday = {};
             const dailyGains = targetFish.weightGainsToday[todayStr] || 0;
 
-            if (dailyGains < 3) {
+            if (dailyGains < boosterLimit) {
                 // Peluang menambah berat sesuai persentase pakan (vitamin = 10% peluang, 90% tidak nambah berat)
                 if (Math.random() < (curFood.weightChance || 0.25)) {
                     targetFish.weightGainsToday[todayStr] = dailyGains + 1;
@@ -1083,11 +1085,30 @@
         });
     }
 
+    function getThemeBoosterLimit() {
+        const target = TANK_THEMES.find(x => x.id === activeThemeId);
+        return target ? (target.limitBoost || 1) : 1;
+    }
+
     function loadTheme(id) {
         activeThemeId = id;
         const target = TANK_THEMES.find(x => x.id === id);
         if (target && tank) {
             tank.style.background = target.bg;
+            let embedLayer = document.getElementById('themeEmbedLayer');
+            if (!embedLayer) {
+                embedLayer = document.createElement('div');
+                embedLayer.id = 'themeEmbedLayer';
+                embedLayer.style.position = 'absolute';
+                embedLayer.style.bottom = '0';
+                embedLayer.style.left = '0';
+                embedLayer.style.width = '100%';
+                embedLayer.style.height = '100%';
+                embedLayer.style.pointerEvents = 'none';
+                embedLayer.style.zIndex = '1';
+                tank.insertBefore(embedLayer, tank.firstChild);
+            }
+            embedLayer.innerHTML = target.svgStr || '';
         }
     }
 
