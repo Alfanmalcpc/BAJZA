@@ -296,7 +296,7 @@
         <div class="stats-bar">
             <div class="stat-pill">🪙 Token: <span id="tokenVal" style="color:#ca8a04;">100</span></div>
             <div class="stat-pill">🦐 Pakan: <span id="foodVal" style="color:#0284c7;">15</span> (<span id="foodName">Pelet</span>)</div>
-            <button class="btn-baja btn-pink" onclick="watchMonetagAd()">⚡ Tonton Iklan (+50 Token)</button>
+            <iframe src="monetag-aquarium-btn.html" style="width: 220px; height: 46px; border: none; overflow: hidden; border-radius: 10px;" scrolling="no"></iframe>
         </div>
     </div>
 
@@ -596,14 +596,15 @@
         setTimeout(() => b.remove(), 5000);
     }, 450);
 
-    // Watch Monetag Ad
-    function watchMonetagAd() {
-        window.open('https://5gvci.com/act/files/tag.min.js?z=11493748', '_blank');
-        tokens += 50;
-        updateStats();
-        saveAquariumData();
-        alert('🎉 Terima kasih! Kamu mendapatkan +50 Token dari iklan!');
-    }
+    // Monetag Ad Listener via postMessage
+    window.addEventListener('message', (event) => {
+        if (event.data === 'ad_completed_aquarium') {
+            tokens += 50;
+            updateStats();
+            saveAquariumData();
+            alert('🎉 Terima kasih! Kamu mendapatkan +50 Token dari iklan!');
+        }
+    });
 
     // Modal Helpers
     function openModal(id) {
