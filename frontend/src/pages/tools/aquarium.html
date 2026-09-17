@@ -472,7 +472,9 @@
         if (!uid) return;
         
         const fishData = fishes.map(f => ({
-            id: f.id, src: f.src, age: f.age || 0, weight: parseFloat(f.weight || 0.2),
+            id: f.id, src: f.src,
+            createdAt: f.createdAt || (Date.now() - ((f.age || 0) * 3600 * 1000)),
+            weight: parseFloat(f.weight || 0.2),
             hunger: Math.round(f.hunger || 100), quality: f.quality || 'Biasa', basePrice: f.basePrice || 5,
             x: Math.round(f.x || 50), y: Math.round(f.y || 50)
         }));
@@ -510,7 +512,11 @@
             const list = Array.isArray(data.fishes) ? data.fishes : Object.values(data.fishes);
             document.querySelectorAll('.fish').forEach(el => el.remove());
             fishes = [];
-            list.forEach(f => { fishes.push(f); spawnFishDOM(f); });
+            list.forEach(f => {
+                if (!f.createdAt) f.createdAt = Date.now() - ((f.age || 0) * 3600 * 1000);
+                fishes.push(f);
+                spawnFishDOM(f);
+            });
         }
         if (data.decorations) {
             const decors = Array.isArray(data.decorations) ? data.decorations : Object.values(data.decorations);
@@ -641,6 +647,30 @@
         openModal('drawModal');
     }
 
+    function getFishAgeDays(f) {
+        if (!f.createdAt) {
+            f.createdAt = Date.now() - ((f.age || 0) * 3600 * 1000);
+        }
+        return Math.max(0, (Date.now() - f.createdAt) / (1000 * 60 * 60 * 24));
+    }
+
+    function formatFishAge(f) {
+        const days = getFishAgeDays(f);
+        if (days >= 7) {
+            const weeks = Math.floor(days / 7);
+            const remDays = Math.floor(days % 7);
+            return `${weeks} minggu ${remDays} hari`;
+        }
+        if (days >= 1) {
+            const d = Math.floor(days);
+            const h = Math.floor((days - d) * 24);
+            return `${d} hari ${h} jam`;
+        }
+        const totalHours = Math.floor(days * 24);
+        const totalMins = Math.max(1, Math.floor(days * 24 * 60));
+        return totalHours >= 1 ? `${totalHours} jam` : `${totalMins} menit`;
+    }
+
     function saveFish() {
         if (strokes < 10) return alert('Silakan gambar bentuk ikan terlebih dahulu!');
         tokens -= 25;
@@ -652,14 +682,12 @@
         const quality = isSuper ? (strokes > 140 ? 'Legendaris' : 'Bagus') : 'Biasa';
         
         // SANGAT PENTING: Ikan BARU MENETAS harganya SANGAT MURAH (5-8 token)!
-        // Pemain TIDAK BISA SPAM buat & langsung jual untuk cari untung.
-        // Ikan harus dirawat & diberi makan agar tumbuh beratnya & nilainya melonjak naik!
         const basePrice = quality === 'Legendaris' ? 12 : (quality === 'Bagus' ? 8 : 5);
 
         const fish = {
             id: Date.now(),
             src: imgData,
-            age: 0,
+            createdAt: Date.now(),
             weight: 0.20, // Ikan baru sangat kecil (0.2 kg)
             hunger: 100,
             quality: quality,
@@ -697,14 +725,14 @@
         tank.appendChild(el);
     }
 
-    // Fish Loop: Hunger, Aging, Movement & Dynamic Size Scaling
+    // Fish Loop: Hunger, Movement & Dynamic Size Scaling (Umur dihitung real-time dari createdAt)
     setInterval(() => {
         fishes.forEach(f => {
             const el = document.getElementById('fish-' + f.id);
             if (!el) return;
 
-            f.age += 1;
-            f.hunger = Math.max(0, f.hunger - 1.5);
+            // Pengurangan lapar perlahan dan wajar
+            f.hunger = Math.max(0, f.hunger - 0.4);
 
             f.x += (Math.random() - 0.5) * 80;
             f.y += (Math.random() - 0.5) * 60;
@@ -736,7 +764,7 @@
         });
     }, 2200);
 
-    // Feed Fish
+    // Feed Fish (HANYA 1 BUTIR PAKAN, diambil oleh 1 ikan yang paling lapar)
     function feedFish() {
         if (inventoryFood[selectedFood] <= 0) {
             return alert('Pakan jenis ini habis! Beli di Toko Pakan.');
@@ -748,30 +776,65 @@
 
         const curFood = FOOD_ITEMS.find(x => x.id === selectedFood);
 
-        // Falling food pellet animation
-        for (let i = 0; i < 4; i++) {
-            const p = document.createElement('div');
-            p.style.position = 'absolute';
-            p.style.width = '8px';
-            p.style.height = '8px';
-            p.style.borderRadius = '50%';
-            p.style.background = curFood.color;
-            p.style.border = '1px solid #fff';
-            p.style.left = (Math.random() * (tank.offsetWidth - 40) + 20) + 'px';
-            p.style.top = '10px';
-            p.style.transition = 'top 3s ease';
-            p.style.zIndex = '6';
-            tank.appendChild(p);
+        // Cari 1 ikan yang paling lapar (hunger paling kecil)
+        const targetFish = fishes.slice().sort((a, b) => (a.hunger || 0) - (b.hunger || 0))[0];
+        const fishDom = document.getElementById('fish-' + targetFish.id);
 
-            setTimeout(() => { p.style.top = (tank.offsetHeight - 20) + 'px'; }, 40);
-            setTimeout(() => { p.remove(); }, 3100);
+        // Tentukan koordinat jatuh 1 butir pakan
+        const pelletX = targetFish ? Math.max(30, Math.min(tank.offsetWidth - 50, targetFish.x + 30)) : (Math.random() * (tank.offsetWidth - 60) + 30);
+
+        // HANYA 1 ELEMEN BUTIR PAKAN
+        const p = document.createElement('div');
+        p.style.position = 'absolute';
+        p.style.width = '10px';
+        p.style.height = '10px';
+        p.style.borderRadius = '50%';
+        p.style.background = curFood.color;
+        p.style.border = '2px solid #fff';
+        p.style.boxShadow = '0 0 6px ' + curFood.color;
+        p.style.left = pelletX + 'px';
+        p.style.top = '10px';
+        p.style.transition = 'top 1.6s ease-in';
+        p.style.zIndex = '6';
+        tank.appendChild(p);
+
+        // Ikan yang paling lapar langsung berenang mengejar pakan!
+        if (fishDom) {
+            targetFish.x = Math.max(20, Math.min(tank.offsetWidth - 120, pelletX - 30));
+            targetFish.y = Math.min(tank.offsetHeight - 90, Math.max(30, targetFish.y - 20));
+            fishDom.style.left = targetFish.x + 'px';
+            fishDom.style.top = targetFish.y + 'px';
+            fishDom.style.transform = (pelletX > targetFish.x) ? 'scaleX(1)' : 'scaleX(-1)';
         }
 
-        fishes.forEach(f => {
-            f.hunger = Math.min(100, f.hunger + curFood.fill);
-            f.weight = (parseFloat(f.weight) + curFood.weight);
-        });
-        saveAquariumDebounced();
+        setTimeout(() => {
+            p.style.top = Math.max(30, Math.min(tank.offsetHeight - 45, targetFish.y + 15)) + 'px';
+        }, 30);
+
+        // Saat pakan sampai, hanya ikan paling lapar tersebut yang memakannya
+        setTimeout(() => {
+            p.remove();
+            
+            targetFish.hunger = Math.min(100, (targetFish.hunger || 0) + curFood.fill);
+            targetFish.weight = parseFloat((parseFloat(targetFish.weight || 0.2) + curFood.weight).toFixed(2));
+
+            if (fishDom) {
+                const badge = fishDom.querySelector('.fish-badge');
+                if (badge) {
+                    badge.innerText = `${targetFish.quality} • ${targetFish.weight.toFixed(2)}kg`;
+                    badge.style.background = '#22c55e'; // Hijau tanda kenyang
+                    setTimeout(() => {
+                        badge.style.background = targetFish.hunger < 30 ? '#ef4444' : '#000';
+                    }, 1200);
+                }
+                const img = fishDom.querySelector('img');
+                if (img) {
+                    const scaledWidth = Math.min(140, Math.max(45, Math.floor(45 + (targetFish.weight * 22))));
+                    img.style.width = scaledWidth + 'px';
+                }
+            }
+            saveAquariumDebounced();
+        }, 1600);
     }
 
     // Sell Fish Modal
@@ -783,22 +846,29 @@
 
         preview.innerHTML = `<img src="${f.src}" style="max-width:140px; border:2px solid #000; border-radius:10px; background:#f1f5f9; padding:8px;">`;
         
-        // Dynamic Pricing:
-        // Fresh fish (0.2kg) = 5 to 10 tokens (LOSS, no spam possible!)
-        // Raised fish (2.0kg - 4.0kg) = base + (weight * 25) + (age * 2) = 60 to 180+ tokens (BIG PROFIT for caring!)
         const wVal = parseFloat(f.weight);
-        const sellPrice = Math.floor(f.basePrice + (wVal * 25) + (f.age * 2));
+        const ageDays = getFishAgeDays(f);
+        const ageWeeks = Math.floor(ageDays / 7);
+
+        // Aturan: Umur minimal 1 minggu baru naik 0.1% per minggu dari harga awal
+        const ageBonusPercent = ageWeeks >= 1 ? (ageWeeks * 0.1) : 0;
+        const ageBonusTokens = f.basePrice * (ageBonusPercent / 100);
+
+        // Keuntungan dari kenaikan berat badan pakan
+        const weightBonus = Math.max(0, (wVal - 0.20) * 25);
+        const sellPrice = Math.max(f.basePrice, Math.floor(f.basePrice + weightBonus + ageBonusTokens));
 
         const isProfitable = sellPrice > 25;
 
         info.innerHTML = `
             <div>Kualitas: <strong style="color:#0284c7;">${f.quality}</strong></div>
             <div>Berat saat ini: <strong>${wVal.toFixed(2)} kg</strong></div>
-            <div>Umur perawatan: <strong>${f.age} hari</strong></div>
+            <div>Umur nyata: <strong>${formatFishAge(f)}</strong></div>
+            <div>Bonus Umur (0.1%/minggu): <strong>${ageWeeks >= 1 ? `+${ageBonusPercent.toFixed(1)}% (+${ageBonusTokens.toFixed(2)} Token)` : '0% (minimal umur 1 minggu)'}</strong></div>
             <div>Tingkat Kenyang: <strong>${Math.round(f.hunger)}%</strong></div>
             <div style="font-size:18px; color:${isProfitable ? '#16a34a' : '#dc2626'}; margin-top:8px;">
                 Harga Jual: <strong>${sellPrice} Token</strong> 
-                ${isProfitable ? '💰 (Untung!)' : '📉 (Ikan masih terlalu kecil, rawat lagi!)'}
+                ${isProfitable ? '💰 (Untung!)' : '📉 (Ikan masih kecil/muda, rawat lagi!)'}
             </div>
         `;
 
