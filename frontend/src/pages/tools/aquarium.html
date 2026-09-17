@@ -734,8 +734,8 @@
             const el = document.getElementById('fish-' + f.id);
             if (!el) return;
 
-            // Pengurangan lapar perlahan dan wajar
-            f.hunger = Math.max(0, f.hunger - 0.4);
+            // Pengurangan lapar sangat lambat dan santai (awet berjam-jam)
+            f.hunger = Math.max(0, f.hunger - 0.02);
 
             f.x += (Math.random() - 0.5) * 80;
             f.y += (Math.random() - 0.5) * 60;
@@ -849,29 +849,39 @@
 
         preview.innerHTML = `<img src="${f.src}" style="max-width:140px; border:2px solid #000; border-radius:10px; background:#f1f5f9; padding:8px;">`;
         
-        const wVal = parseFloat(f.weight);
+        const wVal = parseFloat(f.weight || 0.2);
         const ageDays = getFishAgeDays(f);
         const ageWeeks = Math.floor(ageDays / 7);
 
-        // Aturan: Umur minimal 1 minggu baru naik 0.1% per minggu dari harga awal
+        // Aturan perbandingan berat: Legendaris 1kg = 1 Token, kualitas di bawahnya lebih murah
+        let ratePerKg = 0.2; // Biasa: 0.2 Token/kg
+        if (f.quality === 'Legendaris') {
+            ratePerKg = 1.0;
+        } else if (f.quality === 'Bagus') {
+            ratePerKg = 0.5;
+        }
+        
+        // Harga murni dari berat badan ikan saat ini
+        const weightValue = wVal * ratePerKg;
+
+        // Bonus Umur: minimal 1 minggu naik 0.1% per minggu dari nilai dasar
         const ageBonusPercent = ageWeeks >= 1 ? (ageWeeks * 0.1) : 0;
-        const ageBonusTokens = f.basePrice * (ageBonusPercent / 100);
+        const ageBonusTokens = (f.basePrice || 0) * (ageBonusPercent / 100);
 
-        // Keuntungan dari kenaikan berat badan pakan
-        const weightBonus = Math.max(0, (wVal - 0.20) * 25);
-        const sellPrice = Math.max(f.basePrice, Math.floor(f.basePrice + weightBonus + ageBonusTokens));
-
-        const isProfitable = sellPrice > 25;
+        // Total Harga Jual = Modal Awal + Harga Berat + Bonus Umur
+        const sellPrice = parseFloat(((f.basePrice || 0) + weightValue + ageBonusTokens).toFixed(2));
+        const isProfitable = sellPrice > (f.basePrice || 0);
 
         info.innerHTML = `
             <div>Kualitas: <strong style="color:#0284c7;">${f.quality}</strong></div>
+            <div>Rate Jual: <strong>${ratePerKg} Token per Kg</strong></div>
             <div>Berat saat ini: <strong>${wVal.toFixed(2)} kg</strong></div>
             <div>Umur nyata: <strong>${formatFishAge(f)}</strong></div>
-            <div>Bonus Umur (0.1%/minggu): <strong>${ageWeeks >= 1 ? `+${ageBonusPercent.toFixed(1)}% (+${ageBonusTokens.toFixed(2)} Token)` : '0% (minimal umur 1 minggu)'}</strong></div>
+            <div>Bonus Umur (0.1%/minggu): <strong>${ageWeeks >= 1 ? `+${ageBonusPercent.toFixed(1)}% (+${ageBonusTokens.toFixed(3)} Token)` : '0% (minimal umur 1 minggu)'}</strong></div>
             <div>Tingkat Kenyang: <strong>${Math.round(f.hunger)}%</strong></div>
             <div style="font-size:18px; color:${isProfitable ? '#16a34a' : '#dc2626'}; margin-top:8px;">
                 Harga Jual: <strong>${sellPrice} Token</strong> 
-                ${isProfitable ? '💰 (Untung!)' : '📉 (Ikan masih kecil/muda, rawat lagi!)'}
+                ${isProfitable ? '💰 (Untung!)' : '📉 (Tingkatkan beratnya lagi!)'}
             </div>
         `;
 
