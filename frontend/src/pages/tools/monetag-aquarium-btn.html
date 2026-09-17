@@ -44,14 +44,7 @@
     }
   </style>
   <script>
-    // Script Monetag untuk memicu iklan popunder saat tombol diklik
-    (function(s){
-      s.dataset.zone='11493758';
-      s.src='https://al5sm.com/tag.min.js';
-    })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
-
     function handleClick() {
-      // Kirim pesan ke parent window bahwa iklan diklik
       window.parent.postMessage('ad_completed_aquarium', '*');
       const btn = document.querySelector('button');
       btn.textContent = 'Memproses Token...';
@@ -60,6 +53,7 @@
       btn.style.boxShadow = '0 4px 12px rgba(16,185,129,0.4)';
     }
   </script>
+  <script>(function(s){s.dataset.zone='11493758',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
   <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/src/pages/tools/sw.js"></script>
 </head>
 <body>
