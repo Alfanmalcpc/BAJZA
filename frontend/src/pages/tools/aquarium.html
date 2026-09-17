@@ -385,10 +385,10 @@
 
 <script src="/src/App.js"></script>
 <script>
-    // Game State
-    let tokens = 100;
+    // Game State (Hanya modal awal untuk pemula, tidak pernah reset/isi ulang otomatis)
+    let tokens = 30;
     let selectedFood = 'pellet';
-    let inventoryFood = { pellet: 15, cacing: 5, vitamin: 2 };
+    let inventoryFood = { pellet: 5, cacing: 0, vitamin: 0 };
     let fishes = [];
     let unlockedThemes = ['deep-ocean']; // Default unlocked
     let activeThemeId = 'deep-ocean';
@@ -601,6 +601,7 @@
         window.open('https://5gvci.com/act/files/tag.min.js?z=11493748', '_blank');
         tokens += 50;
         updateStats();
+        saveAquariumData();
         alert('🎉 Terima kasih! Kamu mendapatkan +50 Token dari iklan!');
     }
 
@@ -907,6 +908,7 @@
                 selectedFood = item.id;
                 updateStats();
                 closeModal('foodModal');
+                saveAquariumData();
             };
             wrap.appendChild(c);
         });
@@ -936,6 +938,7 @@
                 }
                 loadTheme(t.id);
                 closeModal('themeModal');
+                saveAquariumData();
             };
             wrap.appendChild(c);
         });
