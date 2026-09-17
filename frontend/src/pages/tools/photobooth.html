@@ -347,6 +347,11 @@
         
         ctx.drawImage(img, x, y, w, h);
       });
+
+      // Render watermark LAGI di atas stiker sehingga watermark & logo TIDAK AKAN PERNAH tertutup stiker!
+      if (hasWatermark) {
+        drawWatermark();
+      }
     }
 
     const link = document.createElement('a');
@@ -1043,66 +1048,72 @@
       }
     }
 
-    // Draw Bottom Branding / Logo / Watermark if active
-    if (hasWatermark) {
-      // We explicitly set textBaseline to middle so our math is precise
-      ctx.textBaseline = 'middle';
-      
-      // Draw Watermark strip first (so it's behind if anything overlaps)
-      // This strip overlays the bottom 40px of the last photo
-      const photoBottom = stripHeight - bottomPadding;
-      ctx.globalAlpha = 1.0;
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-      ctx.fillRect(0, photoBottom - 40, stripWidth, 40);
-      
-      // Draw "Dibuat dengan BAJA WEB" inside the white strip
-      ctx.fillStyle = '#000';
-      ctx.font = 'bold 24px sans-serif';
-      const stripCenterY = photoBottom - 20; // Geometric center of the white strip
-      
-      if (isLogoLoaded) {
-        const logoSize2 = 28; // Increased from 24
-        const gap2 = 12;
-        const textStr = 'Dibuat dengan BAJA WEB';
-        const tWidth2 = ctx.measureText(textStr).width;
-        const totalW2 = logoSize2 + gap2 + tWidth2;
-        const startX2 = (stripWidth - totalW2) / 2;
-        ctx.drawImage(logoImg, startX2, stripCenterY - (logoSize2 / 2), logoSize2, logoSize2);
-        ctx.textAlign = 'left';
-        ctx.fillText(textStr, startX2 + logoSize2 + gap2, stripCenterY);
-      } else {
-        ctx.textAlign = 'center';
-        ctx.fillText('⚡ Dibuat dengan BAJA WEB', stripWidth / 2, stripCenterY);
-      }
-      
-      // Draw Logo + BAJA text at the bottom area (from photoBottom to stripHeight)
-      ctx.fillStyle = currentTheme.text;
-      ctx.font = 'bold 40px sans-serif';
-      const textY = photoBottom + (bottomPadding / 2) - 15; // Center of the bottom area slightly shifted up
-      
-      if (isLogoLoaded) {
-        const logoSize = 64; // Increased from 40
-        const gap = 16;
-        const tWidth = ctx.measureText('BAJA').width;
-        const totalW = logoSize + gap + tWidth; 
-        const startX = (stripWidth - totalW) / 2;
-        ctx.drawImage(logoImg, startX, textY - (logoSize / 2), logoSize, logoSize);
-        ctx.textAlign = 'left';
-        ctx.fillText('BAJA', startX + logoSize + gap, textY);
-      } else {
-        ctx.textAlign = 'center';
-        ctx.fillText('⚡ BAJA', stripWidth / 2, textY);
-      }
-      
-      // Draw Date
+    // Gambar watermark di lapisan atas
+    drawWatermark();
+  }
+
+  function drawWatermark() {
+    if (!hasWatermark) return;
+    const photoWidth = 600;
+    let currentRatio = cameraRatio;
+    let photoHeight = photoWidth / currentRatio;
+    const padding = currentTheme.type === 'film' ? 50 : 30;
+    const spacing = 20;
+    const bottomPadding = 180;
+    const stripWidth = photoWidth + (padding * 2);
+    const stripHeight = padding + (maxSlots * photoHeight) + ((maxSlots - 1) * spacing) + bottomPadding;
+
+    ctx.textBaseline = 'middle';
+    
+    const photoBottom = stripHeight - bottomPadding;
+    ctx.globalAlpha = 1.0;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    ctx.fillRect(0, photoBottom - 40, stripWidth, 40);
+    
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 24px sans-serif';
+    const stripCenterY = photoBottom - 20;
+    
+    if (isLogoLoaded) {
+      const logoSize2 = 28;
+      const gap2 = 12;
+      const textStr = 'Dibuat dengan BAJA WEB';
+      const tWidth2 = ctx.measureText(textStr).width;
+      const totalW2 = logoSize2 + gap2 + tWidth2;
+      const startX2 = (stripWidth - totalW2) / 2;
+      ctx.drawImage(logoImg, startX2, stripCenterY - (logoSize2 / 2), logoSize2, logoSize2);
+      ctx.textAlign = 'left';
+      ctx.fillText(textStr, startX2 + logoSize2 + gap2, stripCenterY);
+    } else {
       ctx.textAlign = 'center';
-      ctx.font = '500 20px sans-serif';
-      ctx.globalAlpha = 0.6;
-      const today = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
-      ctx.fillText(today, stripWidth / 2, textY + 50); // Placed nicely below the logo
+      ctx.fillText('⚡ Dibuat dengan BAJA WEB', stripWidth / 2, stripCenterY);
     }
     
+    ctx.fillStyle = currentTheme.text;
+    ctx.font = 'bold 40px sans-serif';
+    const textY = photoBottom + (bottomPadding / 2) - 15;
+    
+    if (isLogoLoaded) {
+      const logoSize = 64;
+      const gap = 16;
+      const tWidth = ctx.measureText('BAJA').width;
+      const totalW = logoSize + gap + tWidth; 
+      const startX = (stripWidth - totalW) / 2;
+      ctx.drawImage(logoImg, startX, textY - (logoSize / 2), logoSize, logoSize);
+      ctx.textAlign = 'left';
+      ctx.fillText('BAJA', startX + logoSize + gap, textY);
+    } else {
+      ctx.textAlign = 'center';
+      ctx.fillText('⚡ BAJA', stripWidth / 2, textY);
+    }
+    
+    ctx.textAlign = 'center';
+    ctx.font = '500 20px sans-serif';
+    ctx.globalAlpha = 0.6;
+    const today = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+    ctx.fillText(today, stripWidth / 2, textY + 50);
     ctx.globalAlpha = 1.0;
+  }
   }
 
   // --- MULTIPLAYER LOGIC ---
