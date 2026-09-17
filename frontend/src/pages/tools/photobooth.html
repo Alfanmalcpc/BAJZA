@@ -378,14 +378,22 @@
     video.style.transform = (facing === 'user') ? 'scaleX(-1)' : 'scaleX(1)';
 
     try {
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: { ideal: facing },
-          width:  { ideal: 1280 },
-          height: { ideal: 960 }
-        },
-        audio: false
-      });
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { ideal: facing },
+            width:  { ideal: 1280 },
+            height: { ideal: 960 }
+          },
+          audio: false
+        });
+      } catch (e1) {
+        // Fallback jika constraint resolusi ideal ditolak device
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: facing ? { facingMode: facing } : true,
+          audio: false
+        });
+      }
       video.srcObject = stream;
       video.onloadedmetadata = () => {
         video.play();
@@ -1113,7 +1121,6 @@
     const today = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
     ctx.fillText(today, stripWidth / 2, textY + 50);
     ctx.globalAlpha = 1.0;
-  }
   }
 
   // --- MULTIPLAYER LOGIC ---
