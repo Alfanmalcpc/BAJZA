@@ -439,27 +439,260 @@
     // 20+ Diverse Themes for Aquarium Tank ONLY with Iconic Embedded Decors & Boosters
     // limitBoost: Batas harian penambahan berat badan per ikan (standar = 1, mahal = 2, 3, 4)
     const TANK_THEMES = [
-        { id: 'deep-ocean', name: 'Deep Ocean', cost: 0, limitBoost: 1, bg: 'linear-gradient(180deg, #0284c7 0%, #0369a1 50%, #082f49 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; left:10%; width:120px; opacity:0.6;"><path d="M50 100 Q40 50 30 0 Q60 40 50 100 Z" fill="#0c4a6e"/></svg>` },
-        { id: 'coral-reef', name: 'Coral Lagoon', cost: 15, limitBoost: 2, bg: 'linear-gradient(180deg, #06b6d4 0%, #0891b2 50%, #164e63 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; right:15%; width:150px; opacity:0.8;"><path d="M50 100 C30 80 10 70 20 40 C30 60 50 60 50 40 C50 20 70 20 70 40 C70 60 90 70 80 100 Z" fill="#be123c"/></svg>` },
-        { id: 'neon-cyber', name: 'Neon Cyberpunk', cost: 20, limitBoost: 2, bg: 'linear-gradient(180deg, #6b21a8 0%, #3b0764 50%, #09090b 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; left:50%; width:200px; transform:translateX(-50%); opacity:0.5;"><line x1="0" y1="100" x2="50" y2="0" stroke="#f0abfc" stroke-width="2"/><line x1="100" y1="100" x2="50" y2="0" stroke="#f0abfc" stroke-width="2"/><circle cx="50" cy="50" r="30" fill="none" stroke="#22d3ee" stroke-width="3"/></svg>` },
-        { id: 'golden-sunset', name: 'Golden Sunset', cost: 20, limitBoost: 2, bg: 'linear-gradient(180deg, #f59e0b 0%, #b45309 50%, #451a03 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:20%; left:20%; width:100px; opacity:0.4;"><circle cx="50" cy="50" r="40" fill="#fef08a"/></svg>` },
-        { id: 'atlantis-temple', name: 'Kuil Atlantis', cost: 25, limitBoost: 3, bg: 'linear-gradient(180deg, #0d9488 0%, #115e59 50%, #042f2e 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; left:5%; width:160px; opacity:0.7;"><rect x="10" y="20" width="20" height="80" fill="#0f766e"/><rect x="70" y="20" width="20" height="80" fill="#0f766e"/><path d="M0 20 L50 0 L100 20 Z" fill="#134e4a"/></svg>` },
-        { id: 'abyss-glow', name: 'Abyss Bercahaya', cost: 25, limitBoost: 3, bg: 'linear-gradient(180deg, #4338ca 0%, #312e81 50%, #020617 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:10%; right:10%; width:80px; opacity:0.8;"><circle cx="50" cy="50" r="10" fill="#818cf8" style="filter:blur(8px);"/><circle cx="50" cy="50" r="4" fill="#fff"/></svg>` },
-        { id: 'arctic-ice', name: 'Arctic Ice Chill', cost: 20, limitBoost: 2, bg: 'linear-gradient(180deg, #e0f2fe 0%, #38bdf8 50%, #0369a1 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; left:30%; width:140px; opacity:0.6;"><path d="M20 100 L50 40 L80 100 Z" fill="#bae6fd"/><path d="M10 100 L30 60 L50 100 Z" fill="#e0f2fe"/></svg>` },
-        { id: 'lava-trench', name: 'Lava Trench', cost: 25, limitBoost: 3, bg: 'linear-gradient(180deg, #b91c1c 0%, #7f1d1d 50%, #1c1917 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; right:20%; width:150px; opacity:0.7;"><path d="M20 100 Q40 70 50 100 Q70 60 80 100 Z" fill="#dc2626"/><circle cx="45" cy="65" r="5" fill="#fca5a5"/></svg>` },
-        { id: 'zen-bamboo', name: 'Zen Koi Bamboo', cost: 20, limitBoost: 2, bg: 'linear-gradient(180deg, #10b981 0%, #047857 50%, #064e3b 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; left:5%; width:100px; opacity:0.8;"><rect x="30" y="0" width="8" height="100" fill="#059669"/><rect x="60" y="20" width="8" height="80" fill="#059669"/><line x1="28" y1="30" x2="40" y2="30" stroke="#065f46" stroke-width="2"/></svg>` },
-        { id: 'amazon-mangrove', name: 'Amazon Mangrove', cost: 20, limitBoost: 2, bg: 'linear-gradient(180deg, #16a34a 0%, #15803d 50%, #14532d 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; top:0; right:0; width:180px; opacity:0.7;"><path d="M100 0 Q50 20 80 100" fill="none" stroke="#166534" stroke-width="12"/><path d="M100 0 Q70 50 40 100" fill="none" stroke="#166534" stroke-width="8"/></svg>` },
-        { id: 'cosmic-nebula', name: 'Cosmic Nebula', cost: 30, limitBoost: 3, bg: 'linear-gradient(180deg, #701a75 0%, #4c0519 50%, #020617 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; top:20%; left:20%; width:250px; opacity:0.3;"><circle cx="50" cy="50" r="40" fill="#f472b6" style="filter:blur(20px);"/></svg>` },
-        { id: 'vaporwave-retro', name: 'Vaporwave Sun', cost: 30, limitBoost: 3, bg: 'linear-gradient(180deg, #c026d3 0%, #4f46e5 50%, #1e1b4b 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:10%; left:50%; width:150px; transform:translateX(-50%); opacity:0.8;"><circle cx="50" cy="50" r="40" fill="#f43f5e"/><line x1="0" y1="60" x2="100" y2="60" stroke="#1e1b4b" stroke-width="4"/><line x1="0" y1="75" x2="100" y2="75" stroke="#1e1b4b" stroke-width="6"/></svg>` },
-        { id: 'midnight-trench', name: 'Midnight Trench', cost: 25, limitBoost: 3, bg: 'linear-gradient(180deg, #334155 0%, #0f172a 50%, #020617 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; left:15%; width:120px; opacity:0.3;"><polygon points="10,100 50,20 90,100" fill="#334155"/></svg>` },
-        { id: 'sunken-shipwreck', name: 'Kapal Karam Kuno', cost: 30, limitBoost: 3, bg: 'linear-gradient(180deg, #1e3a8a 0%, #172554 50%, #030712 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; right:10%; width:180px; opacity:0.5;"><path d="M10 80 L90 80 L100 40 L50 60 Z" fill="#1e3a8a"/><line x1="60" y1="60" x2="60" y2="10" stroke="#1e3a8a" stroke-width="6"/></svg>` },
-        { id: 'sand-dunes', name: 'Golden Oasis', cost: 20, limitBoost: 2, bg: 'linear-gradient(180deg, #fde047 0%, #ca8a04 50%, #713f12 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; left:0; width:300px; opacity:0.6;"><path d="M0 100 Q50 60 100 100 Z" fill="#a16207"/></svg>` },
-        { id: 'crystal-quartz', name: 'Kristal Ungu', cost: 35, limitBoost: 4, bg: 'linear-gradient(180deg, #a855f7 0%, #7e22ce 50%, #3b0764 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; left:40%; width:130px; opacity:0.8;"><polygon points="50,10 70,100 30,100" fill="#d8b4fe"/><polygon points="30,40 50,100 10,100" fill="#c084fc"/></svg>` },
-        { id: 'emerald-lagoon', name: 'Emerald Lagoon', cost: 25, limitBoost: 3, bg: 'linear-gradient(180deg, #34d399 0%, #059669 50%, #064e3b 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; right:5%; width:140px; opacity:0.7;"><circle cx="50" cy="80" r="30" fill="#047857"/><circle cx="20" cy="90" r="20" fill="#065f46"/></svg>` },
-        { id: 'ruby-depths', name: 'Ruby Deep Ocean', cost: 30, limitBoost: 3, bg: 'linear-gradient(180deg, #f43f5e 0%, #be123c 50%, #4c0519 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; left:25%; width:160px; opacity:0.6;"><polygon points="50,20 80,60 50,100 20,60" fill="#fb7185"/></svg>` },
-        { id: 'twilight-shadow', name: 'Twilight Glow', cost: 25, limitBoost: 3, bg: 'linear-gradient(180deg, #818cf8 0%, #4338ca 50%, #1e1b4b 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; top:10%; right:20%; width:80px; opacity:0.5;"><circle cx="50" cy="50" r="40" fill="#c7d2fe"/></svg>` },
-        { id: 'sapphire-reef', name: 'Sapphire Reef', cost: 30, limitBoost: 3, bg: 'linear-gradient(180deg, #38bdf8 0%, #1d4ed8 50%, #172554 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; right:30%; width:140px; opacity:0.7;"><polygon points="50,0 100,50 50,100 0,50" fill="#7dd3fc"/></svg>` },
-        { id: 'golden-glamour', name: 'Golden 8K Luxury', cost: 40, limitBoost: 4, bg: 'linear-gradient(180deg, #fbbf24 0%, #d97706 50%, #451a03 100%)', svgStr: `<svg viewBox="0 0 100 100" style="position:absolute; bottom:0; left:10%; width:180px; opacity:0.9;"><rect x="20" y="20" width="20" height="80" fill="#fde047"/><rect x="60" y="40" width="20" height="60" fill="#facc15"/><circle cx="30" cy="20" r="15" fill="#fef08a"/></svg>` }
+        { 
+            id: 'deep-ocean', name: 'Deep Ocean', cost: 0, limitBoost: 1, 
+            bg: 'linear-gradient(180deg, #0284c7 0%, #0369a1 50%, #082f49 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:5%; width:160px; filter:drop-shadow(0 10px 10px rgba(0,0,0,0.5));">
+                <!-- Deep Ocean Kelp Forest -->
+                <path d="M50 200 Q40 100 80 0 Q60 50 70 200 Z" fill="#065f46" opacity="0.8"/>
+                <path d="M100 200 Q90 120 130 20 Q110 70 120 200 Z" fill="#047857" opacity="0.6"/>
+                <path d="M150 200 Q140 140 170 40 Q150 90 160 200 Z" fill="#064e3b" opacity="0.9"/>
+                <circle cx="120" cy="180" r="15" fill="#0f766e"/>
+                <circle cx="80" cy="190" r="10" fill="#115e59"/>
+            </svg>` 
+        },
+        { 
+            id: 'coral-reef', name: 'Coral Lagoon', cost: 15, limitBoost: 2, 
+            bg: 'linear-gradient(180deg, #06b6d4 0%, #0891b2 50%, #164e63 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; right:10%; width:180px; filter:drop-shadow(0 10px 15px rgba(0,0,0,0.6));">
+                <!-- Vibrant Coral Reef -->
+                <path d="M20 200 C0 140 40 100 60 140 C80 180 50 160 80 130 C110 100 120 150 90 200 Z" fill="#be123c"/>
+                <path d="M80 200 C60 160 90 120 120 160 C150 200 120 180 160 150 C200 120 180 180 140 200 Z" fill="#fb7185" opacity="0.9"/>
+                <circle cx="60" cy="120" r="5" fill="#fda4af"/><circle cx="110" cy="140" r="6" fill="#fecdd3"/>
+                <circle cx="150" cy="130" r="4" fill="#fda4af"/>
+            </svg>` 
+        },
+        { 
+            id: 'neon-cyber', name: 'Neon Cyberpunk', cost: 20, limitBoost: 2, 
+            bg: 'linear-gradient(180deg, #6b21a8 0%, #3b0764 50%, #09090b 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:50%; width:220px; transform:translateX(-50%); filter:drop-shadow(0 0 15px #f0abfc);">
+                <!-- Cyberpunk Holographic Grid & Pillars -->
+                <polygon points="50,200 80,40 120,40 150,200" fill="rgba(192,38,211,0.2)" stroke="#f0abfc" stroke-width="3"/>
+                <line x1="85" y1="200" x2="100" y2="40" stroke="#22d3ee" stroke-width="2" opacity="0.8"/>
+                <line x1="115" y1="200" x2="100" y2="40" stroke="#22d3ee" stroke-width="2" opacity="0.8"/>
+                <ellipse cx="100" cy="40" rx="20" ry="8" fill="#e879f9"/>
+                <ellipse cx="100" cy="200" rx="50" ry="15" fill="none" stroke="#22d3ee" stroke-width="4"/>
+            </svg>` 
+        },
+        { 
+            id: 'golden-sunset', name: 'Golden Sunset', cost: 20, limitBoost: 2, 
+            bg: 'linear-gradient(180deg, #f59e0b 0%, #b45309 50%, #451a03 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:20%; left:15%; width:160px; filter:drop-shadow(0 0 25px #fef08a);">
+                <!-- Glowing Setting Sun & Silhouettes -->
+                <circle cx="100" cy="100" r="70" fill="url(#sunGrad)"/>
+                <defs>
+                    <radialGradient id="sunGrad" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#fef08a" />
+                        <stop offset="100%" stop-color="#f59e0b" stop-opacity="0" />
+                    </radialGradient>
+                </defs>
+            </svg>` 
+        },
+        { 
+            id: 'atlantis-temple', name: 'Kuil Atlantis', cost: 25, limitBoost: 3, 
+            bg: 'linear-gradient(180deg, #0d9488 0%, #115e59 50%, #042f2e 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:5%; width:200px; filter:drop-shadow(5px 15px 15px rgba(0,0,0,0.7));">
+                <!-- Ancient Sunken Temple Pillars -->
+                <rect x="20" y="40" width="30" height="160" fill="#0f766e" rx="4"/>
+                <rect x="150" y="40" width="30" height="160" fill="#0f766e" rx="4"/>
+                <polygon points="0,40 100,0 200,40" fill="#134e4a"/>
+                <rect x="25" y="60" width="20" height="140" fill="#115e59"/>
+                <rect x="155" y="60" width="20" height="140" fill="#115e59"/>
+                <path d="M20 150 Q40 140 50 160" fill="none" stroke="#047857" stroke-width="4"/> <!-- Moss -->
+            </svg>` 
+        },
+        { 
+            id: 'abyss-glow', name: 'Abyss Bercahaya', cost: 25, limitBoost: 3, 
+            bg: 'linear-gradient(180deg, #4338ca 0%, #312e81 50%, #020617 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:5%; right:15%; width:150px;">
+                <!-- Glowing Abyss Flora -->
+                <circle cx="100" cy="100" r="40" fill="#818cf8" style="filter:blur(15px); opacity:0.6;"/>
+                <circle cx="100" cy="100" r="15" fill="#c7d2fe" style="filter:drop-shadow(0 0 10px #fff);"/>
+                <path d="M100 115 Q80 160 50 200" fill="none" stroke="#6366f1" stroke-width="6" stroke-linecap="round"/>
+                <path d="M100 115 Q120 160 150 200" fill="none" stroke="#6366f1" stroke-width="6" stroke-linecap="round"/>
+            </svg>` 
+        },
+        { 
+            id: 'arctic-ice', name: 'Arctic Ice Chill', cost: 20, limitBoost: 2, 
+            bg: 'linear-gradient(180deg, #e0f2fe 0%, #38bdf8 50%, #0369a1 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:20%; width:200px; filter:drop-shadow(0 10px 20px rgba(0,0,0,0.3));">
+                <!-- Sharp Glacial Ice Spikes -->
+                <polygon points="40,200 90,60 130,200" fill="#bae6fd" opacity="0.9"/>
+                <polygon points="10,200 50,120 90,200" fill="#e0f2fe" opacity="0.8"/>
+                <polygon points="100,200 150,80 190,200" fill="#7dd3fc" opacity="0.85"/>
+                <polygon points="90,60 110,200 130,200" fill="#38bdf8" opacity="0.4"/>
+            </svg>` 
+        },
+        { 
+            id: 'lava-trench', name: 'Lava Trench', cost: 25, limitBoost: 3, 
+            bg: 'linear-gradient(180deg, #b91c1c 0%, #7f1d1d 50%, #1c1917 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; right:15%; width:220px; filter:drop-shadow(0 0 20px #dc2626);">
+                <!-- Glowing Magma Vents -->
+                <path d="M0 200 Q50 100 100 200 Q150 120 200 200 Z" fill="#450a0a"/>
+                <path d="M40 200 Q50 140 60 200 Z" fill="#ef4444"/>
+                <path d="M130 200 Q145 130 160 200 Z" fill="#f97316"/>
+                <circle cx="50" cy="110" r="6" fill="#fca5a5" style="filter:blur(3px);"/>
+                <circle cx="145" cy="100" r="4" fill="#fdba74" style="filter:blur(2px);"/>
+                <circle cx="100" cy="150" r="8" fill="#f87171" style="filter:blur(4px);"/>
+            </svg>` 
+        },
+        { 
+            id: 'zen-bamboo', name: 'Zen Koi Bamboo', cost: 20, limitBoost: 2, 
+            bg: 'linear-gradient(180deg, #10b981 0%, #047857 50%, #064e3b 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:5%; width:160px; filter:drop-shadow(5px 5px 10px rgba(0,0,0,0.6));">
+                <!-- Underwater Bamboo Stalks -->
+                <rect x="50" y="0" width="16" height="200" fill="#059669" rx="4"/>
+                <rect x="110" y="40" width="20" height="160" fill="#059669" rx="5"/>
+                <line x1="45" y1="60" x2="71" y2="60" stroke="#065f46" stroke-width="4"/>
+                <line x1="45" y1="130" x2="71" y2="130" stroke="#065f46" stroke-width="4"/>
+                <line x1="105" y1="90" x2="135" y2="90" stroke="#065f46" stroke-width="5"/>
+                <line x1="105" y1="160" x2="135" y2="160" stroke="#065f46" stroke-width="5"/>
+                <path d="M66 60 Q90 40 100 60" fill="none" stroke="#34d399" stroke-width="3"/>
+            </svg>` 
+        },
+        { 
+            id: 'amazon-mangrove', name: 'Amazon Mangrove', cost: 20, limitBoost: 2, 
+            bg: 'linear-gradient(180deg, #16a34a 0%, #15803d 50%, #14532d 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; top:0; right:0; width:220px; filter:drop-shadow(-10px 10px 15px rgba(0,0,0,0.7));">
+                <!-- Tangled Mangrove Roots from Top -->
+                <path d="M200 0 Q100 50 140 200" fill="none" stroke="#14532d" stroke-width="25" stroke-linecap="round"/>
+                <path d="M160 0 Q110 80 80 200" fill="none" stroke="#166534" stroke-width="18" stroke-linecap="round"/>
+                <path d="M200 50 Q160 120 180 200" fill="none" stroke="#15803d" stroke-width="12" stroke-linecap="round"/>
+            </svg>` 
+        },
+        { 
+            id: 'cosmic-nebula', name: 'Cosmic Nebula', cost: 30, limitBoost: 3, 
+            bg: 'linear-gradient(180deg, #701a75 0%, #4c0519 50%, #020617 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; top:20%; left:30%; width:300px; transform:translateX(-50%);">
+                <!-- Glowing Cosmic Dust & Stars -->
+                <ellipse cx="100" cy="100" rx="80" ry="40" fill="#f472b6" style="filter:blur(30px); opacity:0.5;"/>
+                <ellipse cx="120" cy="120" rx="60" ry="30" fill="#c026d3" style="filter:blur(25px); opacity:0.4;"/>
+                <circle cx="80" cy="90" r="2" fill="#fff" style="filter:drop-shadow(0 0 4px #fff);"/><circle cx="130" cy="110" r="3" fill="#fff"/><circle cx="90" cy="130" r="1.5" fill="#fff"/>
+            </svg>` 
+        },
+        { 
+            id: 'vaporwave-retro', name: 'Vaporwave Sun', cost: 30, limitBoost: 3, 
+            bg: 'linear-gradient(180deg, #c026d3 0%, #4f46e5 50%, #1e1b4b 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:15%; left:50%; width:200px; transform:translateX(-50%); filter:drop-shadow(0 0 20px #f43f5e);">
+                <!-- Synthwave Wireframe Sun -->
+                <circle cx="100" cy="100" r="80" fill="url(#retroGrad)"/>
+                <defs>
+                    <linearGradient id="retroGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#f43f5e" />
+                        <stop offset="100%" stop-color="#facc15" />
+                    </linearGradient>
+                </defs>
+                <rect x="10" y="110" width="180" height="8" fill="#1e1b4b"/>
+                <rect x="20" y="130" width="160" height="10" fill="#1e1b4b"/>
+                <rect x="35" y="155" width="130" height="14" fill="#1e1b4b"/>
+            </svg>` 
+        },
+        { 
+            id: 'midnight-trench', name: 'Midnight Trench', cost: 25, limitBoost: 3, 
+            bg: 'linear-gradient(180deg, #334155 0%, #0f172a 50%, #020617 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:0; width:100%; filter:drop-shadow(0 -10px 20px rgba(0,0,0,0.9));">
+                <!-- Deep Dark Trench Ridges -->
+                <path d="M0 200 L40 120 L80 180 L140 80 L200 160 L200 200 Z" fill="#0f172a"/>
+                <path d="M0 200 L60 150 L100 190 L180 110 L200 200 Z" fill="#020617" opacity="0.8"/>
+            </svg>` 
+        },
+        { 
+            id: 'sunken-shipwreck', name: 'Kapal Karam Kuno', cost: 30, limitBoost: 3, 
+            bg: 'linear-gradient(180deg, #1e3a8a 0%, #172554 50%, #030712 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; right:5%; width:240px; filter:drop-shadow(10px 10px 15px rgba(0,0,0,0.8));">
+                <!-- Detailed Shipwreck Frame & Anchor -->
+                <path d="M20 180 Q80 100 180 160 L180 200 L20 200 Z" fill="#1e293b"/>
+                <path d="M40 180 Q90 120 160 170" fill="none" stroke="#334155" stroke-width="8"/>
+                <line x1="120" y1="150" x2="110" y2="40" stroke="#0f172a" stroke-width="12"/> <!-- Mast -->
+                <line x1="80" y1="90" x2="150" y2="80" stroke="#0f172a" stroke-width="8"/> <!-- Crossbar -->
+                <path d="M90 60 Q110 50 130 80" fill="none" stroke="#475569" stroke-width="2"/> <!-- Ropes -->
+                <circle cx="160" cy="180" r="10" fill="none" stroke="#94a3b8" stroke-width="3"/> <!-- Anchor ring -->
+                <path d="M160 190 L160 200 M140 190 Q160 210 180 190" fill="none" stroke="#94a3b8" stroke-width="4"/>
+            </svg>` 
+        },
+        { 
+            id: 'sand-dunes', name: 'Golden Oasis', cost: 20, limitBoost: 2, 
+            bg: 'linear-gradient(180deg, #fde047 0%, #ca8a04 50%, #713f12 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:0; width:100%; filter:drop-shadow(0 -5px 15px rgba(113,63,18,0.6));">
+                <!-- Smooth Golden Sand Dunes -->
+                <path d="M0 200 Q50 120 120 160 T200 140 L200 200 Z" fill="#a16207"/>
+                <path d="M0 200 Q80 150 150 180 T200 170 L200 200 Z" fill="#854d0e" opacity="0.7"/>
+            </svg>` 
+        },
+        { 
+            id: 'crystal-quartz', name: 'Kristal Ungu', cost: 35, limitBoost: 4, 
+            bg: 'linear-gradient(180deg, #a855f7 0%, #7e22ce 50%, #3b0764 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:35%; width:200px; filter:drop-shadow(0 0 20px rgba(216,180,254,0.6));">
+                <!-- Glowing Quartz Crystals -->
+                <polygon points="100,20 130,200 70,200" fill="#d8b4fe" opacity="0.9"/>
+                <polygon points="100,20 130,200 100,200" fill="#f3e8ff" opacity="0.5"/> <!-- Crystal facet -->
+                <polygon points="60,80 90,200 30,200" fill="#c084fc" opacity="0.8"/>
+                <polygon points="60,80 90,200 60,200" fill="#e9d5ff" opacity="0.4"/>
+                <polygon points="140,100 170,200 110,200" fill="#a855f7" opacity="0.95"/>
+            </svg>` 
+        },
+        { 
+            id: 'emerald-lagoon', name: 'Emerald Lagoon', cost: 25, limitBoost: 3, 
+            bg: 'linear-gradient(180deg, #34d399 0%, #059669 50%, #064e3b 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; right:10%; width:180px; filter:drop-shadow(-5px 10px 10px rgba(0,0,0,0.5));">
+                <!-- Lush Lagoon Rocks & Moss -->
+                <path d="M40 200 C40 140 120 120 160 200 Z" fill="#064e3b"/>
+                <path d="M100 200 C100 160 160 150 180 200 Z" fill="#022c22"/>
+                <circle cx="100" cy="150" r="30" fill="#047857" opacity="0.8"/> <!-- Moss overlay -->
+                <circle cx="140" cy="170" r="20" fill="#10b981" opacity="0.6"/>
+            </svg>` 
+        },
+        { 
+            id: 'ruby-depths', name: 'Ruby Deep Ocean', cost: 30, limitBoost: 3, 
+            bg: 'linear-gradient(180deg, #f43f5e 0%, #be123c 50%, #4c0519 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:20%; width:200px; filter:drop-shadow(0 0 25px rgba(251,113,133,0.7));">
+                <!-- Crimson Ruby Formations -->
+                <polygon points="100,40 150,120 100,200 50,120" fill="#fb7185"/>
+                <polygon points="100,40 150,120 100,200" fill="#ffe4e6" opacity="0.4"/>
+                <polygon points="40,100 70,150 40,200 10,150" fill="#e11d48"/>
+                <polygon points="160,120 190,160 160,200 130,160" fill="#9f1239"/>
+            </svg>` 
+        },
+        { 
+            id: 'twilight-shadow', name: 'Twilight Glow', cost: 25, limitBoost: 3, 
+            bg: 'linear-gradient(180deg, #818cf8 0%, #4338ca 50%, #1e1b4b 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; top:5%; right:15%; width:120px; filter:drop-shadow(0 0 30px #a5b4fc);">
+                <!-- Glowing Ethereal Moon/Orb -->
+                <circle cx="100" cy="100" r="80" fill="#e0e7ff" opacity="0.9"/>
+                <circle cx="70" cy="80" r="20" fill="#c7d2fe" opacity="0.5"/> <!-- Craters -->
+                <circle cx="120" cy="130" r="15" fill="#a5b4fc" opacity="0.4"/>
+            </svg>` 
+        },
+        { 
+            id: 'sapphire-reef', name: 'Sapphire Reef', cost: 30, limitBoost: 3, 
+            bg: 'linear-gradient(180deg, #38bdf8 0%, #1d4ed8 50%, #172554 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; right:20%; width:200px; filter:drop-shadow(5px 5px 20px #3b82f6);">
+                <!-- Sapphire Crystal Reefs -->
+                <polygon points="100,0 200,100 100,200 0,100" fill="#60a5fa"/>
+                <polygon points="100,0 200,100 100,200" fill="#eff6ff" opacity="0.4"/>
+                <polygon points="30,80 90,140 30,200 -30,140" fill="#2563eb"/>
+            </svg>` 
+        },
+        { 
+            id: 'golden-glamour', name: 'Golden 8K Luxury', cost: 40, limitBoost: 4, 
+            bg: 'linear-gradient(180deg, #fbbf24 0%, #d97706 50%, #451a03 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:15%; width:220px; filter:drop-shadow(0 15px 25px rgba(0,0,0,0.8));">
+                <!-- Royal Gold Pillars & Statues -->
+                <rect x="40" y="40" width="30" height="160" fill="url(#goldGrad)" rx="3"/>
+                <rect x="130" y="80" width="30" height="120" fill="url(#goldGrad)" rx="3"/>
+                <circle cx="55" cy="40" r="25" fill="#fef08a"/>
+                <circle cx="145" cy="80" r="20" fill="#fde047"/>
+                <polygon points="20,200 90,200 55,180" fill="#ca8a04"/>
+                <polygon points="110,200 180,200 145,180" fill="#a16207"/>
+                <defs>
+                    <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#ca8a04" />
+                        <stop offset="50%" stop-color="#fef08a" />
+                        <stop offset="100%" stop-color="#a16207" />
+                    </linearGradient>
+                </defs>
+            </svg>` 
+        }
     ];
 
     // Food Types with SVG Vectors (Anti-Emoji, Professional Styling)
