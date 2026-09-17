@@ -12,6 +12,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     <script src="/src/services/firebase.js"></script>
+    <script src="/src/services/firebase-pet.js"></script>
     <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/sw.js"></script>
     <style>
         .aq-header-box {
@@ -279,8 +280,11 @@
 <!-- LOGIN CHECK WRAPPER -->
 <div id="authRequiredNotice" class="aq-header-box" style="display:none; max-width:600px; margin-top:50px;">
     <h2 style="font-family:'Bangers',cursive; font-size:28px; color:#ef4444;">🔒 LOGIN DIBUTUHKAN</h2>
-    <p style="margin:12px 0 20px 0; font-size:15px; font-weight:600;">Kamu harus login ke akun BAJA terlebih dahulu untuk memelihara dan menggambar ikan virtual!</p>
-    <a href="/src/pages/auth.html" class="btn-baja btn-cyan" style="font-size:18px; padding:12px 28px;">🔑 Masuk / Login Sekarang</a>
+    <p style="margin:12px 0 20px 0; font-size:15px; font-weight:600;">Kamu bisa login ke akun BAJA agar aquarium tersimpan di cloud atau lanjut bermain langsung!</p>
+    <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <a href="/src/pages/auth.html" class="btn-baja btn-cyan" style="font-size:16px; padding:10px 24px;">🔑 Masuk / Login Akun</a>
+        <button class="btn-baja" onclick="playAsGuest()" style="font-size:16px; padding:10px 24px; background:#f1f5f9; color:#000;">🎮 Lanjut Tanpa Login</button>
+    </div>
 </div>
 
 <!-- MAIN AQUARIUM GAME CONTENT (HANYA MUNCUL JIKA SUDAH LOGIN) -->
@@ -459,17 +463,111 @@
         { id: 'vitamin', name: 'Vitamin Super Gold', cost: 25, fill: 100, weight: 0.75, count: 3, color: '#facc15' }
     ];
 
+    // === FIREBASE PET DATABASE SYNC ===
+    let currentUid = null;
+    let saveTimeout = null;
+
+    function saveAquariumData() {
+        const uid = currentUid;
+        if (!uid) return;
+        
+        const fishData = fishes.map(f => ({
+            id: f.id, src: f.src, age: f.age || 0, weight: parseFloat(f.weight || 0.2),
+            hunger: Math.round(f.hunger || 100), quality: f.quality || 'Biasa', basePrice: f.basePrice || 5,
+            x: Math.round(f.x || 50), y: Math.round(f.y || 50)
+        }));
+
+        const decorData = [];
+        document.querySelectorAll('.decor-item').forEach(el => {
+            if (el.dataset.decorId) { decorData.push({ id: el.dataset.decorId, left: el.style.left || '10px' }); }
+        });
+
+        const statePayload = {
+            tokens: tokens, inventoryFood: inventoryFood, unlockedThemes: unlockedThemes,
+            activeThemeId: activeThemeId, fishes: fishData, decorations: decorData, updatedAt: Date.now()
+        };
+
+        try { localStorage.setItem('baja_aquarium_cache_' + uid, JSON.stringify(statePayload)); } catch(e) {}
+        if (typeof petDb !== 'undefined') {
+            petDb.ref('aquarium/' + uid).set(statePayload).catch(err => {
+                console.warn('Firebase RTDB write error (pastikan RULES diset public true di console baja-pet):', err.message);
+            });
+        }
+    }
+
+    function saveAquariumDebounced() {
+        if (saveTimeout) clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(saveAquariumData, 1500);
+    }
+
+    function applyAquariumState(data) {
+        if (!data) return;
+        if (data.tokens !== undefined) tokens = data.tokens;
+        if (data.inventoryFood) inventoryFood = data.inventoryFood;
+        if (data.unlockedThemes) unlockedThemes = data.unlockedThemes;
+        if (data.activeThemeId) { activeThemeId = data.activeThemeId; loadTheme(activeThemeId); }
+        if (data.fishes) {
+            const list = Array.isArray(data.fishes) ? data.fishes : Object.values(data.fishes);
+            document.querySelectorAll('.fish').forEach(el => el.remove());
+            fishes = [];
+            list.forEach(f => { fishes.push(f); spawnFishDOM(f); });
+        }
+        if (data.decorations) {
+            const decors = Array.isArray(data.decorations) ? data.decorations : Object.values(data.decorations);
+            document.querySelectorAll('.decor-item').forEach(el => el.remove());
+            decors.forEach(d => {
+                const asset = DECORATION_ASSETS.find(x => x.id === d.id);
+                if (asset) spawnDecorOnSeabed(asset, d.left);
+            });
+        }
+        updateStats();
+    }
+
+    function loadAquariumFromFirebase(uid) {
+        try {
+            const cached = localStorage.getItem('baja_aquarium_cache_' + uid);
+            if (cached) applyAquariumState(JSON.parse(cached));
+        } catch(e) {}
+        if (typeof petDb !== 'undefined') {
+            petDb.ref('aquarium/' + uid).once('value').then(snapshot => {
+                const data = snapshot.val();
+                if (data) { applyAquariumState(data); try { localStorage.setItem('baja_aquarium_cache_' + uid, JSON.stringify(data)); } catch(e){} }
+            }).catch(err => console.warn('Firebase RTDB read error:', err.message));
+        }
+    }
+
+    function startGame(uid) {
+        currentUid = uid;
+        document.getElementById('authRequiredNotice').style.display = 'none';
+        document.getElementById('gameContent').style.display = 'block';
+        loadTheme(activeThemeId);
+        loadAquariumFromFirebase(uid);
+    }
+
+    function playAsGuest() {
+        let guestUid = localStorage.getItem('baja_aquarium_local_uid');
+        if (!guestUid) {
+            guestUid = 'guest_' + Math.random().toString(36).substring(2, 12);
+            localStorage.setItem('baja_aquarium_local_uid', guestUid);
+        }
+        startGame(guestUid);
+    }
+
     // Check Firebase Login First
     auth.onAuthStateChanged(user => {
         if (user) {
-            document.getElementById('authRequiredNotice').style.display = 'none';
-            document.getElementById('gameContent').style.display = 'block';
-            loadTheme(activeThemeId);
+            startGame(user.uid);
         } else {
-            document.getElementById('authRequiredNotice').style.display = 'block';
-            document.getElementById('gameContent').style.display = 'none';
+            const guestUid = localStorage.getItem('baja_aquarium_local_uid');
+            if (guestUid) { startGame(guestUid); }
+            else {
+                document.getElementById('authRequiredNotice').style.display = 'block';
+                document.getElementById('gameContent').style.display = 'none';
+            }
         }
     });
+
+    window.addEventListener('beforeunload', () => { if (currentUid) saveAquariumData(); });
 
     function updateStats() {
         tokenVal.innerText = tokens;
@@ -573,6 +671,7 @@
         fishes.push(fish);
         spawnFishDOM(fish);
         closeModal('drawModal');
+        saveAquariumData();
     }
 
     function spawnFishDOM(f) {
@@ -672,6 +771,7 @@
             f.hunger = Math.min(100, f.hunger + curFood.fill);
             f.weight = (parseFloat(f.weight) + curFood.weight);
         });
+        saveAquariumDebounced();
     }
 
     // Sell Fish Modal
@@ -709,6 +809,7 @@
             if (dom) dom.remove();
             fishes = fishes.filter(x => x.id !== f.id);
             closeModal('sellModal');
+            saveAquariumData();
             alert(`🎉 Ikan dijual seharga ${sellPrice} Token!`);
         };
 
