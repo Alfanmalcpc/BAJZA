@@ -294,7 +294,11 @@
     chatBody.scrollTop = chatBody.scrollHeight;
 
     try {
-      const res = await fetch('/api/ai/chat', {
+      const BACKEND_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:3000'
+        : 'https://bajza.onrender.com';
+        
+      const res = await fetch(BACKEND_URL + '/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text })
@@ -309,15 +313,17 @@
       }
     } catch (err) {
       typingRow.remove();
-      // Smart fallback when backend is offline or static hosting
-      let fallbackReply = "Halo Alfan! Senang bisa mengobrol denganmu. Platform BAJA WEB ini memiliki banyak sekali tools keren seperti Video Downloader, kalkulator, crypto dashboard, hingga Virtual Aquarium tempat kamu bisa memelihara ikan dan bersaing di leaderboard global!";
+      // Bazz character fallback response
+      let fallbackReply = `Halo Alfan! *H-R-R-R-GH!* 🦏💥 Aku Bazz, maskot badak cyber andalanmu di BAJA WEB (baja.my.id). Server backend sedang bangun dari tidur lelapnya (cold start Render), tapi aku tetap siap bantuin kamu! Silakan tanyakan seputar Video Downloader, kalkulator, crypto, atau Virtual Aquarium kita!`;
       const lower = text.toLowerCase();
       if (lower.includes('downloader')) {
-        fallbackReply = "Video Downloader di BAJA mendukung unduh video & audio dari TikTok, Instagram, dan YouTube secara gratis tanpa watermark!";
+        fallbackReply = "Video Downloader di BAJA mendukung unduh video & audio dari TikTok, Instagram, dan YouTube secara gratis tanpa watermark, Alfan!";
       } else if (lower.includes('crypto') || lower.includes('harga')) {
-        fallbackReply = "Menu Crypto & Finance menyajikan data harga real-time mata uang kripto dan saham langsung di browser kamu.";
+        fallbackReply = "Menu Crypto & Finance menyajikan data harga real-time mata uang kripto dan saham langsung di browser kamu, Alfan!";
       } else if (lower.includes('aquarium') || lower.includes('ikan')) {
-        fallbackReply = "Virtual Aquarium adalah fitur peliharaan ikan interaktif di BAJA dengan sistem pakan, dekorasi sinematik, booster, dan multiplayer leaderboard global!";
+        fallbackReply = "Virtual Aquarium adalah fitur peliharaan ikan interaktif di BAJA dengan sistem pakan, dekorasi sinematik, booster, dan multiplayer leaderboard global, Alfan!";
+      } else if (lower.includes('siapa kamu') || lower.includes('bazz')) {
+        fallbackReply = "Aku Bazz, badak cyber maskot official BAJA WEB yang dikembangkan oleh developer jenius Alfan dari SMAN 1 Sumberrejo! 🦏🔥";
       }
       appendChat('bot', fallbackReply);
     }
