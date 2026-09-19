@@ -1462,7 +1462,8 @@
             lbArray.forEach((p, idx) => {
                 const rank = idx + 1;
                 const badge = rank === 1 ? '🥇' : (rank === 2 ? '🥈' : (rank === 3 ? '🥉' : `#${rank}`));
-                const isMe = p.uid === currentUid;
+                const isMe = (p.uid === currentUid);
+                const playerName = isMe ? (myRealName || p.name || 'Alfan') : (p.name || 'Pemain ' + (p.uid ? p.uid.substring(0, 5) : ''));
                 const bg = isMe ? '#fef08a' : (rank <= 3 ? '#ffffff' : '#f8fafc');
                 const border = isMe ? '2px solid #ca8a04' : '1px solid #cbd5e1';
 
@@ -1471,11 +1472,11 @@
                         <div style="display:flex; align-items:center; gap:8px;">
                             <span style="font-weight:900; font-size:14px; min-width:24px;">${badge}</span>
                             <div>
-                                <strong style="font-size:13px; color:#0f172a;">${finalName}${isMe ? ' (Kamu)' : ''}</strong>
-                                <div style="font-size:11px; color:#64748b;">${p.fishCount} Ikan • Terjual: ${p.soldTokens}🪙</div>
+                                <strong style="font-size:13px; color:#0f172a;">${playerName}${isMe ? ' (Kamu)' : ''}</strong>
+                                <div style="font-size:11px; color:#64748b;">${p.fishCount || 0} Ikan • Terjual: ${(p.soldTokens || 0).toFixed(2)}🪙</div>
                             </div>
                         </div>
-                        <strong style="font-size:14px; color:#f59e0b;">${p.totalTokens} 🪙</strong>
+                        <strong style="font-size:14px; color:#f59e0b;">${(p.totalTokens || 0).toFixed(2)} 🪙</strong>
                     </div>
                 `;
             });
@@ -1528,6 +1529,22 @@
                         fishCount: fishList.length
                     });
                 }
+                // Pastikan user saat ini selalu ada dan up-to-date di daftar leaderboard
+                const myIdx = leaderboard.findIndex(x => x.uid === currentUid);
+                const myEntry = {
+                    uid: currentUid,
+                    name: myRealName || 'Alfan',
+                    aliveTokens: aliveTokens,
+                    soldTokens: totalSoldTokens,
+                    totalTokens: myTotal,
+                    fishCount: fishes.length
+                };
+                if (myIdx >= 0) {
+                    leaderboard[myIdx] = myEntry;
+                } else if (currentUid) {
+                    leaderboard.push(myEntry);
+                }
+
                 leaderboard.sort((a, b) => b.totalTokens - a.totalTokens);
                 renderLeaderboardList(leaderboard);
             })
