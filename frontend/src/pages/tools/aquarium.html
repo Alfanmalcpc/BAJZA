@@ -346,28 +346,17 @@
 
 <!-- MODAL LEADERBOARD TOKEN IKAN -->
 <div id="leaderboardModal" class="baja-modal">
-    <div class="baja-modal-card" style="max-width:440px;">
-        <h2 style="font-family:'Bangers',cursive; font-size:28px; color:#f59e0b;">🏆 LEADERBOARD TOKEN IKAN</h2>
-        <p style="font-size:12px; color:#64748b; margin-bottom:12px;">Akumulasi seluruh token yang dihasilkan dari ikan (ikan hidup & ikan yang sudah terjual).</p>
+    <div class="baja-modal-card" style="max-width:500px;">
+        <h2 style="font-family:'Bangers',cursive; font-size:28px; color:#f59e0b;">🏆 LEADERBOARD PEMAIN TERKAYA</h2>
+        <p style="font-size:12px; color:#64748b; margin-bottom:12px;">Peringkat pemain berdasarkan total token yang dihasilkan dari ikan (hidup + terjual).</p>
         
-        <div style="background:#f8fafc; border:2px solid #000; border-radius:12px; padding:14px; margin-bottom:14px; text-align:left;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                <span style="font-weight:700;">Nilai Ikan Hidup Saat Ini:</span>
-                <strong id="lbAliveVal" style="color:#0284c7;">0 Token</strong>
-            </div>
-            <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                <span style="font-weight:700;">Token Dari Ikan Terjual:</span>
-                <strong id="lbSoldVal" style="color:#16a34a;">0 Token</strong>
-            </div>
-            <div style="border-top:2px dashed #cbd5e1; margin:8px 0;"></div>
-            <div style="display:flex; justify-content:space-between; font-size:16px;">
-                <span style="font-weight:900;">Total Penghasilan Token:</span>
-                <strong id="lbTotalVal" style="color:#f59e0b; font-size:18px;">0 Token</strong>
-            </div>
-            <div style="display:flex; justify-content:space-between; font-size:13px; margin-top:8px; opacity:0.8;">
-                <span>Booster Dekorasi Aktif:</span>
-                <strong id="lbBoosterVal">0% Berat (tiap 6 jam)</strong>
-            </div>
+        <div style="background:#f8fafc; border:2px solid #000; border-radius:12px; padding:12px; margin-bottom:12px; text-align:left; max-height:260px; overflow-y:auto;" id="leaderboardList">
+            <div style="text-align:center; color:#64748b; padding:20px;">Memuat peringkat pemain...</div>
+        </div>
+
+        <div style="background:#f1f5f9; border:2px solid #000; border-radius:10px; padding:10px; font-size:12px; margin-bottom:12px; text-align:left;">
+            <div>Statistik Kamu: <strong id="lbMyTotal" style="color:#f59e0b;">0 Token</strong></div>
+            <div>Booster Dekorasi Aktif: <strong id="lbBoosterVal">0% Berat (tiap 6 jam)</strong></div>
         </div>
 
         <div style="display:flex; gap:10px; justify-content:center;">
@@ -1427,16 +1416,56 @@
             aliveTokens += getFishEstimatedValue(f);
         });
         aliveTokens = parseFloat(aliveTokens.toFixed(2));
-        const totalBreederScore = parseFloat((aliveTokens + totalSoldTokens).toFixed(2));
+        const myTotal = parseFloat((aliveTokens + totalSoldTokens).toFixed(2));
 
         const { totalWeightBoost } = calculateDecorationBoosters();
 
-        document.getElementById('lbAliveVal').innerText = aliveTokens + ' Token';
-        document.getElementById('lbSoldVal').innerText = totalSoldTokens.toFixed(2) + ' Token';
-        document.getElementById('lbTotalVal').innerText = totalBreederScore + ' Token';
+        document.getElementById('lbMyTotal').innerText = myTotal + ' Token (Ikan Hidup: ' + aliveTokens + ', Terjual: ' + totalSoldTokens.toFixed(2) + ')';
         document.getElementById('lbBoosterVal').innerText = '+' + totalWeightBoost.toFixed(4) + '% Berat (tiap 6 jam)';
 
+        const listEl = document.getElementById('leaderboardList');
+        listEl.innerHTML = '<div style="text-align:center; color:#64748b; padding:16px;">Memuat peringkat pemain...</div>';
         openModal('leaderboardModal');
+
+        fetch('/api/aquarium/leaderboard')
+            .then(res => res.json())
+            .then(data => {
+                if (!data || !data.leaderboard || data.leaderboard.length === 0) {
+                    listEl.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:#e0f2fe; border:1.5px solid #0284c7; border-radius:8px;">
+                            <div><strong>#1 🥇 Kamu</strong> (${fishes.length} Ikan)</div>
+                            <strong style="color:#0284c7;">${myTotal} Token</strong>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                data.leaderboard.forEach((p, idx) => {
+                    const rank = idx + 1;
+                    const badge = rank === 1 ? '🥇' : (rank === 2 ? '🥈' : (rank === 3 ? '🥉' : `#${rank}`));
+                    const isMe = p.uid === currentUid;
+                    const bg = isMe ? '#fef08a' : (rank <= 3 ? '#ffffff' : '#f8fafc');
+                    const border = isMe ? '2px solid #ca8a04' : '1px solid #cbd5e1';
+
+                    html += `
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; margin-bottom:6px; background:${bg}; border:${border}; border-radius:8px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-weight:900; font-size:14px; min-width:24px;">${badge}</span>
+                                <div>
+                                    <strong style="font-size:13px; color:#0f172a;">${p.name}${isMe ? ' (Kamu)' : ''}</strong>
+                                    <div style="font-size:11px; color:#64748b;">${p.fishCount} Ikan • Terjual: ${p.soldTokens}🪙</div>
+                                </div>
+                            </div>
+                            <strong style="font-size:14px; color:#f59e0b;">${p.totalTokens} 🪙</strong>
+                        </div>
+                    `;
+                });
+                listEl.innerHTML = html;
+            })
+            .catch(err => {
+                listEl.innerHTML = '<div style="text-align:center; color:#ef4444; padding:16px;">Gagal memuat leaderboard</div>';
+            });
     }
 
     // Passive Decoration Boost Loop (Cek berkala untuk interval 6 jam dan 1 jam)

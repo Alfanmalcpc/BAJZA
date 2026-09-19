@@ -147,3 +147,59 @@ exports.sellFish = async (req, res) => {
   await saveUserAquariumData(uid, data);
   res.json({ success: true, sellPrice, tokens: data.tokens, totalSoldTokens: data.totalSoldTokens });
 };
+
+// 6. Global Leaderboard (Mengurutkan pemain terkaya dari penghasilan token ikan)
+exports.getLeaderboard = async (req, res) => {
+  try {
+    const rtdbRes = await axios.get(`${PET_DB_URL}/aquarium.json`);
+    const allAquarium = rtdbRes.data || {};
+    
+    const leaderboard = [];
+    const now = Date.now();
+
+    for (const [uid, userState] of Object.entries(allAquarium)) {
+      if (!userState) continue;
+      
+      let aliveValue = 0;
+      if (Array.isArray(userState.fishes)) {
+        userState.fishes.forEach(f => {
+          const wVal = parseFloat(f.weight || 0.2);
+          const createdAt = f.createdAt || now;
+          const ageDays = Math.max(0, (now - createdAt) / (1000 * 60 * 60 * 24));
+          const ageWeeks = Math.floor(ageDays / 7);
+          let ratePerKg = 0.2;
+          if (f.quality === 'Legendaris') ratePerKg = 1.0;
+          else if (f.quality === 'Bagus') ratePerKg = 0.5;
+          const weightVal = wVal * ratePerKg;
+          const ageBonusPercent = ageWeeks >= 1 ? (ageWeeks * 0.1) : 0;
+          const ageBonusTokens = (f.basePrice || 0) * (ageBonusPercent / 100);
+          aliveValue += ((f.basePrice || 0) + weightVal + ageBonusTokens);
+        });
+      }
+
+      const totalSold = parseFloat(userState.totalSoldTokens || 0);
+      const totalScore = parseFloat((aliveValue + totalSold).toFixed(2));
+      const displayName = userState.displayName || (uid.startsWith('guest_') ? 'Tamu (' + uid.substring(6, 10) + ')' : 'Pemain ' + uid.substring(0, 6));
+
+      leaderboard.push({
+        uid: uid,
+        name: displayName,
+        aliveTokens: parseFloat(aliveValue.toFixed(2)),
+        soldTokens: totalSold,
+        totalTokens: totalScore,
+        fishCount: Array.isArray(userState.fishes) ? userState.fishes.length : 0
+      });
+    }
+
+    // Urutkan dari token tertinggi (#1) ke terendah
+    leaderboard.sort((a, b) => b.totalTokens - a.totalTokens);
+
+    res.json({
+      success: true,
+      leaderboard: leaderboard.slice(0, 50) // Top 50 pemain
+    });
+  } catch (err) {
+    console.error('Error fetching global leaderboard:', err.message);
+    res.status(500).json({ error: 'Gagal memuat data leaderboard global' });
+  }
+};

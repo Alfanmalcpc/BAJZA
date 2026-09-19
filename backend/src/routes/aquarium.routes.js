@@ -3,6 +3,7 @@ const router = express.Router();
 const aquariumController = require('../controllers/aquarium.controller');
 
 router.get('/state', aquariumController.getState);
+router.get('/leaderboard', aquariumController.getLeaderboard);
 router.post('/sync', aquariumController.syncState);
 router.post('/claim-ad', aquariumController.claimAdReward);
 router.post('/buy-food', aquariumController.buyFood);
