@@ -741,17 +741,23 @@
 
         try { localStorage.setItem('baja_aquarium_cache_' + uid, JSON.stringify(statePayload)); } catch(e) {}
         
+        const directFirebaseSave = () => {
+            fetch('https://baja-pet-default-rtdb.asia-southeast1.firebasedatabase.app/aquarium/' + encodeURIComponent(uid) + '.json', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(statePayload)
+            }).catch(e => console.warn('Direct RTDB save fallback error:', e));
+        };
+
         // Sync via Backend API jika server aktif, fallback ke direct RTDB
         fetch('/api/aquarium/sync', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ uid: uid, state: statePayload })
+        }).then(res => {
+            if (!res.ok) directFirebaseSave();
         }).catch(() => {
-            if (typeof petDb !== 'undefined') {
-                petDb.ref('aquarium/' + uid).set(statePayload).catch(err => {
-                    console.warn('Firebase sync fallback error:', err.message);
-                });
-            }
+            directFirebaseSave();
         });
     }
 
@@ -1483,10 +1489,10 @@
             listEl.innerHTML = html;
         };
 
-        // Fetch direct Firebase RTDB with safe normalization
+        // Fetch direct Firebase RTDB with safe normalization & real name resolution
         fetch('https://baja-pet-default-rtdb.asia-southeast1.firebasedatabase.app/aquarium.json')
             .then(res => res.json())
-            .then(allAquarium => {
+            .then(async allAquarium => {
                 if (!allAquarium) {
                     renderLeaderboardList([]);
                     return;
@@ -1518,7 +1524,18 @@
 
                     const totalSold = parseFloat(userState.totalSoldTokens || 0);
                     const totalScore = parseFloat((aliveValue + totalSold).toFixed(2));
-                    const displayName = userState.displayName || (uid.startsWith('guest_') ? 'Tamu (' + uid.substring(6, 10) + ')' : 'Pemain ' + uid.substring(0, 6));
+                    
+                    // Ambil nama asli: dari state, atau dari profil database baja-account
+                    let displayName = userState.displayName;
+                    if (!displayName && typeof db !== 'undefined') {
+                        try {
+                            const snap = await db.ref('users/' + uid + '/displayName').once('value');
+                            if (snap.exists() && snap.val()) displayName = snap.val();
+                        } catch(e) {}
+                    }
+                    if (!displayName) {
+                        displayName = uid.startsWith('guest_') ? 'Tamu (' + uid.substring(6, 10) + ')' : 'Pemain ' + uid.substring(0, 6);
+                    }
 
                     leaderboard.push({
                         uid: uid,
