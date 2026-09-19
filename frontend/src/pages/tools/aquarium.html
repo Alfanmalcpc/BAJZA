@@ -461,52 +461,79 @@
     // Custom Vector SVG Assets for Seabed Decorations (Anti-Emoji, Professional Sizing)
     const DECORATION_ASSETS = [
         {
-            id: 'treasure-animated', name: 'Peti Harta Karun Animasi (Buka-Tutup)', cost: 35, width: 85, height: 75,
+            id: 'treasure-animated', name: 'Peti Harta Karun (Buka-Tutup)', cost: 35, width: 85, height: 75,
             weightBoost: 0.001, foodChance: 0.00001, allowFloat: false,
-            svg: `<svg viewBox="0 0 100 80" width="85" height="75">
-                <rect x="10" y="32" width="80" height="42" rx="4" fill="#ca8a04" stroke="#000" stroke-width="3"/>
-                <g class="anim-chest-lid">
-                    <path d="M10 32 Q50 8 90 32 Z" fill="#eab308" stroke="#000" stroke-width="3"/>
-                    <circle cx="50" cy="30" r="5" fill="#fef08a" stroke="#000" stroke-width="2"/>
-                </g>
-                <circle cx="50" cy="50" r="6" fill="#fef08a" stroke="#000" stroke-width="2"/>
-            </svg>`
+            svg: `<svg viewBox="0 0 100 80" width="85" height="75"><rect x="10" y="32" width="80" height="42" rx="4" fill="#ca8a04" stroke="#000" stroke-width="3"/><g class="anim-chest-lid"><path d="M10 32 Q50 8 90 32 Z" fill="#eab308" stroke="#000" stroke-width="3"/><circle cx="50" cy="30" r="5" fill="#fef08a" stroke="#000" stroke-width="2"/></g><circle cx="50" cy="50" r="6" fill="#fef08a" stroke="#000" stroke-width="2"/></svg>`
         },
         {
-            id: 'jellyfish-floating', name: 'Ubur-Ubur Bercahaya (Melayang)', cost: 45, width: 70, height: 100,
+            id: 'jellyfish-floating', name: 'Ubur-Ubur Pink (Melayang)', cost: 45, width: 70, height: 100,
             weightBoost: 0.002, foodChance: 0.00002, allowFloat: true,
-            svg: `<svg viewBox="0 0 80 100" width="70" height="100" class="anim-float">
-                <path d="M15 45 Q40 5 65 45 Z" fill="#ec4899" opacity="0.85" stroke="#f472b6" stroke-width="2"/>
-                <path d="M25 45 Q30 75 25 95 M40 45 Q45 75 40 95 M55 45 Q50 75 55 95" fill="none" stroke="#fbcfe8" stroke-width="2.5" stroke-linecap="round"/>
-            </svg>`
+            svg: `<svg viewBox="0 0 80 100" width="70" height="100" class="anim-float"><path d="M15 45 Q40 5 65 45 Z" fill="#ec4899" opacity="0.85" stroke="#f472b6" stroke-width="2"/><path d="M25 45 Q30 75 25 95 M40 45 Q45 75 40 95 M55 45 Q50 75 55 95" fill="none" stroke="#fbcfe8" stroke-width="2.5" stroke-linecap="round"/></svg>`
         },
         {
-            id: 'seaweed', name: 'Rumput Laut Goyang', cost: 10, width: 70, height: 150,
+            id: 'cyan-jellyfish-floating', name: 'Ubur-Ubur Neon Cyan (Melayang)', cost: 55, width: 75, height: 110,
+            weightBoost: 0.0025, foodChance: 0.000025, allowFloat: true,
+            svg: `<svg viewBox="0 0 80 100" width="75" height="110" class="anim-float"><path d="M15 45 Q40 5 65 45 Z" fill="#06b6d4" opacity="0.85" stroke="#22d3ee" stroke-width="2"/><path d="M25 45 Q30 75 25 95 M40 45 Q45 75 40 95 M55 45 Q50 75 55 95" fill="none" stroke="#a5f3fc" stroke-width="2.5" stroke-linecap="round"/></svg>`
+        },
+        {
+            id: 'seaweed', name: 'Rumput Laut Hijau', cost: 10, width: 70, height: 150,
             weightBoost: 0.0005, foodChance: 0.000005, allowFloat: false,
             svg: `<svg viewBox="0 0 80 140" width="70" height="150"><path d="M40 130 Q20 90 50 60 Q20 30 40 10 Q30 30 10 60 Q40 90 20 130 Z" fill="#22c55e" stroke="#000" stroke-width="3"/></svg>`
         },
         {
-            id: 'coral', name: 'Karang Laut Megah', cost: 18, width: 100, height: 120,
+            id: 'purple-seaweed', name: 'Rumput Laut Kristal Ungu', cost: 25, width: 70, height: 150,
+            weightBoost: 0.0012, foodChance: 0.000012, allowFloat: false,
+            svg: `<svg viewBox="0 0 80 140" width="70" height="150"><path d="M40 130 Q20 90 50 60 Q20 30 40 10 Q30 30 10 60 Q40 90 20 130 Z" fill="#a855f7" stroke="#000" stroke-width="3"/></svg>`
+        },
+        {
+            id: 'coral', name: 'Karang Merah Delima', cost: 18, width: 100, height: 120,
             weightBoost: 0.001, foodChance: 0.00001, allowFloat: false,
             svg: `<svg viewBox="0 0 100 120" width="100" height="120"><path d="M50 110 C50 80 20 70 20 40 C20 20 35 20 35 35 C35 60 50 60 50 35 C50 15 65 15 65 30 C65 50 80 50 80 30 C80 15 95 20 90 40 C80 80 50 80 50 110 Z" fill="#ef4444" stroke="#000" stroke-width="3"/></svg>`
         },
         {
-            id: 'ancient-sub', name: 'Kapal Selam Riset (Melayang)', cost: 60, width: 120, height: 80,
-            weightBoost: 0.003, foodChance: 0.00003, allowFloat: true,
-            svg: `<svg viewBox="0 0 120 80" width="120" height="80" class="anim-float">
-                <ellipse cx="60" cy="45" rx="45" ry="25" fill="#eab308" stroke="#000" stroke-width="3"/>
-                <rect x="50" y="10" width="20" height="15" fill="#ca8a04" stroke="#000" stroke-width="2"/>
-                <circle cx="45" cy="45" r="8" fill="#38bdf8" stroke="#000" stroke-width="2"/>
-                <circle cx="75" cy="45" r="8" fill="#38bdf8" stroke="#000" stroke-width="2"/>
-            </svg>`
+            id: 'golden-coral', name: 'Karang Emas Atlantis', cost: 40, width: 100, height: 120,
+            weightBoost: 0.002, foodChance: 0.00002, allowFloat: false,
+            svg: `<svg viewBox="0 0 100 120" width="100" height="120"><path d="M50 110 C50 80 20 70 20 40 C20 20 35 20 35 35 C35 60 50 60 50 35 C50 15 65 15 65 30 C65 50 80 50 80 30 C80 15 95 20 90 40 C80 80 50 80 50 110 Z" fill="#eab308" stroke="#000" stroke-width="3"/></svg>`
         },
         {
-            id: 'energy-crystal', name: 'Kristal Energi Atlantis', cost: 50, width: 60, height: 110,
+            id: 'ancient-sub', name: 'Kapal Selam Riset (Melayang)', cost: 60, width: 120, height: 80,
+            weightBoost: 0.003, foodChance: 0.00003, allowFloat: true,
+            svg: `<svg viewBox="0 0 120 80" width="120" height="80" class="anim-float"><ellipse cx="60" cy="45" rx="45" ry="25" fill="#eab308" stroke="#000" stroke-width="3"/><rect x="50" y="10" width="20" height="15" fill="#ca8a04" stroke="#000" stroke-width="2"/><circle cx="45" cy="45" r="8" fill="#38bdf8" stroke="#000" stroke-width="2"/><circle cx="75" cy="45" r="8" fill="#38bdf8" stroke="#000" stroke-width="2"/></svg>`
+        },
+        {
+            id: 'energy-crystal', name: 'Kristal Energi Ungu', cost: 50, width: 60, height: 110,
             weightBoost: 0.0025, foodChance: 0.000025, allowFloat: false,
-            svg: `<svg viewBox="0 0 60 110" width="60" height="110">
-                <polygon points="30,10 55,90 30,110 5,90" fill="#a855f7" stroke="#7e22ce" stroke-width="3"/>
-                <polygon points="30,10 55,90 30,110" fill="#c084fc" opacity="0.6"/>
-            </svg>`
+            svg: `<svg viewBox="0 0 60 110" width="60" height="110"><polygon points="30,10 55,90 30,110 5,90" fill="#a855f7" stroke="#7e22ce" stroke-width="3"/><polygon points="30,10 55,90 30,110" fill="#c084fc" opacity="0.6"/></svg>`
+        },
+        {
+            id: 'cyan-crystal', name: 'Kristal Es Arctic', cost: 55, width: 60, height: 110,
+            weightBoost: 0.0028, foodChance: 0.000028, allowFloat: false,
+            svg: `<svg viewBox="0 0 60 110" width="60" height="110"><polygon points="30,10 55,90 30,110 5,90" fill="#38bdf8" stroke="#0284c7" stroke-width="3"/><polygon points="30,10 55,90 30,110" fill="#bae6fd" opacity="0.6"/></svg>`
+        },
+        {
+            id: 'ancient-statue', name: 'Patung Moai Kuno', cost: 70, width: 80, height: 130,
+            weightBoost: 0.0035, foodChance: 0.000035, allowFloat: false,
+            svg: `<svg viewBox="0 0 80 130" width="80" height="130"><path d="M15 120 L20 30 Q40 10 60 30 L65 120 Z" fill="#64748b" stroke="#000" stroke-width="4"/><rect x="25" y="45" width="30" height="10" fill="#475569"/><rect x="20" y="70" width="40" height="15" fill="#334155"/></svg>`
+        },
+        {
+            id: 'volcano-vent', name: 'Gunung Berapi Mini', cost: 85, width: 110, height: 100,
+            weightBoost: 0.004, foodChance: 0.00004, allowFloat: false,
+            svg: `<svg viewBox="0 0 110 100" width="110" height="100"><polygon points="10,100 40,20 70,20 100,100" fill="#450a0a" stroke="#000" stroke-width="4"/><ellipse cx="55" cy="20" rx="15" ry="5" fill="#ef4444"/><circle cx="55" cy="10" r="4" fill="#fca5a5"/></svg>`
+        },
+        {
+            id: 'golden-anchor', name: 'Jangkar Emas Kerajaan', cost: 95, width: 80, height: 110,
+            weightBoost: 0.005, foodChance: 0.00005, allowFloat: false,
+            svg: `<svg viewBox="0 0 80 110" width="80" height="110"><circle cx="40" cy="20" r="10" fill="none" stroke="#eab308" stroke-width="5"/><line x1="40" y1="30" x2="40" y2="95" stroke="#eab308" stroke-width="7"/><path d="M15 75 C15 105 65 105 65 75" fill="none" stroke="#eab308" stroke-width="7"/></svg>`
+        },
+        {
+            id: 'floating-alien-ship', name: 'UFO Alien Transparan (Melayang)', cost: 120, width: 130, height: 75,
+            weightBoost: 0.006, foodChance: 0.00006, allowFloat: true,
+            svg: `<svg viewBox="0 0 130 75" width="130" height="75" class="anim-float"><ellipse cx="65" cy="45" rx="55" ry="18" fill="#a855f7" stroke="#000" stroke-width="3"/><ellipse cx="65" cy="30" rx="30" ry="20" fill="#22d3ee" opacity="0.7" stroke="#000" stroke-width="2"/><circle cx="35" cy="45" r="4" fill="#fff"/><circle cx="65" cy="45" r="4" fill="#fff"/><circle cx="95" cy="45" r="4" fill="#fff"/></svg>`
+        },
+        {
+            id: 'space-satellite', name: 'Satelit Luar Angkasa (Melayang)', cost: 150, width: 140, height: 90,
+            weightBoost: 0.008, foodChance: 0.00008, allowFloat: true,
+            svg: `<svg viewBox="0 0 140 90" width="140" height="90" class="anim-float"><rect x="50" y="30" width="40" height="30" fill="#cbd5e1" stroke="#000" stroke-width="3"/><rect x="5" y="35" width="35" height="20" fill="#0284c7" stroke="#000" stroke-width="2"/><rect x="100" y="35" width="35" height="20" fill="#0284c7" stroke="#000" stroke-width="2"/><line x1="40" y1="45" x2="50" y2="45" stroke="#000" stroke-width="3"/><line x1="90" y1="45" x2="100" y2="45" stroke="#000" stroke-width="3"/></svg>`
         }
     ];
 
@@ -516,77 +543,67 @@
         { 
             id: 'deep-ocean', name: 'Deep Ocean', cost: 0, limitBoost: 1, 
             bg: 'linear-gradient(180deg, #0284c7 0%, #0369a1 50%, #082f49 100%)', 
-            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:5%; width:160px; filter:drop-shadow(0 10px 10px rgba(0,0,0,0.5));">
-                <path d="M50 200 Q40 100 80 0 Q60 50 70 200 Z" fill="#065f46" opacity="0.8"/>
-                <path d="M100 200 Q90 120 130 20 Q110 70 120 200 Z" fill="#047857" opacity="0.6"/>
-            </svg>` 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:5%; width:160px; filter:drop-shadow(0 10px 10px rgba(0,0,0,0.5));"><path d="M50 200 Q40 100 80 0 Q60 50 70 200 Z" fill="#065f46" opacity="0.8"/><path d="M100 200 Q90 120 130 20 Q110 70 120 200 Z" fill="#047857" opacity="0.6"/></svg>` 
         },
         { 
             id: 'coral-reef', name: 'Coral Lagoon', cost: 15, limitBoost: 2, 
             bg: 'linear-gradient(180deg, #06b6d4 0%, #0891b2 50%, #164e63 100%)', 
-            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; right:10%; width:180px; filter:drop-shadow(0 10px 15px rgba(0,0,0,0.6));">
-                <path d="M20 200 C0 140 40 100 60 140 C80 180 50 160 80 130 C110 100 120 150 90 200 Z" fill="#be123c"/>
-            </svg>` 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; right:10%; width:180px; filter:drop-shadow(0 10px 15px rgba(0,0,0,0.6));"><path d="M20 200 C0 140 40 100 60 140 C80 180 50 160 80 130 C110 100 120 150 90 200 Z" fill="#be123c"/></svg>` 
         },
         { 
             id: 'neon-cyber', name: 'Neon Cyberpunk', cost: 20, limitBoost: 2, 
             bg: 'linear-gradient(180deg, #6b21a8 0%, #3b0764 50%, #09090b 100%)', 
-            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:50%; width:220px; transform:translateX(-50%); filter:drop-shadow(0 0 15px #f0abfc);">
-                <polygon points="50,200 80,40 120,40 150,200" fill="rgba(192,38,211,0.2)" stroke="#f0abfc" stroke-width="3"/>
-            </svg>` 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:50%; width:220px; transform:translateX(-50%); filter:drop-shadow(0 0 15px #f0abfc);"><polygon points="50,200 80,40 120,40 150,200" fill="rgba(192,38,211,0.2)" stroke="#f0abfc" stroke-width="3"/></svg>` 
         },
         { 
             id: 'atlantis-temple', name: 'Kuil Atlantis', cost: 25, limitBoost: 3, 
             bg: 'linear-gradient(180deg, #0d9488 0%, #115e59 50%, #042f2e 100%)', 
-            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:5%; width:200px; filter:drop-shadow(5px 15px 15px rgba(0,0,0,0.7));">
-                <rect x="20" y="40" width="30" height="160" fill="#0f766e" rx="4"/>
-                <rect x="150" y="40" width="30" height="160" fill="#0f766e" rx="4"/>
-            </svg>` 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:5%; width:200px; filter:drop-shadow(5px 15px 15px rgba(0,0,0,0.7));"><rect x="20" y="40" width="30" height="160" fill="#0f766e" rx="4"/><rect x="150" y="40" width="30" height="160" fill="#0f766e" rx="4"/></svg>` 
         },
         { 
             id: 'crystal-quartz', name: 'Kristal Ungu', cost: 35, limitBoost: 4, 
             bg: 'linear-gradient(180deg, #a855f7 0%, #7e22ce 50%, #3b0764 100%)', 
-            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:35%; width:200px; filter:drop-shadow(0 0 20px rgba(216,180,254,0.6));">
-                <polygon points="100,20 130,200 70,200" fill="#d8b4fe" opacity="0.9"/>
-            </svg>` 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:35%; width:200px; filter:drop-shadow(0 0 20px rgba(216,180,254,0.6));"><polygon points="100,20 130,200 70,200" fill="#d8b4fe" opacity="0.9"/></svg>` 
         },
         { 
             id: 'golden-glamour', name: 'Golden 8K Luxury', cost: 40, limitBoost: 4, 
             bg: 'linear-gradient(180deg, #fbbf24 0%, #d97706 50%, #451a03 100%)', 
-            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:15%; width:220px; filter:drop-shadow(0 15px 25px rgba(0,0,0,0.8));">
-                <rect x="40" y="40" width="30" height="160" fill="#ca8a04" rx="3"/>
-            </svg>` 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:15%; width:220px; filter:drop-shadow(0 15px 25px rgba(0,0,0,0.8));"><rect x="40" y="40" width="30" height="160" fill="#ca8a04" rx="3"/></svg>` 
         },
         { 
-            id: 'imperial-emperor', name: 'Imperial Emperor Atlantis', cost: 100, limitBoost: 5, 
+            id: 'arctic-chill', name: 'Arctic Ice Chill', cost: 50, limitBoost: 4, 
+            bg: 'linear-gradient(180deg, #e0f2fe 0%, #38bdf8 50%, #0369a1 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:20%; width:200px;"><polygon points="40,200 90,60 130,200" fill="#bae6fd" opacity="0.9"/></svg>` 
+        },
+        { 
+            id: 'lava-volcano', name: 'Lava Trench Red', cost: 65, limitBoost: 5, 
+            bg: 'linear-gradient(180deg, #b91c1c 0%, #7f1d1d 50%, #1c1917 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; right:15%; width:220px;"><path d="M0 200 Q50 100 100 200 Q150 120 200 200 Z" fill="#450a0a"/></svg>` 
+        },
+        { 
+            id: 'emerald-lagoon-theme', name: 'Emerald Lagoon 8K', cost: 80, limitBoost: 5, 
+            bg: 'linear-gradient(180deg, #34d399 0%, #059669 50%, #064e3b 100%)', 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:10%; width:180px;"><path d="M40 200 C40 140 120 120 160 200 Z" fill="#064e3b"/></svg>` 
+        },
+        { 
+            id: 'imperial-emperor', name: 'Imperial Emperor Atlantis', cost: 100, limitBoost: 6, 
             bg: 'linear-gradient(180deg, #0284c7 0%, #0f172a 50%, #020617 100%)', 
-            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:10%; width:240px; filter:drop-shadow(0 0 30px #38bdf8);">
-                <path d="M20 200 L100 20 L180 200 Z" fill="#0369a1" opacity="0.8"/>
-                <circle cx="100" cy="50" r="15" fill="#fef08a" style="filter:drop-shadow(0 0 10px #fef08a);"/>
-            </svg>` 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:10%; width:240px; filter:drop-shadow(0 0 30px #38bdf8);"><path d="M20 200 L100 20 L180 200 Z" fill="#0369a1" opacity="0.8"/><circle cx="100" cy="50" r="15" fill="#fef08a" style="filter:drop-shadow(0 0 10px #fef08a);"/></svg>` 
         },
         { 
-            id: 'celestial-nebula', name: 'Celestial Nebula 8K', cost: 200, limitBoost: 6, 
+            id: 'celestial-nebula', name: 'Celestial Nebula 8K', cost: 200, limitBoost: 7, 
             bg: 'linear-gradient(180deg, #701a75 0%, #312e81 50%, #020617 100%)', 
-            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; top:10%; left:20%; width:280px; filter:drop-shadow(0 0 40px #f472b6);">
-                <ellipse cx="100" cy="100" rx="90" ry="50" fill="#ec4899" style="filter:blur(30px); opacity:0.6;"/>
-            </svg>` 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; top:10%; left:20%; width:280px; filter:drop-shadow(0 0 40px #f472b6);"><ellipse cx="100" cy="100" rx="90" ry="50" fill="#ec4899" style="filter:blur(30px); opacity:0.6;"/></svg>` 
         },
         { 
             id: 'cybernetic-dyson', name: 'Cybernetic Dyson Sphere', cost: 500, limitBoost: 8, 
             bg: 'linear-gradient(180deg, #09090b 0%, #3b0764 50%, #000000 100%)', 
-            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:50%; width:260px; transform:translateX(-50%); filter:drop-shadow(0 0 30px #22d3ee);">
-                <circle cx="100" cy="100" r="70" fill="none" stroke="#22d3ee" stroke-width="4"/>
-                <circle cx="100" cy="100" r="50" fill="none" stroke="#f43f5e" stroke-width="2"/>
-            </svg>` 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:50%; width:260px; transform:translateX(-50%); filter:drop-shadow(0 0 30px #22d3ee);"><circle cx="100" cy="100" r="70" fill="none" stroke="#22d3ee" stroke-width="4"/><circle cx="100" cy="100" r="50" fill="none" stroke="#f43f5e" stroke-width="2"/></svg>` 
         },
         { 
             id: 'divine-gold-palace', name: 'Divine 8K Gold Palace', cost: 1000, limitBoost: 10, 
             bg: 'linear-gradient(180deg, #f59e0b 0%, #78350f 50%, #020617 100%)', 
-            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:10%; width:300px; filter:drop-shadow(0 0 50px #fbbf24);">
-                <path d="M10 200 L60 50 L100 20 L140 50 L190 200 Z" fill="#d97706"/>
-                <circle cx="100" cy="20" r="12" fill="#fef08a" style="filter:drop-shadow(0 0 20px #fff);"/>
-            </svg>` 
+            svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:10%; width:300px; filter:drop-shadow(0 0 50px #fbbf24);"><path d="M10 200 L60 50 L100 20 L140 50 L190 200 Z" fill="#d97706"/><circle cx="100" cy="20" r="12" fill="#fef08a" style="filter:drop-shadow(0 0 20px #fff);"/></svg>` 
         }
     ];
 
