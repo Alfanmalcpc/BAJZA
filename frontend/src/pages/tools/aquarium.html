@@ -742,15 +742,20 @@
         try { localStorage.setItem('baja_aquarium_cache_' + uid, JSON.stringify(statePayload)); } catch(e) {}
         
         const directFirebaseSave = () => {
-            fetch('https://baja-pet-default-rtdb.asia-southeast1.firebasedatabase.app/aquarium/' + encodeURIComponent(uid) + '.json', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(statePayload)
-            }).catch(e => console.warn('Direct RTDB save fallback error:', e));
+            (async () => {
+                const headers = { 'Content-Type': 'application/json' };
+                const token = await getAuthToken();
+                if (token) headers['Authorization'] = 'Bearer ' + token;
+                fetch('https://baja-pet-default-rtdb.asia-southeast1.firebasedatabase.app/aquarium/' + encodeURIComponent(uid) + '.json' + (token ? '?auth=' + token : ''), {
+                    method: 'PUT',
+                    headers: headers,
+                    body: JSON.stringify(statePayload)
+                }).catch(e => console.warn('Direct RTDB save fallback error:', e));
+            })();
         };
 
         // Sync via Backend API jika server aktif, fallback ke direct RTDB
-        fetch('/api/aquarium/sync', {
+        authenticatedFetch('/api/aquarium/sync', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ uid: uid, state: statePayload })
