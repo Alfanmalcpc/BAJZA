@@ -1427,44 +1427,97 @@
         listEl.innerHTML = '<div style="text-align:center; color:#64748b; padding:16px;">Memuat peringkat pemain...</div>';
         openModal('leaderboardModal');
 
-        fetch('/api/aquarium/leaderboard')
+        // Helper render leaderboard array
+        const renderLeaderboardList = (lbArray) => {
+            if (!lbArray || lbArray.length === 0) {
+                listEl.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:#e0f2fe; border:1.5px solid #0284c7; border-radius:8px;">
+                        <div><strong>#1 🥇 Kamu</strong> (${fishes.length} Ikan)</div>
+                        <strong style="color:#0284c7;">${myTotal} Token</strong>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            lbArray.forEach((p, idx) => {
+                const rank = idx + 1;
+                const badge = rank === 1 ? '🥇' : (rank === 2 ? '🥈' : (rank === 3 ? '🥉' : `#${rank}`));
+                const isMe = p.uid === currentUid;
+                const bg = isMe ? '#fef08a' : (rank <= 3 ? '#ffffff' : '#f8fafc');
+                const border = isMe ? '2px solid #ca8a04' : '1px solid #cbd5e1';
+
+                html += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; margin-bottom:6px; background:${bg}; border:${border}; border-radius:8px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-weight:900; font-size:14px; min-width:24px;">${badge}</span>
+                            <div>
+                                <strong style="font-size:13px; color:#0f172a;">${p.name}${isMe ? ' (Kamu)' : ''}</strong>
+                                <div style="font-size:11px; color:#64748b;">${p.fishCount} Ikan • Terjual: ${p.soldTokens}🪙</div>
+                            </div>
+                        </div>
+                        <strong style="font-size:14px; color:#f59e0b;">${p.totalTokens} 🪙</strong>
+                    </div>
+                `;
+            });
+            listEl.innerHTML = html;
+        };
+
+        // Try Backend API first, fallback to direct Firebase RTDB REST API if offline/file://
+        fetch('https://bajza.vercel.app/api/aquarium/leaderboard')
             .then(res => res.json())
             .then(data => {
-                if (!data || !data.leaderboard || data.leaderboard.length === 0) {
-                    listEl.innerHTML = `
-                        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:#e0f2fe; border:1.5px solid #0284c7; border-radius:8px;">
-                            <div><strong>#1 🥇 Kamu</strong> (${fishes.length} Ikan)</div>
-                            <strong style="color:#0284c7;">${myTotal} Token</strong>
-                        </div>
-                    `;
-                    return;
-                }
-
-                let html = '';
-                data.leaderboard.forEach((p, idx) => {
-                    const rank = idx + 1;
-                    const badge = rank === 1 ? '🥇' : (rank === 2 ? '🥈' : (rank === 3 ? '🥉' : `#${rank}`));
-                    const isMe = p.uid === currentUid;
-                    const bg = isMe ? '#fef08a' : (rank <= 3 ? '#ffffff' : '#f8fafc');
-                    const border = isMe ? '2px solid #ca8a04' : '1px solid #cbd5e1';
-
-                    html += `
-                        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; margin-bottom:6px; background:${bg}; border:${border}; border-radius:8px;">
-                            <div style="display:flex; align-items:center; gap:8px;">
-                                <span style="font-weight:900; font-size:14px; min-width:24px;">${badge}</span>
-                                <div>
-                                    <strong style="font-size:13px; color:#0f172a;">${p.name}${isMe ? ' (Kamu)' : ''}</strong>
-                                    <div style="font-size:11px; color:#64748b;">${p.fishCount} Ikan • Terjual: ${p.soldTokens}🪙</div>
-                                </div>
-                            </div>
-                            <strong style="font-size:14px; color:#f59e0b;">${p.totalTokens} 🪙</strong>
-                        </div>
-                    `;
-                });
-                listEl.innerHTML = html;
+                if (data && data.leaderboard) renderLeaderboardList(data.leaderboard);
+                else throw new Error('Invalid');
             })
-            .catch(err => {
-                listEl.innerHTML = '<div style="text-align:center; color:#ef4444; padding:16px;">Gagal memuat leaderboard</div>';
+            .catch(() => {
+                // Fallback direct Firebase RTDB fetch
+                fetch('https://baja-pet-default-rtdb.asia-southeast1.firebasedatabase.app/aquarium.json')
+                    .then(res => res.json())
+                    .then(allAquarium => {
+                        if (!allAquarium) {
+                            renderLeaderboardList([]);
+                            return;
+                        }
+                        const leaderboard = [];
+                        const now = Date.now();
+                        for (const [uid, userState] of Object.entries(allAquarium)) {
+                            if (!userState) continue;
+                            let aliveValue = 0;
+                            if (Array.isArray(userState.fishes)) {
+                                userState.fishes.forEach(f => {
+                                    const wVal = parseFloat(f.weight || 0.2);
+                                    const createdAt = f.createdAt || now;
+                                    const ageDays = Math.max(0, (now - createdAt) / (1000 * 60 * 60 * 24));
+                                    const ageWeeks = Math.floor(ageDays / 7);
+                                    let ratePerKg = 0.2;
+                                    if (f.quality === 'Legendaris') ratePerKg = 1.0;
+                                    else if (f.quality === 'Bagus') ratePerKg = 0.5;
+                                    const weightVal = wVal * ratePerKg;
+                                    const ageBonusPercent = ageWeeks >= 1 ? (ageWeeks * 0.1) : 0;
+                                    const ageBonusTokens = (f.basePrice || 0) * (ageBonusPercent / 100);
+                                    aliveValue += ((f.basePrice || 0) + weightVal + ageBonusTokens);
+                                });
+                            }
+                            const totalSold = parseFloat(userState.totalSoldTokens || 0);
+                            const totalScore = parseFloat((aliveValue + totalSold).toFixed(2));
+                            const displayName = userState.displayName || (uid.startsWith('guest_') ? 'Tamu (' + uid.substring(6, 10) + ')' : 'Pemain ' + uid.substring(0, 6));
+
+                            leaderboard.push({
+                                uid: uid,
+                                name: displayName,
+                                aliveTokens: parseFloat(aliveValue.toFixed(2)),
+                                soldTokens: totalSold,
+                                totalTokens: totalScore,
+                                fishCount: Array.isArray(userState.fishes) ? userState.fishes.length : 0
+                            });
+                        }
+                        leaderboard.sort((a, b) => b.totalTokens - a.totalTokens);
+                        renderLeaderboardList(leaderboard);
+                    })
+                    .catch(() => {
+                        listEl.innerHTML = '<div style="text-align:center; color:#ef4444; padding:16px;">Gagal memuat leaderboard</div>';
+                    });
             });
     }
 
