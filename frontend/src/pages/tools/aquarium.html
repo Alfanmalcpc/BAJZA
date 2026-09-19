@@ -1525,16 +1525,9 @@
                     const totalSold = parseFloat(userState.totalSoldTokens || 0);
                     const totalScore = parseFloat((aliveValue + totalSold).toFixed(2));
                     
-                    // Ambil nama asli: dari state, atau dari profil database baja-account
                     let displayName = userState.displayName;
-                    if (!displayName && typeof db !== 'undefined') {
-                        try {
-                            const snap = await db.ref('users/' + uid + '/displayName').once('value');
-                            if (snap.exists() && snap.val()) displayName = snap.val();
-                        } catch(e) {}
-                    }
                     if (!displayName) {
-                        displayName = uid.startsWith('guest_') ? 'Tamu (' + uid.substring(6, 10) + ')' : 'Pemain ' + uid.substring(0, 6);
+                        displayName = (uid === currentUid) ? (myRealName || 'Alfan') : ('Pemain ' + uid.substring(0, 5).toUpperCase());
                     }
 
                     leaderboard.push({
