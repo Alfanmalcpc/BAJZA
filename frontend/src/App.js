@@ -12,6 +12,7 @@ const BAJA = {
   init() {
     this.applyLang(this.lang);
     this.initNav();
+    this.initBazzBotBubble();
     this.initScrollTop();
     this.initPageTransition();
     this.initClock();
@@ -65,6 +66,54 @@ const BAJA = {
       langBtn.addEventListener('click', () => {
         window.location.href = '/src/pages/settings.html';
       });
+    }
+  },
+
+  /* ════════════════════════════════════════════════════
+     BAZZ BOT BUBBLE IN NAVBAR / HEADER
+     ════════════════════════════════════════════════════ */
+  initBazzBotBubble() {
+    const navContainer = document.querySelector('.nav-container') || document.querySelector('.navbar');
+    if (!navContainer || document.getElementById('bazzNavBubble')) return;
+
+    const bubble = document.createElement('a');
+    bubble.id = 'bazzNavBubble';
+    bubble.href = '/src/pages/tools/bazz-ai.html';
+    bubble.title = 'Tanya Bazz AI';
+    bubble.style.cssText = `
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(2, 132, 199, 0.35));
+      border: 1.5px solid #38bdf8;
+      border-radius: 999px;
+      padding: 4px 12px 4px 5px;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.35);
+      transition: all 0.2s ease;
+      margin-left: 8px;
+    `;
+    bubble.innerHTML = `
+      <div style="width:26px; height:26px; border-radius:50%; background:#0284c7; display:flex; align-items:center; justify-content:center; overflow:hidden; border:1px solid #7dd3fc;">
+        <img src="/src/assets/img/bazz-mascot.svg" alt="Bazz" style="width:100%; height:100%; object-fit:cover;">
+      </div>
+      <span style="font-size:12.5px; font-weight:700; color:#f8fafc; letter-spacing:0.3px;">Bazz AI</span>
+    `;
+    bubble.onmouseenter = () => {
+      bubble.style.transform = 'scale(1.06)';
+      bubble.style.boxShadow = '0 0 20px rgba(56, 189, 248, 0.65)';
+    };
+    bubble.onmouseleave = () => {
+      bubble.style.transform = 'scale(1)';
+      bubble.style.boxShadow = '0 0 14px rgba(56, 189, 248, 0.35)';
+    };
+
+    const actions = document.querySelector('.nav-actions');
+    if (actions) {
+      actions.insertBefore(bubble, actions.firstChild);
+    } else {
+      navContainer.appendChild(bubble);
     }
   },
 
