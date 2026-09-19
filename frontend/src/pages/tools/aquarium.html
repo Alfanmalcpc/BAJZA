@@ -735,11 +735,19 @@
         };
 
         try { localStorage.setItem('baja_aquarium_cache_' + uid, JSON.stringify(statePayload)); } catch(e) {}
-        if (typeof petDb !== 'undefined') {
-            petDb.ref('aquarium/' + uid).set(statePayload).catch(err => {
-                console.warn('Firebase RTDB write error (pastikan RULES diset public true di console baja-pet):', err.message);
-            });
-        }
+        
+        // Sync via Backend API jika server aktif, fallback ke direct RTDB
+        fetch('/api/aquarium/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ uid: uid, state: statePayload })
+        }).catch(() => {
+            if (typeof petDb !== 'undefined') {
+                petDb.ref('aquarium/' + uid).set(statePayload).catch(err => {
+                    console.warn('Firebase sync fallback error:', err.message);
+                });
+            }
+        });
     }
 
     function saveAquariumDebounced() {
