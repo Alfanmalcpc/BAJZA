@@ -10,9 +10,7 @@
     <link rel="stylesheet" href="/src/assets/css/responsive.css"/>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
     <script src="/src/services/firebase.js"></script>
-    <script src="/src/services/firebase-pet.js"></script>
     <style>
         .aq-header-box {
             text-align: center;
@@ -797,12 +795,16 @@
             const cached = localStorage.getItem('baja_aquarium_cache_' + uid);
             if (cached) applyAquariumState(JSON.parse(cached));
         } catch(e) {}
-        if (typeof petDb !== 'undefined') {
-            petDb.ref('aquarium/' + uid).once('value').then(snapshot => {
-                const data = snapshot.val();
-                if (data) { applyAquariumState(data); try { localStorage.setItem('baja_aquarium_cache_' + uid, JSON.stringify(data)); } catch(e){} }
-            }).catch(err => console.warn('Firebase RTDB read error:', err.message));
-        }
+        
+        fetch('/api/aquarium/state?uid=' + encodeURIComponent(uid))
+            .then(res => res.json())
+            .then(data => {
+                if (data && !data.error) {
+                    applyAquariumState(data);
+                    try { localStorage.setItem('baja_aquarium_cache_' + uid, JSON.stringify(data)); } catch(e){}
+                }
+            })
+            .catch(err => console.warn('Backend load error:', err));
     }
 
     function startGame(uid) {

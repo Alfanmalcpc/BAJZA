@@ -1,7 +1,8 @@
 const axios = require('axios');
+require('dotenv').config();
 
-// Database URL untuk Pet/Aquarium
-const PET_DB_URL = "https://baja-pet-default-rtdb.asia-southeast1.firebasedatabase.app";
+// Database URL untuk Pet/Aquarium (Tersimpan aman di Backend .env)
+const PET_DB_URL = process.env.PET_DB_URL || "https://baja-pet-default-rtdb.asia-southeast1.firebasedatabase.app";
 
 // In-memory cooldown / anti-spam validation
 const adClaimCooldowns = new Map();
