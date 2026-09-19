@@ -3,6 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const cryptoRoutes = require('./routes/crypto.routes');
 const aquariumRoutes = require('./routes/aquarium.routes');
+const aiRoutes = require('./routes/ai.routes');
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.get('/health', (req, res) => {
 // Routes API
 app.use('/api/crypto', cryptoRoutes);
 app.use('/api/aquarium', aquariumRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Redirect root to public/index.html
 app.get('/', (req, res) => {

@@ -5,10 +5,174 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Bazz AI Assistant — BAJA</title>
-<meta name="description" content="Tanya Bazz AI — Asisten cerdas badak BAJA untuk membantu tools, keuangan, dan tutorial."/>
+<meta name="description" content="Tanya Bazz AI — Asisten cerdas badak BAJA bertenaga Gemini untuk membantu tools, keuangan, dan coding."/>
 <link rel="icon" href="/src/assets/img/bazz-mascot.svg"/>
 <link rel="stylesheet" href="/src/assets/css/style.css"/>
+<link rel="stylesheet" href="/src/assets/css/responsive.css"/>
 <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
+<style>
+  .chat-card {
+    max-width: 900px;
+    margin: 0 auto;
+    background: var(--card-bg, #1e293b);
+    border: 1px solid var(--border-color, #334155);
+    border-radius: 16px;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+    display: flex;
+    flex-direction: column;
+    height: 640px;
+    overflow: hidden;
+  }
+  .chat-topbar {
+    padding: 14px 20px;
+    background: var(--nav-bg, #1e293b);
+    border-bottom: 1px solid var(--border-color, #334155);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .chat-topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .chat-topbar-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #0284c7;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .chat-topbar-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .status-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #22c55e;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #22c55e;
+    margin-right: 5px;
+  }
+  .chat-body {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: rgba(15, 23, 42, 0.4);
+  }
+  .chat-row {
+    display: flex;
+    gap: 12px;
+    max-width: 85%;
+    align-items: flex-end;
+  }
+  .chat-row.user {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+  }
+  .chat-row.bot {
+    align-self: flex-start;
+  }
+  .chat-avatar-mini {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    overflow: hidden;
+    background: #0284c7;
+  }
+  .chat-avatar-mini img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .chat-bubble {
+    padding: 13px 18px;
+    border-radius: 16px;
+    font-size: 14.5px;
+    line-height: 1.6;
+    word-break: break-word;
+  }
+  .chat-bubble.bot {
+    background: var(--bg-color, #0f172a);
+    border: 1px solid var(--border-color, #334155);
+    color: var(--text-color, #f8fafc);
+    border-bottom-left-radius: 4px;
+  }
+  .chat-bubble.user {
+    background: var(--accent-color, #0284c7);
+    color: #ffffff;
+    border-bottom-right-radius: 4px;
+  }
+  .quick-chips {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 10px 20px;
+    background: rgba(15, 23, 42, 0.6);
+    border-top: 1px solid var(--border-color, #334155);
+  }
+  .chip-btn {
+    background: var(--card-bg, #1e293b);
+    border: 1px solid var(--border-color, #334155);
+    color: var(--text-color, #94a3b8);
+    font-size: 12.5px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .chip-btn:hover {
+    border-color: #0284c7;
+    color: #f8fafc;
+  }
+  .chat-footer {
+    padding: 14px 18px;
+    background: var(--nav-bg, #1e293b);
+    border-top: 1px solid var(--border-color, #334155);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .chat-input {
+    flex: 1;
+    background: var(--bg-color, #0f172a);
+    border: 1px solid var(--border-color, #334155);
+    color: var(--text-color, #f8fafc);
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .chat-input:focus {
+    border-color: #0284c7;
+  }
+  .clear-btn {
+    background: transparent;
+    border: 1px solid var(--border-color, #334155);
+    color: #94a3b8;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .clear-btn:hover {
+    color: #ef4444;
+    border-color: #ef4444;
+  }
+</style>
 </head>
 <body>
 
@@ -33,26 +197,51 @@
     <div>
       <div class="section-badge">🦏 <span data-en="AI Mascot Assistant" data-id="Asisten Maskot AI">AI Mascot Assistant</span></div>
       <h1 data-en="Bazz AI Chat" data-id="Chat Bazz AI">Bazz AI Chat</h1>
-      <p data-en="Your smart companion for tools, crypto, and technical questions." data-id="Teman pintar untuk tools, crypto, dan pertanyaan teknis.">Your smart companion for tools, crypto, and technical questions.</p>
+      <p data-en="Powered by Gemini — smart companion for BAJA tools, crypto, and coding." data-id="Bertenaga Gemini — teman pintar untuk tools BAJA, crypto, dan coding.">Powered by Gemini — smart companion for BAJA tools, crypto, and coding.</p>
     </div>
   </div>
 </div>
 
-<section class="section" style="padding-top:20px; padding-bottom:60px;">
+<section class="section" style="padding-top:16px; padding-bottom:50px;">
   <div class="container">
-    <div style="max-width:850px; margin:0 auto; background:var(--card-bg, #1e293b); border:1px solid var(--border-color, #334155); border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.3); overflow:hidden; display:flex; flex-direction:column; height:550px;">
+    <div class="chat-card">
       
-      <!-- Chat Messages Area -->
-      <div id="chatMessages" style="flex:1; padding:24px; overflow-y:auto; display:flex; flex-direction:column; gap:16px;">
-        <div style="max-width:80%; padding:14px 18px; border-radius:12px; font-size:14.5px; line-height:1.5; background:var(--bg-color, #0f172a); border:1px solid var(--border-color, #334155); color:var(--text-color, #f8fafc); align-self:flex-start; border-bottom-left-radius:4px;">
-          Halo Alfan! Aku <strong>Bazz</strong>, asisten badak resmi BAJA. Ada yang bisa kubantu seputar tools, keuangan, atau tutorial hari ini?
+      <!-- Topbar inside Card -->
+      <div class="chat-topbar">
+        <div class="chat-topbar-left">
+          <div class="chat-topbar-avatar">
+            <img src="/src/assets/img/bazz-mascot.svg" alt="Bazz">
+          </div>
+          <div>
+            <div style="font-weight:700; font-size:15px; color:var(--text-color, #f8fafc);">Bazz The Rhino</div>
+            <div style="font-size:12px; color:#94a3b8;"><span class="status-indicator"></span>Online &bull; Gemini Powered</div>
+          </div>
+        </div>
+        <button id="clearChatBtn" class="clear-btn" title="Hapus Riwayat Chat">Bersihkan Chat</button>
+      </div>
+
+      <!-- Chat Body -->
+      <div id="chatBody" class="chat-body">
+        <div class="chat-row bot">
+          <div class="chat-avatar-mini"><img src="/src/assets/img/bazz-mascot.svg" alt="Bazz"></div>
+          <div class="chat-bubble bot">
+            Halo Alfan! Aku <strong>Bazz</strong>, asisten badak resmi BAJA yang bertenaga AI Gemini. Kamu bisa tanyakan apa saja seputar tools, coding, kalkulator, atau crypto!
+          </div>
         </div>
       </div>
 
-      <!-- Input Area -->
-      <div style="padding:16px 20px; background:var(--nav-bg, #1e293b); border-top:1px solid var(--border-color, #334155); display:flex; gap:12px; align-items:center;">
-        <input type="text" id="userInput" placeholder="Ketik pesan untuk Bazz..." autocomplete="off" style="flex:1; background:var(--bg-color, #0f172a); border:1px solid var(--border-color, #334155); color:var(--text-color, #f8fafc); padding:12px 16px; border-radius:10px; font-size:14px; outline:none;"/>
-        <button id="sendBtn" class="btn btn-primary" style="padding:12px 24px; border-radius:10px; font-weight:600; cursor:pointer;">Kirim</button>
+      <!-- Quick Chips -->
+      <div class="quick-chips">
+        <button class="chip-btn" data-query="Apa saja tools yang ada di BAJA?">Apa saja tools di BAJA?</button>
+        <button class="chip-btn" data-query="Bagaimana cara kerja Video Downloader?">Cara pakai Downloader</button>
+        <button class="chip-btn" data-query="Beri rekomendasi tips belajar koding web">Tips belajar koding</button>
+        <button class="chip-btn" data-query="Jelaskan fitur Virtual Aquarium di BAJA">Fitur Aquarium BAJA</button>
+      </div>
+
+      <!-- Input Footer -->
+      <div class="chat-footer">
+        <input type="text" id="chatInput" class="chat-input" placeholder="Tanyakan apa saja ke Bazz..." autocomplete="off"/>
+        <button id="sendBtn" class="btn btn-primary" style="padding:12px 22px; border-radius:10px; font-weight:600; cursor:pointer;">Kirim</button>
       </div>
 
     </div>
@@ -61,33 +250,48 @@
 
 <script src="/src/App.js"></script>
 <script>
-  const chatMessages = document.getElementById('chatMessages');
-  const userInput = document.getElementById('userInput');
+  const chatBody = document.getElementById('chatBody');
+  const chatInput = document.getElementById('chatInput');
   const sendBtn = document.getElementById('sendBtn');
+  const clearChatBtn = document.getElementById('clearChatBtn');
 
-  function appendMessage(sender, text) {
-    const msg = document.createElement('div');
-    msg.style.cssText = sender === 'user'
-      ? 'max-width:80%; padding:14px 18px; border-radius:12px; font-size:14.5px; line-height:1.5; background:var(--accent-color,#0284c7); color:#fff; align-self:flex-end; border-bottom-right-radius:4px;'
-      : 'max-width:80%; padding:14px 18px; border-radius:12px; font-size:14.5px; line-height:1.5; background:var(--bg-color,#0f172a); border:1px solid var(--border-color,#334155); color:var(--text-color,#f8fafc); align-self:flex-start; border-bottom-left-radius:4px;';
-    msg.textContent = text;
-    chatMessages.appendChild(msg);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+  function appendChat(role, text) {
+    const row = document.createElement('div');
+    row.className = 'chat-row ' + role;
+
+    if (role === 'bot') {
+      const avatar = document.createElement('div');
+      avatar.className = 'chat-avatar-mini';
+      avatar.innerHTML = '<img src="/src/assets/img/bazz-mascot.svg" alt="Bazz">';
+      row.appendChild(avatar);
+    }
+
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble ' + role;
+    bubble.innerHTML = text.replace(/\\n/g, '<br/>');
+    row.appendChild(bubble);
+
+    chatBody.appendChild(row);
+    chatBody.scrollTop = chatBody.scrollHeight;
   }
 
-  async function handleSend() {
-    const text = userInput.value.trim();
+  async function sendMessage(overrideText) {
+    const text = (overrideText || chatInput.value).trim();
     if (!text) return;
 
-    appendMessage('user', text);
-    userInput.value = '';
+    appendChat('user', text);
+    if (!overrideText) chatInput.value = '';
 
-    const typing = document.createElement('div');
-    typing.id = 'typingBubble';
-    typing.style.cssText = 'max-width:80%; padding:14px 18px; border-radius:12px; font-size:14.5px; line-height:1.5; background:var(--bg-color,#0f172a); border:1px solid var(--border-color,#334155); color:#94a3b8; align-self:flex-start;';
-    typing.textContent = 'Bazz sedang mengetik...';
-    chatMessages.appendChild(typing);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    // Typing state
+    const typingRow = document.createElement('div');
+    typingRow.className = 'chat-row bot';
+    typingRow.id = 'typingRow';
+    typingRow.innerHTML = `
+      <div class="chat-avatar-mini"><img src="/src/assets/img/bazz-mascot.svg" alt="Bazz"></div>
+      <div class="chat-bubble bot" style="color:#94a3b8; font-style:italic;">Bazz sedang mengetik...</div>
+    `;
+    chatBody.appendChild(typingRow);
+    chatBody.scrollTop = chatBody.scrollHeight;
 
     try {
       const res = await fetch('/api/ai/chat', {
@@ -96,21 +300,42 @@
         body: JSON.stringify({ message: text })
       });
       const data = await res.json();
-      typing.remove();
+      typingRow.remove();
+
       if (data && data.reply) {
-        appendMessage('bot', data.reply);
+        appendChat('bot', data.reply);
       } else {
-        appendMessage('bot', 'Halo Alfan! Pesanmu berhasil diterima. Siap dihubungkan ke Gemini API.');
+        appendChat('bot', 'Maaf, terjadi kendala saat memproses jawaban dari Gemini.');
       }
     } catch (err) {
-      typing.remove();
-      appendMessage('bot', 'Halo Alfan! Bazz siap membantu. Endpoint AI siap dihubungkan kapan saja.');
+      typingRow.remove();
+      appendChat('bot', 'Halo Alfan! Server backend belum aktif atau endpoint AI sedang offline.');
     }
   }
 
-  sendBtn.addEventListener('click', handleSend);
-  userInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') handleSend();
+  sendBtn.addEventListener('click', () => sendMessage());
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  // Handle Quick Chips
+  document.querySelectorAll('.chip-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const query = btn.getAttribute('data-query');
+      if (query) sendMessage(query);
+    });
+  });
+
+  // Handle Clear Chat
+  clearChatBtn.addEventListener('click', () => {
+    chatBody.innerHTML = `
+      <div class="chat-row bot">
+        <div class="chat-avatar-mini"><img src="/src/assets/img/bazz-mascot.svg" alt="Bazz"></div>
+        <div class="chat-bubble bot">
+          Riwayat obrolan telah dibersihkan! Ada lagi yang ingin kamu diskusikan bersama Bazz?
+        </div>
+      </div>
+    `;
   });
 </script>
 </body>
