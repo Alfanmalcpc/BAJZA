@@ -83,30 +83,29 @@ const BAJA = {
     bubble.style.cssText = `
       display: inline-flex;
       align-items: center;
-      gap: 7px;
-      background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(2, 132, 199, 0.35));
-      border: 1.5px solid #38bdf8;
+      gap: 6px;
+      background: var(--card-bg, #1e293b);
+      border: 1px solid var(--border-color, #334155);
       border-radius: 999px;
-      padding: 4px 12px 4px 5px;
+      padding: 3px 10px 3px 4px;
       text-decoration: none;
       cursor: pointer;
-      box-shadow: 0 0 14px rgba(56, 189, 248, 0.35);
-      transition: all 0.2s ease;
+      transition: background 0.2s ease, border-color 0.2s ease;
       margin-left: 8px;
     `;
     bubble.innerHTML = `
-      <div style="width:26px; height:26px; border-radius:50%; background:#0284c7; display:flex; align-items:center; justify-content:center; overflow:hidden; border:1px solid #7dd3fc;">
+      <div style="width:24px; height:24px; border-radius:50%; background:#0284c7; display:flex; align-items:center; justify-content:center; overflow:hidden;">
         <img src="/src/assets/img/bazz-mascot.svg" alt="Bazz" style="width:100%; height:100%; object-fit:cover;">
       </div>
-      <span style="font-size:12.5px; font-weight:700; color:#f8fafc; letter-spacing:0.3px;">Bazz AI</span>
+      <span style="font-size:12px; font-weight:600; color:var(--text-color, #f8fafc);">Bazz AI</span>
     `;
     bubble.onmouseenter = () => {
-      bubble.style.transform = 'scale(1.06)';
-      bubble.style.boxShadow = '0 0 20px rgba(56, 189, 248, 0.65)';
+      bubble.style.borderColor = '#0284c7';
+      bubble.style.background = '#334155';
     };
     bubble.onmouseleave = () => {
-      bubble.style.transform = 'scale(1)';
-      bubble.style.boxShadow = '0 0 14px rgba(56, 189, 248, 0.35)';
+      bubble.style.borderColor = 'var(--border-color, #334155)';
+      bubble.style.background = 'var(--card-bg, #1e293b)';
     };
 
     const actions = document.querySelector('.nav-actions');
