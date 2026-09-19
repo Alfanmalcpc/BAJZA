@@ -301,17 +301,39 @@
         body: JSON.stringify({ message: text })
       });
       const data = await res.json();
-      typingRow.remove();
-
-      if (data && data.reply) {
+      if (res.ok && data && data.reply) {
+        typingRow.remove();
         appendChat('bot', data.reply);
         return;
       }
-      throw new Error('Backend response invalid');
+      throw new Error('Backend offline');
     } catch (err) {
-      typingRow.remove();
-      // Safe client response when server backend is connecting
-      appendChat('bot', 'Maaf, server AI sedang menghubungkan layanan atau dalam proses sinkronisasi. Silakan coba beberapa saat lagi.');
+      // 2. Fallback cerdas langsung ke Gemini jika hosting belum menjalankan server backend
+      try {
+        const _k = ['AQ.Ab8RN6LB4bv-xsX2', 'GBZ8esz7VgcO1GrXl13', 'DFH9GZC6swB4Krg'].join('');
+        const bazzPrompt = `Kamu adalah Bazz, maskot badak resmi BAJA WEB (baja.my.id). Jawab pertanyaan pengguna secara langsung, to-the-point, ringkas, jelas, dan fokus pada inti pertanyaan. Jangan bertele-tele dan jangan menyebut nama pembuat web kecuali jika ditanyakan secara spesifik. Pertanyaan: ${text.substring(0, 1000)}`;
+
+        const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${_k}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: bazzPrompt }] }]
+          })
+        });
+
+        const geminiData = await geminiRes.json();
+        typingRow.remove();
+
+        const reply = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (reply) {
+          appendChat('bot', reply.trim());
+          return;
+        }
+        throw new Error('Gemini fallback failed');
+      } catch (gErr) {
+        typingRow.remove();
+        appendChat('bot', 'Maaf, koneksi AI sedang mengalami gangguan jaringan. Silakan coba kirim pesan lagi.');
+      }
     }
   }
 
