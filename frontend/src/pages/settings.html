@@ -5,7 +5,6 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Pengaturan — BAJA</title>
-<meta name="description" content="Pengaturan bahasa dan preferensi akun BAJA."/>
 <link rel="icon" href="/src/assets/img/Logo.svg"/>
 <link rel="stylesheet" href="/src/assets/css/style.css"/>
 <link rel="stylesheet" href="/src/assets/css/responsive.css"/>
@@ -15,9 +14,9 @@
 <script src="/src/services/firebase.js"></script>
 <link rel="stylesheet" href="/src/assets/css/settings.css"/>
 <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
+<meta name="robots" content="noindex, nofollow"/>
 </head>
 <body>
-
 <!-- TOP NAVBAR -->
 <nav class="navbar" id="navbar">
   <div class="nav-container">
@@ -30,8 +29,6 @@
     </div>
   </div>
 </nav>
-
-
 <div class="settings-wrap">
   <div class="settings-card">
     <a href="/src/pages/profile.html" class="btn-back">← Kembali ke Profil</a>
@@ -39,7 +36,6 @@
       <div class="settings-title">⚙️ Pengaturan</div>
       <div class="settings-sub">Sesuaikan pengalaman BAJA Anda.</div>
     </div>
-
     <!-- Language Section -->
     <div class="section-label">🌐 Pilih Bahasa</div>
     <div class="lang-grid" id="langGrid">
@@ -68,7 +64,6 @@
         <span class="lang-name">中文</span>
       </button>
     </div>
-
     <div class="section-divider"></div>
     <div class="section-label">ℹ️ Tentang</div>
     <div style="color:var(--text-2);font-size:14px;line-height:1.7">
@@ -77,7 +72,6 @@
     </div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
 <button id="scrollTop">↑</button>
 <script src="/src/App.js"></script>
@@ -85,15 +79,12 @@
 const LANG_LABELS = { id: 'Indonesia', en: 'English', ms: 'Melayu', ja: '日本語', ar: 'العربية', zh: '中文' };
 let currentUid = null;
 let currentLang = localStorage.getItem('baja-lang') || 'id';
-
 function highlightSelected(lang) {
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.classList.toggle('selected', btn.dataset.lang === lang);
   });
 }
-
 highlightSelected(currentLang);
-
 auth.onAuthStateChanged(async user => {
   if (user) {
     currentUid = user.uid;
@@ -104,14 +95,12 @@ auth.onAuthStateChanged(async user => {
     }
   }
 });
-
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2500);
 }
-
 async function selectLang(lang) {
   currentLang = lang;
   localStorage.setItem('baja-lang', lang);
@@ -119,7 +108,6 @@ async function selectLang(lang) {
   // Update label in navbar
   const el = document.getElementById('langLabel');
   if (el) el.textContent = '🌐 ' + lang.toUpperCase();
-
   // Save to Firebase if logged in
   if (currentUid) {
     try {
@@ -127,7 +115,6 @@ async function selectLang(lang) {
     } catch(e) { console.warn('Could not save lang to DB', e); }
   }
   showToast('✅ Bahasa diubah ke ' + (LANG_LABELS[lang] || lang));
-
   // Apply translations on current page
   if (typeof BAJA !== 'undefined') BAJA.applyLang(lang);
 }

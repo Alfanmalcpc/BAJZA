@@ -5,7 +5,6 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Masuk / Daftar — BAJA</title>
-<meta name="description" content="Masuk atau buat akun BAJA untuk menyimpan preferensi dan profil Anda."/>
 <link rel="icon" href="/src/assets/img/Logo.svg"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"/>
@@ -31,7 +30,6 @@
   from, to { border-color: transparent }
   50% { border-color: var(--text-1); }
 }
-
 /* Card Auth bergaya Neo-brutalism */
 .auth-wrapper {
   min-height: calc(100vh - var(--nav-h) - var(--bottom-h));
@@ -51,7 +49,6 @@
   position: relative;
   z-index: 1;
 }
-
 /* Tabs */
 .auth-tabs {
   display: flex;
@@ -75,7 +72,6 @@
   transform: translate(3px, 3px);
   box-shadow: 0px 0px 0px #000;
 }
-
 /* Input Forms */
 .auth-form { display: flex; flex-direction: column; gap: 16px; }
 .auth-form.hidden { display: none; }
@@ -101,7 +97,6 @@
   border-color: var(--blue);
   box-shadow: 3px 3px 0px var(--blue);
 }
-
 /* Buttons */
 .btn-auth {
   width: 100%; padding: 14px;
@@ -116,12 +111,10 @@
 }
 .btn-auth:hover { transform: translate(-2px, -2px); box-shadow: var(--shadow-md); }
 .btn-auth:active { transform: translate(2px, 2px); box-shadow: var(--shadow-hover); }
-
 .divider {
   text-align: center; font-weight: 800; font-size: 14px; color: var(--text-3);
   margin: 12px 0; position: relative;
 }
-
 .btn-google {
   width: 100%; padding: 12px;
   border: 3px solid var(--border);
@@ -135,7 +128,6 @@
 }
 .btn-google:hover { background: #f3f4f6; transform: translate(-2px, -2px); box-shadow: var(--shadow-md); }
 .btn-google:active { transform: translate(2px, 2px); box-shadow: var(--shadow-hover); }
-
 /* Messages */
 .auth-msg {
   padding: 12px; border: 3px solid var(--border); border-radius: var(--r-md);
@@ -145,10 +137,8 @@
 }
 .auth-msg.error { display: block; background: #ff7675; }
 .auth-msg.success { display: block; background: #55efc4; }
-
 .auth-footer { text-align: center; margin-top: 24px; font-weight: 700; font-size: 14px; }
 .auth-footer a { color: var(--blue); text-decoration: underline; }
-
 /* Loading Spinner */
 .spinner {
   width: 16px; height: 16px;
@@ -159,9 +149,9 @@
 @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
+<meta name="robots" content="noindex, nofollow"/>
 </head>
 <body>
-
 <!-- TOP NAVBAR -->
 <nav class="navbar" id="navbar">
   <div class="nav-container">
@@ -178,7 +168,6 @@
 <section class="section" style="background-color: var(--bg-base); min-height: 100vh;">
   <div class="container auth-wrapper">
     <div class="auth-box">
-
       <!-- Brand & Typing Animation -->
       <div style="text-align: center; margin-bottom: 24px;">
         <div class="logo-badge" style="margin: 0 auto 12px; width: 64px; height: 64px; border-radius: 16px; background: #fff; padding: 4px; box-shadow: var(--shadow-sm); border: 3px solid var(--border);">
@@ -189,16 +178,13 @@
           <span class="typewriter" id="authTagline" style="font-weight: 700; color: var(--text-2);">Selamat datang kembali!</span>
         </div>
       </div>
-
       <!-- Tabs -->
       <div class="auth-tabs">
         <button class="auth-tab active" id="tabLogin" onclick="switchTab('login')">Masuk</button>
         <button class="auth-tab" id="tabRegister" onclick="switchTab('register')">Daftar</button>
       </div>
-
       <!-- Messages -->
       <div class="auth-msg" id="authMsg"></div>
-
       <!-- ── Login Form ── -->
       <form class="auth-form" id="loginForm" onsubmit="handleLogin(event)">
         <div class="form-group">
@@ -227,7 +213,6 @@
           Google
         </button>
       </form>
-
       <!-- ── Register Form ── -->
       <form class="auth-form hidden" id="registerForm" onsubmit="handleRegister(event)">
         <div class="form-group">
@@ -270,20 +255,17 @@
           Google
         </button>
       </form>
-
       <div class="auth-footer">
         <a href="/public/index.html">← Kembali ke Beranda tanpa login</a>
       </div>
     </div>
   </div>
 </section>
-
 <script>
 // Redirect if already logged in
 auth.onAuthStateChanged(user => {
   if (user) window.location.href = '/public/index.html';
 });
-
 function switchTab(tab) {
   const isLogin = tab === 'login';
   document.getElementById('loginForm').classList.toggle('hidden', !isLogin);
@@ -292,15 +274,12 @@ function switchTab(tab) {
   document.getElementById('tabRegister').classList.toggle('active', !isLogin);
   const tagline = document.getElementById('authTagline');
   tagline.textContent = isLogin ? 'Selamat datang kembali!' : 'Buat akun gratis Anda';
-  
   // Restart typing animation
   tagline.style.animation = 'none';
   tagline.offsetHeight; // trigger reflow
   tagline.style.animation = null;
-
   clearMsg();
 }
-
 function showMsg(text, type) {
   const el = document.getElementById('authMsg');
   el.textContent = text;
@@ -310,7 +289,6 @@ function clearMsg() {
   const el = document.getElementById('authMsg');
   el.className = 'auth-msg';
 }
-
 function friendlyError(code) {
   const map = {
     'auth/user-not-found':        'Email tidak terdaftar.',
@@ -325,7 +303,6 @@ function friendlyError(code) {
   };
   return map[code] || 'Terjadi kesalahan. Silakan coba lagi.';
 }
-
 function setLoading(btnId, loading, label) {
   const btn = document.getElementById(btnId);
   btn.disabled = loading;
@@ -333,7 +310,6 @@ function setLoading(btnId, loading, label) {
     ? `<span class="spinner"></span> Memproses...`
     : label;
 }
-
 async function handleLogin(e) {
   e.preventDefault();
   clearMsg();
@@ -350,7 +326,6 @@ async function handleLogin(e) {
     setLoading('loginBtn', false, 'Masuk ke Akun');
   }
 }
-
 async function handleRegister(e) {
   e.preventDefault();
   clearMsg();
@@ -371,7 +346,6 @@ async function handleRegister(e) {
     setLoading('registerBtn', false, 'Buat Akun Baru');
   }
 }
-
 async function handleGoogle() {
   clearMsg();
   try {

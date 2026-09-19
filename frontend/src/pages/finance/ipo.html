@@ -2,18 +2,20 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta name="google-adsense-account" content="ca-pub-6758288522431201">
-
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>IPO Calendar 2025 — BAJA</title>
-<meta name="description" content="Upcoming IPO schedule 2025. Track tech stock IPOs, offering price, expected valuation, and market date."/>
+<title>Jadwal & Kalender IPO Saham Terbaru — BAJA</title>
 <link rel="icon" href="/src/assets/img/Logo.svg"/>
 <link rel="stylesheet" href="/src/assets/css/style.css"/>
-
 <link rel="stylesheet" href="/src/assets/css/ipo.css"/>
 <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
+<meta name="description" content="Lihat daftar jadwal IPO perusahaan terbaru, rentang harga, dan status listing di pasar saham global dan lokal."/>
+<meta name="keywords" content="jadwal ipo terbaru, daftar ipo saham, kalender ipo, saham baru listing, info ipo perusahaan"/>
+<meta name="robots" content="index, follow"/>
+<meta property="og:title" content="Jadwal & Kalender IPO Saham Terbaru — BAJA"/>
+<meta property="og:description" content="Lihat daftar jadwal IPO perusahaan terbaru, rentang harga, dan status listing di pasar saham global dan lokal."/>
+<meta property="og:type" content="website"/>
 </head>
 <body>
-
 <!-- TOP NAVBAR -->
 <nav class="navbar" id="navbar">
   <div class="nav-container">
@@ -26,7 +28,6 @@
     </div>
   </div>
 </nav>
-
 <div class="page-header" style="background:linear-gradient(180deg,rgba(245,158,11,.08) 0%,transparent 100%)">
   <div class="container">
     <div class="section-badge" style="color:var(--gold)">📅 IPO Calendar</div>
@@ -34,17 +35,14 @@
     <p>Track upcoming Initial Public Offerings. Data updated manually. Always verify with official sources.</p>
   </div>
 </div>
-
 <section class="section" style="padding-top:32px">
   <div class="container">
-
     <div class="summary-row">
       <div class="sum-card"><div class="sum-num" id="countAll">12</div><div class="sum-label">Total IPOs Listed</div></div>
       <div class="sum-card"><div class="sum-num" id="countUp">7</div><div class="sum-label">Upcoming</div></div>
       <div class="sum-card"><div class="sum-num" id="countPriced">3</div><div class="sum-label">Already Priced</div></div>
       <div class="sum-card"><div class="sum-num">2025</div><div class="sum-label">Year</div></div>
     </div>
-
     <div class="filter-bar">
       <button class="filter-btn active" data-filter="all">All</button>
       <button class="filter-btn" data-filter="upcoming">Upcoming</button>
@@ -54,7 +52,6 @@
       <button class="filter-btn" data-filter="AI/ML">AI/ML</button>
       <button class="filter-btn" data-filter="Fintech">Fintech</button>
     </div>
-
     <div class="ipo-table-wrap">
       <table class="ipo-table" id="ipoTable">
         <thead>
@@ -72,19 +69,14 @@
       </table>
     </div>
     <div class="disclaimer" style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:var(--r-lg);padding:16px 20px;font-size:13px;color:var(--gold);margin-top:20px">⚠️ IPO data is manually curated for informational purposes. Dates and prices may change. Always verify with NASDAQ, NYSE, or official company filings before making investment decisions.</div>
-
 </section>
-
 <footer class="footer"><div class="container"><div class="footer-bottom" style="border-top:none;padding-top:0"><span>© 2025 BAJA</span><a href="/public/index.html">← Finance Hub</a></div></div></footer>
-
 </div>
-
 <!-- Floating Back Button -->
 <a href="/public/index.html" class="fab-back" id="fabBack" aria-label="Back to Finance">
   <span class="fab-arrow">←</span>
   <span>BACK</span>
 </a>
-
 <button id="scrollTop">↑</button>
 <script src="/src/App.js"></script>
 <script>
@@ -102,7 +94,6 @@ const ipos = [
   {company:'Reddit',desc:'Social Media',icon:'🔴',ticker:'RDDT',date:'Priced 2024',range:'—',val:'$6.5B',sector:'Tech',status:'priced'},
   {company:'Shein',desc:'Fast Fashion E-commerce',icon:'👗',ticker:'SHEI',date:'2025 TBD',range:'TBD',val:'$66B',sector:'E-commerce',status:'upcoming'},
 ];
-
 function renderTable(data) {
   const tbody = document.getElementById('ipoBody');
   tbody.innerHTML = data.map(ipo => `
@@ -119,9 +110,7 @@ function renderTable(data) {
       <td><span class="status-badge status-${ipo.status}">${ipo.status}</span></td>
     </tr>`).join('');
 }
-
 renderTable(ipos);
-
 document.querySelectorAll('.filter-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));

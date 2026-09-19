@@ -44,12 +44,10 @@
       s.dataset.zone='11493758';
       s.src='https://al5sm.com/tag.min.js';
     })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
-
     function handleClick() {
       // Kirim pesan ke parent window (Twibbon) bahwa tombol sudah diklik
       window.parent.postMessage('remove_watermark_clicked', '*');
     }
-    
     window.addEventListener('message', function(event) {
       if (event.data && event.data.type === 'updateText') {
         document.querySelector('button').textContent = 'Hapus Watermark (' + event.data.count + '/10 Iklan)';

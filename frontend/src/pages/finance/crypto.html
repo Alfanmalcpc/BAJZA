@@ -2,19 +2,21 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta name="google-adsense-account" content="ca-pub-6758288522431201">
-
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Crypto Dashboard — BAJA</title>
-<meta name="description" content="Live cryptocurrency price dashboard with real-time Binance WebSocket feed, RSI indicator, and 7-day chart."/>
+<title>Harga Kripto Real-Time & Live Dashboard — BAJA</title>
 <link rel="icon" href="/src/assets/img/Logo.svg"/>
 <link rel="stylesheet" href="/src/assets/css/style.css"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
 <link rel="stylesheet" href="/src/assets/css/crypto.css"/>
 <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
+<meta name="description" content="Pantau pergerakan harga, grafik, dan kapitalisasi pasar cryptocurrency (Bitcoin, Ethereum, Binance) secara real-time."/>
+<meta name="keywords" content="harga kripto live, crypto dashboard online, harga bitcoin hari ini, grafik crypto real time"/>
+<meta name="robots" content="index, follow"/>
+<meta property="og:title" content="Harga Kripto Real-Time & Live Dashboard — BAJA"/>
+<meta property="og:description" content="Pantau pergerakan harga, grafik, dan kapitalisasi pasar cryptocurrency (Bitcoin, Ethereum, Binance) secara real-time."/>
+<meta property="og:type" content="website"/>
 </head>
 <body>
-
 <!-- TOP NAVBAR -->
 <nav class="navbar" id="navbar">
   <div class="nav-container">
@@ -27,7 +29,6 @@
     </div>
   </div>
 </nav>
-
 <div class="page-header" style="background:linear-gradient(180deg,rgba(16,185,129,.08) 0%,transparent 100%)">
   <div class="container">
     <div class="section-badge" style="color:var(--red)"><span class="live-dot"></span> REAL-TIME</div>
@@ -35,7 +36,6 @@
     <p>Tick-by-tick prices via <strong>Binance WebSocket</strong>. Market data from CoinGecko.</p>
   </div>
 </div>
-
 <section class="section" style="padding-top:32px">
   <div class="container">
     </div>
@@ -76,17 +76,13 @@
     </div>
   </div>
 </section>
-
 <footer class="footer"><div class="container"><div class="footer-bottom" style="border-top:none;padding-top:0"><span>© 2025 BAJA · Prices: Binance · Data: CoinGecko</span><a href="/public/index.html">← Finance Hub</a></div></div></footer>
-
 </div>
-
 <!-- Floating Back Button -->
 <a href="/public/index.html" class="fab-back" id="fabBack" aria-label="Back to Finance">
   <span class="fab-arrow">←</span>
   <span>BACK</span>
 </a>
-
 <button id="scrollTop">↑</button>
 <script src="/src/App.js"></script>
 <script>
@@ -96,19 +92,16 @@ const COINS = [
   {id:'binancecoin',sym:'BNB', stream:'bnbusdt', icon:'🔶', color:'#F3BA2F'},
   {id:'solana',     sym:'SOL', stream:'solusdt', icon:'◎', color:'#9945FF'},
 ];
-
 let priceChart = null;
 let selectedCoin = COINS[0];
 let marketData = {};   // CoinGecko via BAJA.fetchCryptoPrices()
 let livePrice  = {};   // Binance WebSocket tick-by-tick
 let ws = null;
-
 // ── 1. Load metadata via BAJA.fetchCryptoPrices() — sama dengan halaman lain ──
 async function loadMarketData() {
   const ids = COINS.map(c => c.id);
   const raw = await BAJA.fetchCryptoPrices(ids);   // CoinGecko simple/price
   if (!raw) return;
-
   // Simpan ke livePrice & buat objek marketData yang kompatibel
   COINS.forEach(c => {
     const d = raw[c.id];
@@ -124,14 +117,12 @@ async function loadMarketData() {
       sparkline_in_7d: null,
     };
   });
-
   renderCards();
   selectCoin(selectedCoin.id);
   setStatus('connected');
   document.getElementById('lastUpdated').textContent =
     `✅ Meta dimuat · ${new Date().toLocaleTimeString('id-ID')} · CoinGecko API`;
 }
-
 // ── 2. Load sparkline 7 hari (pakai endpoint markets — sama dengan index.html) ──
 async function loadSparklines() {
   try {
@@ -159,44 +150,35 @@ async function loadSparklines() {
     console.warn('Sparkline error:', e.message);
   }
 }
-
 // ── 3. Binance WebSocket — tick-by-tick real-time price (sama persis dengan app.js pattern) ──
 function connectWS() {
   const streams = COINS.map(c => `${c.stream}@miniTicker`).join('/');
   setStatus('connecting');
   if (ws) { try { ws.close(); } catch(_){} }
   ws = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams}`);
-
   ws.onopen = () => {
     setStatus('connected');
     document.getElementById('lastUpdated').textContent = '🟢 WebSocket terhubung · Binance';
   };
-
   ws.onmessage = (evt) => {
     const { data: ticker } = JSON.parse(evt.data);
     if (!ticker) return;
     const coin = COINS.find(c => c.stream === ticker.s?.toLowerCase());
     if (!coin) return;
-
     const newP = parseFloat(ticker.c);
     const oldP = livePrice[coin.id] || newP;
-
     if (newP !== oldP) flashCard(coin.id, newP > oldP ? 'up' : 'down');
     livePrice[coin.id] = newP;
-
     // Update harga di kartu
     const el = document.getElementById('lp-' + coin.id);
     if (el) el.textContent = BAJA.formatUSD(newP);
-
     // Update sidebar jika koin ini yang aktif
     if (selectedCoin.id === coin.id) {
       document.getElementById('st-price').textContent = BAJA.formatUSD(newP);
     }
-
     document.getElementById('lastUpdated').textContent =
       `🟢 LIVE · ${new Date().toLocaleTimeString('id-ID')} · Binance WebSocket`;
   };
-
   ws.onerror = () => setStatus('error');
   ws.onclose = () => {
     setStatus('error');
@@ -204,7 +186,6 @@ function connectWS() {
     setTimeout(connectWS, 5000);
   };
 }
-
 // ── UI Helpers ──
 function flashCard(id, dir) {
   const card = document.querySelector(`.coin-card[data-id="${id}"]`);
@@ -213,14 +194,12 @@ function flashCard(id, dir) {
   void card.offsetWidth;
   card.classList.add(dir === 'up' ? 'flash-up' : 'flash-down');
 }
-
 function setStatus(s) {
   const el = document.getElementById('wsStatus');
   if (!el) return;
   el.textContent = {connected:'🟢 LIVE', connecting:'🟡 Connecting...', error:'🔴 Reconnecting...'}[s];
   el.className = 'ws-badge ' + {connected:'ws-connected', connecting:'ws-connecting', error:'ws-error'}[s];
 }
-
 // ── Render Kartu ──
 function renderCards() {
   document.getElementById('cryptoCards').innerHTML = COINS.map(coin => {
@@ -244,7 +223,6 @@ function renderCards() {
     </div>`;
   }).join('');
 }
-
 // ── Pilih Koin ──
 function selectCoin(id) {
   selectedCoin = COINS.find(c => c.id === id) || COINS[0];
@@ -260,7 +238,6 @@ function selectCoin(id) {
   if (md.sparkline_in_7d?.price) { drawChart(md); calcRSI(md.sparkline_in_7d.price); }
 }
 const coin_sym = id => (COINS.find(c=>c.id===id)||{}).sym || id;
-
 // ── Grafik ──
 function drawChart(md) {
   const prices = md.sparkline_in_7d?.price || [];
@@ -282,7 +259,6 @@ function drawChart(md) {
     }}
   });
 }
-
 // ── RSI ──
 function calcRSI(prices) {
   if (prices.length < 15) { document.getElementById('rsiValue').textContent = 'N/A'; return; }
@@ -297,21 +273,18 @@ function calcRSI(prices) {
   else if(r>70){ fill.style.background='var(--red)'; rv.style.color='var(--red)'; sig.textContent='📉 Overbought — Potential Sell'; sig.className='rsi-signal rsi-overbought'; }
   else{ fill.style.background='var(--gold)'; rv.style.color='var(--gold)'; sig.textContent='➡️ Neutral Zone'; sig.className='rsi-signal rsi-neutral'; }
 }
-
 // ── Init ──
 document.getElementById('refreshBtn').addEventListener('click', async () => {
   setStatus('connecting');
   await loadMarketData();
   loadSparklines();
 });
-
 document.addEventListener('DOMContentLoaded', async () => {
   setStatus('connecting');
   await loadMarketData();   // CoinGecko via BAJA — metadata cepat
   loadSparklines();          // CoinGecko markets — sparkline 7 hari (async)
   connectWS();               // Binance WebSocket — harga real-time
 });
-
 window.addEventListener('beforeunload', () => { if (ws) ws.close(); });
 </script>
 <!-- Bottom Navigation -->

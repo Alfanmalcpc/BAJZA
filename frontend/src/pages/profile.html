@@ -5,7 +5,6 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Profil Saya — BAJA</title>
-<meta name="description" content="Halaman profil pengguna BAJA."/>
 <link rel="icon" href="/src/assets/img/Logo.svg"/>
 <link rel="stylesheet" href="/src/assets/css/style.css"/>
 <link rel="stylesheet" href="/src/assets/css/responsive.css"/>
@@ -14,9 +13,9 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script src="/src/services/firebase.js"></script>
 <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
+<meta name="robots" content="noindex, nofollow"/>
 </head>
 <body>
-
 <!-- TOP NAVBAR -->
 <nav class="navbar" id="navbar">
   <div class="nav-container">
@@ -27,15 +26,11 @@
     <div class="nav-actions"></div>
   </div>
 </nav>
-
 <!-- Hidden file input (opened from modal) -->
 <input type="file" id="avatarFileInput" accept="image/*" style="display:none"/>
-
 <div class="prof-wrap">
-
   <!-- Logged In -->
   <div id="profileContent" style="display:none">
-
     <!-- Avatar + Name Header -->
     <div class="prof-header-card">
       <div class="prof-avatar-box" id="profAvatar">👤</div>
@@ -44,7 +39,6 @@
         <div class="prof-email" id="profEmail">Memuat...</div>
       </div>
     </div>
-
     <!-- Info Grid -->
     <div class="prof-section-label">👤 Informasi Akun</div>
     <div class="prof-info-grid">
@@ -61,7 +55,6 @@
         <span class="prof-info-val" id="profLinkedEmail">-</span>
       </div>
     </div>
-
     <!-- Actions -->
     <div class="prof-section-label">⚡ Menu</div>
     <div class="prof-actions">
@@ -69,9 +62,7 @@
       <a href="/src/pages/settings.html" class="prof-action-btn">⚙️ Pengaturan</a>
       <button class="prof-action-btn prof-action-btn--danger" id="btnLogout">🚪 Keluar</button>
     </div>
-
   </div>
-
   <!-- Logged Out -->
   <div class="prof-guest-card" id="authPrompt" style="display:none">
     <div style="font-size:52px;margin-bottom:16px">🔒</div>
@@ -79,34 +70,27 @@
     <p class="prof-guest-desc">Silakan masuk ke akun BAJA Anda untuk melihat dan mengelola profil.</p>
     <a href="/src/pages/auth.html" class="btn-primary">🔑 Masuk Sekarang</a>
   </div>
-
 </div>
-
 <!-- Edit Modal -->
 <div class="prof-modal-overlay" id="editModal">
   <div class="prof-modal-box">
     <h3 class="prof-modal-title">✏️ Ubah Profil</h3>
-
     <div class="prof-form-group">
       <label class="prof-form-label">Nama Pengguna / Username</label>
       <input type="text" id="editName" class="prof-input" placeholder="Masukkan nama Anda..."/>
     </div>
-
     <div class="prof-form-group">
       <label class="prof-form-label">Foto Profil (Opsional)</label>
       <button class="prof-file-btn" id="btnPickPhoto" type="button">📷 Pilih Foto dari Perangkat</button>
       <p id="photoFileName" class="prof-file-name">Belum ada foto dipilih</p>
     </div>
-
     <div class="prof-modal-actions">
       <button class="prof-modal-btn" id="btnCancelEdit">Batal</button>
       <button class="prof-modal-btn prof-modal-btn--save" id="btnSaveEdit">💾 Simpan</button>
     </div>
   </div>
 </div>
-
 <button id="scrollTop">↑</button>
-
 <script src="/src/App.js"></script>
 <script>
 const profileContent  = document.getElementById('profileContent');
@@ -126,10 +110,8 @@ const btnPickPhoto    = document.getElementById('btnPickPhoto');
 const photoFileName   = document.getElementById('photoFileName');
 const avatarFileInput = document.getElementById('avatarFileInput');
 const btnLogout       = document.getElementById('btnLogout');
-
 let selectedPhotoDataUrl = null;
 let currentPhotoInDB     = null; // track what's currently saved in DB
-
 function setAvatar(photoURL) {
   if (photoURL) {
     profAvatar.innerHTML = `<img src="${photoURL}" alt="Foto Profil" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;"/>`;
@@ -137,12 +119,10 @@ function setAvatar(photoURL) {
     profAvatar.innerHTML = '👤';
   }
 }
-
 auth.onAuthStateChanged(async user => {
   if (user) {
     profileContent.style.display = 'block';
     authPrompt.style.display     = 'none';
-
     // Set basic info from Auth first (fast)
     profName.textContent  = user.displayName || 'Pengguna BAJA';
     profEmail.textContent = user.email || '';
@@ -154,16 +134,13 @@ auth.onAuthStateChanged(async user => {
       profJoin.textContent = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
     }
     editName.value = user.displayName || '';
-
     // Load photo + name from Realtime DB (most up-to-date source)
     try {
       const snap = await db.ref(`users/${user.uid}`).once('value');
       const profile = snap.val() || {};
-
       // DB photoURL takes priority over Auth photoURL
       currentPhotoInDB = profile.photoURL || user.photoURL || null;
       setAvatar(currentPhotoInDB);
-
       // If DB has a newer display name, use it
       if (profile.displayName) {
         profName.textContent = profile.displayName;
@@ -174,16 +151,13 @@ auth.onAuthStateChanged(async user => {
       setAvatar(user.photoURL);
       currentPhotoInDB = user.photoURL || null;
     }
-
   } else {
     profileContent.style.display = 'none';
     authPrompt.style.display     = 'block';
   }
 });
-
 btnEditProfile.addEventListener('click', () => { editModal.style.display = 'flex'; });
 btnPickPhoto.addEventListener('click', () => avatarFileInput.click());
-
 avatarFileInput.addEventListener('change', async () => {
   const file = avatarFileInput.files?.[0];
   if (!file) return;
@@ -213,44 +187,36 @@ avatarFileInput.addEventListener('change', async () => {
     });
   } catch(err) { alert('Gagal memproses gambar.'); }
 });
-
 btnCancelEdit.addEventListener('click', () => {
   editModal.style.display = 'none';
   selectedPhotoDataUrl = null;
   photoFileName.textContent = 'Belum ada foto dipilih';
   avatarFileInput.value = '';
 });
-
 btnSaveEdit.addEventListener('click', async () => {
   const newName = editName.value.trim();
   if (!newName) { alert('Nama tidak boleh kosong.'); return; }
   const user = auth.currentUser;
   if (!user) return;
-
   btnSaveEdit.textContent = 'Menyimpan...';
   btnSaveEdit.disabled = true;
-
   try {
     // 1. Update nama di Auth + DB menggunakan helper firebase.js
     await updateDisplayName(user.uid, newName);
-
     // 2. Jika ada foto baru, simpan ke DB
     if (selectedPhotoDataUrl) {
       await updatePhoto(user.uid, selectedPhotoDataUrl);
       currentPhotoInDB = selectedPhotoDataUrl;
     }
-
     // 3. Update UI
     profName.textContent = newName;
     editName.value       = newName;
     setAvatar(currentPhotoInDB);
-
     // 4. Reset modal
     editModal.style.display  = 'none';
     selectedPhotoDataUrl      = null;
     photoFileName.textContent = 'Belum ada foto dipilih';
     avatarFileInput.value     = '';
-
     alert('✅ Profil berhasil diperbarui!');
   } catch(err) {
     console.error('Save error:', err);
@@ -260,7 +226,6 @@ btnSaveEdit.addEventListener('click', async () => {
     btnSaveEdit.disabled    = false;
   }
 });
-
 btnLogout.addEventListener('click', async () => {
   if (confirm('Apakah Anda yakin ingin keluar?')) {
     try { await auth.signOut(); window.location.href = '/public/index.html'; }
@@ -268,7 +233,6 @@ btnLogout.addEventListener('click', async () => {
   }
 });
 </script>
-
 <!-- Bottom Navigation -->
 <nav class="bottom-nav">
   <a href="/public/index.html" class="bottom-nav-link">
@@ -288,6 +252,5 @@ btnLogout.addEventListener('click', async () => {
     <span class="bottom-nav-text">Tutorial</span>
   </a>
 </nav>
-
 </body>
 </html>

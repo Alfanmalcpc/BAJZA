@@ -2,19 +2,21 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta name="google-adsense-account" content="ca-pub-6758288522431201">
-
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Universal File Converter — BAJA</title>
-<meta name="description" content="Free Universal File Converter. Convert Videos (MP4, MOV), Images (PNG, JPG, SVG, WEBP) and PDF pages directly in your browser."/>
+<title>Converter Video, Gambar & Audio Online Gratis — BAJA</title>
 <link rel="icon" href="/src/assets/img/Logo.svg"/>
 <link rel="stylesheet" href="/src/assets/css/style.css"/>
 <link rel="stylesheet" href="/src/assets/css/responsive.css"/>
-
 <link rel="stylesheet" href="/src/assets/css/converter.css"/>
 <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
+<meta name="description" content="Ubah format file video, audio, dan gambar Anda (MP4, MP3, JPG, PNG, SVG) secara gratis dan tanpa batas langsung di browser tanpa upload ke server."/>
+<meta name="keywords" content="converter video online, file converter gratis, ubah format video, converter mp4 mp3, ubah format gambar, browser file converter"/>
+<meta name="robots" content="index, follow"/>
+<meta property="og:title" content="Converter Video, Gambar & Audio Online Gratis — BAJA"/>
+<meta property="og:description" content="Ubah format file video, audio, dan gambar Anda (MP4, MP3, JPG, PNG, SVG) secara gratis dan tanpa batas langsung di browser tanpa upload ke server."/>
+<meta property="og:type" content="website"/>
 </head>
 <body>
-
 <!-- TOP NAVBAR -->
 <nav class="navbar" id="navbar">
   <div class="nav-container">
@@ -27,7 +29,6 @@
     </div>
   </div>
 </nav>
-
 <div class="page-header">
   <div class="container">
     <div class="section-badge">📄 File Converter</div>
@@ -35,15 +36,12 @@
     <p data-en="Convert Videos (MP4, MOV), Images, and PDFs securely. Runs entirely in your browser." data-id="Konversi Video (MP4, MOV), Gambar, dan PDF secara aman. Berjalan sepenuhnya di browser Anda.">Convert Videos (MP4, MOV), Images, and PDFs securely.</p>
   </div>
 </div>
-
 <section class="section" style="padding-top:32px">
   <div class="container">
     <div class="ad-slot ad-leaderboard" id="ad-conv-top" style="margin-bottom:24px">
       <script>(function(s){s.dataset.zone='11505452',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
     </div>
-    
     <div class="converter-wrap">
-      
       <!-- STEP 1: UPLOAD -->
       <input type="file" id="fileInput" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt,.heic" style="display:none"/>
       <div class="drop-zone" id="dropZone">
@@ -52,25 +50,20 @@
         <div class="drop-sub" data-en="Supports ALL Formats (Video, Audio, Image, Document) • Max 1GB" data-id="Mendukung SEMUA Format (Video, Audio, Gambar, Dokumen) • Maks 1GB">Supports ALL Formats (Video, Audio, Image, Document) • Max 1GB</div>
         <label for="fileInput" class="btn-file">📂 <span data-en="Choose File" data-id="Pilih File">Choose File</span></label>
       </div>
-
       <!-- STEP 2: PREVIEW & CONFIGURATION -->
       <div id="configZone" style="display:none; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-lg); padding:32px 24px; margin-top:24px; text-align:center">
         <h2 style="font-size:20px; font-weight:800; margin-bottom:24px" data-en="1. Preview & Settings" data-id="1. Pratinjau & Pengaturan">1. Preview & Settings</h2>
-        
         <div style="display:flex; flex-direction:column; align-items:center; gap:16px">
           <!-- Previews -->
           <img id="beforePreview" style="max-width:100%; max-height:280px; border-radius:12px; border:2px solid var(--border); display:none; object-fit:contain; background:var(--bg-surface)" />
           <video id="videoBeforePreview" controls style="max-width:100%; max-height:280px; border-radius:12px; border:2px solid var(--border); display:none; background:var(--bg-surface)"></video>
           <div id="pdfIconPreview" style="font-size:80px; display:none; background:var(--bg-surface); width:180px; height:240px; border-radius:12px; border:2px solid var(--border); align-items:center; justify-content:center; margin:0 auto">📄</div>
-          
           <p id="fileNameDisplay" style="font-size:15px; color:var(--text-1); font-weight:600; word-break:break-all; max-width:80%"></p>
-          
           <div style="width:100%; max-width:320px; text-align:left; margin-top:12px">
             <label style="font-size:14px; font-weight:600; color:var(--text-2); display:block; margin-bottom:8px" data-en="Convert to Format:" data-id="Konversi ke Format:">Convert to Format:</label>
             <select id="formatSelect" style="width:100%; padding:12px 16px; border-radius:8px; border:1px solid var(--border); background:var(--bg-surface); color:var(--text); font-size:15px; font-weight:600; cursor:pointer; outline:none; margin-bottom: 12px">
                <!-- Populated dynamically -->
             </select>
-
             <label style="font-size:14px; font-weight:600; color:var(--text-2); display:block; margin-bottom:8px" data-en="Quality:" data-id="Kualitas:">Quality:</label>
             <select id="qualitySelect" style="width:100%; padding:12px 16px; border-radius:8px; border:1px solid var(--border); background:var(--bg-surface); color:var(--text); font-size:15px; font-weight:600; cursor:pointer; outline:none">
                <option value="uhd" data-en="📺 4K UHD (Highest)" data-id="📺 4K UHD (Kualitas Tertinggi)">📺 4K UHD (Highest)</option>
@@ -80,21 +73,17 @@
                <option value="sd" data-en="480p SD (Standard)" data-id="480p SD (Standar)">480p SD (Standard)</option>
                <option value="low" data-en="360p Low (Smallest Size)" data-id="360p Rendah (Ukuran Terkecil)">360p Low (Smallest Size)</option>
             </select>
-
             <div id="adUnlockBadge" style="display:none; margin-top:12px; padding:12px; background:rgba(234,179,8,0.1); border:1px solid #eab308; border-radius:8px; cursor:pointer; color:#eab308; font-weight:bold; font-size:14px; align-items:center; justify-content:center; gap:8px">
               <span style="display:inline-block; background:#eab308; color:#000; padding:2px 6px; border-radius:4px; font-size:11px; font-weight:900; letter-spacing:1px">AD</span>
               <span data-en="Click to Unlock High Resolution" data-id="Klik untuk Membuka Resolusi Tinggi">Click to Unlock High Resolution</span>
             </div>
-
             <div id="formatNote" class="format-note" style="display:none; margin-top:12px"></div>
           </div>
-
           <button id="doConvertBtn" style="background:linear-gradient(135deg,#8B5CF6,#6D28D9); color:#fff; border:none; padding:14px 32px; border-radius:var(--r-full); font-size:16px; font-weight:700; cursor:pointer; width:100%; max-width:320px; margin-top:24px; transition:all var(--tr); box-shadow:0 10px 25px -5px rgba(139,92,246,0.4)">
             ✨ <span data-en="Convert Now" data-id="Konversi Sekarang">Convert Now</span>
           </button>
         </div>
       </div>
-
       <!-- LOADING STATE -->
       <div class="iso-loader-wrap" id="isoLoader" style="display:none; padding: 20px 0 0;">
         <div class="iso-loader">
@@ -107,11 +96,9 @@
         <div class="progress-fill" id="progressFill"></div>
       </div>
       <div id="progressText" style="text-align:center;font-size:13px;color:var(--text-2);display:none;font-weight:600"></div>
-
       <!-- STEP 3: RESULT ZONE -->
       <div id="resultZone" style="display:none; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--r-lg); padding:32px 24px; margin-top:24px">
         <h2 style="font-size:20px; font-weight:800; margin-bottom:24px; text-align:center" data-en="2. Conversion Result" data-id="2. Hasil Konversi">2. Conversion Result</h2>
-        
         <!-- Image/Video Result (Before/After) -->
         <div id="singleResultContainer" style="display:none; flex-direction:column; align-items:center; gap:24px">
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; width:100%; max-width:700px; margin:0 auto">
@@ -135,7 +122,6 @@
             ⬇️ <span data-en="Download Result" data-id="Unduh Hasil">Download Result</span>
           </button>
         </div>
-
         <!-- PDF Result (Grid) -->
         <div id="pdfResultContainer" style="display:none">
            <div class="action-bar" id="actionBar" style="display:flex; margin-top:0">
@@ -144,16 +130,13 @@
            </div>
            <div class="pages-grid" id="pagesGrid"></div>
         </div>
-        
         <div style="text-align:center; margin-top:32px; padding-top:24px; border-top:1px solid var(--border)">
             <button class="btn-clear" onclick="location.reload()" data-en="🔄 Convert Another File" data-id="🔄 Konversi File Lain">🔄 Convert Another File</button>
         </div>
       </div>
-
       <div class="ad-slot ad-responsive" id="ad-conv-mid" style="margin-top:24px">
         <script>(function(s){s.dataset.zone='11505452',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
       </div>
-
       <div class="info-box">
         <h3 style="font-size:15px;font-weight:700;margin-bottom:12px">ℹ️ <span data-en="How it works" data-id="Cara kerjanya">How it works</span></h3>
         <div style="font-size:14px;color:var(--text-2);line-height:1.7" data-en="This tool uses HTML5 Canvas, PDF.js, MediaRecorder API, and Web Audio API to convert files entirely locally. Your files are never uploaded to any server, ensuring 100% privacy and speed." data-id="Tool ini menggunakan HTML5 Canvas, PDF.js, MediaRecorder API, dan Web Audio API untuk mengonversi file sepenuhnya secara lokal. File Anda tidak pernah diunggah ke server mana pun, menjamin 100% privasi dan kecepatan.">This tool uses HTML5 Canvas, PDF.js, MediaRecorder API, and Web Audio API to convert files entirely locally. Your files are never uploaded to any server, ensuring 100% privacy and speed.</div>
@@ -161,19 +144,16 @@
     </div>
   </div>
 </section>
-
 <!-- Floating Back Button -->
 <a href="/public/index.html" class="fab-back" id="fabBack" aria-label="Back to Tools">
   <span class="fab-arrow">←</span>
   <span>BACK</span>
 </a>
-
 <button id="scrollTop">↑</button>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="/src/App.js"></script>
 <script>
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 const configZone = document.getElementById('configZone');
@@ -186,12 +166,10 @@ const qualitySelect = document.getElementById('qualitySelect');
 const adUnlockBadge = document.getElementById('adUnlockBadge');
 const formatNote = document.getElementById('formatNote');
 const doConvertBtn = document.getElementById('doConvertBtn');
-
 const isoLoader = document.getElementById('isoLoader');
 const progressBar = document.getElementById('progressBar');
 const progressFill = document.getElementById('progressFill');
 const progressText = document.getElementById('progressText');
-
 const resultZone = document.getElementById('resultZone');
 const singleResultContainer = document.getElementById('singleResultContainer');
 const resultBeforeImg = document.getElementById('resultBeforeImg');
@@ -200,16 +178,13 @@ const resultAfterImg = document.getElementById('resultAfterImg');
 const resultAfterVideo = document.getElementById('resultAfterVideo');
 const resultAfterAudio = document.getElementById('resultAfterAudio');
 const downloadSingleBtn = document.getElementById('downloadSingleBtn');
-
 const pdfResultContainer = document.getElementById('pdfResultContainer');
 const pagesGrid = document.getElementById('pagesGrid');
 const actionBar = document.getElementById('actionBar');
-
 let currentFile = null;
 let currentFileType = '';
 let beforeDataUrl = '';
 let pageBlobs = [];
-
 function triggerAd() {
   if (!window.pushAdTriggered) {
     window.pushAdTriggered = true;
@@ -223,7 +198,6 @@ function triggerAd() {
     document.head.appendChild(s);
   }
 }
-
 function getSupportedVideoMime(format) {
   const candidates = {
     'mp4': ['video/mp4;codecs=h264,aac', 'video/mp4;codecs=avc1', 'video/mp4'],
@@ -237,11 +211,9 @@ function getSupportedVideoMime(format) {
   if (MediaRecorder.isTypeSupported('video/webm')) return 'video/webm';
   return '';
 }
-
 function updateFormatNote() {
   const fmt = formatSelect.value;
   if (currentFileType !== 'video' && currentFileType !== 'audio') { formatNote.style.display = 'none'; return; }
-  
   const notes = {
     'mp4':  '✅ MP4: Universally compatible. Best for all devices.',
     'webm': '✅ WebM: Best browser support, smaller file size.',
@@ -259,9 +231,7 @@ function updateFormatNote() {
   formatNote.textContent = notes[fmt] || '';
   formatNote.style.display = 'block';
 }
-
 let highResUnlocked = false;
-
 function checkQualityAd() {
    const q = qualitySelect.value;
    if ((q === 'uhd' || q === 'qhd' || q === 'fhd') && !highResUnlocked) {
@@ -276,20 +246,16 @@ function checkQualityAd() {
       doConvertBtn.style.cursor = 'pointer';
    }
 }
-
 qualitySelect.addEventListener('change', checkQualityAd);
-
 adUnlockBadge.addEventListener('click', () => {
     // Inject ad script
     (function(s){
         s.dataset.zone='11493758';
         s.src='https://al5sm.com/tag.min.js';
     })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
-    
     // Unlock
     highResUnlocked = true;
     checkQualityAd();
-    
     // Remove TV/Ad icon from text
     Array.from(qualitySelect.options).forEach(opt => {
        if (opt.value === 'uhd' || opt.value === 'qhd' || opt.value === 'fhd') {
@@ -297,7 +263,6 @@ adUnlockBadge.addEventListener('click', () => {
        }
     });
 });
-
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
 dropZone.addEventListener('drop', e => {
@@ -306,18 +271,15 @@ dropZone.addEventListener('drop', e => {
   if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
 });
 fileInput.addEventListener('change', e => { if (e.target.files[0]) loadFile(e.target.files[0]); });
-
 async function loadFile(file) {
   currentFile = file;
   dropZone.style.display = 'none';
-  
   // HEIC Interceptor
   if (file.name.toLowerCase().endsWith('.heic')) {
     isoLoader.style.display = 'flex';
     progressBar.style.display = 'block';
     progressText.style.display = 'block';
     progressText.textContent = 'Decoding HEIC Format (Apple Image)...';
-    
     try {
       if (typeof heic2any === 'undefined') {
         await new Promise((res, rej) => {
@@ -328,27 +290,22 @@ async function loadFile(file) {
            document.head.appendChild(s);
         });
       }
-      
       const convertedBlob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.95 });
       // Replace the file variable with the new JPEG blob
       file = new File([convertedBlob], file.name.replace(/\.heic$/i, '.jpg'), { type: 'image/jpeg' });
       currentFile = file;
-      
     } catch(err) {
       console.error(err);
       alert('Failed to read HEIC file.');
       location.reload();
       return;
     }
-    
     isoLoader.style.display = 'none';
     progressBar.style.display = 'none';
     progressText.style.display = 'none';
   }
-
   configZone.style.display = 'block';
   fileNameDisplay.textContent = file.name;
-  
   if (file.type === 'application/pdf') {
     currentFileType = 'pdf';
     pdfIconPreview.style.display = 'flex';
@@ -368,7 +325,6 @@ async function loadFile(file) {
     beforePreview.style.display = 'none';
     videoBeforePreview.style.display = 'block';
     videoBeforePreview.src = URL.createObjectURL(file);
-    
     formatSelect.innerHTML = `
       <optgroup label="Video Formats">
         <option value="mp4">MP4 Video (Universal)</option>
@@ -400,7 +356,6 @@ async function loadFile(file) {
     beforePreview.style.display = 'none';
     videoBeforePreview.style.display = 'block'; // using video element to play audio preview
     videoBeforePreview.src = URL.createObjectURL(file);
-    
     formatSelect.innerHTML = `
       <optgroup label="Audio Formats">
         <option value="mp3">MP3 Audio (Standard)</option>
@@ -420,14 +375,12 @@ async function loadFile(file) {
     pdfIconPreview.style.display = 'none';
     beforePreview.style.display = 'block';
     videoBeforePreview.style.display = 'none';
-    
     const reader = new FileReader();
     reader.onload = e => {
       beforeDataUrl = e.target.result;
       beforePreview.src = beforeDataUrl;
     };
     reader.readAsDataURL(file);
-
     formatSelect.innerHTML = `
       <optgroup label="Standard Images">
         <option value="jpg">JPG / JPEG (Standard)</option>
@@ -454,7 +407,6 @@ async function loadFile(file) {
     pdfIconPreview.textContent = '📄';
     beforePreview.style.display = 'none';
     videoBeforePreview.style.display = 'none';
-    
     formatSelect.innerHTML = `
       <optgroup label="Document Formats">
         <option value="pdf">PDF Document</option>
@@ -467,17 +419,14 @@ async function loadFile(file) {
     formatNote.style.display = 'none';
   }
 }
-
 doConvertBtn.addEventListener('click', async () => {
   configZone.style.display = 'none';
   isoLoader.style.display = 'flex';
   progressBar.style.display = 'block';
   progressText.style.display = 'block';
   progressFill.style.width = '10%';
-  
   const targetFormat = formatSelect.value;
   const targetQuality = qualitySelect.value;
-  
   if (currentFileType === 'pdf') {
      await convertPDF(currentFile, targetFormat, targetQuality);
   } else if (currentFileType === 'video') {
@@ -491,7 +440,6 @@ doConvertBtn.addEventListener('click', async () => {
      await simulateDocumentConversion(currentFile, targetFormat);
   }
 });
-
 async function simulateDocumentConversion(file, format) {
   // Simulate a document conversion process for formats we can't truly process client-side
   progressText.textContent = `Converting document to ${format.toUpperCase()}...`;
@@ -499,32 +447,26 @@ async function simulateDocumentConversion(file, format) {
     progressFill.style.width = i + '%';
     await new Promise(r => setTimeout(r, 200));
   }
-  
   // Create a dummy blob representing the output
   const blob = new Blob(["Conversion simulation result. True client-side document parsing requires large WASM libraries."], {type: 'text/plain'});
   const outUrl = URL.createObjectURL(blob);
   showVideoResult(file, outUrl, format, 'application/octet-stream', blob, `⬇️ Download ${format.toUpperCase()}`);
 }
-
 async function convertVideo(file, format, quality) {
   let videoEl = null;
   let fileUrl = null;
   let audioContext = null;
   let frameId = null;
-
   try {
     progressText.textContent = 'Loading video...';
     progressFill.style.width = '10%';
-
     if (format === 'mp3') { await extractAudio(file); return; }
     if (format === 'gif') { await captureGif(file, quality); return; }
-
     // Determine best output MIME type
     const outputMime = getSupportedVideoMime(format === 'mov' ? 'mp4' : format);
     if (!outputMime) {
       throw new Error('Your browser cannot record video.\n\nPlease use Chrome or Edge (desktop) and try WebM format.');
     }
-
     // Create and fully preload the video element (must be in DOM)
     fileUrl = URL.createObjectURL(file);
     videoEl = document.createElement('video');
@@ -536,30 +478,24 @@ async function convertVideo(file, format, quality) {
     videoEl.style.left = '-9999px';
     videoEl.style.opacity = '0';
     document.body.appendChild(videoEl);
-
     // Wait for enough data to know dimensions & duration
     await new Promise((res, rej) => {
       videoEl.onloadeddata = res;
       videoEl.onerror = () => rej(new Error('Failed to load video. File may be corrupted or codec unsupported by browser.'));
       videoEl.load();
     });
-
     const duration = videoEl.duration;
     if (!duration || !isFinite(duration) || duration === 0) {
       throw new Error('Cannot determine video duration. The file may be corrupted or in an unsupported format.');
     }
-
     progressText.textContent = 'Preparing canvas...';
     progressFill.style.width = '20%';
-
     const canvas = document.createElement('canvas');
     canvas.width  = videoEl.videoWidth  || 1280;
     canvas.height = videoEl.videoHeight || 720;
     const ctx = canvas.getContext('2d');
-
     // Build the capture stream from canvas
     const stream = canvas.captureStream(30);
-
     // Try to attach audio track
     try {
       audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -573,7 +509,6 @@ async function convertVideo(file, format, quality) {
       console.warn('Audio capture skipped (video may be muted):', audioErr.message);
       if (audioContext) { try { audioContext.close(); } catch(e){} audioContext = null; }
     }
-
     let bitrate = 2500000;
     if (quality === 'low') bitrate = 500000;
     else if (quality === 'sd') bitrate = 1000000;
@@ -581,7 +516,6 @@ async function convertVideo(file, format, quality) {
     else if (quality === 'fhd') bitrate = 5000000;
     else if (quality === 'qhd') bitrate = 10000000;
     else if (quality === 'uhd') bitrate = 20000000;
-
     // Setup MediaRecorder with fallback
     const recordedChunks = [];
     let recorder;
@@ -592,17 +526,13 @@ async function convertVideo(file, format, quality) {
       recorder = new MediaRecorder(stream);
     }
     recorder.ondataavailable = e => { if (e.data && e.data.size > 0) recordedChunks.push(e.data); };
-
     const recordingDone = new Promise(res => recorder.onstop = res);
     recorder.start(200); // collect every 200ms for reliability
-
     // Seek to beginning before playing
     videoEl.currentTime = 0;
     await new Promise(res => { videoEl.onseeked = res; });
-
     progressText.textContent = 'Converting (plays in real-time)...';
     progressFill.style.width = '25%';
-
     // Continuous draw loop
     const drawLoop = () => {
       if (!videoEl.paused && !videoEl.ended) {
@@ -614,55 +544,43 @@ async function convertVideo(file, format, quality) {
       frameId = requestAnimationFrame(drawLoop);
     };
     frameId = requestAnimationFrame(drawLoop);
-
     // Play and wait for natural end (with safety timeout of 2x duration + 15s)
     await videoEl.play();
     await Promise.race([
       new Promise(res => { videoEl.onended = res; }),
       new Promise(res => setTimeout(res, (duration * 2 + 15) * 1000))
     ]);
-
     // Stop everything
     cancelAnimationFrame(frameId); frameId = null;
     videoEl.pause();
     recorder.stop();
     if (audioContext) { try { audioContext.close(); } catch(e){} }
     await recordingDone;
-
     progressFill.style.width = '100%';
     progressText.textContent = 'Finalising...';
-
     // Validate output
     if (recordedChunks.length === 0) {
       throw new Error('Recording produced no data.\n\nTry: Use WebM format in Chrome, or convert a shorter video clip.');
     }
-
     const actualMime = (recorder.mimeType && recorder.mimeType !== '') ? recorder.mimeType : outputMime;
     const blob = new Blob(recordedChunks, { type: actualMime.split(';')[0] });
-
     if (blob.size < 1024) {
       throw new Error('Output file appears empty. Try WebM format or use a different browser (Chrome recommended).');
     }
-
     // Choose extension based on actual recorded MIME
     let ext = 'webm';
     if (actualMime.includes('mp4')) ext = (format === 'mov') ? 'mov' : 'mp4';
-
     const outUrl = URL.createObjectURL(blob);
-
     // Cleanup
     document.body.removeChild(videoEl); videoEl = null;
     URL.revokeObjectURL(fileUrl); fileUrl = null;
-
     showVideoResult(file, outUrl, ext, actualMime.split(';')[0], blob);
-
   } catch (err) {
     // Cleanup on error
     if (frameId) cancelAnimationFrame(frameId);
     if (videoEl && videoEl.parentNode) document.body.removeChild(videoEl);
     if (fileUrl) URL.revokeObjectURL(fileUrl);
     if (audioContext) { try { audioContext.close(); } catch(e){} }
-
     console.error('Video conversion error:', err);
     progressBar.style.display = 'none';
     isoLoader.style.display = 'none';
@@ -685,25 +603,19 @@ async function convertVideo(file, format, quality) {
       </div>`;
   }
 }
-
 async function extractAudio(file) {
   progressText.textContent = 'Extracting audio track...';
   progressFill.style.width = '30%';
-
   try {
     const arrayBuffer = await file.arrayBuffer();
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-
     progressFill.style.width = '60%';
     progressText.textContent = 'Encoding audio...';
-
     const wavBlob = audioBufferToWav(audioBuffer);
     const outUrl = URL.createObjectURL(wavBlob);
-
     progressFill.style.width = '100%';
     audioCtx.close();
-
     setTimeout(() => {
       progressBar.style.display = 'none';
     isoLoader.style.display = 'none';
@@ -713,16 +625,13 @@ async function extractAudio(file) {
       resultZone.style.display = 'block';
       singleResultContainer.style.display = 'flex';
       pdfResultContainer.style.display = 'none';
-
       resultBeforeImg.style.display = 'none';
       resultBeforeVideo.style.display = 'block';
       resultBeforeVideo.src = URL.createObjectURL(file);
-
       resultAfterImg.style.display = 'none';
       resultAfterVideo.style.display = 'none';
       resultAfterAudio.style.display = 'block';
       resultAfterAudio.src = outUrl;
-
       downloadSingleBtn.innerHTML = '⬇️ Download Audio (WAV)';
       downloadSingleBtn.onclick = () => {
         triggerAd();
@@ -732,12 +641,10 @@ async function extractAudio(file) {
         a.click();
       };
     }, 400);
-
   } catch(e) {
     throw new Error('Audio extraction failed: ' + e.message + '. Make sure the video has an audio track.');
   }
 }
-
 function audioBufferToWav(buffer) {
   const numChannels = buffer.numberOfChannels;
   const sampleRate = buffer.sampleRate;
@@ -749,7 +656,6 @@ function audioBufferToWav(buffer) {
   const dataSize = numSamples * blockAlign;
   const wavBuffer = new ArrayBuffer(44 + dataSize);
   const view = new DataView(wavBuffer);
-
   const writeStr = (offset, str) => { for (let i=0;i<str.length;i++) view.setUint8(offset+i, str.charCodeAt(i)); };
   writeStr(0, 'RIFF');
   view.setUint32(4, 36 + dataSize, true);
@@ -764,7 +670,6 @@ function audioBufferToWav(buffer) {
   view.setUint16(34, bitDepth, true);
   writeStr(36, 'data');
   view.setUint32(40, dataSize, true);
-
   let offset = 44;
   for (let i = 0; i < numSamples; i++) {
     for (let ch = 0; ch < numChannels; ch++) {
@@ -775,18 +680,14 @@ function audioBufferToWav(buffer) {
   }
   return new Blob([wavBuffer], { type: 'audio/wav' });
 }
-
 async function captureGif(file, quality) {
   progressText.textContent = 'Capturing frames for GIF...';
   progressFill.style.width = '20%';
-
   const videoEl = document.createElement('video');
   videoEl.src = URL.createObjectURL(file);
   videoEl.muted = true;
   videoEl.playsInline = true;
-
   await new Promise((res, rej) => { videoEl.onloadedmetadata = res; videoEl.onerror = rej; });
-
   const duration = Math.min(videoEl.duration, 10);
   let fps = 8;
   let scale = 0.5;
@@ -796,13 +697,11 @@ async function captureGif(file, quality) {
   else if (quality === 'fhd') { fps = 12; scale = 0.7; }
   else if (quality === 'qhd') { fps = 15; scale = 0.85; }
   else if (quality === 'uhd') { fps = 20; scale = 1.0; }
-
   const totalFrames = Math.floor(duration * fps);
   const canvas = document.createElement('canvas');
   canvas.width  = Math.round((videoEl.videoWidth  || 640) * scale);
   canvas.height = Math.round((videoEl.videoHeight || 360) * scale);
   const ctx = canvas.getContext('2d');
-
   const frames = [];
   for (let i = 0; i < totalFrames; i++) {
     const t = i / fps;
@@ -813,10 +712,8 @@ async function captureGif(file, quality) {
     progressFill.style.width = (20 + Math.round((i / totalFrames) * 60)) + '%';
     progressText.textContent = `Capturing frame ${i+1} / ${totalFrames}...`;
   }
-
   progressText.textContent = 'Building animation...';
   progressFill.style.width = '85%';
-
   const stream = canvas.captureStream(fps);
   const supported = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
     ? 'video/webm;codecs=vp9'
@@ -826,7 +723,6 @@ async function captureGif(file, quality) {
   rec.ondataavailable = e => chunks.push(e.data);
   const done = new Promise(r => rec.onstop = r);
   rec.start();
-
   for (const frame of frames) {
     const img = new Image();
     img.src = frame;
@@ -836,14 +732,11 @@ async function captureGif(file, quality) {
   }
   rec.stop();
   await done;
-
   const blob = new Blob(chunks, { type: 'video/webm' });
   const outUrl = URL.createObjectURL(blob);
   progressFill.style.width = '100%';
-
   showVideoResult(file, outUrl, 'webm', 'video/webm', blob, '⬇️ Download Animation (WebM)');
 }
-
 function showVideoResult(file, outUrl, ext, mime, blob, btnLabel) {
   setTimeout(() => {
     progressBar.style.display = 'none';
@@ -852,16 +745,13 @@ function showVideoResult(file, outUrl, ext, mime, blob, btnLabel) {
     resultZone.style.display = 'block';
     singleResultContainer.style.display = 'flex';
     pdfResultContainer.style.display = 'none';
-
     resultBeforeImg.style.display = 'none';
     resultBeforeVideo.style.display = 'block';
     resultBeforeVideo.src = URL.createObjectURL(file);
-
     resultAfterAudio.style.display = 'none';
     resultAfterImg.style.display = 'none';
     resultAfterVideo.style.display = 'block';
     resultAfterVideo.src = outUrl;
-
     downloadSingleBtn.innerHTML = btnLabel || '⬇️ Download Result';
     downloadSingleBtn.onclick = () => {
       triggerAd();
@@ -872,15 +762,12 @@ function showVideoResult(file, outUrl, ext, mime, blob, btnLabel) {
     };
   }, 400);
 }
-
 async function convertImage(dataUrl, format, quality) {
    progressText.textContent = "Processing image...";
    progressFill.style.width = '50%';
-   
    const img = new Image();
    img.src = dataUrl;
    await new Promise(r => img.onload = r);
-   
    let outDataUrl = '';
    if (format === 'svg') {
      const svgStr = `<svg xmlns="http://www.w3.org/2000/svg" width="${img.width}" height="${img.height}"><image href="${dataUrl}" width="${img.width}" height="${img.height}"/></svg>`;
@@ -890,15 +777,12 @@ async function convertImage(dataUrl, format, quality) {
      canvas.width = img.width;
      canvas.height = img.height;
      const ctx = canvas.getContext('2d');
-     
      if (format === 'jpg') {
        ctx.fillStyle = '#ffffff';
        ctx.fillRect(0, 0, canvas.width, canvas.height);
      }
-     
      ctx.drawImage(img, 0, 0);
      const mime = format === 'jpg' ? 'image/jpeg' : `image/${format}`;
-     
      let qualityNum = 0.8;
      if (quality === 'low') qualityNum = 0.4;
      else if (quality === 'sd') qualityNum = 0.6;
@@ -906,12 +790,9 @@ async function convertImage(dataUrl, format, quality) {
      else if (quality === 'fhd') qualityNum = 0.9;
      else if (quality === 'qhd') qualityNum = 0.95;
      else if (quality === 'uhd') qualityNum = 1.0;
-     
      outDataUrl = canvas.toDataURL(mime, qualityNum);
    }
-   
    progressFill.style.width = '100%';
-   
    setTimeout(() => {
      progressBar.style.display = 'none';
     isoLoader.style.display = 'none';
@@ -919,16 +800,13 @@ async function convertImage(dataUrl, format, quality) {
      resultZone.style.display = 'block';
      singleResultContainer.style.display = 'flex';
      pdfResultContainer.style.display = 'none';
-     
      resultBeforeVideo.style.display = 'none';
      resultAfterAudio.style.display = 'none';
      resultBeforeImg.style.display = 'block';
      resultBeforeImg.src = beforeDataUrl;
-     
      resultAfterVideo.style.display = 'none';
      resultAfterImg.style.display = 'block';
      resultAfterImg.src = outDataUrl;
-     
      downloadSingleBtn.innerHTML = '⬇️ Download Result';
      downloadSingleBtn.onclick = () => {
        triggerAd();
@@ -939,18 +817,15 @@ async function convertImage(dataUrl, format, quality) {
      };
    }, 500);
 }
-
 async function convertPDF(file, format, quality) {
   pageBlobs = [];
   pagesGrid.innerHTML = '';
   const mime = format === 'jpg' ? 'image/jpeg' : 'image/png';
   const ext = format;
-
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
   const total = pdf.numPages;
   document.getElementById('pageCount').textContent = `${total} page${total>1?'s':''} converted`;
-
   let scale = 2;
   let qualityNum = 0.8;
   if (quality === 'low') { scale = 1.0; qualityNum = 0.5; }
@@ -959,7 +834,6 @@ async function convertPDF(file, format, quality) {
   else if (quality === 'fhd') { scale = 2.5; qualityNum = 0.9; }
   else if (quality === 'qhd') { scale = 3.5; qualityNum = 0.95; }
   else if (quality === 'uhd') { scale = 5.0; qualityNum = 1.0; }
-
   for (let i = 1; i <= total; i++) {
     const page = await pdf.getPage(i);
     const vp = page.getViewport({ scale });
@@ -967,16 +841,12 @@ async function convertPDF(file, format, quality) {
     canvas.width = vp.width;
     canvas.height = vp.height;
     const ctx = canvas.getContext('2d');
-    
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
     await page.render({ canvasContext: ctx, viewport: vp }).promise;
-
     const blob = await new Promise(res => canvas.toBlob(res, mime, qualityNum));
     pageBlobs.push({ blob, ext });
     const url = URL.createObjectURL(blob);
-
     const card = document.createElement('div');
     card.className = 'page-card';
     card.innerHTML = `<img class="page-img" src="${url}" alt="Page ${i}"/>
@@ -985,18 +855,15 @@ async function convertPDF(file, format, quality) {
         <button class="btn-dl-page" data-url="${url}" data-page="${i}" data-ext="${ext}">⬇️ Save</button>
       </div>`;
     pagesGrid.appendChild(card);
-
     const pct = Math.round((i/total)*100);
     progressFill.style.width = pct + '%';
     progressText.textContent = `Rendering page ${i} of ${total}...`;
   }
-
   progressBar.style.display = 'none';
   progressText.style.display = 'none';
   resultZone.style.display = 'block';
   singleResultContainer.style.display = 'none';
   pdfResultContainer.style.display = 'block';
-
   pagesGrid.querySelectorAll('.btn-dl-page').forEach(btn => {
     btn.addEventListener('click', () => {
       triggerAd();
@@ -1006,7 +873,6 @@ async function convertPDF(file, format, quality) {
       a.click();
     });
   });
-
   document.getElementById('downloadAllBtn').addEventListener('click', async () => {
     triggerAd();
     pageBlobs.forEach((item, idx) => {
@@ -1037,8 +903,6 @@ async function convertPDF(file, format, quality) {
     <span class="bottom-nav-text">Tutorial</span>
   </a>
 </nav>
-
 <script>(function(s){s.dataset.zone='11496637',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-
 </body>
 </html>

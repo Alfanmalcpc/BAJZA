@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Peliharaan Ikan Aquarium — BAJA</title>
-    <meta name="description" content="Pelihara ikan virtual custom kreasi sendiri di aquarium digital BAJA WEB."/>
+    <title>Virtual Aquarium & Peliharaan Ikan — BAJA WEB</title>
     <link rel="icon" href="/src/assets/img/Logo.svg"/>
     <link rel="stylesheet" href="/src/assets/css/style.css"/>
     <link rel="stylesheet" href="/src/assets/css/responsive.css"/>
@@ -79,7 +78,6 @@
         .btn-pink { background: #f472b6; color: #fff; }
         .btn-yellow { background: #facc15; color: #000; }
         .btn-green { background: #4ade80; color: #000; }
-
         /* Aquarium Tank ONLY */
         .tank-wrapper {
             position: relative;
@@ -129,7 +127,6 @@
             0% { transform: translateY(0); opacity: 0.8; }
             100% { transform: translateY(-520px); opacity: 0; }
         }
-
         /* Dynamic Fish Element */
         .fish {
             position: absolute;
@@ -159,7 +156,6 @@
             pointer-events: none;
             border: 1px solid #fff;
         }
-
         /* Custom Dragable Seabed Decoration Elements */
         .decor-item {
             position: absolute;
@@ -177,7 +173,6 @@
             display: block;
             pointer-events: none;
         }
-
         /* Controls Section */
         .controls-card {
             max-width: 1000px;
@@ -191,7 +186,6 @@
             flex-direction: column;
             gap: 16px;
         }
-
         /* Modal Overlay */
         .baja-modal {
             display: none;
@@ -216,7 +210,6 @@
             max-height: 90vh;
             overflow-y: auto;
         }
-
         /* Catalog grid */
         .catalog-grid {
             display: grid;
@@ -238,7 +231,6 @@
             transform: translateY(-2px);
             box-shadow: 5px 5px 0 #000;
         }
-    
         /* Seabed decoration animations & proportional sizing */
         @keyframes sway {
             0%, 100% { transform: rotate(-4deg) skewX(-2deg); transform-origin: bottom center; }
@@ -255,8 +247,6 @@
         .anim-sway { animation: sway 3.8s infinite ease-in-out; transform-origin: bottom center; }
         .anim-glow { animation: pulseGlow 2.5s infinite ease-in-out; }
         .anim-bob { animation: bobbing 5s infinite ease-in-out; }
-
-    
         /* ANIMASI DEKORASI */
         @keyframes chestOpenClose {
             0%, 40% { transform: rotate(0deg); }
@@ -274,11 +264,15 @@
         .anim-float {
             animation: floatGentle 3s ease-in-out infinite;
         }
-
     </style>
+<meta name="description" content="Mainkan Virtual Aquarium interaktif di BAJA WEB. Pelihara ikan, beri pakan, koleksi dekorasi, dan bersaing di Leaderboard global penghasil token terbanyak secara gratis!"/>
+<meta name="keywords" content="aquarium virtual, game peliharaan ikan, game web gratis, leaderboard ikan, main ikan browser"/>
+<meta name="robots" content="index, follow"/>
+<meta property="og:title" content="Virtual Aquarium & Peliharaan Ikan — BAJA WEB"/>
+<meta property="og:description" content="Mainkan Virtual Aquarium interaktif di BAJA WEB. Pelihara ikan, beri pakan, koleksi dekorasi, dan bersaing di Leaderboard global penghasil token terbanyak secara gratis!"/>
+<meta property="og:type" content="website"/>
 </head>
 <body>
-
 <!-- TOP NAVBAR -->
 <nav class="navbar" id="navbar">
   <div class="nav-container">
@@ -292,7 +286,6 @@
     </div>
   </div>
 </nav>
-
 <!-- LOGIN CHECK WRAPPER -->
 <div id="authRequiredNotice" class="aq-header-box" style="display:none; max-width:600px; margin-top:50px;">
     <h2 style="font-family:'Bangers',cursive; font-size:28px; color:#ef4444;">🔒 LOGIN DIBUTUHKAN</h2>
@@ -302,20 +295,17 @@
         <button class="btn-baja" onclick="playAsGuest()" style="font-size:16px; padding:10px 24px; background:#f1f5f9; color:#000;">🎮 Lanjut Tanpa Login</button>
     </div>
 </div>
-
 <!-- MAIN AQUARIUM GAME CONTENT (HANYA MUNCUL JIKA SUDAH LOGIN) -->
 <div id="gameContent" style="display:none; padding: 0 16px;">
     <div class="aq-header-box">
         <div class="aq-title">🐠 VIRTUAL AQUARIUM STUDIO</div>
         <p style="font-size:14px; font-weight:600; opacity:0.85;">Gambar ikan kecilmu, rawat dan beri makan sampai tumbuh besar untuk dijual dengan keuntungan melimpah!</p>
-        
         <div class="stats-bar">
             <div class="stat-pill">🪙 Token: <span id="tokenVal" style="color:#ca8a04;">100</span></div>
             <div class="stat-pill">Pakan Aktif: <span id="foodVal" style="color:#0284c7;">5</span> (<span id="foodName">Pelet Standar</span>)</div>
             <iframe src="monetag-aquarium-btn.html" style="width: 220px; height: 46px; border: none; overflow: hidden; border-radius: 10px;" scrolling="no"></iframe>
         </div>
     </div>
-
     <!-- TANK AQUARIUM -->
     <div class="tank-wrapper">
         <div class="tank" id="aquariumTank">
@@ -323,7 +313,6 @@
         </div>
         <div class="tank-glass"></div>
     </div>
-
     <!-- ACTION BUTTONS -->
     <div class="controls-card">
         <!-- Selector Pakan Aktif -->
@@ -331,7 +320,6 @@
             <span style="font-size:12px; font-weight:800; color:#475569; letter-spacing:0.5px;">PILIH PAKAN:</span>
             <div id="foodSelectorBar" style="display:flex; gap:6px; flex-wrap:wrap; justify-content:center;"></div>
         </div>
-
         <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
             <button class="btn-baja btn-yellow" onclick="openDrawModal()">🎨 Buat Ikan Baru (25 Token)</button>
             <button class="btn-baja btn-green" id="btnFeed" onclick="feedFish()">Beri Makan</button>
@@ -342,50 +330,40 @@
         </div>
     </div>
 </div>
-
-
 <!-- MODAL LEADERBOARD TOKEN IKAN -->
 <div id="leaderboardModal" class="baja-modal">
     <div class="baja-modal-card" style="max-width:500px;">
         <h2 style="font-family:'Bangers',cursive; font-size:28px; color:#f59e0b;">🏆 LEADERBOARD PEMAIN TERKAYA</h2>
         <p style="font-size:12px; color:#64748b; margin-bottom:12px;">Peringkat pemain berdasarkan total token yang dihasilkan dari ikan (hidup + terjual).</p>
-        
         <div style="background:#f8fafc; border:2px solid #000; border-radius:12px; padding:12px; margin-bottom:12px; text-align:left; max-height:260px; overflow-y:auto;" id="leaderboardList">
             <div style="text-align:center; color:#64748b; padding:20px;">Memuat peringkat pemain...</div>
         </div>
-
         <div style="background:#f1f5f9; border:2px solid #000; border-radius:10px; padding:10px; font-size:12px; margin-bottom:12px; text-align:left;">
             <div>Statistik Kamu: <strong id="lbMyTotal" style="color:#f59e0b;">0 Token</strong></div>
             <div>Booster Dekorasi Aktif: <strong id="lbBoosterVal">0% Berat (tiap 6 jam)</strong></div>
         </div>
-
         <div style="display:flex; gap:10px; justify-content:center;">
             <button class="btn-baja" onclick="closeModal('leaderboardModal')">Tutup</button>
         </div>
     </div>
 </div>
-
 <!-- MODAL GAMBAR IKAN -->
 <div id="drawModal" class="baja-modal">
     <div class="baja-modal-card">
         <h2 style="font-family:'Bangers',cursive; font-size:26px; color:#0284c7;">🎨 GAMBAR IKAN CUSTOM</h2>
         <p style="font-size:13px; font-weight:600; color:#ef4444; margin-bottom:10px;">⚠️ Biaya buat: 25 Token. Ikan baru menetas harganya murah! Rawat & beri pakan agar besar dan bernilai mahal!</p>
-        
         <canvas id="fishCanvas" width="280" height="180" style="border:3px solid #000; border-radius:12px; background:#fff; cursor:crosshair; touch-action: none; user-select: none; -webkit-user-select: none;"></canvas>
-        
         <div style="display:flex; justify-content:center; align-items:center; gap:10px; margin:12px 0;">
             <label style="font-weight:700;">Warna: <input type="color" id="brushColor" value="#0284c7" style="border:none; cursor:pointer; width:32px; height:32px;"></label>
             <label style="font-weight:700;">Tebal: <input type="range" id="brushSize" min="2" max="16" value="6" style="width:100px;"></label>
             <button class="btn-baja" onclick="clearCanvas()" style="padding:4px 10px; font-size:13px;">Hapus</button>
         </div>
-
         <div style="display:flex; gap:10px; justify-content:center; margin-top:14px;">
             <button class="btn-baja btn-yellow" onclick="saveFish()">✨ Ciptakan Ikan</button>
             <button class="btn-baja" onclick="closeModal('drawModal')">Batal</button>
         </div>
     </div>
 </div>
-
 <!-- MODAL JUAL IKAN -->
 <div id="sellModal" class="baja-modal">
     <div class="baja-modal-card">
@@ -398,7 +376,6 @@
         </div>
     </div>
 </div>
-
 <!-- MODAL BELI PAKAN -->
 <div id="foodModal" class="baja-modal">
     <div class="baja-modal-card">
@@ -407,7 +384,6 @@
         <button class="btn-baja" onclick="closeModal('foodModal')" style="margin-top:15px;">Tutup</button>
     </div>
 </div>
-
 <!-- MODAL BELI & GANTI TEMA TANK (20+ TEMA) -->
 <div id="themeModal" class="baja-modal">
     <div class="baja-modal-card" style="max-width:650px;">
@@ -417,7 +393,6 @@
         <button class="btn-baja" onclick="closeModal('themeModal')" style="margin-top:15px;">Tutup</button>
     </div>
 </div>
-
 <!-- MODAL BELI HIASAN TANK -->
 <div id="decorModal" class="baja-modal">
     <div class="baja-modal-card" style="max-width:600px;">
@@ -427,7 +402,6 @@
         <button class="btn-baja" onclick="closeModal('decorModal')" style="margin-top:15px;">Tutup</button>
     </div>
 </div>
-
 <script src="/src/App.js"></script>
 <script>
     // Game State (Hanya modal awal untuk pemula, tidak pernah reset/isi ulang otomatis)
@@ -441,12 +415,10 @@
     let unlockedThemes = ['deep-ocean']; // Default unlocked
     let activeThemeId = 'deep-ocean';
     let currentSellingFish = null;
-
     const tank = document.getElementById('aquariumTank');
     const tokenVal = document.getElementById('tokenVal');
     const foodVal = document.getElementById('foodVal');
     const foodName = document.getElementById('foodName');
-
     // Custom Vector SVG Assets for Seabed Decorations (Anti-Emoji, Professional Sizing)
     const DECORATION_ASSETS = [
         {
@@ -525,7 +497,6 @@
             svg: `<svg viewBox="0 0 140 90" width="140" height="90" class="anim-float"><rect x="50" y="30" width="40" height="30" fill="#cbd5e1" stroke="#000" stroke-width="3"/><rect x="5" y="35" width="35" height="20" fill="#0284c7" stroke="#000" stroke-width="2"/><rect x="100" y="35" width="35" height="20" fill="#0284c7" stroke="#000" stroke-width="2"/><line x1="40" y1="45" x2="50" y2="45" stroke="#000" stroke-width="3"/><line x1="90" y1="45" x2="100" y2="45" stroke="#000" stroke-width="3"/></svg>`
         }
     ];
-
     // 20+ Diverse Themes for Aquarium Tank ONLY with Iconic Embedded Decors & Boosters
     // limitBoost: Batas harian penambahan berat badan per ikan (standar = 1, mahal = 2, 3, 4)
     const TANK_THEMES = [
@@ -595,7 +566,6 @@
             svgStr: `<svg viewBox="0 0 200 200" style="position:absolute; bottom:0; left:10%; width:300px; filter:drop-shadow(0 0 50px #fbbf24);"><path d="M10 200 L60 50 L100 20 L140 50 L190 200 Z" fill="#d97706"/><circle cx="100" cy="20" r="12" fill="#fef08a" style="filter:drop-shadow(0 0 20px #fff);"/></svg>` 
         }
     ];
-
     // Food Types with SVG Vectors (Anti-Emoji, Professional Styling)
     const FOOD_ITEMS = [
         { 
@@ -649,12 +619,10 @@
             svg: `<svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 2 Q18 9 18 15 A6 6 0 0 1 6 15 Q6 9 12 2 Z" fill="#eab308" stroke="#000" stroke-width="1.5"/><circle cx="12" cy="14" r="3" fill="#fef08a"/></svg>`
         }
     ];
-
     function getFishMaxHunger(f) {
         const weight = parseFloat(f.weight || 0.20);
         return Math.max(100, Math.round(100 + Math.max(0, (weight - 0.20) * 250)));
     }
-
     function getFishHungerPercent(f) {
         const maxCap = getFishMaxHunger(f);
         if (f.hungerPoints === undefined) {
@@ -662,7 +630,6 @@
         }
         return Math.min(100, Math.max(0, Math.round((f.hungerPoints / maxCap) * 100)));
     }
-
     function renderFoodSelector() {
         const bar = document.getElementById('foodSelectorBar');
         if (!bar) return;
@@ -693,15 +660,12 @@
             bar.appendChild(pill);
         });
     }
-
     // === FIREBASE PET DATABASE SYNC ===
     let currentUid = null;
     let saveTimeout = null;
-
     function saveAquariumData() {
         const uid = currentUid;
         if (!uid) return;
-        
         const fishData = fishes.map(f => ({
             id: f.id, src: f.src,
             createdAt: f.createdAt || (Date.now() - ((f.age || 0) * 3600 * 1000)),
@@ -712,7 +676,6 @@
             quality: f.quality || 'Biasa', basePrice: f.basePrice || 5,
             x: Math.round(f.x || 50), y: Math.round(f.y || 50)
         }));
-
         const decorData = [];
         document.querySelectorAll('.decor-item').forEach(el => {
             if (el.dataset.decorId) { 
@@ -724,7 +687,6 @@
                 }); 
             }
         });
-
         const statePayload = {
             tokens: tokens, 
             totalSoldTokens: totalSoldTokens,
@@ -738,9 +700,7 @@
             lastFoodDropCheck: lastFoodDropCheck,
             updatedAt: Date.now()
         };
-
         try { localStorage.setItem('baja_aquarium_cache_' + uid, JSON.stringify(statePayload)); } catch(e) {}
-        
         const directFirebaseSave = () => {
             (async () => {
                 const headers = { 'Content-Type': 'application/json' };
@@ -753,7 +713,6 @@
                 }).catch(e => console.warn('Direct RTDB save fallback error:', e));
             })();
         };
-
         // Sync via Backend API jika server aktif, fallback ke direct RTDB
         authenticatedFetch('/api/aquarium/sync', {
             method: 'POST',
@@ -765,12 +724,10 @@
             directFirebaseSave();
         });
     }
-
     function saveAquariumDebounced() {
         if (saveTimeout) clearTimeout(saveTimeout);
         saveTimeout = setTimeout(saveAquariumData, 1500);
     }
-
     function applyAquariumState(data) {
         if (!data) return;
         if (data.tokens !== undefined) tokens = data.tokens;
@@ -807,13 +764,11 @@
         }
         updateStats();
     }
-
     function loadAquariumFromFirebase(uid) {
         try {
             const cached = localStorage.getItem('baja_aquarium_cache_' + uid);
             if (cached) applyAquariumState(JSON.parse(cached));
         } catch(e) {}
-        
         fetch('/api/aquarium/state?uid=' + encodeURIComponent(uid))
             .then(res => res.json())
             .then(data => {
@@ -824,7 +779,6 @@
             })
             .catch(err => console.warn('Backend load error:', err));
     }
-
     function startGame(uid) {
         currentUid = uid;
         document.getElementById('authRequiredNotice').style.display = 'none';
@@ -832,7 +786,6 @@
         loadTheme(activeThemeId);
         loadAquariumFromFirebase(uid);
     }
-
     function playAsGuest() {
         let guestUid = localStorage.getItem('baja_aquarium_local_uid');
         if (!guestUid) {
@@ -841,9 +794,7 @@
         }
         startGame(guestUid);
     }
-
     let myRealName = localStorage.getItem('baja_user_name') || '';
-
     // Check Firebase Login First
     auth.onAuthStateChanged(async user => {
         if (user) {
@@ -873,9 +824,7 @@
             }
         }
     });
-
     window.addEventListener('beforeunload', () => { if (currentUid) saveAquariumData(); });
-
     function updateStats() {
         tokenVal.innerText = tokens;
         foodVal.innerText = inventoryFood[selectedFood] !== undefined ? inventoryFood[selectedFood] : 0;
@@ -883,7 +832,6 @@
         foodName.innerText = cur ? cur.name : 'Pelet Standar';
         renderFoodSelector();
     }
-
     // Bubbles generator
     setInterval(() => {
         if (!tank) return;
@@ -897,7 +845,6 @@
         tank.appendChild(b);
         setTimeout(() => b.remove(), 5000);
     }, 450);
-
     // Monetag Ad Listener via postMessage
     window.addEventListener('message', (event) => {
         if (event.data === 'ad_completed_aquarium') {
@@ -907,7 +854,6 @@
             alert('🎉 Terima kasih! Kamu mendapatkan +5 Token dari iklan!');
         }
     });
-
     // Modal Helpers
     function openModal(id) {
         if (id === 'foodModal') renderFoodCatalog();
@@ -916,13 +862,11 @@
         document.getElementById(id).style.display = 'flex';
     }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
     // Canvas Drawing Logic (Optimasi Touch HP & Mouse Klik Kiri)
     const canvas = document.getElementById('fishCanvas');
     const ctx = canvas.getContext('2d');
     let isDrawing = false;
     let strokes = 0;
-
     function getCanvasCoords(e) {
         const rect = canvas.getBoundingClientRect();
         const scaleX = canvas.width / rect.width;
@@ -932,19 +876,15 @@
             y: (e.clientY - rect.top) * scaleY
         };
     }
-
     canvas.addEventListener('pointerdown', (e) => {
         // Hanya responsif terhadap klik kiri mouse (button 0) atau sentuhan layar HP (touch)
         if (e.pointerType === 'mouse' && e.button !== 0) return;
-        
         isDrawing = true;
         try { canvas.setPointerCapture(e.pointerId); } catch(err) {}
-
         ctx.strokeStyle = document.getElementById('brushColor').value;
         ctx.lineWidth = document.getElementById('brushSize').value;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
-
         const pos = getCanvasCoords(e);
         ctx.beginPath();
         ctx.moveTo(pos.x, pos.y);
@@ -952,7 +892,6 @@
         ctx.stroke();
         strokes++;
     });
-
     canvas.addEventListener('pointermove', (e) => {
         if (!isDrawing) return;
         const pos = getCanvasCoords(e);
@@ -962,35 +901,29 @@
         ctx.stroke();
         strokes++;
     });
-
     const stopDrawing = (e) => {
         if (isDrawing) {
             isDrawing = false;
             try { canvas.releasePointerCapture(e.pointerId); } catch(err) {}
         }
     };
-
     canvas.addEventListener('pointerup', stopDrawing);
     canvas.addEventListener('pointercancel', stopDrawing);
-
     function clearCanvas() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         strokes = 0;
     }
-
     function openDrawModal() {
         if (tokens < 25) return alert('Token tidak cukup! Biaya membuat ikan adalah 25 Token.');
         clearCanvas();
         openModal('drawModal');
     }
-
     function getFishAgeDays(f) {
         if (!f.createdAt) {
             f.createdAt = Date.now() - ((f.age || 0) * 3600 * 1000);
         }
         return Math.max(0, (Date.now() - f.createdAt) / (1000 * 60 * 60 * 24));
     }
-
     function formatFishAge(f) {
         const days = getFishAgeDays(f);
         if (days >= 7) {
@@ -1007,20 +940,16 @@
         const totalMins = Math.max(1, Math.floor(days * 24 * 60));
         return totalHours >= 1 ? `${totalHours} jam` : `${totalMins} menit`;
     }
-
     function saveFish() {
         if (strokes < 10) return alert('Silakan gambar bentuk ikan terlebih dahulu!');
         tokens -= 25;
         updateStats();
-
         const imgData = canvas.toDataURL('image/png');
         // Kualitas ikan: Bagus / Legendaris / Biasa
         const isSuper = strokes > 80 || Math.random() > 0.4;
         const quality = isSuper ? (strokes > 140 ? 'Legendaris' : 'Bagus') : 'Biasa';
-        
         // SANGAT PENTING: Ikan BARU MENETAS harganya SANGAT MURAH (5-8 token)!
         const basePrice = quality === 'Legendaris' ? 12 : (quality === 'Bagus' ? 8 : 5);
-
         const fish = {
             id: Date.now(),
             src: imgData,
@@ -1032,68 +961,56 @@
             x: Math.random() * (tank.offsetWidth - 110),
             y: Math.random() * (tank.offsetHeight - 90)
         };
-
         fishes.push(fish);
         spawnFishDOM(fish);
         closeModal('drawModal');
         saveAquariumData();
     }
-
     function spawnFishDOM(f) {
         const el = document.createElement('div');
         el.className = 'fish';
         el.id = 'fish-' + f.id;
         el.style.left = f.x + 'px';
         el.style.top = f.y + 'px';
-
         const img = document.createElement('img');
         img.src = f.src;
         // Visual size scales dynamically with weight!
         const initialWidth = Math.min(130, Math.max(45, Math.floor(45 + (f.weight * 22))));
         img.style.width = initialWidth + 'px';
         el.appendChild(img);
-
         const badge = document.createElement('div');
         badge.className = 'fish-badge';
         badge.innerText = `${f.quality} • ${f.weight.toFixed(2)}kg`;
         el.appendChild(badge);
-
         el.addEventListener('click', () => openSellFishModal(f));
         tank.appendChild(el);
     }
-
     // Fish Loop: Hunger, Movement & Dynamic Size Scaling (Umur dihitung real-time dari createdAt)
     setInterval(() => {
         fishes.forEach(f => {
             const el = document.getElementById('fish-' + f.id);
             if (!el) return;
-
             const maxCap = getFishMaxHunger(f);
             if (f.hungerPoints === undefined) {
                 f.hungerPoints = Math.round(((f.hunger !== undefined ? f.hunger : 100) / 100) * maxCap);
             }
-
             // Pengurangan lapar (poin) sangat lambat dan santai
             f.hungerPoints = Math.max(0, f.hungerPoints - 0.05);
             f.hunger = getFishHungerPercent(f);
-
             f.x += (Math.random() - 0.5) * 80;
             f.y += (Math.random() - 0.5) * 60;
             f.x = Math.max(20, Math.min(tank.offsetWidth - 120, f.x));
             f.y = Math.max(20, Math.min(tank.offsetHeight - 100, f.y));
-
             const flip = Math.random() > 0.5;
             el.style.transform = flip ? 'scaleX(-1)' : 'scaleX(1)';
             el.style.left = f.x + 'px';
             el.style.top = f.y + 'px';
-
             // Scale visual size dynamically as weight grows!
             const img = el.querySelector('img');
             if (img) {
                 const scaledWidth = Math.min(140, Math.max(45, Math.floor(45 + (parseFloat(f.weight) * 22))));
                 img.style.width = scaledWidth + 'px';
             }
-
             const badge = el.querySelector('.fish-badge');
             if (f.hunger < 30) {
                 el.style.opacity = '0.5';
@@ -1106,26 +1023,20 @@
             }
         });
     }, 2200);
-
     // Feed Fish (HANYA 1 BUTIR PAKAN, diambil oleh 1 ikan yang paling lapar)
     function feedFish() {
         if (inventoryFood[selectedFood] <= 0) {
             return alert('Pakan jenis ini habis! Beli di Toko Pakan.');
         }
         if (fishes.length === 0) return alert('Belum ada ikan di aquarium! Buat ikan terlebih dahulu.');
-
         const curFood = FOOD_ITEMS.find(x => x.id === selectedFood);
-
         // Pilih 1 ikan secara acak agar pemberian pakan tidak selalu tertuju ke 1 ikan yang sama
         const targetFish = fishes[Math.floor(Math.random() * fishes.length)];
         const fishDom = document.getElementById('fish-' + targetFish.id);
-
         inventoryFood[selectedFood]--;
         updateStats();
-
         // Tentukan koordinat jatuh 1 butir pakan
         const pelletX = targetFish ? Math.max(30, Math.min(tank.offsetWidth - 50, targetFish.x + 30)) : (Math.random() * (tank.offsetWidth - 60) + 30);
-
         // Render pakan dalam bentuk SVG Vector, bukan Emoji
         const p = document.createElement('div');
         p.style.position = 'absolute';
@@ -1137,7 +1048,6 @@
         p.style.transition = 'top 1.6s ease-in';
         p.style.zIndex = '6';
         tank.appendChild(p);
-
         // Ikan tersebut berenang mengejar pakan!
         if (fishDom) {
             targetFish.x = Math.max(20, Math.min(tank.offsetWidth - 120, pelletX - 30));
@@ -1146,26 +1056,21 @@
             fishDom.style.top = targetFish.y + 'px';
             fishDom.style.transform = (pelletX > targetFish.x) ? 'scaleX(1)' : 'scaleX(-1)';
         }
-
         setTimeout(() => {
             p.style.top = Math.max(30, Math.min(tank.offsetHeight - 45, targetFish.y + 15)) + 'px';
         }, 30);
-
         // Saat pakan sampai, ikan terpilih memakannya
         setTimeout(() => {
             p.remove();
-            
             // Memberi pakan selalu menambah poin kenyang
             const maxCap = getFishMaxHunger(targetFish);
             targetFish.hungerPoints = Math.min(maxCap, (targetFish.hungerPoints || 0) + curFood.fillPoints);
             targetFish.hunger = getFishHungerPercent(targetFish);
-
             // Batas menambah berat badan: standar 1x sehari, tapi di tema yang lebih mahal di-boost menjadi 2x, 3x, hingga 4x sehari!
             const boosterLimit = getThemeBoosterLimit();
             const todayStr = new Date().toISOString().split('T')[0];
             if (!targetFish.weightGainsToday) targetFish.weightGainsToday = {};
             const dailyGains = targetFish.weightGainsToday[todayStr] || 0;
-
             if (dailyGains < boosterLimit) {
                 // Peluang menambah berat sesuai persentase pakan (vitamin = 10% peluang, 90% tidak nambah berat)
                 if (Math.random() < (curFood.weightChance || 0.25)) {
@@ -1174,7 +1079,6 @@
                     targetFish.weight = parseFloat((currentWeight + 0.05).toFixed(3));
                 }
             }
-
             if (fishDom) {
                 const badge = fishDom.querySelector('.fish-badge');
                 if (badge) {
@@ -1193,20 +1097,16 @@
             saveAquariumDebounced();
         }, 1600);
     }
-
     // Sell Fish Modal
     function openSellFishModal(f) {
         currentSellingFish = f;
         const modal = document.getElementById('sellModal');
         const preview = document.getElementById('sellPreview');
         const info = document.getElementById('sellInfo');
-
         preview.innerHTML = `<img src="${f.src}" style="max-width:140px; border:2px solid #000; border-radius:10px; background:#f1f5f9; padding:8px;">`;
-        
         const wVal = parseFloat(f.weight || 0.2);
         const ageDays = getFishAgeDays(f);
         const ageWeeks = Math.floor(ageDays / 7);
-
         // Aturan perbandingan berat: Legendaris 1kg = 1 Token, kualitas di bawahnya lebih murah
         let ratePerKg = 0.2; // Biasa: 0.2 Token/kg
         if (f.quality === 'Legendaris') {
@@ -1214,22 +1114,17 @@
         } else if (f.quality === 'Bagus') {
             ratePerKg = 0.5;
         }
-        
         // Harga murni dari berat badan ikan saat ini
         const weightValue = wVal * ratePerKg;
-
         // Bonus Umur: minimal 1 minggu naik 0.1% per minggu dari nilai dasar
         const ageBonusPercent = ageWeeks >= 1 ? (ageWeeks * 0.1) : 0;
         const ageBonusTokens = (f.basePrice || 0) * (ageBonusPercent / 100);
-
         // Total Harga Jual = Modal Awal + Harga Berat + Bonus Umur
         const sellPrice = parseFloat(((f.basePrice || 0) + weightValue + ageBonusTokens).toFixed(2));
-        
         // Modal pembuatan ikan adalah 25 Token!
         const creationCost = 25;
         const isProfitable = sellPrice > creationCost;
         const diff = Math.abs(sellPrice - creationCost).toFixed(2);
-
         info.innerHTML = `
             <div>Kualitas: <strong style="color:#0284c7;">${f.quality}</strong></div>
             <div>Rate Jual: <strong>${ratePerKg} Token per Kg</strong></div>
@@ -1240,7 +1135,6 @@
                 Harga Jual: <strong>${sellPrice} Token</strong> (${isProfitable ? 'Untung' : 'Rugi'})
             </div>
         `;
-
         document.getElementById('btnConfirmSell').onclick = () => {
             tokens += sellPrice;
             totalSoldTokens += sellPrice;
@@ -1252,10 +1146,8 @@
             saveAquariumData();
             alert(`🎉 Ikan dijual seharga ${sellPrice} Token!`);
         };
-
         openModal('sellModal');
     }
-
     // Catalogs Renderers
     function renderFoodCatalog() {
         const wrap = document.getElementById('foodCatalog');
@@ -1282,7 +1174,6 @@
             wrap.appendChild(c);
         });
     }
-
     function renderThemeCatalog() {
         const wrap = document.getElementById('themeCatalog');
         wrap.innerHTML = '';
@@ -1312,12 +1203,10 @@
             wrap.appendChild(c);
         });
     }
-
     function getThemeBoosterLimit() {
         const target = TANK_THEMES.find(x => x.id === activeThemeId);
         return target ? (target.limitBoost || 1) : 1;
     }
-
     function loadTheme(id) {
         activeThemeId = id;
         const target = TANK_THEMES.find(x => x.id === id);
@@ -1339,7 +1228,6 @@
             embedLayer.innerHTML = target.svgStr || '';
         }
     }
-
     function renderDecorCatalog() {
         const wrap = document.getElementById('decorCatalog');
         wrap.innerHTML = '';
@@ -1355,61 +1243,50 @@
                 if (tokens < d.cost) return alert('Token tidak cukup!');
                 tokens -= d.cost;
                 updateStats();
-                
                 spawnDecorOnSeabed(d);
                 closeModal('decorModal');
             };
             wrap.appendChild(c);
         });
     }
-
     // Spawn & Drag Seabed Decorations (Locked firmly on seabed, draggable horizontally)
     function spawnDecorOnSeabed(d, savedLeft, savedTop, savedBottom) {
         const item = document.createElement('div');
         item.className = 'decor-item ' + (d.anim || '');
         item.dataset.decorId = d.id;
         item.innerHTML = d.svg;
-        
         let initialX = savedLeft ? parseFloat(savedLeft) : (Math.random() * (tank.offsetWidth - d.width - 20) + 10);
         item.style.left = initialX + 'px';
-        
         if (d.allowFloat) {
             let initialY = savedTop ? parseFloat(savedTop) : (Math.random() * (tank.offsetHeight - d.height - 80) + 30);
             item.style.top = initialY + 'px';
         } else {
             item.style.bottom = savedBottom || '5px';
         }
-
         // Horizontal & Vertical Dragging (jika allowFloat bebas melayang di air)
         item.addEventListener('pointerdown', (e) => {
             item.setPointerCapture(e.pointerId);
             const startX = e.clientX - item.offsetLeft;
             const startY = e.clientY - item.offsetTop;
-            
             item.onpointermove = (ev) => {
                 let newX = ev.clientX - startX;
                 newX = Math.max(5, Math.min(tank.offsetWidth - d.width - 5, newX));
                 item.style.left = newX + 'px';
-
                 if (d.allowFloat) {
                     let newY = ev.clientY - startY;
                     newY = Math.max(20, Math.min(tank.offsetHeight - d.height - 20, newY));
                     item.style.top = newY + 'px';
                 }
             };
-
             item.onpointerup = (ev) => {
                 item.releasePointerCapture(ev.pointerId);
                 item.onpointermove = null;
                 saveAquariumDebounced();
             };
         });
-
         tank.appendChild(item);
         saveAquariumDebounced();
     }
-
-    
     // === LEADERBOARD & DECORATION PASSIVE BOOSTERS ===
     function getFishEstimatedValue(f) {
         const wVal = parseFloat(f.weight || 0.2);
@@ -1423,7 +1300,6 @@
         const ageBonusTokens = (f.basePrice || 0) * (ageBonusPercent / 100);
         return parseFloat(((f.basePrice || 0) + weightValue + ageBonusTokens).toFixed(2));
     }
-
     function calculateDecorationBoosters() {
         let totalWeightBoost = 0;
         let totalFoodChance = 0;
@@ -1439,7 +1315,6 @@
         totalWeightBoost = Math.min(1.0, totalWeightBoost);
         return { totalWeightBoost, totalFoodChance };
     }
-
     function openLeaderboardModal() {
         let aliveTokens = 0;
         fishes.forEach(f => {
@@ -1447,16 +1322,12 @@
         });
         aliveTokens = parseFloat(aliveTokens.toFixed(2));
         const myTotal = parseFloat((aliveTokens + totalSoldTokens).toFixed(2));
-
         const { totalWeightBoost } = calculateDecorationBoosters();
-
         document.getElementById('lbMyTotal').innerText = myTotal + ' Token (Ikan Hidup: ' + aliveTokens + ', Terjual: ' + totalSoldTokens.toFixed(2) + ')';
         document.getElementById('lbBoosterVal').innerText = '+' + totalWeightBoost.toFixed(4) + '% Berat (tiap 6 jam)';
-
         const listEl = document.getElementById('leaderboardList');
         listEl.innerHTML = '<div style="text-align:center; color:#64748b; padding:16px;">Memuat peringkat pemain...</div>';
         openModal('leaderboardModal');
-
         // Helper render leaderboard array
         const renderLeaderboardList = (lbArray) => {
             if (!lbArray || lbArray.length === 0) {
@@ -1468,7 +1339,6 @@
                 `;
                 return;
             }
-
             let html = '';
             lbArray.forEach((p, idx) => {
                 const rank = idx + 1;
@@ -1477,7 +1347,6 @@
                 const playerName = isMe ? (myRealName || p.name || 'Alfan') : (p.name || 'Pemain ' + (p.uid ? p.uid.substring(0, 5) : ''));
                 const bg = isMe ? '#fef08a' : (rank <= 3 ? '#ffffff' : '#f8fafc');
                 const border = isMe ? '2px solid #ca8a04' : '1px solid #cbd5e1';
-
                 html += `
                     <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px; margin-bottom:6px; background:${bg}; border:${border}; border-radius:8px;">
                         <div style="display:flex; align-items:center; gap:8px;">
@@ -1493,7 +1362,6 @@
             });
             listEl.innerHTML = html;
         };
-
         // Fetch direct Firebase RTDB with safe normalization & real name resolution
         fetch('https://baja-pet-default-rtdb.asia-southeast1.firebasedatabase.app/aquarium.json')
             .then(res => res.json())
@@ -1507,11 +1375,9 @@
                 for (const [uid, userState] of Object.entries(allAquarium)) {
                     if (!userState) continue;
                     let aliveValue = 0;
-                    
                     // Handle fishes whether array or object
                     let rawFishes = userState.fishes || [];
                     let fishList = Array.isArray(rawFishes) ? rawFishes : (typeof rawFishes === 'object' ? Object.values(rawFishes) : []);
-
                     fishList.forEach(f => {
                         if (!f) return;
                         const wVal = parseFloat(f.weight || 0.2);
@@ -1526,15 +1392,12 @@
                         const ageBonusTokens = (f.basePrice || 0) * (ageBonusPercent / 100);
                         aliveValue += ((f.basePrice || 0) + weightVal + ageBonusTokens);
                     });
-
                     const totalSold = parseFloat(userState.totalSoldTokens || 0);
                     const totalScore = parseFloat((aliveValue + totalSold).toFixed(2));
-                    
                     let displayName = userState.displayName;
                     if (!displayName) {
                         displayName = (uid === currentUid) ? (myRealName || 'Alfan') : ('Pemain ' + uid.substring(0, 5).toUpperCase());
                     }
-
                     leaderboard.push({
                         uid: uid,
                         name: displayName,
@@ -1559,7 +1422,6 @@
                 } else if (currentUid) {
                     leaderboard.push(myEntry);
                 }
-
                 leaderboard.sort((a, b) => b.totalTokens - a.totalTokens);
                 renderLeaderboardList(leaderboard);
             })
@@ -1568,12 +1430,10 @@
                 renderLeaderboardList([]);
             });
     }
-
     // Passive Decoration Boost Loop (Cek berkala untuk interval 6 jam dan 1 jam)
     setInterval(() => {
         const now = Date.now();
         const { totalWeightBoost, totalFoodChance } = calculateDecorationBoosters();
-
         // 1. Booster Penambahan Berat (Setiap 6 Jam)
         if (now - lastWeightBoostCheck >= 6 * 3600 * 1000) {
             lastWeightBoostCheck = now;
@@ -1586,7 +1446,6 @@
                 saveAquariumDebounced();
             }
         }
-
         // 2. Booster Kemungkinan Drop Pakan (Setiap 1 Jam)
         if (now - lastFoodDropCheck >= 3600 * 1000) {
             lastFoodDropCheck = now;
@@ -1598,7 +1457,6 @@
             }
         }
     }, 60000);
-
     updateStats();
 </script>
 </body>

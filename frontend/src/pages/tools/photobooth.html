@@ -5,8 +5,7 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6758288522431201" crossorigin="anonymous"></script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Photobooth — BAJA</title>
-<meta name="description" content="Bilik foto online untuk membuat photo strip keren langsung dari browser."/>
+<title>Photobooth Online Gratis dengan Stiker — BAJA</title>
 <link rel="icon" href="/src/assets/img/Logo.svg"/>
 <link rel="stylesheet" href="/src/assets/css/style.css"/>
 <link rel="stylesheet" href="/src/assets/css/responsive.css"/>
@@ -19,12 +18,14 @@
 <script src="/src/services/photobooth-mp.js"></script>
 <link rel="stylesheet" href="/src/assets/css/photobooth.css"/>
 <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
+<meta name="description" content="Abadikan momen dengan Photobooth online gratis dari BAJA. Gunakan kamera laptop atau HP, tambahkan stiker lucu, dan unduh strip foto langsung."/>
+<meta name="keywords" content="photobooth online, web photobooth gratis, foto box online, stiker foto online, cetak strip foto"/>
+<meta name="robots" content="index, follow"/>
+<meta property="og:title" content="Photobooth Online Gratis dengan Stiker — BAJA"/>
+<meta property="og:description" content="Abadikan momen dengan Photobooth online gratis dari BAJA. Gunakan kamera laptop atau HP, tambahkan stiker lucu, dan unduh strip foto langsung."/>
+<meta property="og:type" content="website"/>
 </head>
 <body>
-
-    
-    
-
 <!-- TOP NAVBAR -->
 <nav class="navbar" id="navbar">
   <div class="nav-container">
@@ -35,13 +36,11 @@
     <div class="nav-actions"><a href="aquarium.html" style="color:#fff; text-decoration:none; font-weight:700; background:rgba(56,189,248,0.2); padding:6px 12px; border-radius:8px;">🐠 Aquarium</a></div>
   </div>
 </nav>
-
 <div class="pb-header">
   <div class="pb-title">📸 PHOTOBOOTH STUDIO</div>
   <p style="margin-top:8px;opacity:0.8;font-size:14px;font-weight:500;">Pilih tata letak, jepret fotomu berurutan, dan unduh hasilnya!</p>
   <button id="btnToggleMp" style="margin-top:16px; background:#fff; color:#000; font-family:'Bangers',cursive; font-size:18px; padding:8px 24px; border:3px solid #000; border-radius:8px; box-shadow:4px 4px 0 #000; cursor:pointer; transition:all 0.2s; letter-spacing:1px;">👥 MULTIPLAYER MODE</button>
 </div>
-
 <div id="mpPanel" class="mp-panel" style="max-width:600px; margin:24px auto 0; display:none;">
   <!-- Voice Chat Multiplayer (Hanya Muncul Saat Terhubung dengan Teman) -->
   <div id="voice-chat-mp" style="display:none; padding:10px; background:#e0f2fe; border:2px solid #0284c7; border-radius:8px; margin:10px 0; text-align:center;">
@@ -53,13 +52,11 @@
     <p style="margin:12px 0;">Anda harus login untuk menggunakan fitur Multiplayer WebRTC.</p>
     <a href="/src/pages/auth.html" class="mp-btn-action" style="display:inline-block; text-decoration:none; width:auto; padding:12px 32px;">Ke Halaman Login</a>
   </div>
-
   <div id="mpRoomBlock" style="display:none;">
     <div class="mp-tabs">
       <button class="mp-tab-btn active" id="tabCreate">Buat Room</button>
       <button class="mp-tab-btn" id="tabJoin">Gabung Room</button>
     </div>
-
     <div id="paneCreate">
       <div class="mp-room-info">
         <div>Bagikan ID ini ke temanmu:</div>
@@ -68,16 +65,13 @@
       </div>
       <button class="mp-btn-action" id="btnCreateRoom">🏠 Buka Room Baru</button>
     </div>
-
     <div id="paneJoin" style="display:none;">
       <input type="text" class="mp-input" id="inpRoomId" placeholder="MASUKKAN 6 DIGIT ID" maxlength="6">
       <button class="mp-btn-action" id="btnJoinRoom">🚀 Gabung ke Room</button>
     </div>
-
     <div class="mp-status" id="mpStatusMsg">Status: Menunggu aksi...</div>
   </div>
 </div>
-
 <div class="pb-layout">
   <!-- Kiri: Kamera & Tombol -->
   <div class="pb-cam-section">
@@ -102,7 +96,6 @@
         🤳 Kamera Depan
       </div>
     </div>
-    
     <!-- Baris tombol: Capture + Flip Kamera -->
     <div style="display:flex; gap:12px; align-items:stretch; width:100%;">
       <button class="btn-capture" id="btnCapture" disabled style="flex:1;">
@@ -113,7 +106,6 @@
         🔄
       </button>
     </div>
-
     <!-- Filter Foto dipindah ke sini -->
     <div class="control-label" style="margin-top:20px;">Filter Foto (Geser)</div>
     <div class="filter-grid" style="margin-bottom: 12px;">
@@ -126,20 +118,16 @@
       <button class="filter-btn" data-filter="hue-rotate(90deg)">Alien</button>
       <button class="filter-btn" data-filter="invert(100%)">Invert</button>
     </div>
-
     <!-- Tombol Hapus Watermark — langsung terlihat di bawah tombol kamera -->
     <div id="wmTaskContainer" style="background:rgba(244,114,182,0.15); border:2px dashed #f472b6; border-radius:16px; padding:16px; text-align:center;">
         <p style="color:#f8fafc; font-size:14px; margin:0 0 12px 0;">✨ <strong>Ada watermark di foto?</strong><br>Klik tombol di bawah untuk menghapusnya:</p>
-        
         <!-- Iframe Khusus untuk Tombol Iklan agar tidak membajak klik lain -->
         <iframe src="monetag-btn.html" style="width:100%; height:55px; border:none; overflow:hidden; border-radius:12px;" scrolling="no"></iframe>
-
         <div id="wmScriptWrap" style="margin-top:8px; min-height:10px;">
         <!-- Script CPA telah dipindah ke bagian Head -->
       </div>
     </div>
   </div>
-
   <!-- Kanan: Preview & Pengaturan -->
   <div class="pb-preview-section">
     <div class="pb-controls">
@@ -148,7 +136,6 @@
         <button class="layout-btn active" data-slots="3">3 Foto</button>
         <button class="layout-btn" data-slots="4">4 Foto</button>
       </div>
-      
       <div class="control-label" style="margin-top:20px; display: flex; justify-content: space-between; align-items: center;">
         <span>2. Pilih Tema Bingkai</span>
         <button id="btnToggleThemes" style="background: none; border: none; color: #38bdf8; font-size: 12px; font-weight: bold; cursor: pointer; padding: 0;">Lihat Semua</button>
@@ -161,7 +148,6 @@
         <button class="theme-btn" data-type="batik" data-bg="#5c3a21" data-text="#fcd34d" style="background:#5c3a21;color:#fcd34d;border:1px solid #8b5a2b;">Batik</button>
         <button class="theme-btn" data-type="checker" data-bg="#ffffff" data-text="#000000" style="background:repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 50% / 20px 20px; color:#fff; text-shadow:0 0 4px #000;">Checker</button>
         <button class="theme-btn" data-type="vaporwave" data-bg="#2e0854" data-text="#00ffcc" style="background:linear-gradient(180deg, #2e0854, #ff007f); color:#00ffcc;">Vaporwave</button>
-        
         <!-- Tema tanpa emoji -->
         <button class="theme-btn" data-type="hearts" data-bg="#ffe4e6" data-text="#be123c" style="background:#ffe4e6; color:#be123c;">Hearts</button>
         <button class="theme-btn" data-type="clouds" data-bg="#bae6fd" data-text="#0ea5e9" style="background:#bae6fd; color:#0ea5e9;">Clouds</button>
@@ -169,11 +155,9 @@
         <button class="theme-btn" data-type="paws" data-bg="#ffedd5" data-text="#ea580c" style="background:#ffedd5; color:#ea580c;">Paws</button>
         <button class="theme-btn" data-type="daisy" data-bg="#dcfce7" data-text="#16a34a" style="background:#dcfce7; color:#16a34a;">Daisy</button>
         <button class="theme-btn" data-type="candy" data-bg="#fbcfe8" data-text="#db2777" style="background:repeating-linear-gradient(45deg, #fbcfe8, #fbcfe8 20px, #ffffff 20px, #ffffff 40px); border-color:#f9a8d4; color:#db2777;">Candy</button>
-        
         <button class="theme-btn" data-type="matrix" data-bg="#000000" data-text="#00ff00" style="background:#000; color:#0f0; font-family:monospace;">Matrix</button>
         <button class="theme-btn" data-type="blueprint" data-bg="#1e3a8a" data-text="#ffffff" style="background:#1e3a8a; background-image:linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px); background-size:8px 8px; color:#fff; text-shadow:0 1px 2px #000;">Blueprint</button>
         <button class="theme-btn" data-type="dots" data-bg="#fcd34d" data-text="#000000" style="background:#fcd34d; background-image:radial-gradient(rgba(0,0,0,0.2) 15%, transparent 16%); background-size:10px 10px; color:#000;">Polkadot</button>
-
         <!-- Tema Baru Estetik -->
         <button class="theme-btn" data-type="geometric" data-bg="#f3f4f6" data-text="#111827" style="background:#f3f4f6; color:#111827;">Geometric</button>
         <button class="theme-btn" data-type="cyberpunk" data-bg="#09090b" data-text="#fde047" style="background:#09090b; color:#fde047; border-color:#fde047;">Cyberpunk</button>
@@ -186,8 +170,6 @@
         <button class="theme-btn" data-type="ocean" data-bg="#ecfeff" data-text="#083344" style="background:linear-gradient(180deg, #67e8f9, #0891b2); color:#fff;">Ocean</button>
         <button class="theme-btn" data-type="vintage" data-bg="#fef3c7" data-text="#451a03" style="background:#fef3c7; color:#78350f; border:1px solid #d97706;">Vintage</button>
       </div>
-
-
       <details style="margin-top:20px; background:#f9f9f9; padding:10px; border-radius:8px; border:2px solid #000; cursor:pointer;">
 <summary style="font-weight:bold; font-size:16px;">📸 Elemen (Stiker & Frame)</summary>
 <div class="control-label" style="margin-top:10px;">3. Tambah Stiker (Bisa digeser & diubah ukuran)</div>
@@ -198,9 +180,7 @@
         <button class="sticker-btn" data-src="/src/assets/img/stickers/party-hat.svg"><img src="/src/assets/img/stickers/party-hat.svg"></button>
         <button class="sticker-btn" data-src="/src/assets/img/stickers/sparkle.svg"><img src="/src/assets/img/stickers/sparkle.svg"></button>
       </div>
-
       </details>
-      
       <div class="strip-container" style="margin-top: 20px;">
         <div class="canvas-wrapper" style="position: relative; display: inline-block;">
           <label style="display:block; margin: 10px 0; font-weight:bold; background:#fff; color:#000; padding:10px; border-radius:8px; border:2px solid #ccc; width:fit-content;">🎨 Manual Warna Frame: 
@@ -210,12 +190,10 @@
         <div id="stickerLayer" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden;"></div>
       </div>
     </div>
-
     <button class="btn-download" id="btnDownload">⬇️ Instal / Simpan Photobooth</button>
     <button class="btn-reset" id="btnReset">🔄 Ulangi Sesi Foto</button>
   </div>
 </div>
-
 <!-- Multiplayer Animation Overlay -->
 <div id="mpAnimOverlay" class="mp-overlay">
   <div class="mp-overlay-content">
@@ -223,10 +201,8 @@
     <p style="font-weight:700; margin-top:10px;">Mulai berpose dengan temanmu!</p>
   </div>
 </div>
-
 <!-- Offscreen Canvas for capturing -->
 <canvas id="captureCanvas" style="display:none;"></canvas>
-
 <script src="/src/App.js"></script>
 <script>
   const video = document.getElementById('webcam');
@@ -235,12 +211,10 @@
   const captureCount = document.getElementById('captureCount');
   const btnDownload = document.getElementById('btnDownload');
   const btnReset = document.getElementById('btnReset');
-  
   const stripCanvas = document.getElementById('stripCanvas');
   const ctx = stripCanvas.getContext('2d');
   const captureCanvas = document.getElementById('captureCanvas');
   const capCtx = captureCanvas.getContext('2d');
-
   // State
   var stream       = null;
   let photos       = [];          // Array of Image objects atau DataURLs
@@ -252,7 +226,6 @@
   let facingMode   = 'user';     // 'user' = depan, 'environment' = belakang
   let isSwitching  = false;      // Guard agar tidak switch ganda
   const btnFlipCam = document.getElementById('btnFlipCam');
-
   const logoImg = new Image();
   // Path presisi ke Logo.svg dengan fallback aman untuk local server & GitHub Pages
   logoImg.src = '../../assets/img/Logo.svg';
@@ -266,7 +239,6 @@
       logoImg.src = '/src/assets/img/Logo.svg';
     }
   };
-
   // Multiplayer State
   var isMultiplayer = false;
   var isHost = false;
@@ -275,28 +247,24 @@
   var remoteStream = null;
   let iceCandidateQueue = []; // Queue ICE candidates until remote description is set
   let heartbeatInterval = null; // Keep room alive
-  
   // DOM Elements for MP
   const remoteVideo = document.getElementById('remoteVideo');
   const camContainer = document.getElementById('camContainer');
   const localVideoWrap = document.getElementById('localVideoWrap');
   const remoteVideoWrap = document.getElementById('remoteVideoWrap');
   const badgeLocal = document.getElementById('badgeLocal');
-  
   const ICE_SERVERS = {
     iceServers: [
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun1.l.google.com:19302' }
     ]
   };
-
   // Setup UI Listeners
   document.querySelectorAll('.layout-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       document.querySelectorAll('.layout-btn').forEach(b => b.classList.remove('active'));
       e.target.classList.add('active');
       const newSlots = parseInt(e.target.dataset.slots);
-      
       if (newSlots < photos.length) {
         // If downgrading slots and we have too many photos, slice them
         photos = photos.slice(0, newSlots);
@@ -306,7 +274,6 @@
       renderStrip();
     });
   });
-
   document.querySelectorAll('.theme-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
@@ -317,13 +284,11 @@
       renderStrip();
     });
   });
-
   btnReset.addEventListener('click', () => {
     photos = [];
     updateUI();
     renderStrip();
   });
-
   btnDownload.addEventListener('click', () => {
     const stickerLayer = document.getElementById('stickerLayer');
     const stickerItems = stickerLayer.querySelectorAll('.sticker-item');
@@ -331,52 +296,41 @@
       const canvasRect = stripCanvas.getBoundingClientRect();
       const scaleX = stripCanvas.width / canvasRect.width;
       const scaleY = stripCanvas.height / canvasRect.height;
-      
       // Render ulang strip agar bersih (menghindari tumpukan jika didownload berkali-kali)
       renderStrip();
-      
       stickerItems.forEach(item => {
         const img = item.querySelector('img');
         const itemRect = item.getBoundingClientRect();
-        
         // Hitung posisi dan dimensi aktual terhadap resolusi canvas asli
         const x = (itemRect.left - canvasRect.left) * scaleX;
         const y = (itemRect.top - canvasRect.top) * scaleY;
         const w = itemRect.width * scaleX;
         const h = itemRect.height * scaleY;
-        
         ctx.drawImage(img, x, y, w, h);
       });
-
       // Render watermark LAGI di atas stiker sehingga watermark & logo TIDAK AKAN PERNAH tertutup stiker!
       if (hasWatermark) {
         drawWatermark();
       }
     }
-
     const link = document.createElement('a');
     link.download = `BAJA_Photobooth_${Date.now()}.jpg`;
     link.href = stripCanvas.toDataURL('image/jpeg', 0.9);
     link.click();
   });
-
   // ══════════════════════════════════════════
   // CAMERA SETUP
   // ══════════════════════════════════════════
-
   /* Mulai stream kamera dengan facingMode yang ditentukan */
   async function startCamera(facing) {
     facing = facing || facingMode; // default ke state global
-
     // Stop stream lama terlebih dahulu
     if (stream) {
       stream.getTracks().forEach(t => t.stop());
       stream = null;
     }
-
     // Mirror video: depan = mirror, belakang = tidak
     video.style.transform = (facing === 'user') ? 'scaleX(-1)' : 'scaleX(1)';
-
     try {
       try {
         stream = await navigator.mediaDevices.getUserMedia({
@@ -399,22 +353,18 @@
         video.play();
         camStatus.style.display = 'none';
         btnCapture.disabled = false;
-
         // Sesuaikan canvas dengan resolusi kamera
         captureCanvas.width  = video.videoWidth;
         captureCanvas.height = video.videoHeight;
-
         // Update badge indikator kamera aktif
         const badge = document.getElementById('camFacingBadge');
         if (badge) {
           badge.style.display = 'block';
           badge.textContent = (facing === 'user') ? '🤳 Kamera Depan' : '📷 Kamera Belakang';
         }
-
         // Update icon & tooltip tombol flip
         btnFlipCam.title = (facing === 'user') ? 'Ganti ke Kamera Belakang' : 'Ganti ke Kamera Depan';
         btnFlipCam.innerHTML = (facing === 'user') ? '🔄' : '🤳';
-
         renderStrip();
       };
     } catch (err) {
@@ -428,48 +378,37 @@
       }
     }
   }
-
   /* Toggle kamera depan ↔ belakang */
   async function switchCamera() {
     if (isSwitching || isMultiplayer) return; // Tidak tersedia saat multiplayer
     isSwitching = true;
-
     // Animasi rotate tombol
     btnFlipCam.style.transform = 'rotate(180deg)';
     btnFlipCam.disabled = true;
     btnCapture.disabled = true;
-
     facingMode = (facingMode === 'user') ? 'environment' : 'user';
-
     // Update tooltip tombol
     btnFlipCam.title = (facingMode === 'user') ? 'Ganti ke Kamera Belakang' : 'Ganti ke Kamera Depan';
-
     await startCamera(facingMode);
-
     setTimeout(() => {
       btnFlipCam.style.transform = 'rotate(0deg)';
       btnFlipCam.disabled  = false;
       isSwitching = false;
     }, 400);
   }
-
   btnFlipCam.addEventListener('click', switchCamera);
   btnFlipCam.style.transition = 'transform 0.4s ease, box-shadow 0.2s';
-
   // Helper: Gambar frame video ke canvas dengan object-fit: cover proporsional (mengisi penuh frame tanpa gepeng/kolom hitam)
   function drawCover(ctx, videoEl, destX, destY, destW, destH, mirror = false) {
     const sw = videoEl.videoWidth;
     const sh = videoEl.videoHeight;
     if (!sw || !sh) return;
-
     const sAspect = sw / sh;
     const dAspect = destW / destH;
-
     let cropW = sw;
     let cropH = sh;
     let cropX = 0;
     let cropY = 0;
-
     if (sAspect > dAspect) {
       // Source lebih lebar: potong kiri & kanan
       cropW = sh * dAspect;
@@ -479,7 +418,6 @@
       cropH = sw / dAspect;
       cropY = (sh - cropH) / 2;
     }
-
     ctx.save();
     ctx.translate(destX, destY);
     if (mirror) {
@@ -489,42 +427,33 @@
     ctx.drawImage(videoEl, cropX, cropY, cropW, cropH, 0, 0, destW, destH);
     ctx.restore();
   }
-
   // Capture Logic
   btnCapture.addEventListener('click', () => {
     if (photos.length >= maxSlots) return;
-
     if (typeof window.syncCaptureToRemote === 'function') {
       window.syncCaptureToRemote();
     }
-
     // Flash effect on video
     video.style.opacity = '0';
     if(isMultiplayer) remoteVideo.style.opacity = '0';
-    
     setTimeout(() => {
       video.style.opacity = '1';
       if(isMultiplayer) remoteVideo.style.opacity = '1';
     }, 100);
-
     // Draw current video frame to hidden canvas
     capCtx.save();
     capCtx.filter = currentFilter;
-    
     // KUNCI: Kanvas tangkapan harus selalu 4:3 (1200x900) agar sinkron dengan ukuran slot photo strip.
     // Jangan gunakan videoWidth/videoHeight asli karena HP menghasilkan rasio portrait (9:16) yang akan terpotong parah saat di-render.
     const frameW = 1200;
     const frameH = 900;
     captureCanvas.width  = frameW;
     captureCanvas.height = frameH;
-
     if (isMultiplayer) {
       // Gambar 2 pemain berdampingan (masing-masing 600x900)
       const halfW = frameW / 2;
-
       // Kiri — Player 1 (Local)
       drawCover(capCtx, video, 0, 0, halfW, frameH, facingMode === 'user');
-
       // Kanan — Player 2 (Remote)
       // Mirroring di-set ke true agar tampilan teman natural seperti cermin
       drawCover(capCtx, remoteVideo, halfW, 0, halfW, frameH, true);
@@ -532,11 +461,8 @@
       // Single player (Penuh 1200x900)
       drawCover(capCtx, video, 0, 0, frameW, frameH, facingMode === 'user');
     }
-    
     capCtx.restore();
-
     const dataUrl = captureCanvas.toDataURL('image/jpeg', 0.85);
-    
     // Load it into an Image object for drawing later
     const img = new Image();
     img.onload = () => {
@@ -546,12 +472,9 @@
     };
     img.src = dataUrl;
   });
-
   function updateUI() {
     captureCount.textContent = `${photos.length}/${maxSlots}`;
     const watermark = document.getElementById('taskWatermark');
-
-    
     if (photos.length >= maxSlots) {
       btnCapture.disabled = true;
       btnCapture.innerHTML = '<span>✅ Frame Penuh</span>';
@@ -561,24 +484,20 @@
       btnCapture.innerHTML = `<span>📸 Ambil Foto</span> <span style="background:rgba(0,0,0,0.3);padding:4px 12px;border-radius:20px;font-size:14px;">${photos.length}/${maxSlots}</span>`;
       btnDownload.style.display = 'none';
     }
-
     btnReset.style.display = photos.length > 0 ? 'block' : 'none';
   }
-
   // Event Listener untuk menerima pesan dari iframe tombol Monetag
   window.addEventListener('message', function(event) {
     if (event.data === 'remove_watermark_clicked') {
       removeWatermark();
     }
   });
-
   // Fungsi menghapus watermark
   function removeWatermark() {
     if (!('Notification' in window) || !('serviceWorker' in navigator)) {
       showToast('Browser Anda tidak mendukung fitur ini.', false);
       return;
     }
-
     // Minta izin notifikasi sebagai "tugas" iklan (Push Ads)
     Notification.requestPermission().then((permission) => {
       if (permission === 'granted') {
@@ -586,7 +505,6 @@
         navigator.serviceWorker.register('sw.js').then(() => {
           console.log('[Push Ads] Service Worker terdaftar.');
         }).catch(err => console.error('[Push Ads] Error:', err));
-
         // Hapus watermark dari photobooth
         hasWatermark = false;
         document.getElementById('wmTaskContainer').style.display = 'none';
@@ -598,7 +516,6 @@
       }
     });
   }
-
   // Render the Photobooth Strip
   function renderStrip() {
     // Canvas dimensions setup
@@ -611,13 +528,10 @@
     // We extend the bottom empty space from 120 to 180 so it's longer when printed.
     // Jika watermark dihilangkan, tetap berikan margin bawah (120px) agar proporsi "photo strip" klasik tidak terpotong.
     const bottomPadding = hasWatermark ? 180 : 120; 
-
     const stripWidth = photoWidth + (padding * 2);
     const stripHeight = padding + (maxSlots * photoHeight) + ((maxSlots - 1) * spacing) + bottomPadding;
-
     stripCanvas.width = stripWidth;
     stripCanvas.height = stripHeight;
-
     // Draw background
     if (currentTheme.type === 'holo') {
       const grad = ctx.createLinearGradient(0, 0, stripWidth, stripHeight);
@@ -635,7 +549,6 @@
       ctx.fillStyle = currentTheme.bg;
     }
     ctx.fillRect(0, 0, stripWidth, stripHeight);
-    
     // Draw pattern overlays
     if (currentTheme.type === 'film') {
       ctx.fillStyle = '#ffffff';
@@ -684,7 +597,6 @@
           ctx.lineTo(x - 20, y);
           ctx.closePath();
           ctx.stroke();
-          
           ctx.fillStyle = 'rgba(252, 211, 77, 0.15)';
           ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI*2); ctx.fill();
         }
@@ -1018,22 +930,18 @@
       g2.addColorStop(0, 'rgba(120, 53, 15, 0.2)'); g2.addColorStop(0.1, 'transparent'); g2.addColorStop(0.9, 'transparent'); g2.addColorStop(1, 'rgba(120, 53, 15, 0.2)');
       ctx.fillStyle = g2; ctx.fillRect(0, 0, stripWidth, stripHeight);
     }
-    
     // Draw placeholders or photos
     for (let i = 0; i < maxSlots; i++) {
       const yPos = padding + (i * (photoHeight + spacing));
-      
       if (photos[i]) {
         // Draw the captured photo (object-fit: cover equivalent)
         const img = photos[i];
         const imgRatio = img.width / img.height;
         const targetRatio = photoWidth / photoHeight;
-        
         let srcW = img.width;
         let srcH = img.height;
         let srcX = 0;
         let srcY = 0;
-        
         if (imgRatio > targetRatio) {
            srcW = img.height * targetRatio;
            srcX = (img.width - srcW) / 2;
@@ -1041,13 +949,11 @@
            srcH = img.width / targetRatio;
            srcY = (img.height - srcH) / 2;
         }
-        
         ctx.drawImage(img, srcX, srcY, srcW, srcH, padding, yPos, photoWidth, photoHeight);
       } else {
         // Draw empty placeholder
         ctx.fillStyle = currentTheme.bg === '#ffffff' ? '#f1f5f9' : 'rgba(255,255,255,0.1)';
         ctx.fillRect(padding, yPos, photoWidth, photoHeight);
-        
         ctx.fillStyle = currentTheme.bg === '#ffffff' ? '#cbd5e1' : 'rgba(255,255,255,0.2)';
         ctx.font = 'bold 32px sans-serif';
         ctx.textAlign = 'center';
@@ -1055,11 +961,9 @@
         ctx.fillText(`Slot ${i+1}`, padding + photoWidth/2, yPos + photoHeight/2);
       }
     }
-
     // Gambar watermark di lapisan atas
     drawWatermark();
   }
-
   function drawWatermark() {
     if (!hasWatermark) return;
     const photoWidth = 600;
@@ -1070,18 +974,14 @@
     const bottomPadding = 180;
     const stripWidth = photoWidth + (padding * 2);
     const stripHeight = padding + (maxSlots * photoHeight) + ((maxSlots - 1) * spacing) + bottomPadding;
-
     ctx.textBaseline = 'middle';
-    
     const photoBottom = stripHeight - bottomPadding;
     ctx.globalAlpha = 1.0;
     ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
     ctx.fillRect(0, photoBottom - 40, stripWidth, 40);
-    
     ctx.fillStyle = '#000';
     ctx.font = 'bold 24px sans-serif';
     const stripCenterY = photoBottom - 20;
-    
     if (isLogoLoaded) {
       const logoSize2 = 28;
       const gap2 = 12;
@@ -1096,11 +996,9 @@
       ctx.textAlign = 'center';
       ctx.fillText('⚡ Dibuat dengan BAJA WEB', stripWidth / 2, stripCenterY);
     }
-    
     ctx.fillStyle = currentTheme.text;
     ctx.font = 'bold 40px sans-serif';
     const textY = photoBottom + (bottomPadding / 2) - 15;
-    
     if (isLogoLoaded) {
       const logoSize = 64;
       const gap = 16;
@@ -1114,7 +1012,6 @@
       ctx.textAlign = 'center';
       ctx.fillText('⚡ BAJA', stripWidth / 2, textY);
     }
-    
     ctx.textAlign = 'center';
     ctx.font = '500 20px sans-serif';
     ctx.globalAlpha = 0.6;
@@ -1122,18 +1019,15 @@
     ctx.fillText(today, stripWidth / 2, textY + 50);
     ctx.globalAlpha = 1.0;
   }
-
   // --- MULTIPLAYER LOGIC ---
   const btnToggleMp = document.getElementById('btnToggleMp');
   const mpPanel = document.getElementById('mpPanel');
   const mpAuthBlock = document.getElementById('mpAuthBlock');
   const mpRoomBlock = document.getElementById('mpRoomBlock');
-  
   const tabCreate = document.getElementById('tabCreate');
   const tabJoin = document.getElementById('tabJoin');
   const paneCreate = document.getElementById('paneCreate');
   const paneJoin = document.getElementById('paneJoin');
-  
   const txtRoomId = document.getElementById('txtRoomId');
   const btnCreateRoom = document.getElementById('btnCreateRoom');
   const btnCopyRoom = document.getElementById('btnCopyRoom');
@@ -1141,11 +1035,9 @@
   const btnJoinRoom = document.getElementById('btnJoinRoom');
   const mpStatusMsg = document.getElementById('mpStatusMsg');
   const mpAnimOverlay = document.getElementById('mpAnimOverlay');
-
   btnToggleMp.addEventListener('click', () => {
     mpPanel.style.display = (mpPanel.style.display === 'none' || mpPanel.style.display === '') ? 'block' : 'none';
   });
-
   tabCreate.addEventListener('click', () => {
     tabCreate.classList.add('active'); tabJoin.classList.remove('active');
     paneCreate.style.display = 'block'; paneJoin.style.display = 'none';
@@ -1154,7 +1046,6 @@
     tabJoin.classList.add('active'); tabCreate.classList.remove('active');
     paneJoin.style.display = 'block'; paneCreate.style.display = 'none';
   });
-
   // Check auth
   auth.onAuthStateChanged(user => {
     if (user) {
@@ -1165,7 +1056,6 @@
       mpRoomBlock.style.display = 'none';
     }
   });
-
   // ─── CREATE ROOM ───
   btnCreateRoom.addEventListener('click', () => {
     btnCreateRoom.disabled = true;
@@ -1175,7 +1065,6 @@
     }
     setTimeout(() => { btnCreateRoom.disabled = false; }, 1000);
   });
-
   btnCopyRoom.addEventListener('click', () => {
     const txt = txtRoomId.textContent;
     if (txt === '------') { mpStatusMsg.textContent = '⚠️ Buat room dulu!'; return; }
@@ -1184,7 +1073,6 @@
       setTimeout(() => btnCopyRoom.textContent = 'Salin ID', 2000);
     });
   });
-
   // ─── JOIN ROOM ───
   btnJoinRoom.addEventListener('click', () => {
     const roomId = inpRoomId.value.trim().toUpperCase();
@@ -1195,7 +1083,6 @@
     }
     setTimeout(() => { btnJoinRoom.disabled = false; }, 1000);
   });
-
   // Sync theme to Firebase when host changes it
   document.querySelectorAll('.theme-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1204,7 +1091,6 @@
       }
     });
   });
-
   function updateManualColor(hex) {
     currentTheme.type = 'solid';
     currentTheme.bg = hex;
@@ -1216,11 +1102,9 @@
     currentTheme.text = yiq >= 128 ? '#000000' : '#ffffff';
     renderStrip();
   }
-
   // Toggle Show All Themes
   const btnToggleThemes = document.getElementById('btnToggleThemes');
   const themeGrid = document.querySelector('.theme-grid');
-  
   if (btnToggleThemes && themeGrid) {
     btnToggleThemes.addEventListener('click', () => {
       themeGrid.classList.toggle('show-all');
@@ -1231,18 +1115,15 @@
       }
     });
   }
-
   // --- STICKER LOGIC ---
   const stickerLayerDOM = document.getElementById('stickerLayer');
   const stickerBtns = document.querySelectorAll('.sticker-btn');
   let stickerZIndex = 10;
-  
   stickerBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       addSticker(btn.getAttribute('data-src'));
     });
   });
-  
   function addSticker(src) {
     const stickerDiv = document.createElement('div');
     stickerDiv.className = 'sticker-item';
@@ -1250,32 +1131,25 @@
     stickerDiv.style.left = '40%';
     stickerDiv.style.top = '40%';
     stickerDiv.style.pointerEvents = 'auto';
-    
     const img = document.createElement('img');
     img.src = src;
     img.draggable = false;
-    
     const closeBtn = document.createElement('button');
     closeBtn.className = 'sticker-close';
     closeBtn.innerHTML = '×';
     closeBtn.onclick = (e) => { e.stopPropagation(); stickerDiv.remove(); };
-    
     const resizeHandle = document.createElement('div');
     resizeHandle.className = 'sticker-resize';
-    
     stickerDiv.appendChild(img);
     stickerDiv.appendChild(closeBtn);
     stickerDiv.appendChild(resizeHandle);
     stickerLayerDOM.appendChild(stickerDiv);
-    
     setupStickerEvents(stickerDiv, resizeHandle, img);
   }
-  
   function setupStickerEvents(stickerDiv, resizeHandle, img) {
     let isDragging = false;
     let isResizing = false;
     let startX, startY, startLeft, startTop, startWidth;
-    
     stickerDiv.addEventListener('pointerdown', (e) => {
       if (e.target === resizeHandle || e.target.classList.contains('sticker-close')) return;
       isDragging = true;
@@ -1293,7 +1167,6 @@
       }
       stickerDiv.setPointerCapture(e.pointerId);
     });
-    
     stickerDiv.addEventListener('pointermove', (e) => {
       if (!isDragging) return;
       const dx = e.clientX - startX;
@@ -1301,12 +1174,10 @@
       stickerDiv.style.left = (startLeft + dx) + 'px';
       stickerDiv.style.top = (startTop + dy) + 'px';
     });
-    
     stickerDiv.addEventListener('pointerup', (e) => {
       isDragging = false;
       stickerDiv.releasePointerCapture(e.pointerId);
     });
-    
     resizeHandle.addEventListener('pointerdown', (e) => {
       e.stopPropagation();
       isResizing = true;
@@ -1315,20 +1186,17 @@
       startWidth = img.offsetWidth;
       resizeHandle.setPointerCapture(e.pointerId);
     });
-    
     resizeHandle.addEventListener('pointermove', (e) => {
       if (!isResizing) return;
       const dx = e.clientX - startX;
       const newWidth = Math.max(30, startWidth + dx);
       img.style.width = newWidth + 'px';
     });
-    
     resizeHandle.addEventListener('pointerup', (e) => {
       isResizing = false;
       resizeHandle.releasePointerCapture(e.pointerId);
     });
   }
-
   // --- FILTER LOGIC ---
   const filterBtns = document.querySelectorAll('.filter-btn');
   filterBtns.forEach(btn => {
@@ -1336,21 +1204,14 @@
       filterBtns.forEach(b => b.classList.remove('active'));
       e.target.classList.add('active');
       currentFilter = e.target.getAttribute('data-filter');
-      
       // Terapkan ke live preview kamera
       if (video) video.style.filter = currentFilter;
-      
       // Terapkan juga ke foto yang sudah diambil (render ulang)
       if (photos.length > 0) renderStrip();
     });
   });
-
-
-
   // Initialize
   startCamera();
-
-
   let isMicMuted = false;
   function toggleVoiceMute() {
     isMicMuted = !isMicMuted;
@@ -1365,7 +1226,6 @@
       btn.style.color = '#000';
     }
   }
-
   // Monitor connection (mock hook or real) to show/hide voice-chat
   setInterval(() => {
      if (isMultiplayer && (remoteVideo.srcObject || badgeRemote.style.display !== 'none')) {
@@ -1374,7 +1234,6 @@
         document.getElementById('voice-chat-mp').style.display = 'none';
      }
   }, 1000);
-
 </script>
 </body>
 </html>

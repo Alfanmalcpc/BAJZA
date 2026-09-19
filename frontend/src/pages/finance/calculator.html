@@ -2,18 +2,20 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta name="google-adsense-account" content="ca-pub-6758288522431201">
-
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Trading Calculator — BAJA</title>
-<meta name="description" content="Free trading simulation calculator. Calculate P&L, risk management, stop-loss, and take-profit levels."/>
+<title>Kalkulator Investasi & Trading Keuangan — BAJA</title>
 <link rel="icon" href="/src/assets/img/Logo.svg"/>
 <link rel="stylesheet" href="/src/assets/css/style.css"/>
-
 <link rel="stylesheet" href="/src/assets/css/finance-calc.css"/>
 <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
+<meta name="description" content="Hitung potensi profit, risiko trading, compound interest, dan perencanaan keuangan Anda dengan kalkulator investasi gratis dari BAJA."/>
+<meta name="keywords" content="kalkulator investasi, kalkulator trading, hitung compound interest, kalkulator profit saham, kalkulator kripto"/>
+<meta name="robots" content="index, follow"/>
+<meta property="og:title" content="Kalkulator Investasi & Trading Keuangan — BAJA"/>
+<meta property="og:description" content="Hitung potensi profit, risiko trading, compound interest, dan perencanaan keuangan Anda dengan kalkulator investasi gratis dari BAJA."/>
+<meta property="og:type" content="website"/>
 </head>
 <body>
-
 <!-- TOP NAVBAR -->
 <nav class="navbar" id="navbar">
   <div class="nav-container">
@@ -26,7 +28,6 @@
     </div>
   </div>
 </nav>
-
 <div class="page-header" style="background:linear-gradient(180deg,rgba(59,130,246,.08) 0%,transparent 100%)">
   <div class="container">
     <div class="section-badge">🧮 Trading Calculator</div>
@@ -34,23 +35,18 @@
     <p>Calculate P&amp;L, risk/reward ratio, and position sizing before making any trade. For simulation only.</p>
   </div>
 </div>
-
 <section class="section" style="padding-top:32px">
   <div class="container">
     </div>
   </div>
 </section>
-
 <footer class="footer"><div class="container"><div class="footer-bottom" style="border-top:none;padding-top:0"><span>© 2025 BAJA</span><a href="/public/index.html">← Finance Hub</a></div></div></footer>
-
 </div>
-
 <!-- Floating Back Button -->
 <a href="/public/index.html" class="fab-back" id="fabBack" aria-label="Back to Finance">
   <span class="fab-arrow">←</span>
   <span>BACK</span>
 </a>
-
 <button id="scrollTop">↑</button>
 <script src="/src/App.js"></script>
 <script>
@@ -65,7 +61,6 @@ document.getElementById('shortBtn').addEventListener('click', () => {
   document.getElementById('shortBtn').classList.add('active');
   document.getElementById('longBtn').classList.remove('active');
 });
-
 document.getElementById('calcBtn').addEventListener('click', () => {
   const entry = parseFloat(document.getElementById('entryPrice').value);
   const exit = parseFloat(document.getElementById('exitPrice').value);
@@ -74,11 +69,9 @@ document.getElementById('calcBtn').addEventListener('click', () => {
   const feeRate = parseFloat(document.getElementById('feeRate').value) / 100 || 0;
   const sl = parseFloat(document.getElementById('stopLoss').value);
   const tp = parseFloat(document.getElementById('takeProfit').value);
-
   if (!entry || !exit || !capital) {
     alert('Please fill in Entry Price, Exit Price, and Capital.'); return;
   }
-
   const positionSize = capital * leverage;
   const qty = positionSize / entry;
   const rawPnl = tradeType === 'long' ? (exit - entry) * qty : (entry - exit) * qty;
@@ -90,7 +83,6 @@ document.getElementById('calcBtn').addEventListener('click', () => {
   const slLoss = !isNaN(sl) ? Math.abs(tradeType==='long' ? (sl - entry)*qty : (entry - sl)*qty) : null;
   const tpProfit = !isNaN(tp) ? Math.abs(tradeType==='long' ? (tp - entry)*qty : (entry - tp)*qty) : null;
   const riskPct = slLoss ? (slLoss / capital * 100) : null;
-
   const panel = document.getElementById('resultsPanel');
   panel.innerHTML = `
     <div class="result-card">

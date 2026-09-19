@@ -2,20 +2,21 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta name="google-adsense-account" content="ca-pub-6758288522431201">
-
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Video Downloader — BAJA</title>
-<meta name="description" content="Download video dan audio dari TikTok, Instagram, dan YouTube secara gratis. Tanpa watermark, cepat, dan mudah digunakan."/>
-<meta name="keywords" content="download video tiktok, download video instagram, download youtube, video downloader, audio downloader, tanpa watermark"/>
+<title>Video & Audio Downloader Tanpa Watermark — BAJA</title>
 <link rel="icon" href="/src/assets/img/Logo.svg"/>
 <link rel="stylesheet" href="/src/assets/css/style.css"/>
-
 <link rel="stylesheet" href="/src/assets/css/downloader.css"/>
 <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
+<meta name="description" content="Download video dan audio dari TikTok, Instagram, dan YouTube secara gratis tanpa watermark, cepat, dan mudah digunakan langsung di HP atau PC."/>
+<meta name="keywords" content="download video tiktok, download video ig, youtube downloader mp3, download tanpa watermark, video downloader online gratis"/>
+<meta name="robots" content="index, follow"/>
+<meta property="og:title" content="Video & Audio Downloader Tanpa Watermark — BAJA"/>
+<meta property="og:description" content="Download video dan audio dari TikTok, Instagram, dan YouTube secara gratis tanpa watermark, cepat, dan mudah digunakan langsung di HP atau PC."/>
+<meta property="og:type" content="website"/>
 </head>
 <body class="downloader-page">
-
 <!-- TOP NAVBAR -->
 <nav class="navbar" id="navbar">
   <div class="nav-container">
@@ -28,7 +29,6 @@
     </div>
   </div>
 </nav>
-
 <!-- HERO -->
 <section class="dl-hero" style="padding-top:100px;">
   <div class="dl-hero-orb dl-hero-orb-1"></div>
@@ -43,7 +43,6 @@
     <p class="dl-hero-sub">
       Unduh video dan audio dari platform favorit kamu. Gratis, cepat, dan tanpa watermark.
     </p>
-
     <!-- Platform Tabs -->
     <div class="platform-tabs" id="platformTabs">
       <button class="platform-tab active" data-platform="tiktok" id="tab-tiktok">
@@ -59,8 +58,6 @@
         YouTube
       </button>
     </div>
-
-    
     <!-- URL Input -->
     <div class="dl-input-wrap">
       <div class="dl-input-box">
@@ -75,19 +72,14 @@
     </div>
   </div>
 </section>
-
 <!-- MAIN CONTENT -->
 <div class="dl-main">
   <div class="container">
-
     <!-- Result Area -->
     <div id="resultArea" style="display:none;"></div>
-
     <hr class="dl-divider" style="margin-top:16px;">
-
     <!-- Two column layout -->
     <div style="display:grid;grid-template-columns:1fr 360px;gap:40px;align-items:start;" class="dl-two-col">
-
       <!-- Left -->
       <div>
         <!-- TikTok Info -->
@@ -123,7 +115,6 @@
             </div>
           </div>
         </div>
-
         <!-- Instagram Info -->
         <div class="platform-info" id="info-instagram">
           <div class="dl-section-label">📸 Instagram Downloader</div>
@@ -157,7 +148,6 @@
             </div>
           </div>
         </div>
-
         <!-- YouTube Info -->
         <div class="platform-info" id="info-youtube">
           <div class="dl-section-label">▶️ YouTube Downloader</div>
@@ -191,10 +181,7 @@
             </div>
           </div>
         </div>
-
-
       </div>
-
       <!-- Right sidebar -->
       <div>
         <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:24px;margin-bottom:20px;">
@@ -215,7 +202,6 @@
             </div>
           </div>
         </div>
-
         <div style="background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:16px;padding:24px;margin-bottom:20px;">
           <div class="dl-section-label">💡 Tips</div>
           <div style="color:#fff;font-size:14px;font-weight:700;margin-bottom:12px;">Agar Download Berhasil</div>
@@ -226,7 +212,6 @@
             <li style="color:rgba(255,255,255,.65);font-size:13px;display:flex;gap:8px;align-items:flex-start;"><span style="color:#a78bfa;flex-shrink:0;">▸</span>Jika satu layanan gagal, coba yang lain</li>
           </ul>
         </div>
-
         <div style="background:rgba(255,100,0,.06);border:1px solid rgba(255,100,0,.2);border-radius:16px;padding:20px;">
           <div style="display:flex;gap:10px;align-items:flex-start;">
             <span style="font-size:20px;">⚖️</span>
@@ -242,7 +227,6 @@
     </div>
   </div>
 </div>
-
 <!-- Download Modal -->
 <div class="dl-modal-overlay" id="dlModal">
   <div class="dl-modal">
@@ -273,7 +257,6 @@
     </div>
   </div>
 </div>
-
 <!-- Sponsor Gate: kualitas tinggi -->
 <div class="quality-gate-overlay" id="qualityGate" role="dialog" aria-modal="true" aria-labelledby="qualityGateTitle">
   <div class="quality-gate">
@@ -288,18 +271,14 @@
     <p class="quality-gate-footnote">Akses gratis tersedia untuk 360p/480p dan audio MP3. Kualitas akhir bergantung pada video sumber.</p>
   </div>
 </div>
-
 <!-- Toast -->
 <div class="dl-toast" id="dlToast"></div>
-
 <!-- Back Button -->
 <a href="/public/index.html" class="fab-back" id="fabBack" aria-label="Back to Tools" style="background:#1a1a2e;border:1px solid rgba(255,255,255,.15);color:#fff;">
   <span class="fab-arrow">←</span>
   <span>BACK</span>
 </a>
-
 <button id="scrollTop" style="background:linear-gradient(135deg,#7c3aed,#06b6d4);">↑</button>
-
 <!-- Bottom Navigation -->
 <nav class="bottom-nav" style="background:#0f0f1a;border-top:1px solid rgba(255,255,255,.08);">
   <a href="/public/index.html" class="bottom-nav-link" style="color:rgba(255,255,255,.5);">
@@ -319,7 +298,6 @@
     <span class="bottom-nav-text">Tutorial</span>
   </a>
 </nav>
-
 <script src="/src/App.js"></script>
 <script>
 // ─── LAYANAN DOWNLOAD PER PLATFORM ─────────────────────────────────────────
@@ -404,7 +382,6 @@ const SERVICES = {
     }
   ]
 };
-
 // ─── FORMAT OPTIONS (untuk kartu pilihan di result card) ───────────────────
 const FORMATS = {
   tiktok: [
@@ -428,9 +405,7 @@ const FORMATS = {
     { name:'Audio MP3', icon:'Audio', desc:'Hanya suara · MP3', isAudio:true, supported:['MP3','Audio'] }
   ]
 };
-
 const HIGH_QUALITY_NOTE = 'Kualitas akhir bergantung pada resolusi video sumber dan ketersediaan dari platform.';
-
 const HINTS = {
   tiktok:'Contoh: https://www.tiktok.com/@user/video/1234567890',
   instagram:'Contoh: https://www.instagram.com/reel/ABCxyz123/',
@@ -442,15 +417,12 @@ const DOMAINS = {
   instagram:['instagram.com','instagr.am'],
   youtube:['youtube.com','youtu.be','yt.be']
 };
-
 let currentPlatform = 'tiktok';
 window._currentDlUrl = '';
-
 // ─── TAB SWITCHING ─────────────────────────────────────────────────────────
 document.querySelectorAll('.platform-tab').forEach(tab => {
   tab.addEventListener('click', () => switchPlatform(tab.dataset.platform));
 });
-
 function switchPlatform(p) {
   currentPlatform = p;
   document.querySelectorAll('.platform-tab').forEach(t => t.classList.remove('active'));
@@ -461,11 +433,8 @@ function switchPlatform(p) {
   document.getElementById('inputIcon').textContent = ICONS[p];
   selectedFormatIndex = 0;
   renderServices(p);
-  
   document.getElementById('resultArea').style.display = 'none';
 }
-
-
 function renderServices(p) {
   const grid = document.getElementById('servicesGrid');
   grid.innerHTML = FORMATS[p].map((s,i) => `
@@ -477,7 +446,6 @@ function renderServices(p) {
     </div>
   `).join('');
 }
-
 // ─── AUTO-DETECT PLATFORM ──────────────────────────────────────────────────
 document.getElementById('videoUrl').addEventListener('input', function() {
   const url = this.value.trim();
@@ -486,7 +454,6 @@ document.getElementById('videoUrl').addEventListener('input', function() {
     if (domains.some(d => url.includes(d))) { switchPlatform(p); break; }
   }
 });
-
 // ─── PASTE BUTTON ─────────────────────────────────────────────────────────
 document.getElementById('pasteBtn').addEventListener('click', async () => {
   try {
@@ -499,13 +466,10 @@ document.getElementById('pasteBtn').addEventListener('click', async () => {
     showToast('❌ Tidak dapat akses clipboard. Gunakan Ctrl+V');
   }
 });
-
 document.getElementById('videoUrl').addEventListener('keydown', e => { if (e.key === 'Enter') handleDownload(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 document.getElementById('goBtn').addEventListener('click', handleDownload);
 // Initialize top services on load
-
-
 // ─── HANDLE DOWNLOAD (main entry) ─────────────────────────────────────────
 function handleDownload() {
   const url = document.getElementById('videoUrl').value.trim();
@@ -522,14 +486,12 @@ function handleDownload() {
   showToast('Mendeteksi video dan opsi kualitas...');
   showResults(url);
 }
-
 // ─── SHOW RESULT CARD ────────────────────────────────────────────────────
 function showResults(url) {
   const fmts = FORMATS[currentPlatform];
   const resultArea = document.getElementById('resultArea');
   resultArea.style.display = 'block';
   const shortUrl = url.length > 55 ? url.substring(0, 55) + '...' : url;
-
   resultArea.innerHTML = `
     <div class="result-card result-detected">
       <div class="result-media">
@@ -563,17 +525,11 @@ function showResults(url) {
     </div>`;
   resultArea.scrollIntoView({ behavior:'smooth', block:'start' });
 }
-
 function triggerDownloadFromResult(idx) { triggerDownload(idx); }
-
 // ─── TRIGGER DOWNLOAD — buka layanan terpilih ─────────────────────────────
-
-
 // ─── MODAL PILIHAN LAYANAN ────────────────────────────────────────────────
-
 // ─── TRIGGER DOWNLOAD — PROSES API LANGSUNG ─────────────────────────────
 let pendingDownloadTask = null;
-
 window.addEventListener('message', function(event) {
   if (event.data === 'unlock_hd_download') {
     closeQualityGate();
@@ -585,7 +541,6 @@ window.addEventListener('message', function(event) {
     }
   }
 });
-
 function openQualityGate(fmt, url, platform) {
   pendingDownloadTask = { fmt, url, platform, isAudio: fmt.isAudio };
   const gate = document.getElementById('qualityGate');
@@ -593,19 +548,16 @@ function openQualityGate(fmt, url, platform) {
   const summary = document.getElementById('qualityGateSummary');
   title.textContent = `Buka Unduhan ${fmt.name}`;
   summary.innerHTML = `Platform: <strong>${platform.toUpperCase()}</strong> · Format: <strong>${fmt.name}</strong><br><span style="color:#f59e0b;font-size:12px;">Tonton / klik iklan sponsor singkat di bawah untuk melanjutkan unduhan resolusi tinggi.</span>`;
-  
   const frame = document.getElementById('qualityAdFrame');
   if (frame) {
     frame.src = '/src/pages/tools/monetag-video-hd-btn.html?t=' + Date.now();
   }
   gate.classList.add('open');
 }
-
 function closeQualityGate() {
   const gate = document.getElementById('qualityGate');
   if (gate) gate.classList.remove('open');
 }
-
 function triggerDownload(idx) {
   const url = window._currentDlUrl || document.getElementById('videoUrl').value.trim();
   if (!url) {
@@ -616,26 +568,20 @@ function triggerDownload(idx) {
     showToast('❌ Link tidak valid.');
     return;
   }
-  
   const fmt = FORMATS[currentPlatform][idx];
   const isAudio = fmt.isAudio;
-  
   if (fmt.requiresAd) {
     openQualityGate(fmt, url, currentPlatform);
     return;
   }
-  
   fetchVideoDirect(url, currentPlatform, isAudio, fmt);
 }
-
 async function fetchVideoDirect(url, platform, isAudio, fmt) {
   openModal(fmt.icon, fmt.name, isAudio);
   setModalProgress(15, 'Menganalisis link...');
-
   try {
     let resultUrl = '';
     let resultTitle = `BAJA_${platform}_${isAudio ? 'audio' : (fmt.quality || 'video')}`;
-
     if (platform === 'tiktok') {
       setModalProgress(40, 'Mengekstrak data TikTok...');
       const res = await fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`);
@@ -654,14 +600,12 @@ async function fetchVideoDirect(url, platform, isAudio, fmt) {
     else {
       // YouTube / IG using public API aggregators
       setModalProgress(30, `Memproses link ${platform} (${fmt.name})...`);
-      
       const cobaltInstances = [
         { url: 'https://api.cobalt.tools', v: 11 },
         { url: 'https://co.wuk.sh', v: 7 },
         { url: 'https://cobalt.api.sbe.sh', v: 11 },
         { url: 'https://api.vreden.web.id/api/ytmp4?url=', v: 'get' }
       ];
-      
       let success = false;
       const requestedQuality = fmt.quality || '720';
       for (let instance of cobaltInstances) {
@@ -671,13 +615,11 @@ async function fetchVideoDirect(url, platform, isAudio, fmt) {
           const reqBody = instance.v === 11 
             ? JSON.stringify({ url: url, isAudioOnly: isAudio, videoQuality: requestedQuality, filenamePattern: 'nerdy' })
             : JSON.stringify({ url: url, isAudioOnly: isAudio, vQuality: requestedQuality });
-            
           const res = await fetch(ep, {
             method: 'POST',
             headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
             body: reqBody
           });
-          
           const data = await res.json();
           if (data && data.url) {
             resultUrl = data.url; success = true; break;
@@ -688,30 +630,24 @@ async function fetchVideoDirect(url, platform, isAudio, fmt) {
           // ignore instance fail
         }
       }
-      
       if (!success) {
         console.warn("Direct APIs failed, falling back to manual services mode.");
         showServiceModalFallback(url, fmt);
         return; 
       }
     }
-
     setModalProgress(100, 'Berhasil! Menyiapkan file...');
-    
     const safeTitle = resultTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase();
     const ext = isAudio ? 'mp3' : 'mp4';
     showModalDownload(resultUrl, `${safeTitle}.${ext}`);
-
   } catch(e) {
     console.error(e);
     showServiceModalFallback(url, fmt);
   }
 }
-
 // ─── FALLBACK JIKA API GAGAL (MANUAL MODE) ────────────────────────────────
 function showServiceModalFallback(videoUrl, fmt) {
   const services = SERVICES[currentPlatform];
-  
   document.getElementById('modalIcon').textContent = fmt.icon;
   document.getElementById('modalTitle').textContent = `Server Penuh — Pilih Layanan Alternatif`;
   document.getElementById('modalBody').innerHTML =
@@ -719,7 +655,6 @@ function showServiceModalFallback(videoUrl, fmt) {
   document.getElementById('modalUrl').style.display = 'none';
   document.getElementById('modalProgress').style.display = 'none';
   document.getElementById('modalError').style.display = 'none';
-
   const wrap = document.getElementById('modalDownloadWrap');
   wrap.style.display = 'block';
   wrap.innerHTML = services.map(svc => `
@@ -736,11 +671,8 @@ function showServiceModalFallback(videoUrl, fmt) {
       <span style="margin-left:auto;background:rgba(255,255,255,.2);padding:3px 10px;border-radius:99px;font-size:10px;font-weight:700;white-space:nowrap;">${svc.badge}</span>
     </a>
   `).join('');
-
   document.getElementById('dlModal').classList.add('open');
 }
-
-
 // ─── MODAL HELPERS ────────────────────────────────────────────────────────
 function openModal(icon, name, isAudio) {
   document.getElementById('modalIcon').textContent = icon;
@@ -754,21 +686,17 @@ function openModal(icon, name, isAudio) {
   document.getElementById('modalProgressLabel').textContent = 'Memulai...';
   document.getElementById('dlModal').classList.add('open');
 }
-
 function setModalProgress(pct, label) {
   document.getElementById('modalProgressBar').style.width = pct + '%';
   document.getElementById('modalProgressLabel').textContent = label;
 }
-
 function showModalDownload(url, filename) {
   document.getElementById('modalBody').textContent = '✅ Link berhasil didapatkan! Klik tombol di bawah untuk mulai mengunduh.';
   document.getElementById('modalProgress').style.display = 'none';
-
   // Show the direct link clearly so user can also long-press / right-click
   const urlEl = document.getElementById('modalUrl');
   urlEl.textContent = url;
   urlEl.style.display = 'block';
-
   const btn = document.getElementById('modalDownloadBtn');
   // Use a real <a> tag approach: set href + download, open in same context
   btn.href = url;
@@ -783,13 +711,10 @@ function showModalDownload(url, filename) {
   document.getElementById('modalDownloadWrap').style.display = 'block';
   showToast('✅ Link download siap!');
 }
-
 async function downloadFileLocally(url, filename, btn) {
   const originalText = btn ? btn.textContent : '⬇️ Download Sekarang';
   if (btn) { btn.textContent = '⏳ Memeriksa file...'; btn.style.opacity = '0.75'; btn.style.pointerEvents = 'none'; }
-
   let downloaded = false;
-
   // Method 1: blob fetch (works if Cobalt sends CORS headers)
   try {
     const res = await fetch(url, { mode: 'cors' });
@@ -812,7 +737,6 @@ async function downloadFileLocally(url, filename, btn) {
   } catch(e) {
     console.warn('[BAJA] Blob fetch gagal (CORS), fallback ke window.open:', e.message);
   }
-
   // Method 2: window.open – browser handles the download natively
   if (!downloaded) {
     window.open(url, '_blank', 'noopener,noreferrer');
@@ -821,14 +745,12 @@ async function downloadFileLocally(url, filename, btn) {
     document.getElementById('modalBody').textContent =
       '📂 File terbuka di tab baru. Klik kanan → "Simpan video sebagai..." untuk menyimpannya.';
   }
-
   if (btn) {
     btn.style.opacity = '1';
     btn.style.pointerEvents = 'auto';
     setTimeout(() => { btn.textContent = originalText; }, 5000);
   }
 }
-
 function showModalError(msg) {
   document.getElementById('modalProgress').style.display = 'none';
   document.getElementById('modalDownloadWrap').style.display = 'none';
@@ -846,16 +768,13 @@ function showModalError(msg) {
   `;
   showToast('❌ Gagal mendapatkan link download');
 }
-
 function closeModal() {
   document.getElementById('dlModal').classList.remove('open');
 }
-
 document.getElementById('modalCancel').addEventListener('click', closeModal);
 document.getElementById('dlModal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
-
 // ─── TOAST ────────────────────────────────────────────────────────────────
 function showToast(msg) {
   const t = document.getElementById('dlToast');
@@ -863,7 +782,6 @@ function showToast(msg) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
 }
-
 // ─── INIT ────────────────────────────────────────────────────────────────
 renderServices('tiktok');
 </script>

@@ -2,19 +2,21 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta name="google-adsense-account" content="ca-pub-6758288522431201">
-
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>SVG to XML Converter — BAJA</title>
-<meta name="description" content="Convert SVG files to Android VectorDrawable XML format for Alight Motion and Android Studio."/>
+<title>SVG to Android XML Vector Drawable Converter — BAJA</title>
 <link rel="icon" href="/src/assets/img/Logo.svg"/>
 <link rel="stylesheet" href="/src/assets/css/style.css"/>
 <link rel="stylesheet" href="/src/assets/css/responsive.css"/>
-
 <link rel="stylesheet" href="/src/assets/css/svg-to-xml.css"/>
 <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
+<meta name="description" content="Konversi kode gambar SVG Anda menjadi format Android Vector Drawable XML secara cepat dan instan untuk keperluan Android Studio app development."/>
+<meta name="keywords" content="svg to xml converter, android vector drawable converter, svg to android studio, convert svg to xml online"/>
+<meta name="robots" content="index, follow"/>
+<meta property="og:title" content="SVG to Android XML Vector Drawable Converter — BAJA"/>
+<meta property="og:description" content="Konversi kode gambar SVG Anda menjadi format Android Vector Drawable XML secara cepat dan instan untuk keperluan Android Studio app development."/>
+<meta property="og:type" content="website"/>
 </head>
 <body>
-
 <!-- TOP NAVBAR -->
 <nav class="navbar" id="navbar">
   <div class="nav-container">
@@ -27,7 +29,6 @@
     </div>
   </div>
 </nav>
-
 <div class="page-header section">
   <div class="container">
     <div class="section-badge" style="transform: skewX(-5deg)">🔄 SVG to XML</div>
@@ -35,7 +36,6 @@
     <p class="section-sub">Convert standard SVG graphics into XML format compatible with Alight Motion and Android Studio.</p>
   </div>
 </div>
-
 <section class="section" style="padding-top:32px">
   <div class="container">
     <div class="beautifier-layout">
@@ -43,7 +43,6 @@
         <div class="ad-slot" style="height:90px;width:100%;margin-bottom:8px">
           <script>(function(s){s.dataset.zone='11505452',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
         </div>
-
         <div class="editor-split">
           <div>
             <div class="editor-label">Input Preview (SVG / PNG / JPG)</div>
@@ -73,7 +72,6 @@
             </div>
           </div>
         </div>
-
         <!-- Settings Panel -->
         <div style="margin-top:8px; background:#fff; border:4px solid #000; border-radius:12px; padding:16px; box-shadow:6px 6px 0 #000;">
           <h3 style="font-family:var(--font-heading);font-size:16px;margin-bottom:12px;">⚙️ Output Settings</h3>
@@ -121,7 +119,6 @@
             </div>
           </div>
         </div>
-
         <div id="analysisPanel" style="display:none; margin-top:8px; background:#fff; border:4px solid #000; border-radius:12px; padding:16px; box-shadow:6px 6px 0 #000;">
           <h3 style="font-family:var(--font-heading);font-size:18px;margin-bottom:12px;display:flex;align-items:center;gap:8px;">📊 Scan Results</h3>
           <div style="display:flex; gap:32px; flex-wrap:wrap; font-family:var(--font-heading); font-size:15px; color:#000;">
@@ -144,7 +141,6 @@
           </details>
         </div>
         </div>
-        
         <div id="layerSelectionContainer" style="display:none; margin-top:8px; background:#fff; border:4px solid #000; border-radius:12px; padding:16px; box-shadow:6px 6px 0 #000;">
            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
               <h3 style="font-family:var(--font-heading);font-size:18px;margin:0;">🛠️ Pilih Layer (${layersCount})</h3>
@@ -153,7 +149,6 @@
            <div id="layerList" style="max-height: 250px; overflow-y: auto; border: 2px solid #000; padding: 12px; border-radius: 8px; background:#f9f9f9; display:flex; flex-direction:column; gap:8px;">
            </div>
         </div>
-
         <div class="action-row">
           <button class="btn-beautify" id="convertBtn">🔍 Deep Scan & Convert</button>
           <button class="btn-copy" id="downloadBtn" style="background:#1dd1a1;color:#000;">💾 Download XML</button>
@@ -161,7 +156,6 @@
           <button class="btn-clear" id="clearBtn">🗑️ Clear</button>
         </div>
       </div>
-
       <!-- Sidebar -->
       <div class="sidebar-ad">
         <div class="ad-slot ad-rectangle">
@@ -180,14 +174,12 @@
     </div>
   </div>
 </section>
-
 <div class="toast" id="toast">✅ Copied to clipboard!</div>
 <!-- Floating Back Button -->
 <a href="/public/index.html" class="fab-back" id="fabBack" aria-label="Back to Tools">
   <span class="fab-arrow">←</span>
   <span>BACK</span>
 </a>
-
 <button id="scrollTop">↑</button>
 <script src="/src/App.js"></script>
 <script>
@@ -196,12 +188,10 @@ const outputCode = document.getElementById('outputCode');
 const fileInput = document.getElementById('fileInput');
 let currentInputMode = 'svg'; // 'svg' or 'image'
 let currentImageDataUrl = '';
-
 fileInput.addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (!file) return;
   const previewContainer = document.getElementById('svgPreview');
-
   if (file.type === 'image/svg+xml' || file.name.endsWith('.svg')) {
     // ── SVG Mode ──
     currentInputMode = 'svg';
@@ -248,7 +238,6 @@ fileInput.addEventListener('change', (e) => {
     alert('Format tidak didukung. Gunakan SVG, PNG, JPG, atau WEBP.');
   }
 });
-
 function triggerAd() {
   if (!window.pushAdTriggered) {
     window.pushAdTriggered = true;
@@ -262,23 +251,18 @@ function triggerAd() {
     document.head.appendChild(s);
   }
 }
-
 let isScanning = false;
-
 document.getElementById('convertBtn').addEventListener('click', async () => {
   triggerAd();
   if (isScanning) { alert("Proses scan sedang berjalan!"); return; }
-
   // Validate input based on mode
   if (currentInputMode === 'svg' && !inputCode.value.trim()) { alert('Belum ada file yang diupload!'); return; }
   if (currentInputMode === 'image' && !currentImageDataUrl) { alert('Belum ada gambar yang diupload!'); return; }
-
   isScanning = true;
   const btn = document.getElementById('convertBtn');
   btn.textContent = 'Memindai...';
   btn.style.opacity = '0.5';
   btn.style.pointerEvents = 'none';
-
   try {
     // Read settings
     const sceneW  = parseInt(document.getElementById('outWidth').value)    || 1080;
@@ -289,15 +273,12 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
     const bgColorHex  = document.getElementById('outBgColor').value.replace('#','');
     const bgAlpha     = document.getElementById('outBgAlpha').value;
     const bgAMColor   = `#${bgAlpha}${bgColorHex}`;
-
     const yieldUI = () => new Promise(r => setTimeout(r, 0));
     const debugEl = document.getElementById('debugInfo');
     const MAX_SCAN = 600;
-
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     let cW, cH;
-
     if (currentInputMode === 'svg') {
       // ── STEP 1a: Render SVG to canvas ───────────────────────────────────
       debugEl.textContent = '[PIXEL SCAN] Merender SVG ke canvas...';
@@ -342,19 +323,16 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
       ctx.clearRect(0, 0, cW, cH);
       ctx.drawImage(img, 0, 0, cW, cH);
     }
-
     const imgData = ctx.getImageData(0, 0, cW, cH);
     const pixels = imgData.data;
     debugEl.textContent = `[PIXEL SCAN] Canvas ${cW}x${cH}. Membangun label warna...`;
     await yieldUI();
-
     // ── STEP 2: Quantize colors & label pixels ────────────────────────────
     const QUANT = 16;
     const q = v => Math.round(v / QUANT) * QUANT;
     const colorMap = new Map();
     const colorList = [];
     const pixelLabel = new Int32Array(cW * cH).fill(-1);
-
     for (let y = 0; y < cH; y++) {
       for (let x = 0; x < cW; x++) {
         const i = (y * cW + x) * 4;
@@ -364,16 +342,13 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
         pixelLabel[y * cW + x] = colorMap.get(key);
       }
     }
-
     debugEl.textContent = `[PIXEL SCAN] ${colorList.length} warna ditemukan. Flood-fill islands...`;
     await yieldUI();
-
     // ── STEP 3: 8-way flood-fill → island labels ──────────────────────────
     const islandLabel = new Int32Array(cW * cH).fill(-1);
     const islandColor = [];
     let islandCount = 0;
     const stack = [];
-
     for (let y = 0; y < cH; y++) {
       for (let x = 0; x < cW; x++) {
         const pos = y * cW + x;
@@ -397,15 +372,12 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
       }
       if (y % 60 === 0) { debugEl.textContent = `[ISLAND SCAN] Baris ${y}/${cH}...`; await yieldUI(); }
     }
-
     debugEl.textContent = `[MERGE] ${islandCount} island. Menggabungkan yang berdekatan...`;
     await yieldUI();
-
     // ── STEP 4: Union-Find merge adjacent same-color islands ──────────────
     const parent = new Int32Array(islandCount).map((_,i) => i);
     function find(x) { while (parent[x] !== x) { parent[x] = parent[parent[x]]; x = parent[x]; } return x; }
     function union(a, b) { a = find(a); b = find(b); if (a !== b) parent[a] = b; }
-
     for (let y = 0; y < cH; y++) {
       for (let x = 0; x < cW - 1; x++) {
         const iA = islandLabel[y*cW+x], iB = islandLabel[y*cW+x+1];
@@ -418,7 +390,6 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
         if (iA !== -1 && iB !== -1 && islandColor[iA] === islandColor[iB]) union(iA, iB);
       }
     }
-
     // Build groups by root
     const groups = new Map();
     for (let pos = 0; pos < cW * cH; pos++) {
@@ -428,14 +399,11 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
       if (!groups.has(root)) groups.set(root, { colorIdx: islandColor[find(iId)], pixels: [] });
       groups.get(root).pixels.push(pos);
     }
-
     // ── STEP 5: Filter & always merge same-color groups into 1 layer each ──
     const MIN_PIXELS = Math.max(4, Math.round(cW * cH * 0.0005));
     const MAX_LAYERS = 50;
-
     const filteredGroups = Array.from(groups.values())
       .filter(g => g.pixels.length >= MIN_PIXELS);
-
     // ALWAYS merge all groups that share the same color into a single shape
     const byColor = new Map();
     for (const g of filteredGroups) {
@@ -446,15 +414,12 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
       .map(gs => ({ colorIdx: gs[0].colorIdx, pixels: gs.flatMap(g => g.pixels) }))
       .sort((a, b) => b.pixels.length - a.pixels.length)
       .slice(0, MAX_LAYERS);
-
     debugEl.textContent = `[CONTOUR] Membuat path untuk ${sortedGroups.length} layer...`;
     await yieldUI();
-
     // ── STEP 6: Contour tracing + DP simplification + Chaikin smoothing ──
     const amScaleX = sceneW / cW, amScaleY = sceneH / cH;
     function n4(v) { return parseFloat(v.toFixed(4)); }
     function toAM(px, py) { return { x: px * amScaleX - sceneW/2, y: py * amScaleY - sceneH/2 }; }
-
     function dpSimplify(pts, eps) {
       if (pts.length <= 2) return pts;
       const [x1,y1] = pts[0], [x2,y2] = pts[pts.length-1];
@@ -470,7 +435,6 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
       }
       return [pts[0], pts[pts.length-1]];
     }
-
     // Chaikin corner-cutting algorithm — smooths sharp polygon corners into curves
     function chaikinSmooth(pts, iterations, closed) {
       let result = pts;
@@ -488,11 +452,9 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
       }
       return result;
     }
-
     // Smoothing iterations: more = smoother, but heavier. Tied to quality setting.
     // Lower quality value = smoother (higher epsilon already reduces points)
     const smoothIter = outQuality <= 3 ? 3 : outQuality <= 5 ? 2 : 1;
-
     function groupToPath(pixelArr) {
       const set = new Set(pixelArr);
       const has = (x, y) => x >= 0 && y >= 0 && x < cW && y < cH && set.has(y*cW+x);
@@ -536,17 +498,14 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
       }
       return pathStr.trim();
     }
-
     // ── STEP 7: Build XML ─────────────────────────────────────────────────
     let shapeIdCounter = 102409000;
     const colorSet = new Set();
     const generatedLayers = [];
     const nowMs = Date.now();
-
     let xmlChunks = [];
     xmlChunks.push(`<!-- \nCreated by Alight Motion (http://alightmotion.com)\nExported: ${new Date().toISOString().replace('T',' ').substring(0,19)}\n5.0.273.1028425 (1028425)\n -->\n`);
     xmlChunks.push(`<scene title="Converted Vector" width="${sceneW}" height="${sceneH}" exportWidth="${sceneW}" exportHeight="${sceneH}" precompose="dynamicResolution" bgcolor="${bgAMColor}" totalTime="${outDuration}" fps="${outFps}" modifiedTime="${nowMs}" amver="1028425" ffver="106" am="com.alightcreative.motion/5.0.273.1028425" amplatform="android" retime="freeze" retimeAdaptFPS="false">\n`);
-
     for (let gi = 0; gi < sortedGroups.length; gi++) {
       const grp = sortedGroups[gi];
       const c = colorList[grp.colorIdx];
@@ -564,10 +523,8 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
       shapeXml += `</shape>\n`;
       generatedLayers.push({ label, color: amColor, pixelCount: grp.pixels.length, xml: shapeXml, checked: true });
     }
-
     debugEl.textContent = `[SELESAI] ${generatedLayers.length} layer. Canvas: ${cW}x${cH}, Warna: ${colorList.length}`;
     await yieldUI();
-
     // ── STEP 8: UI – Layer selector & XML output ──────────────────────────
     const updateFinalXml = () => {
       let finalXml = xmlChunks.join("");
@@ -576,7 +533,6 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
       outputCode.value = finalXml;
       document.getElementById('layerCount').textContent = generatedLayers.filter(l => l.checked).length;
     };
-
     const layerList = document.getElementById('layerList');
     layerList.innerHTML = '';
     generatedLayers.forEach((layer, i) => {
@@ -590,7 +546,6 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
       div.querySelector('input').addEventListener('change', e => { layer.checked = e.target.checked; updateFinalXml(); });
       layerList.appendChild(div);
     });
-
     document.getElementById('selectAllLayersBtn').onclick = () => {
       const cbs = layerList.querySelectorAll('input');
       const allChecked = Array.from(cbs).every(c => c.checked);
@@ -598,11 +553,9 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
       generatedLayers.forEach(l => l.checked = !allChecked);
       updateFinalXml();
     };
-
     document.getElementById('layerSelectionContainer').querySelector('h3').innerHTML = `🛠️ Pilih Layer (${generatedLayers.length})`;
     document.getElementById('layerSelectionContainer').style.display = 'block';
     updateFinalXml();
-
     // Analysis panel
     document.getElementById('layerCount').textContent = generatedLayers.length;
     document.getElementById('uniqueColorCount').textContent = colorSet.size;
@@ -615,7 +568,6 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
     swatchContainer.innerHTML = sw || '<span style="font-family:var(--font-heading);color:#888;">No colors found.</span>';
     document.getElementById('analysisPanel').style.display = 'block';
     showToast('\u2705 Deep Scan Complete!');
-
   } catch(e) {
     outputCode.value = "Error: " + e.message;
     console.error(e);
@@ -626,12 +578,10 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
     btn.style.pointerEvents = 'auto';
   }
 });
-
 document.getElementById('copyBtn').addEventListener('click', () => {
   if (!outputCode.value) return;
   navigator.clipboard.writeText(outputCode.value).then(() => showToast('\u2705 XML Copied!'));
 });
-
 document.getElementById('downloadBtn').addEventListener('click', () => {
   if (!outputCode.value) return;
   const blob = new Blob([outputCode.value], { type: 'application/xml' });
@@ -648,7 +598,6 @@ document.getElementById('downloadBtn').addEventListener('click', () => {
   URL.revokeObjectURL(url);
   showToast('\ud83d\udcbe Downloading XML...');
 });
-
 document.getElementById('clearBtn').addEventListener('click', () => {
   inputCode.value = ''; outputCode.value = ''; fileInput.value = '';
   currentInputMode = 'svg'; currentImageDataUrl = '';
@@ -657,7 +606,6 @@ document.getElementById('clearBtn').addEventListener('click', () => {
   document.getElementById('analysisPanel').style.display = 'none';
   document.getElementById('layerSelectionContainer').style.display = 'none';
 });
-
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
@@ -683,8 +631,6 @@ function showToast(msg) {
     <span class="bottom-nav-text">Tutorial</span>
   </a>
 </nav>
-
 <script>(function(s){s.dataset.zone='11496637',s.src='https://n6wxm.com/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
-
 </body>
 </html>

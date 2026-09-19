@@ -4,11 +4,9 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Daftarkan Perangkat IoT &mdash; BAJA WEB</title>
-  <meta name="description" content="Daftarkan perangkat tempat sampah IoT baru dan dapatkan kode akses unik."/>
   <link rel="icon" href="/src/assets/img/Logo.svg"/>
   <link rel="stylesheet" href="/src/assets/css/style.css"/>
   <link rel="stylesheet" href="/src/assets/css/trash-monitor.css"/>
-
   <!-- Firebase SDK (compat) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
@@ -18,7 +16,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body class="dashboard-mode">
-
 <div class="dashboard-layout">
   <!-- SIDEBAR -->
   <aside class="app-sidebar">
@@ -37,10 +34,8 @@
       </a>
     </div>
   </aside>
-
   <!-- MAIN CONTENT -->
   <main class="app-main-content">
-    
     <!-- TOP BAR -->
     <header class="app-topbar">
       <div class="app-topbar-title">BAJA</div>
@@ -49,32 +44,25 @@
         <span style="font-size:12px;color:rgba(255,255,255,0.8);">Memuat Profil...</span>
       </div>
     </header>
-
     <div class="app-view-container">
-
       <!-- ============================================== -->
       <!-- VIEW: HOME (SEMUA PERANGKAT) -->
       <!-- ============================================== -->
       <div class="app-view active" id="view-home">
-        
         <!-- Overlay Belum Login -->
         <div id="unauthOverlay" style="display: none; background: rgba(var(--bg-surface-rgb, 15,23,42), 0.85); backdrop-filter: blur(4px); z-index: 100; text-align: center; padding: 40px; border-radius: 20px; border: 2px solid var(--border); max-width: 600px; margin: 0 auto 30px;">
           <h2 style="margin-bottom: 12px; font-size: 20px;">Anda Belum Login</h2>
           <p style="margin-bottom: 20px; color: var(--text-2);">Silakan login terlebih dahulu untuk mengakses perangkat Anda.</p>
           <a href="/src/pages/auth.html" style="display:inline-block; background: var(--grad-tools); color: #fff; text-decoration: none; padding: 12px 24px; border-radius: var(--r-full); font-weight: bold; box-shadow: var(--glow-blue);">Masuk / Daftar</a>
         </div>
-
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:24px;">
           <h2 style="font-family:var(--font-heading); letter-spacing:1px; margin:0;">📋 SEMUA PERANGKAT</h2>
         </div>
-
         <!-- The grid where devices and the "+" button will be rendered -->
         <div class="reg-devices-grid" id="myDevicesList">
            <div style="text-align:center;color:var(--text-3);font-size:14px;padding:28px;font-weight:700;width:100%;">Memuat data...</div>
         </div>
       </div>
-
-
       <!-- ============================================== -->
       <!-- VIEW: DASHBOARD GRAFIK -->
       <!-- ============================================== -->
@@ -82,7 +70,6 @@
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:24px;">
           <h2 style="font-family:var(--font-heading); letter-spacing:1px; margin:0;">📊 DASHBOARD STATISTIK</h2>
         </div>
-        
         <!-- Summary Cards -->
         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-bottom:32px;">
           <div style="background:var(--blue); border-radius:12px; padding:20px; color:#fff; box-shadow: 4px 4px 0 rgba(0,0,0,0.1); display:flex; flex-direction:column; justify-content:center;">
@@ -98,7 +85,6 @@
             <div id="dashAvgFill" style="font-size:32px; font-family:var(--font-heading);">0%</div>
           </div>
         </div>
-
         <!-- Chart Section -->
         <div style="background:transparent; border-radius:12px;">
           <h3 style="font-family:var(--font-heading); font-size:16px; color:var(--text-2); margin-top:0; margin-bottom:16px;">KEPENUHAN PER PERANGKAT</h3>
@@ -107,8 +93,6 @@
           </div>
         </div>
       </div>
-
-
       <!-- ============================================== -->
       <!-- VIEW: GRUP (FOLDER) -->
       <!-- ============================================== -->
@@ -117,33 +101,25 @@
           <h2 style="font-family:var(--font-heading); letter-spacing:1px; margin:0;">👥 KELOLA GRUP</h2>
           <button id="btnCreateGroup" style="background:var(--bg-surface);border:2px solid var(--border);color:var(--text-1);padding:10px 16px;border-radius:var(--r-full);font-size:13px;font-weight:800;cursor:pointer;font-family:var(--font-heading);box-shadow:2px 2px 0 var(--border); transition:all 0.2s;" onmousedown="this.style.transform='translate(2px,2px)';this.style.boxShadow='none';" onmouseup="this.style.transform='none';this.style.boxShadow='2px 2px 0 var(--border)';">&#x1F4C2; + Buat Grup</button>
         </div>
-        
         <div class="reg-devices-grid" id="myGroupsList">
            <div style="text-align:center;color:var(--text-3);font-size:14px;padding:28px;font-weight:700;width:100%;">Memuat grup...</div>
         </div>
       </div>
-
-
       <!-- ============================================== -->
       <!-- VIEW: TAMBAH PERANGKAT (FORM) -->
       <!-- ============================================== -->
       <div class="app-view" id="view-add-device">
         <h2 style="font-family:var(--font-heading); margin-bottom: 20px; letter-spacing:1px; margin-top:0;">➕ DAFTAR PERANGKAT BARU</h2>
-        
         <div class="tm-monitor-card reg-card-custom" style="max-width: 800px; margin: 0; box-sizing: border-box;">
-          
           <div class="reg-field">
             <label for="regName" class="tm-monitor-label">Nama Tempat Sampah</label>
             <input type="text" id="regName" class="reg-input" placeholder="Contoh: Tempat Sampah Kantor Lt.3" maxlength="60"/>
           </div>
-
           <div class="reg-field">
             <label for="regLocation" class="tm-monitor-label">Lokasi / Keterangan</label>
             <input type="text" id="regLocation" class="reg-input" placeholder="Contoh: Jl. Merdeka No.1, Bandung" maxlength="100"/>
           </div>
-
           <div class="tm-error-msg" id="regError">Mohon isi semua field terlebih dahulu.</div>
-
           <div class="reg-field" style="margin-top:14px;">
             <label for="regBoard" class="tm-monitor-label">Pilih Board Mikrokontroler</label>
             <select id="regBoard" class="reg-input" style="cursor:pointer;">
@@ -154,7 +130,6 @@
             </select>
             <div id="boardNote" style="font-size:12px;color:var(--text-3);margin-top:8px;padding:8px 12px;background:rgba(99,102,241,0.07);border-radius:8px;border-left:3px solid #818cf8;"></div>
           </div>
-
           <button id="btnRegister" style="background:var(--grad-tools); color:#fff; border:none; padding:16px 32px; border-radius:var(--r-full); font-size:16px; font-weight:800; font-family:var(--font); cursor:pointer; width:100%; margin-top:24px; transition:all var(--tr); box-shadow:var(--glow-blue); display:flex; align-items:center; justify-content:center; gap:12px;">
             <span id="btnRegText">&#x2705; Generate Kode Perangkat</span>
             <div class="iso-loader-wrap" id="regSpinner" style="display:none; padding: 0;">
@@ -165,14 +140,12 @@
               </div>
             </div>
           </button>
-
           <!-- Hasil Kode -->
           <div class="reg-result" id="regResult">
             <div class="reg-result-title">&#x2705; Perangkat Berhasil Didaftarkan!</div>
             <div class="reg-code-display" id="generatedCode">TRS-&mdash;</div>
             <a class="link-monitor" id="linkMonitor" href="#">&#x1F50D; Pantau Sekarang</a>
           </div>
-
           <!-- Kode Arduino -->
           <div class="ino-section" id="inoSection">
             <div class="ino-header">
@@ -189,9 +162,7 @@
               <strong>Kode perangkat sudah otomatis terisi. Jangan ubah!</strong>
             </div>
           </div>
-          
         </div>
-        
         <!-- Tambah via Kode (Tamu) -->
         <div style="margin-top: 40px; max-width: 800px;">
           <div style="background:var(--bg-body);border:2px solid var(--border);border-radius:14px;padding:14px 16px;box-shadow:3px 3px 0 rgba(0,0,0,0.05);">
@@ -207,14 +178,10 @@
             <div id="joinError" style="font-size:13px;font-weight:700;color:#ef4444;margin-top:8px;display:none;"></div>
           </div>
         </div>
-
       </div>
-
     </div>
   </main>
 </div>
-
-
 <!-- ════ Modal Edit Perangkat ════ -->
 <div id="editModal" onclick="if(event.target===this)closeEditModal()" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(5,9,18,0.88);backdrop-filter:blur(14px);z-index:9998;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;">
   <div style="max-width:480px;width:100%;background:var(--bg-surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:0 32px 90px rgba(0,0,0,0.75);">
@@ -239,7 +206,6 @@
     </div>
   </div>
 </div>
-
 <!-- ════ Modal Kelola Grup ════ -->
 <div id="groupModal" onclick="if(event.target===this)closeGroupModal()" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(5,9,18,0.88);backdrop-filter:blur(14px);z-index:9998;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;">
   <div style="max-width:440px;width:100%;background:var(--bg-surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:0 32px 90px rgba(0,0,0,0.75);">
@@ -254,7 +220,6 @@
     </div>
   </div>
 </div>
-
 <!-- ════ Modal Skrip C++ ════ -->
 <div id="scriptModal" onclick="if(event.target===this)closeScriptModal()" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(5,9,18,0.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);z-index:9999;overflow-y:auto;padding:16px;box-sizing:border-box;align-items:flex-start;justify-content:center;">
   <div style="max-width:860px;width:100%;margin:0 auto;background:var(--bg-surface);border:1px solid var(--border);border-radius:22px;overflow:hidden;box-shadow:0 32px 90px rgba(0,0,0,0.75);">
@@ -279,7 +244,6 @@
     </div>
   </div>
 </div>
-
 <!-- Bottom Navigation -->
 <nav class="bottom-nav">
   <a href="/public/index.html" class="bottom-nav-link">
@@ -299,12 +263,9 @@
     <span class="bottom-nav-text">Tutorial</span>
   </a>
 </nav>
-
 <script src="/src/App.js"></script>
-
 <!-- ════ Script Utama IoT Register ════ -->
 <script src="/src/pages/tools/register-logic.js"></script>
-
 <!-- Cloudflare Beacon -->
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v3d52b47920f24c319d37e2661827c42b1787588026925" integrity="sha512-d9sL6GJLXn6fInD1+TVXhTcQOsmxeHfmHAvwGDIxp5TO+uo1fiWW7mHomMj4MLRlCsJDTqXzWLHJFFlPCEIj/A==" data-cf-beacon='{"version":"2024.11.0","token":"eed07e53e123488192259813d71ad93e","r":1}' crossorigin="anonymous"></script>
 </body>

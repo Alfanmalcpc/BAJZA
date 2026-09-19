@@ -2,18 +2,14 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta name="google-adsense-account" content="ca-pub-6758288522431201">
-
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Tutorials — BAJA</title>
-<meta name="description" content="Technical tutorials on React, Firebase, Arduino, ESP32, and IoT projects. Free step-by-step guides."/>
 <link rel="icon" href="/src/assets/img/Logo.svg"/>
 <link rel="stylesheet" href="/src/assets/css/style.css"/>
-
 <link rel="stylesheet" href="/src/assets/css/tutorial-index.css"/>
 <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
 </head>
 <body>
-
 <!-- TOP NAVBAR -->
 <nav class="navbar" id="navbar">
   <div class="nav-container">
@@ -26,7 +22,6 @@
     </div>
   </div>
 </nav>
-
 <div class="page-header" style="background:linear-gradient(180deg,rgba(139,92,246,.08) 0%,transparent 100%)">
   <div class="container">
     <div class="section-badge" style="color:var(--purple)">📚 Technical Tutorials</div>
@@ -34,7 +29,6 @@
     <p>Step-by-step technical guides for web development and electronics/IoT projects.</p>
   </div>
 </div>
-
 <!-- Sticky Category Filter Bar -->
 <div class="cat-bar-sticky">
   <div class="cat-tabs" id="catTabs">
@@ -45,13 +39,11 @@
     <button class="cat-tab" data-cat="react">React</button>
   </div>
 </div>
-
 <section class="section" style="padding-top:40px">
   <div class="container">
     <div class="ad-slot" style="height:90px;width:100%;margin-bottom:32px">
       <script>(function(s){s.dataset.zone='11505452',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
     </div>
-
     <!-- Featured Article -->
     <div class="featured-art">
       <div>
@@ -62,22 +54,18 @@
       </div>
       <div class="featured-icon">⚛️</div>
     </div>
-
     <div class="articles-grid" id="articlesGrid"></div>
     <div class="ad-slot ad-responsive" style="margin-top:32px">
       <script>(function(s){s.dataset.zone='11505452',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
     </div>
   </div>
 </section>
-
 <footer class="footer"><div class="container"><div class="footer-bottom" style="border-top:none;padding-top:0"><span>© 2025 BAJA</span><a href="/public/index.html">← Back to Home</a></div></div></footer>
-
 <!-- Floating Back Button -->
 <a href="/public/index.html" class="fab-back" id="fabBack" aria-label="Back to Home">
   <span class="fab-arrow">←</span>
   <span>BACK</span>
 </a>
-
 <button id="scrollTop">↑</button>
 <script src="/src/App.js"></script>
 <script>
@@ -92,7 +80,6 @@ const articles = [
   {cat:'iot',icon:'🔌',bg:'rgba(239,68,68,.1)',title:'Arduino Relay Module: Control AC Devices Safely',excerpt:'Learn how to wire and program a relay module with Arduino to control home appliances safely.',diff:'beginner',read:'7 min',link:'iot-arduino.html'},
   {cat:'react webdev',icon:'🎨',bg:'rgba(139,92,246,.1)',title:'React Context + Custom Hooks: State Management Pattern',excerpt:'Build a scalable state management system using Context API and reusable custom hooks.',diff:'intermediate',read:'11 min',link:'web-dev.html'},
 ];
-
 function renderArticles(data) {
   document.getElementById('articlesGrid').innerHTML = data.map(a => `
     <a href="${a.link}" class="art-card">
@@ -111,9 +98,7 @@ function renderArticles(data) {
       </div>
     </a>`).join('');
 }
-
 renderArticles(articles);
-
 document.querySelectorAll('.cat-tab').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.cat-tab').forEach(b => b.classList.remove('active'));

@@ -44,7 +44,6 @@
       s.dataset.zone='11493758';
       s.src='https://al5sm.com/tag.min.js';
     })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')));
-
     function handleClick() {
       // Kirim pesan ke parent window (Photobooth) bahwa tombol sudah diklik
       window.parent.postMessage('remove_watermark_clicked', '*');

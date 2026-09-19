@@ -2,18 +2,20 @@
 <html lang="en" data-theme="dark">
 <head>
 <meta name="google-adsense-account" content="ca-pub-6758288522431201">
-
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>ESP32 + DHT22 IoT Tutorial — BAJA</title>
-<meta name="description" content="Build a real-time temperature & humidity monitor with ESP32 and DHT22. Step-by-step Arduino code and web dashboard guide."/>
+<title>Tutorial IoT & Arduino untuk Pemula — BAJA</title>
 <link rel="icon" href="/src/assets/img/Logo.svg"/>
 <link rel="stylesheet" href="/src/assets/css/style.css"/>
-
 <link rel="stylesheet" href="/src/assets/css/iot-arduino.css"/>
 <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
+<meta name="description" content="Mulai belajar Internet of Things (IoT), coding ESP32, dan Arduino dari dasar dengan panduan praktis dan proyek nyata di BAJA WEB."/>
+<meta name="keywords" content="tutorial iot pemula, belajar arduino, coding esp32, proyek iot sederhana, panduan arduino indonesia"/>
+<meta name="robots" content="index, follow"/>
+<meta property="og:title" content="Tutorial IoT & Arduino untuk Pemula — BAJA"/>
+<meta property="og:description" content="Mulai belajar Internet of Things (IoT), coding ESP32, dan Arduino dari dasar dengan panduan praktis dan proyek nyata di BAJA WEB."/>
+<meta property="og:type" content="website"/>
 </head>
 <body>
-
 <!-- TOP NAVBAR -->
 <nav class="navbar" id="navbar">
   <div class="nav-container">
@@ -26,9 +28,7 @@
     </div>
   </div>
 </nav>
-
 <div style="padding-top:var(--nav-h)"></div>
-
 <section class="section">
   <div class="container">
     <div class="ad-slot" style="height:90px;width:100%;margin-bottom:32px">
@@ -49,7 +49,6 @@
             <span style="background:rgba(245,158,11,.15);color:var(--gold);padding:4px 12px;border-radius:999px;font-size:11px;font-weight:700">Intermediate</span>
           </div>
         </div>
-
         <div class="toc">
           <div class="toc-title">📋 Table of Contents</div>
           <ol>
@@ -62,11 +61,9 @@
             <li><a href="#firebase-cloud">Optional: Cloud with Firebase</a></li>
           </ol>
         </div>
-
         <div class="article-body">
           <h2 id="overview">1. Project Overview</h2>
           <p>In this tutorial, we'll build a <strong>real-time environmental monitor</strong> using the ESP32 microcontroller and DHT22 temperature/humidity sensor. The ESP32 will host its own web server accessible on your local WiFi network, displaying live sensor readings on a mobile-friendly dashboard.</p>
-
           <h2 id="parts">2. Parts Required</h2>
           <table class="parts-table">
             <thead><tr><th>Component</th><th>Qty</th><th>Est. Price</th><th>Notes</th></tr></thead>
@@ -79,9 +76,7 @@
               <tr><td>USB Cable (Micro/USB-C)</td><td>1</td><td class="price-cell">Varies</td><td>For programming ESP32</td></tr>
             </tbody>
           </table>
-
           <div class="callout info"><div class="callout-icon">💡</div><div>Total project cost is under <strong>$20</strong>. All components are widely available on Tokopedia, Shopee, or AliExpress.</div></div>
-
           <h2 id="wiring">3. Wiring Diagram</h2>
           <p>Wire the DHT22 to your ESP32 as follows:</p>
           <div class="code-block">
@@ -92,12 +87,9 @@ VCC (Pin 1) →   3.3V
 Data (Pin 2)→   GPIO 4  (+ 10kΩ pull-up to 3.3V)
 NC  (Pin 3) →   Not connected
 GND (Pin 4) →   GND
-
 Note: Place the 10kΩ resistor between Data and VCC pins.</pre>
           </div>
-
           <div class="callout warning"><div class="callout-icon">⚠️</div><div>Use <strong>3.3V</strong> for DHT22 with ESP32, NOT 5V. The ESP32 GPIO pins are NOT 5V tolerant. Using 5V may permanently damage your ESP32.</div></div>
-
           <h2 id="arduino-code">4. Arduino Code</h2>
           <p>First, install these libraries via Arduino IDE → Sketch → Include Library → Manage Libraries:</p>
           <ul>
@@ -105,38 +97,30 @@ Note: Place the 10kΩ resistor between Data and VCC pins.</pre>
             <li><strong>Adafruit Unified Sensor</strong></li>
             <li><strong>WiFi</strong> (built-in for ESP32)</li>
           </ul>
-
           <div class="code-block">
             <div class="code-block-header"><span class="code-lang">cpp (Arduino)</span><button class="copy-code-btn" onclick="copyCode(this)">Copy</button></div>
             <pre>#include &lt;WiFi.h&gt;
 #include &lt;WebServer.h&gt;
 #include &lt;DHT.h&gt;
 #include &lt;ArduinoJson.h&gt;
-
 // ── Configuration ──
 #define DHTPIN    4       // GPIO connected to DHT22 data pin
 #define DHTTYPE   DHT22
-
 const char* SSID = "Your_WiFi_SSID";
 const char* PASSWORD = "Your_WiFi_Password";
-
 // ── Globals ──
 DHT dht(DHTPIN, DHTTYPE);
 WebServer server(80);
-
 // ── Sensor Data ──
 float temperature = 0.0;
 float humidity = 0.0;
 unsigned long lastRead = 0;
 const unsigned long READ_INTERVAL = 2000; // Read every 2 seconds
-
 void readSensor() {
   if (millis() - lastRead &lt; READ_INTERVAL) return;
   lastRead = millis();
-  
   float t = dht.readTemperature();
   float h = dht.readHumidity();
-  
   if (!isnan(t) && !isnan(h)) {
     temperature = t;
     humidity = h;
@@ -145,12 +129,10 @@ void readSensor() {
     Serial.println("DHT22 read failed!");
   }
 }
-
 void handleRoot() {
   // Serve the web dashboard HTML (see next section)
   server.send(200, "text/html", getDashboardHTML());
 }
-
 void handleData() {
   // JSON API endpoint for live data
   StaticJsonDocument&lt;128&gt; doc;
@@ -158,16 +140,13 @@ void handleData() {
   doc["humidity"] = humidity;
   doc["heatIndex"] = dht.computeHeatIndex(temperature, humidity, false);
   doc["timestamp"] = millis();
-  
   String output;
   serializeJson(doc, output);
   server.send(200, "application/json", output);
 }
-
 void setup() {
   Serial.begin(115200);
   dht.begin();
-  
   // Connect to WiFi
   WiFi.begin(SSID, PASSWORD);
   Serial.print("Connecting to WiFi");
@@ -176,28 +155,23 @@ void setup() {
     Serial.print(".");
   }
   Serial.println("\nConnected! IP: " + WiFi.localIP().toString());
-  
   // Register routes
   server.on("/", handleRoot);
   server.on("/data", handleData);
   server.begin();
   Serial.println("HTTP server started");
 }
-
 void loop() {
   readSensor();
   server.handleClient();
 }</pre>
           </div>
-
           <h2 id="web-server">5. ESP32 Web Server Dashboard</h2>
           <p>The ESP32 serves an HTML page that fetches live data from the <code>/data</code> endpoint every 2 seconds:</p>
-
           <!-- AdSense In-Article -->
           <div class="ad-slot ad-responsive">
             <script>(function(s){s.dataset.zone='11505452',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
           </div>
-
           <div class="code-block">
             <div class="code-block-header"><span class="code-lang">cpp - getDashboardHTML()</span><button class="copy-code-btn" onclick="copyCode(this)">Copy</button></div>
             <pre>String getDashboardHTML() {
@@ -247,28 +221,23 @@ void loop() {
 &lt;/html&gt;)rawhtml";
 }</pre>
           </div>
-
           <h2 id="firebase-cloud">6. Optional: Send Data to Firebase</h2>
           <p>To log data to the cloud for historical viewing, add the <strong>Firebase ESP32 Client</strong> library:</p>
           <div class="code-block">
             <div class="code-block-header"><span class="code-lang">cpp</span><button class="copy-code-btn" onclick="copyCode(this)">Copy</button></div>
             <pre>#include &lt;Firebase_ESP_Client.h&gt;
 #include &lt;addons/TokenHelper.h&gt;
-
 #define FIREBASE_HOST "https://your-project-default-rtdb.firebaseio.com/"
 #define FIREBASE_AUTH "YOUR_DATABASE_SECRET"
-
 FirebaseData fbdo;
 FirebaseAuth auth;
 FirebaseConfig config;
-
 void setupFirebase() {
   config.host = FIREBASE_HOST;
   config.signer.tokens.legacy_token = FIREBASE_AUTH;
   Firebase.begin(&config, &auth);
   Firebase.reconnectWiFi(true);
 }
-
 void sendToFirebase() {
   if (Firebase.RTDB.setFloat(&fbdo, "/sensor/temperature", temperature) &&
       Firebase.RTDB.setFloat(&fbdo, "/sensor/humidity", humidity)) {
@@ -278,9 +247,7 @@ void sendToFirebase() {
   }
 }</pre>
           </div>
-
           <div class="callout tip"><div class="callout-icon">✅</div><div>With Firebase logging, you can visualize historical data trends on a web dashboard connected to the same Firebase project you learned to build in the <a href="web-dev.html" style="color:var(--blue-light)">React + Firebase tutorial</a>!</div></div>
-
           <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-xl);padding:32px;margin-top:40px;text-align:center">
             <div style="font-size:36px;margin-bottom:12px">🤖</div>
             <h3 style="font-size:18px;margin-bottom:8px">Project Complete!</h3>
@@ -292,7 +259,6 @@ void sendToFirebase() {
           </div>
         </div>
       </article>
-
       <aside>
         <div class="sidebar-sticky">
           <div class="ad-slot ad-rectangle">
@@ -319,15 +285,12 @@ void sendToFirebase() {
     </div>
   </div>
 </section>
-
 <footer class="footer"><div class="container"><div class="footer-bottom" style="border-top:none;padding-top:0"><span>© 2025 BAJA</span><a href="/public/index.html">← All Tutorials</a></div></div></footer>
-
 <!-- Floating Back Button -->
 <a href="/public/index.html" class="fab-back" id="fabBack" aria-label="Back to Tutorials">
   <span class="fab-arrow">←</span>
   <span>BACK</span>
 </a>
-
 <button id="scrollTop">↑</button>
 <script src="/src/App.js"></script>
 <script>

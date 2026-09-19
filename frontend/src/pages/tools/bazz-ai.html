@@ -5,7 +5,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Bazz AI Assistant — BAJA</title>
-<meta name="description" content="Tanya Bazz AI — Asisten cerdas badak BAJA untuk membantu tools, keuangan, dan coding."/>
+<meta name="robots" content="noindex, nofollow"/>
 <link rel="icon" href="/src/assets/img/bazz-mascot.svg"/>
 <link rel="stylesheet" href="/src/assets/css/style.css"/>
 <link rel="stylesheet" href="/src/assets/css/responsive.css"/>
@@ -173,9 +173,10 @@
     border-color: #ef4444;
   }
 </style>
+<meta name="robots" content="noindex, nofollow"/>
+<meta name="description" content="Tanya Bazz AI — Asisten cerdas badak BAJA."/>
 </head>
 <body>
-
 <!-- TOP NAVBAR -->
 <nav class="navbar" id="navbar">
   <div class="nav-container">
@@ -188,7 +189,6 @@
     </div>
   </div>
 </nav>
-
 <div class="page-header">
   <div class="container" style="display:flex; align-items:center; gap:16px;">
     <div style="width:56px; height:56px; border-radius:50%; background:var(--accent-gradient, linear-gradient(135deg,#7c3aed,#06b6d4)); padding:2px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
@@ -201,11 +201,9 @@
     </div>
   </div>
 </div>
-
 <section class="section" style="padding-top:16px; padding-bottom:50px;">
   <div class="container">
     <div class="chat-card">
-      
       <!-- Topbar inside Card -->
       <div class="chat-topbar">
         <div class="chat-topbar-left">
@@ -219,7 +217,6 @@
         </div>
         <button id="clearChatBtn" class="clear-btn" title="Hapus Riwayat Chat">Bersihkan Chat</button>
       </div>
-
       <!-- Chat Body -->
       <div id="chatBody" class="chat-body">
         <div class="chat-row bot">
@@ -229,7 +226,6 @@
           </div>
         </div>
       </div>
-
       <!-- Quick Chips -->
       <div class="quick-chips">
         <button class="chip-btn" data-query="Apa saja tools yang ada di BAJA?">Apa saja tools di BAJA?</button>
@@ -237,51 +233,41 @@
         <button class="chip-btn" data-query="Beri rekomendasi tips belajar koding web">Tips belajar koding</button>
         <button class="chip-btn" data-query="Jelaskan fitur Virtual Aquarium di BAJA">Fitur Aquarium BAJA</button>
       </div>
-
       <!-- Input Footer -->
       <div class="chat-footer">
         <input type="text" id="chatInput" class="chat-input" placeholder="Tanyakan apa saja ke Bazz..." autocomplete="off"/>
         <button id="sendBtn" class="btn btn-primary" style="padding:12px 22px; border-radius:10px; font-weight:600; cursor:pointer;">Kirim</button>
       </div>
-
     </div>
   </div>
 </section>
-
 <script src="/src/App.js"></script>
 <script>
   const chatBody = document.getElementById('chatBody');
   const chatInput = document.getElementById('chatInput');
   const sendBtn = document.getElementById('sendBtn');
   const clearChatBtn = document.getElementById('clearChatBtn');
-
   function appendChat(role, text) {
     const row = document.createElement('div');
     row.className = 'chat-row ' + role;
-
     if (role === 'bot') {
       const avatar = document.createElement('div');
       avatar.className = 'chat-avatar-mini';
       avatar.innerHTML = '<img src="/src/assets/img/bazz-mascot.svg" alt="Bazz">';
       row.appendChild(avatar);
     }
-
     const bubble = document.createElement('div');
     bubble.className = 'chat-bubble ' + role;
     bubble.innerHTML = text.replace(/\\n/g, '<br/>');
     row.appendChild(bubble);
-
     chatBody.appendChild(row);
     chatBody.scrollTop = chatBody.scrollHeight;
   }
-
   async function sendMessage(overrideText) {
     const text = (overrideText || chatInput.value).trim();
     if (!text) return;
-
     appendChat('user', text);
     if (!overrideText) chatInput.value = '';
-
     // Typing state
     const typingRow = document.createElement('div');
     typingRow.className = 'chat-row bot';
@@ -292,7 +278,6 @@
     `;
     chatBody.appendChild(typingRow);
     chatBody.scrollTop = chatBody.scrollHeight;
-
     try {
       // 1. Coba panggil backend API
       const res = await fetch('/api/ai/chat', {
@@ -312,7 +297,6 @@
       try {
         const _k = ['AQ.Ab8RN6LB4bv-xsX2', 'GBZ8esz7VgcO1GrXl13', 'DFH9GZC6swB4Krg'].join('');
         const bazzPrompt = `Kamu adalah Bazz, maskot badak resmi BAJA WEB (baja.my.id). Jawab pertanyaan pengguna secara langsung, to-the-point, ringkas, jelas, dan fokus pada inti pertanyaan. Jangan bertele-tele dan jangan menyebut nama pembuat web kecuali jika ditanyakan secara spesifik. Pertanyaan: ${text.substring(0, 1000)}`;
-
         const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${_k}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -320,10 +304,8 @@
             contents: [{ parts: [{ text: bazzPrompt }] }]
           })
         });
-
         const geminiData = await geminiRes.json();
         typingRow.remove();
-
         const reply = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
         if (reply) {
           appendChat('bot', reply.trim());
@@ -336,12 +318,10 @@
       }
     }
   }
-
   sendBtn.addEventListener('click', () => sendMessage());
   chatInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') sendMessage();
   });
-
   // Handle Quick Chips
   document.querySelectorAll('.chip-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -349,7 +329,6 @@
       if (query) sendMessage(query);
     });
   });
-
   // Handle Clear Chat
   clearChatBtn.addEventListener('click', () => {
     chatBody.innerHTML = `
