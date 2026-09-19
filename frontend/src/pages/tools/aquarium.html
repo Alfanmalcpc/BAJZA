@@ -728,6 +728,7 @@
         const statePayload = {
             tokens: tokens, 
             totalSoldTokens: totalSoldTokens,
+            displayName: myRealName || (typeof auth !== 'undefined' && auth.currentUser && auth.currentUser.displayName) || localStorage.getItem('baja_user_name') || 'Alfan',
             inventoryFood: inventoryFood, 
             unlockedThemes: unlockedThemes,
             activeThemeId: activeThemeId, 
@@ -830,14 +831,32 @@
         startGame(guestUid);
     }
 
+    let myRealName = localStorage.getItem('baja_user_name') || '';
+
     // Check Firebase Login First
-    auth.onAuthStateChanged(user => {
+    auth.onAuthStateChanged(async user => {
         if (user) {
+            myRealName = user.displayName || '';
+            if (!myRealName && typeof db !== 'undefined') {
+                try {
+                    const snap = await db.ref('users/' + user.uid).once('value');
+                    const val = snap.val();
+                    if (val && val.displayName) myRealName = val.displayName;
+                } catch(e) {}
+            }
+            if (!myRealName && user.email) {
+                myRealName = user.email.split('@')[0];
+            }
+            if (!myRealName) myRealName = 'Alfan';
+            localStorage.setItem('baja_user_name', myRealName);
             startGame(user.uid);
+            saveAquariumDebounced();
         } else {
             const guestUid = localStorage.getItem('baja_aquarium_local_uid');
-            if (guestUid) { startGame(guestUid); }
-            else {
+            if (guestUid) { 
+                if (!myRealName) myRealName = 'Tamu (' + guestUid.substring(6, 10) + ')';
+                startGame(guestUid); 
+            } else {
                 document.getElementById('authRequiredNotice').style.display = 'block';
                 document.getElementById('gameContent').style.display = 'none';
             }
@@ -1452,7 +1471,7 @@
                         <div style="display:flex; align-items:center; gap:8px;">
                             <span style="font-weight:900; font-size:14px; min-width:24px;">${badge}</span>
                             <div>
-                                <strong style="font-size:13px; color:#0f172a;">${p.name}${isMe ? ' (Kamu)' : ''}</strong>
+                                <strong style="font-size:13px; color:#0f172a;">${finalName}${isMe ? ' (Kamu)' : ''}</strong>
                                 <div style="font-size:11px; color:#64748b;">${p.fishCount} Ikan • Terjual: ${p.soldTokens}🪙</div>
                             </div>
                         </div>
