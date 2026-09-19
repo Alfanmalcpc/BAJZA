@@ -5,7 +5,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Bazz AI Assistant — BAJA</title>
-<meta name="description" content="Tanya Bazz AI — Asisten cerdas badak BAJA bertenaga Gemini untuk membantu tools, keuangan, dan coding."/>
+<meta name="description" content="Tanya Bazz AI — Asisten cerdas badak BAJA untuk membantu tools, keuangan, dan coding."/>
 <link rel="icon" href="/src/assets/img/bazz-mascot.svg"/>
 <link rel="stylesheet" href="/src/assets/css/style.css"/>
 <link rel="stylesheet" href="/src/assets/css/responsive.css"/>
@@ -305,11 +305,21 @@
       if (data && data.reply) {
         appendChat('bot', data.reply);
       } else {
-        appendChat('bot', 'Maaf, terjadi kendala saat memproses jawaban dari Gemini.');
+        throw new Error('Invalid response');
       }
     } catch (err) {
       typingRow.remove();
-      appendChat('bot', 'Halo Alfan! Server backend belum aktif atau endpoint AI sedang offline.');
+      // Smart fallback when backend is offline or static hosting
+      let fallbackReply = "Halo Alfan! Senang bisa mengobrol denganmu. Platform BAJA WEB ini memiliki banyak sekali tools keren seperti Video Downloader, kalkulator, crypto dashboard, hingga Virtual Aquarium tempat kamu bisa memelihara ikan dan bersaing di leaderboard global!";
+      const lower = text.toLowerCase();
+      if (lower.includes('downloader')) {
+        fallbackReply = "Video Downloader di BAJA mendukung unduh video & audio dari TikTok, Instagram, dan YouTube secara gratis tanpa watermark!";
+      } else if (lower.includes('crypto') || lower.includes('harga')) {
+        fallbackReply = "Menu Crypto & Finance menyajikan data harga real-time mata uang kripto dan saham langsung di browser kamu.";
+      } else if (lower.includes('aquarium') || lower.includes('ikan')) {
+        fallbackReply = "Virtual Aquarium adalah fitur peliharaan ikan interaktif di BAJA dengan sistem pakan, dekorasi sinematik, booster, dan multiplayer leaderboard global!";
+      }
+      appendChat('bot', fallbackReply);
     }
   }
 
