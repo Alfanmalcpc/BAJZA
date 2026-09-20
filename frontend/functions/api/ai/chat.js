@@ -3,22 +3,25 @@ export async function onRequestPost(context) {
     const { request, env } = context;
     const { message } = await request.json();
 
-    if (!message) {
+    if (!message || typeof message !== 'string') {
       return new Response(JSON.stringify({ error: 'Pesan tidak boleh kosong' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const _p1 = 'AQ.Ab8RN6LB4bv-xsX2';
-    const _p2 = 'GBZ8esz7VgcO1GrXl13';
-    const _p3 = 'DFH9GZC6swB4Krg';
-    const serverKey = _p1 + _p2 + _p3;
-    const apiKey = env?.GEMINI_API_KEY || serverKey;
+    // API key HANYA diambil dari Environment Variable Cloudflare Pages — tidak pernah hardcoded
+    const apiKey = env?.GEMINI_API_KEY;
+    if (!apiKey) {
+      return new Response(JSON.stringify({ error: 'Layanan AI sedang tidak tersedia.' }), {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
 
     const prompt = `Kamu adalah Bazz, asisten cerdas resmi BAJA WEB. Jawab pertanyaan pengguna secara langsung, to-the-point, akurat, dan fokus ke inti pertanyaan. Jangan bertele-tele dan jangan menyebutkan nama pembuat web kecuali jika ditanyakan secara spesifik. Pertanyaan: ${message.substring(0, 1000)}`;
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${apiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -27,23 +30,21 @@ export async function onRequestPost(context) {
     });
 
     if (!response.ok) {
-      const errData = await response.json();
-      return new Response(JSON.stringify({ error: 'Gemini API Error', details: errData }), {
+      return new Response(JSON.stringify({ error: 'Gagal menghubungi server AI.' }), {
         status: response.status,
         headers: { 'Content-Type': 'application/json' }
       });
     }
 
     const data = await response.json();
-    const candidate = data.candidates?.[0];
-    const replyText = candidate?.content?.parts?.[0]?.text || 'Maaf, Bazz sedang berpikir keras.';
+    const replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Maaf, Bazz sedang berpikir keras.';
 
     return new Response(JSON.stringify({ success: true, reply: replyText.trim() }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: 'Gagal terhubung ke server AI Bazz', details: err.message }), {
+    return new Response(JSON.stringify({ error: 'Gagal terhubung ke server AI Bazz.' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     });

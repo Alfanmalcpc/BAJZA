@@ -20,8 +20,43 @@
     box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
     display: flex;
     flex-direction: column;
-    height: 640px;
+    height: 75vh;
+    min-height: 480px;
+    max-height: 750px;
     overflow: hidden;
+  }
+  @media (max-width: 768px) {
+    .chat-card {
+      height: 80vh;
+      border-radius: 12px;
+      margin: 0 -8px;
+    }
+    .page-header .container {
+      flex-direction: column;
+      text-align: center;
+      gap: 12px !important;
+    }
+    .chat-body {
+      padding: 12px;
+      gap: 12px;
+    }
+    .chat-row {
+      max-width: 95%;
+    }
+    .chat-bubble {
+      padding: 10px 14px;
+      font-size: 13.5px;
+    }
+    .chat-footer {
+      padding: 10px 12px;
+    }
+    .chat-input {
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+    .quick-chips {
+      padding: 8px 12px;
+    }
   }
   .chat-topbar {
     padding: 14px 20px;
@@ -279,7 +314,6 @@
     chatBody.appendChild(typingRow);
     chatBody.scrollTop = chatBody.scrollHeight;
     try {
-      // 1. Coba panggil backend API
       const res = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -289,33 +323,12 @@
       if (res.ok && data && data.reply) {
         typingRow.remove();
         appendChat('bot', data.reply);
-        return;
+      } else {
+        throw new Error(data.error || 'Server error');
       }
-      throw new Error('Backend offline');
     } catch (err) {
-      // 2. Fallback cerdas langsung ke Gemini jika hosting belum menjalankan server backend
-      try {
-        const _k = ['AQ.Ab8RN6LB4bv-xsX2', 'GBZ8esz7VgcO1GrXl13', 'DFH9GZC6swB4Krg'].join('');
-        const bazzPrompt = `Kamu adalah Bazz, maskot badak resmi BAJA WEB (baja.my.id). Jawab pertanyaan pengguna secara langsung, to-the-point, ringkas, jelas, dan fokus pada inti pertanyaan. Jangan bertele-tele dan jangan menyebut nama pembuat web kecuali jika ditanyakan secara spesifik. Pertanyaan: ${text.substring(0, 1000)}`;
-        const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${_k}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: bazzPrompt }] }]
-          })
-        });
-        const geminiData = await geminiRes.json();
-        typingRow.remove();
-        const reply = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (reply) {
-          appendChat('bot', reply.trim());
-          return;
-        }
-        throw new Error('Gemini fallback failed');
-      } catch (gErr) {
-        typingRow.remove();
-        appendChat('bot', 'Maaf, koneksi AI sedang mengalami gangguan jaringan. Silakan coba kirim pesan lagi.');
-      }
+      typingRow.remove();
+      appendChat('bot', 'Maaf, koneksi ke Bazz sedang mengalami gangguan jaringan. Silakan coba lagi nanti.');
     }
   }
   sendBtn.addEventListener('click', () => sendMessage());
