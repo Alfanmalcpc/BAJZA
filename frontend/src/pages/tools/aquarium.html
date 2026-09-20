@@ -1030,8 +1030,20 @@
         }
         if (fishes.length === 0) return alert('Belum ada ikan di aquarium! Buat ikan terlebih dahulu.');
         const curFood = FOOD_ITEMS.find(x => x.id === selectedFood);
-        // Pilih 1 ikan secara acak agar pemberian pakan tidak selalu tertuju ke 1 ikan yang sama
-        const targetFish = fishes[Math.floor(Math.random() * fishes.length)];
+        
+        // Filter hanya ikan yang belum kenyang (hungerPoints < maxCap atau persentase lapar < 100%)
+        const hungryFishes = fishes.filter(f => {
+            const maxCap = getFishMaxHunger(f);
+            const curPoints = f.hungerPoints !== undefined ? f.hungerPoints : Math.round(((f.hunger !== undefined ? f.hunger : 100) / 100) * maxCap);
+            return curPoints < maxCap && getFishHungerPercent(f) < 100;
+        });
+
+        if (hungryFishes.length === 0) {
+            return alert('Semua ikan sudah kenyang! Tunggu beberapa saat sampai ada ikan yang lapar lagi.');
+        }
+
+        // Pilih 1 ikan secara acak dari kumpulan ikan yang lapar agar tidak hanya fokus ke 1 ikan
+        const targetFish = hungryFishes[Math.floor(Math.random() * hungryFishes.length)];
         const fishDom = document.getElementById('fish-' + targetFish.id);
         inventoryFood[selectedFood]--;
         updateStats();

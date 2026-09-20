@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# Block internal/monetag ad pages
+Disallow: /src/pages/tools/monetag-btn.html
+Disallow: /src/pages/tools/monetag-aquarium-btn.html
+Disallow: /src/pages/tools/monetag-twibbon-btn.html
+Disallow: /src/pages/tools/monetag-video-hd-btn.html
+
+# Block auth & private pages
+Disallow: /src/pages/auth.html
+Disallow: /src/pages/profile.html
+Disallow: /src/pages/settings.html
+
+Sitemap: https://bajza.my.id/sitemap.xml
