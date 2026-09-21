@@ -282,6 +282,16 @@
   const chatInput = document.getElementById('chatInput');
   const sendBtn = document.getElementById('sendBtn');
   const clearChatBtn = document.getElementById('clearChatBtn');
+  function cleanMarkdown(text) {
+    if (!text) return '';
+    return text
+      .replace(/```[\s\S]*?```/g, '') // remove code blocks
+      .replace(/`([^`]+)`/g, '$1') // inline code
+      .replace(/\*\*([^*]+)\*\*/g, '$1') // bold **text**
+      .replace(/\*([^*]+)\*/g, '$1') // italic *text*
+      .replace(/#{1,6}\s+/g, '') // headers #
+      .replace(/>\s+/g, ''); // blockquotes >
+  }
   function appendChat(role, text) {
     const row = document.createElement('div');
     row.className = 'chat-row ' + role;
@@ -293,7 +303,8 @@
     }
     const bubble = document.createElement('div');
     bubble.className = 'chat-bubble ' + role;
-    bubble.innerHTML = text.replace(/\\n/g, '<br/>');
+    const cleaned = cleanMarkdown(text);
+    bubble.innerHTML = cleaned.replace(/\n/g, '<br/>');
     row.appendChild(bubble);
     chatBody.appendChild(row);
     chatBody.scrollTop = chatBody.scrollHeight;
@@ -333,7 +344,7 @@
       // 2. Fallback otomatis langsung ke Google Gemini API Engine
       try {
         const _k = atob('QVEuQWI4Uk42TEI0YnYteHNYMkdCWjhlc3o3VmdjTzFHclhsMTNERkg5R1pDNnN3QjRLcmc=');
-        const bazzPrompt = `Kamu adalah Bazz, asisten cerdas resmi BAJA WEB (bajza.my.id). Jawab pertanyaan pengguna secara langsung, to-the-point, akurat, ringkas, dan fokus pada inti pertanyaan. Jangan bertele-tele dan jangan menyebut nama pembuat web kecuali jika ditanyakan secara spesifik. Pertanyaan: ${text.substring(0, 1000)}`;
+        const bazzPrompt = `Kamu adalah Bazz, asisten cerdas resmi BAJA WEB (bajza.my.id). Jawab pertanyaan pengguna secara langsung, to-the-point, akurat, ringkas, dan fokus pada inti pertanyaan. Tuliskan jawaban dalam format teks polos murni yang bersih. JANGAN GUNAKAN simbol markdown sama sekali seperti bintang ganda (**), bintang tunggal (*), tanda pagar (#), atau backtick (\`). Pertanyaan: ${text.substring(0, 1000)}`;
         
         const models = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.6-flash'];
         let gotReply = false;
