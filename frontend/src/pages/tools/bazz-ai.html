@@ -332,7 +332,7 @@
     } catch (err) {
       // 2. Fallback otomatis langsung ke Google Gemini API Engine
       try {
-        const _k = atob('QVEuQWI4Uk42TEI0YncteHNYMkdCWjhlc3o3VmdjTzFHclhsMTNERkg5R1pDNnN3QjRLcmc=');
+        const _k = atob('QVEuQWI4Uk42TEI0YnYteHNYMkdCWjhlc3o3VmdjTzFHclhsMTNERkg5R1pDNnN3QjRLcmc=');
         const bazzPrompt = `Kamu adalah Bazz, asisten cerdas resmi BAJA WEB (bajza.my.id). Jawab pertanyaan pengguna secara langsung, to-the-point, akurat, ringkas, dan fokus pada inti pertanyaan. Jangan bertele-tele dan jangan menyebut nama pembuat web kecuali jika ditanyakan secara spesifik. Pertanyaan: ${text.substring(0, 1000)}`;
         
         const models = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.6-flash'];
