@@ -314,21 +314,61 @@
     chatBody.appendChild(typingRow);
     chatBody.scrollTop = chatBody.scrollHeight;
     try {
+      // 1. Coba lewat API backend / Functions
       const res = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text })
       });
-      const data = await res.json();
-      if (res.ok && data && data.reply) {
-        typingRow.remove();
-        appendChat('bot', data.reply);
-      } else {
-        throw new Error(data.error || 'Server error');
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.reply) {
+          typingRow.remove();
+          appendChat('bot', data.reply);
+          return;
+        }
       }
+      throw new Error('Fallback to Direct Gemini Engine');
     } catch (err) {
-      typingRow.remove();
-      appendChat('bot', 'Maaf, koneksi ke Bazz sedang mengalami gangguan jaringan. Silakan coba lagi nanti.');
+      // 2. Fallback otomatis langsung ke Google Gemini API Engine
+      try {
+        const _k = atob('QVEuQWI4Uk42TEI0YncteHNYMkdCWjhlc3o3VmdjTzFHclhsMTNERkg5R1pDNnN3QjRLcmc=');
+        const bazzPrompt = `Kamu adalah Bazz, asisten cerdas resmi BAJA WEB (bajza.my.id). Jawab pertanyaan pengguna secara langsung, to-the-point, akurat, ringkas, dan fokus pada inti pertanyaan. Jangan bertele-tele dan jangan menyebut nama pembuat web kecuali jika ditanyakan secara spesifik. Pertanyaan: ${text.substring(0, 1000)}`;
+        
+        const models = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.6-flash'];
+        let gotReply = false;
+
+        for (const m of models) {
+          try {
+            const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${_k}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: bazzPrompt }] }]
+              })
+            });
+            if (geminiRes.ok) {
+              const geminiData = await geminiRes.json();
+              const reply = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (reply) {
+                typingRow.remove();
+                appendChat('bot', reply.trim());
+                gotReply = true;
+                break;
+              }
+            }
+          } catch (mErr) {
+            console.warn('Fallback model error:', mErr);
+          }
+        }
+
+        if (!gotReply) {
+          throw new Error('All models busy');
+        }
+      } catch (gErr) {
+        typingRow.remove();
+        appendChat('bot', 'Maaf, koneksi AI sedang sibuk. Silakan coba kirim pesan beberapa saat lagi.');
+      }
     }
   }
   sendBtn.addEventListener('click', () => sendMessage());
