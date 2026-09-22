@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Web UI Store — BAJA Marketplace</title>
+<meta name="description" content="Toko Template & Desain UI Website Resmi BAJA — Download source code template UI modern, unik, dan siap pakai dalam format .ZIP."/>
+<link rel="icon" href="/src/assets/img/Logo.svg"/>
+<link rel="stylesheet" href="/src/assets/css/style.css"/>
+<link rel="stylesheet" href="/src/assets/css/responsive.css"/>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="/src/services/firebase.js"></script>
+
+<style>
+:root {
+  --neon-cyan: #00f2fe;
+  --neon-blue: #4facfe;
+  --glass-bg: rgba(18, 22, 34, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --card-metal: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+}
+
+.shop-container {
+  max-width: 1200px;
+  margin: 90px auto 120px;
+  padding: 0 20px;
+}
+
+.store-hero {
+  position: relative;
+  background: radial-gradient(circle at 50% -20%, rgba(79, 172, 254, 0.25) 0%, rgba(10, 14, 23, 0.95) 70%);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 24px;
+  padding: 48px 32px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  margin-bottom: 40px;
+  overflow: hidden;
+}
+
+.store-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, rgba(0, 242, 254, 0.15), rgba(127, 0, 255, 0.15));
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  color: var(--neon-cyan);
+  box-shadow: 0 0 20px rgba(0, 242, 254, 0.3);
+  margin-bottom: 16px;
+}
+
+.store-title {
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #fff;
+  margin-bottom: 12px;
+  text-shadow: 0 0 30px rgba(0, 242, 254, 0.3);
+}
+
+.store-title span {
+  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 50%, #e0c3fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.store-desc {
+  max-width: 650px;
+  margin: 0 auto;
+  color: #94a3b8;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.shop-filters {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 36px;
+}
+
+.filter-chip {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  padding: 10px 22px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+}
+
+.filter-chip:hover, .filter-chip.active {
+  color: #fff;
+  background: linear-gradient(135deg, rgba(79, 172, 254, 0.25), rgba(0, 242, 254, 0.25));
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 20px rgba(0, 242, 254, 0.4), inset 0 0 10px rgba(0, 242, 254, 0.2);
+  transform: translateY(-2px);
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 26px;
+}
+
+.product-card {
+  position: relative;
+  background: var(--card-metal);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  overflow: hidden;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(0, 242, 254, 0.5);
+  box-shadow: 0 20px 45px rgba(0, 242, 254, 0.25), 0 0 30px rgba(79, 172, 254, 0.15);
+}
+
+.product-thumb {
+  position: relative;
+  height: 190px;
+  background: radial-gradient(circle at center, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.95));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.zip-badge {
+  position: absolute;
+  bottom: 12px;
+  left: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 11px;
+  font-weight: 700;
+  color: #38bdf8;
+  letter-spacing: 0.5px;
+}
+
+.product-tag {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgba(0, 242, 254, 0.2);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  backdrop-filter: blur(8px);
+}
+
+.product-body {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.product-category {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #64748b;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.product-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #f8fafc;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.product-meta {
+  font-size: 13px;
+  color: #94a3b8;
+  margin-bottom: 16px;
+  line-height: 1.5;
+  flex-grow: 1;
+}
+
+.product-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.feat-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.product-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 16px;
+  margin-top: auto;
+}
+
+.product-price {
+  font-size: 18px;
+  font-weight: 800;
+  color: #38bdf8;
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+}
+
+.btn-order {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+  border: none;
+  color: #030712;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 9px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 15px rgba(0, 242, 254, 0.35);
+  text-decoration: none;
+}
+
+.btn-order:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 6px 20px rgba(0, 242, 254, 0.55);
+  transform: scale(1.04);
+}
+
+.floating-cart {
+  position: fixed;
+  bottom: 84px;
+  right: 24px;
+  background: linear-gradient(135deg, #00f2fe, #7f00ff);
+  color: #fff;
+  border: none;
+  padding: 14px 22px;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 10px 30px rgba(0, 242, 254, 0.45);
+  cursor: pointer;
+  z-index: 99;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.floating-cart:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 15px 40px rgba(0, 242, 254, 0.6);
+}
+</style>
+</head>
+<body>
+
+<!-- TOP NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="/public/index.html" class="nav-logo" style="text-decoration:none">
+      <div class="logo-badge"><img src="/src/assets/img/Logo.svg" alt="BAJA"></div>
+      <div class="logo-text">BAJA</div>
+    </a>
+    <div class="nav-actions">
+      <!-- navClock and navAuthSlot injected here -->
+    </div>
+  </div>
+</nav>
+
+<div class="shop-container">
+  <!-- Hero Section -->
+  <div class="store-hero">
+    <div class="store-badge">🎨 Web UI &amp; Frontend Templates</div>
+    <h1 class="store-title">BAJA <span>Web UI Store</span></h1>
+    <p class="store-desc">Koleksi desain antarmuka (UI) website modern, responsive, dan berkarakter kuat dalam bentuk file .ZIP siap pakai dengan kode bersih dan terstruktur.</p>
+  </div>
+
+  <!-- Category Filter -->
+  <div class="shop-filters">
+    <button class="filter-chip active" onclick="filterShop('all')">🌟 Semua Desain</button>
+    <button class="filter-chip" onclick="filterShop('landing')">🚀 Landing Page</button>
+    <button class="filter-chip" onclick="filterShop('minimalist')">🍃 Minimalist &amp; F&amp;B</button>
+    <button class="filter-chip" onclick="filterShop('creative')">⚡ Creative &amp; Tech</button>
+  </div>
+
+  <!-- Product Grid -->
+  <div class="product-grid" id="productGrid">
+
+    <!-- Item 1: Neo Bento SaaS UI -->
+    <div class="product-card" data-category="creative">
+      <div class="product-thumb">
+        🍱
+        <span class="zip-badge">📁 File .ZIP</span>
+        <span class="product-tag">Trending</span>
+      </div>
+      <div class="product-body">
+        <div class="product-category">Bento Grid UI</div>
+        <div class="product-name">Neo-Bento Modern SaaS UI (.zip)</div>
+        <div class="product-meta">Desain layout modular bento grid ultra sleek dengan micro-interactions, responsive grid, dan style modern tech.</div>
+        <div class="product-features">
+          <span class="feat-tag">Bento Grid</span>
+          <span class="feat-tag">HTML5 &amp; CSS3</span>
+          <span class="feat-tag">Fully Responsive</span>
+        </div>
+        <div class="product-footer">
+          <div class="product-price">Rp 45.000</div>
+          <a href="https://wa.me/6281553266691?text=Halo%20Alfan,%20saya%20mau%20beli%20ZIP%20Neo-Bento%20Modern%20SaaS%20UI" target="_blank" class="btn-order">Beli .ZIP</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Item 2: Japanese Coffee & Bakery UI -->
+    <div class="product-card" data-category="minimalist">
+      <div class="product-thumb">
+        ☕
+        <span class="zip-badge">📁 File .ZIP</span>
+        <span class="product-tag">Aesthetic</span>
+      </div>
+      <div class="product-body">
+        <div class="product-category">F&amp;B &amp; Cafe UI</div>
+        <div class="product-name">Komorebi Japanese Bakery UI (.zip)</div>
+        <div class="product-meta">Nuansa hangat minimalis ala kafe Tokyo, tipografi editorial elegan, katalog menu interaktif, dan form reservasi meja.</div>
+        <div class="product-features">
+          <span class="feat-tag">Warm Minimalist</span>
+          <span class="feat-tag">Menu Slider</span>
+          <span class="feat-tag">Zero Bloat</span>
+        </div>
+        <div class="product-footer">
+          <div class="product-price">Rp 40.000</div>
+          <a href="https://wa.me/6281553266691?text=Halo%20Alfan,%20saya%20mau%20beli%20ZIP%20Komorebi%20Japanese%20Bakery%20UI" target="_blank" class="btn-order">Beli .ZIP</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Item 3: Luxury Real Estate Architecture UI -->
+    <div class="product-card" data-category="landing">
+      <div class="product-thumb">
+        🏛️
+        <span class="zip-badge">📁 File .ZIP</span>
+        <span class="product-tag">Premium</span>
+      </div>
+      <div class="product-body">
+        <div class="product-category">Architecture &amp; Living</div>
+        <div class="product-name">Aethel Luxury Real Estate UI (.zip)</div>
+        <div class="product-meta">Tampilan mewah sinematik untuk arsitektur, villa, dan properti berkelas dengan full-screen showcase dan galeri lantai interaktif.</div>
+        <div class="product-features">
+          <span class="feat-tag">High-End Luxury</span>
+          <span class="feat-tag">Hero Parallax</span>
+          <span class="feat-tag">Interactive Map</span>
+        </div>
+        <div class="product-footer">
+          <div class="product-price">Rp 55.000</div>
+          <a href="https://wa.me/6281553266691?text=Halo%20Alfan,%20saya%20mau%20beli%20ZIP%20Aethel%20Luxury%20Real%20Estate%20UI" target="_blank" class="btn-order">Beli .ZIP</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Item 4: Swiss Monochrome Editorial UI -->
+    <div class="product-card" data-category="minimalist">
+      <div class="product-thumb">
+        📰
+        <span class="zip-badge">📁 File .ZIP</span>
+        <span class="product-tag">Swiss Style</span>
+      </div>
+      <div class="product-body">
+        <div class="product-category">Editorial &amp; Magazine</div>
+        <div class="product-name">Zurich Monochrome Editorial UI (.zip)</div>
+        <div class="product-meta">Gaya desain Swiss / majalah seni monokrom kontras tinggi, tipografi serif artistik, dan layout membaca bebas distraksi.</div>
+        <div class="product-features">
+          <span class="feat-tag">Monochrome Black/White</span>
+          <span class="feat-tag">Editorial Serif</span>
+          <span class="feat-tag">High Contrast</span>
+        </div>
+        <div class="product-footer">
+          <div class="product-price">Rp 35.000</div>
+          <a href="https://wa.me/6281553266691?text=Halo%20Alfan,%20saya%20mau%20beli%20ZIP%20Zurich%20Monochrome%20Editorial%20UI" target="_blank" class="btn-order">Beli .ZIP</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Item 5: Cyber Clan & Esports Team UI -->
+    <div class="product-card" data-category="creative">
+      <div class="product-thumb">
+        🎮
+        <span class="zip-badge">📁 File .ZIP</span>
+        <span class="product-tag">Gaming</span>
+      </div>
+      <div class="product-body">
+        <div class="product-category">Esports &amp; Gaming</div>
+        <div class="product-name">Apex Pro Esports Team UI (.zip)</div>
+        <div class="product-meta">Desain garang bernuansa gaming kompetitif dengan kartu roster pemain, jadwal pertandingan, dan bracket turnamen terpadu.</div>
+        <div class="product-features">
+          <span class="feat-tag">Dark Industrial</span>
+          <span class="feat-tag">Roster Cards</span>
+          <span class="feat-tag">Match Schedule</span>
+        </div>
+        <div class="product-footer">
+          <div class="product-price">Rp 50.000</div>
+          <a href="https://wa.me/6281553266691?text=Halo%20Alfan,%20saya%20mau%20beli%20ZIP%20Apex%20Pro%20Esports%20Team%20UI" target="_blank" class="btn-order">Beli .ZIP</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Item 6: Creative Agency Portfolio UI -->
+    <div class="product-card" data-category="landing">
+      <div class="product-thumb">
+        💡
+        <span class="zip-badge">📁 File .ZIP</span>
+        <span class="product-tag">Agency</span>
+      </div>
+      <div class="product-body">
+        <div class="product-category">Agency &amp; Studio</div>
+        <div class="product-name">Studio Pulse Creative UI (.zip)</div>
+        <div class="product-meta">Template website studio kreatif dengan grid portofolio dinamis, testimonial client carousel, dan call-to-action konversi tinggi.</div>
+        <div class="product-features">
+          <span class="feat-tag">Bold Typography</span>
+          <span class="feat-tag">Filterable Portfolio</span>
+          <span class="feat-tag">Clean Code</span>
+        </div>
+        <div class="product-footer">
+          <div class="product-price">Rp 45.000</div>
+          <a href="https://wa.me/6281553266691?text=Halo%20Alfan,%20saya%20mau%20beli%20ZIP%20Studio%20Pulse%20Creative%20UI" target="_blank" class="btn-order">Beli .ZIP</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Floating Hubungi Penjual -->
+<a href="https://wa.me/6281553266691?text=Halo%20Alfan,%20saya%20mau%20request%20desain%20UI%20custom%20atau%20tanya%20template%20ZIP" target="_blank" class="floating-cart">
+  <span>💬</span> Custom UI / Request .ZIP
+</a>
+
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+  <a href="/public/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">🏠</span>
+    <span class="bottom-nav-text" data-en="Home" data-id="Beranda">Home</span>
+  </a>
+  <a href="/src/pages/tools/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">🛠️</span>
+    <span class="bottom-nav-text" data-en="Tools" data-id="Alat">Tools</span>
+  </a>
+  <a href="/src/pages/finance/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">📈</span>
+    <span class="bottom-nav-text" data-en="Finance" data-id="Dana">Finance</span>
+  </a>
+  <a href="/src/pages/shop.html" class="bottom-nav-link active">
+    <span class="bottom-nav-icon">🛍️</span>
+    <span class="bottom-nav-text" data-en="Shop" data-id="Toko">Shop</span>
+  </a>
+  <a href="/src/pages/tutorial/index.html" class="bottom-nav-link">
+    <span class="bottom-nav-icon">📚</span>
+    <span class="bottom-nav-text" data-en="Tutorial" data-id="Tutor">Tutorial</span>
+  </a>
+</nav>
+
+<script src="/src/App.js"></script>
+<script>
+function filterShop(category) {
+  document.querySelectorAll('.filter-chip').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+
+  const cards = document.querySelectorAll('.product-card');
+  cards.forEach(card => {
+    if (category === 'all' || card.dataset.category === category) {
+      card.style.display = 'flex';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+</script>
+
+</body>
+</html>
