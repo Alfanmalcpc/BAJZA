@@ -11,7 +11,9 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.min.js"></script>
 <script src="/src/services/firebase.js"></script>
+<script src="/src/assets/js/avatar3d.js"></script>
 <script src="https://5gvci.com/act/files/tag.min.js?z=11493748" data-cfasync="false" async data-sw="/tools/sw.js"></script>
 <meta name="robots" content="noindex, nofollow"/>
 <style>.baja-auth-pending body{visibility:hidden!important}.baja-auth-ready body{visibility:visible!important}</style><script>document.documentElement.classList.add("baja-auth-pending")</script></head>
@@ -128,7 +130,7 @@ let selectedPhotoDataUrl = null;
 let currentCharacter = null;
 function renderCharacter() {
   if (!currentCharacter) return;
-  characterPreview.innerHTML = window.renderBajaCharacter(currentCharacter, 76);
+  if (window.renderBajaCharacter3D) window.renderBajaCharacter3D(characterPreview, currentCharacter);
   characterStatus.textContent = currentCharacter.gender === 'female' ? 'Karakter perempuan dipilih' : 'Karakter laki-laki dipilih';
 }
 async function chooseCharacter(gender) {
