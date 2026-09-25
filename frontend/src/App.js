@@ -12,7 +12,8 @@ const BAJA = {
   init() {
     this.applyLang(this.lang);
     this.initNav();
-    this.initBazzBotBubble();
+    // Bazz AI sementara dinonaktifkan sesuai kebijakan produk.
+    this.disableBazzRoutes();
     this.initScrollTop();
     this.initPageTransition();
     this.initClock();
@@ -67,6 +68,15 @@ const BAJA = {
         window.location.href = '/src/pages/settings.html';
       });
     }
+  },
+
+  disableBazzRoutes() {
+    const blocked = '/src/pages/tools/bazz-ai.html';
+    if (window.location.pathname.endsWith('/bazz-ai.html')) {
+      window.location.replace('/public/index.html');
+      return;
+    }
+    document.querySelectorAll('a[href*="bazz-ai.html"]').forEach(link => link.remove());
   },
 
   /* ════════════════════════════════════════════════════

@@ -289,10 +289,9 @@
 <!-- LOGIN CHECK WRAPPER -->
 <div id="authRequiredNotice" class="aq-header-box" style="display:none; max-width:600px; margin-top:50px;">
     <h2 style="font-family:'Bangers',cursive; font-size:28px; color:#ef4444;">🔒 LOGIN DIBUTUHKAN</h2>
-    <p style="margin:12px 0 20px 0; font-size:15px; font-weight:600;">Kamu bisa login ke akun BAJA agar aquarium tersimpan di cloud atau lanjut bermain langsung!</p>
+    <p style="margin:12px 0 20px 0; font-size:15px; font-weight:600;">Aquarium BAJA WEB hanya dapat diakses setelah kamu login agar data ikan, token, dan progres tersimpan aman di akunmu.</p>
     <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
-        <a href="/src/pages/auth.html" class="btn-baja btn-cyan" style="font-size:16px; padding:10px 24px;">🔑 Masuk / Login Akun</a>
-        <button class="btn-baja" onclick="playAsGuest()" style="font-size:16px; padding:10px 24px; background:#f1f5f9; color:#000;">🎮 Lanjut Tanpa Login</button>
+        <a href="/src/pages/auth.html" class="btn-baja btn-cyan" style="font-size:16px; padding:10px 24px;">Masuk / Login Akun</a>
     </div>
 </div>
 <!-- MAIN AQUARIUM GAME CONTENT (HANYA MUNCUL JIKA SUDAH LOGIN) -->
@@ -814,14 +813,9 @@
             startGame(user.uid);
             saveAquariumDebounced();
         } else {
-            const guestUid = localStorage.getItem('baja_aquarium_local_uid');
-            if (guestUid) { 
-                if (!myRealName) myRealName = 'Tamu (' + guestUid.substring(6, 10) + ')';
-                startGame(guestUid); 
-            } else {
-                document.getElementById('authRequiredNotice').style.display = 'block';
-                document.getElementById('gameContent').style.display = 'none';
-            }
+            currentUid = null;
+            document.getElementById('authRequiredNotice').style.display = 'block';
+            document.getElementById('gameContent').style.display = 'none';
         }
     });
     window.addEventListener('beforeunload', () => { if (currentUid) saveAquariumData(); });

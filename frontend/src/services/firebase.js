@@ -106,15 +106,56 @@ async function bajaSignOut() {
 
 /* Simpan atau update profil pengguna ke database */
 async function saveUserProfile(user, extra = {}) {
-  await db.ref(`users/${user.uid}`).set({
+  const ref = db.ref(`users/${user.uid}`);
+  const snap = await ref.once('value');
+  const existing = snap.val() || {};
+  await ref.update({
     uid:         user.uid,
     email:       user.email,
-    displayName: extra.displayName || user.displayName || '',
-    photoURL:    extra.photoURL !== undefined ? extra.photoURL : (user.photoURL || ''),
-    lang:        extra.lang || localStorage.getItem('baja-lang') || 'id',
-    createdAt:   extra.createdAt || Date.now(),
+    displayName: extra.displayName !== undefined ? extra.displayName : (existing.displayName || user.displayName || ''),
+    photoURL:    extra.photoURL !== undefined ? extra.photoURL : (existing.photoURL || user.photoURL || ''),
+    lang:        extra.lang || existing.lang || localStorage.getItem('baja-lang') || 'id',
+    createdAt:   existing.createdAt || extra.createdAt || Date.now(),
     updatedAt:   Date.now()
   });
+}
+
+/* ── BAJA Character / Buzz wallet ── */
+const BAJA_DEFAULT_CHARACTER = {
+  gender: 'male',
+  skin: '#f2b28d',
+  hair: 'short',
+  outfit: 'basic-blue',
+  accessory: 'none'
+};
+const BAJA_CATALOG = {
+  outfits: {
+    'basic-blue': { name: 'Baju Biru', price: 0, color: '#2563eb' },
+    'sunset-pink': { name: 'Jaket Sunset', price: 40, color: '#ec4899' },
+    'mint-hoodie': { name: 'Hoodie Mint', price: 65, color: '#10b981' }
+  },
+  accessories: {
+    none: { name: 'Tanpa Aksesori', price: 0 },
+    glasses: { name: 'Kacamata', price: 25 },
+    crown: { name: 'Mahkota', price: 90 }
+  }
+};
+function getCharacterProfile(profile = {}) {
+  return { ...BAJA_DEFAULT_CHARACTER, ...(profile.character || {}) };
+}
+async function updateCharacter(uid, character) {
+  const clean = { ...BAJA_DEFAULT_CHARACTER, ...character };
+  await db.ref(`users/${uid}`).update({ character: clean, updatedAt: Date.now() });
+  return clean;
+}
+async function updateBuzz(uid, amount) {
+  const ref = db.ref(`users/${uid}/buzz`);
+  const snap = await ref.once('value');
+  const current = Number(snap.val() || 0);
+  const next = current + Number(amount);
+  if (next < 0) throw new Error('Buzz tidak cukup.');
+  await ref.set(next);
+  return next;
 }
 
 /* Ambil data profil pengguna dari database */
