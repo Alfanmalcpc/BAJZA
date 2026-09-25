@@ -167,6 +167,27 @@ const BAJA_CATALOG = {
     'mint-sneakers': { name: 'Sepatu Mint', price: 45 }
   }
 };
+/* Expand every equipment slot to exactly 100 procedural catalog choices. Each item has a stable ID, price, rarity, color and 3D variant seed. */
+function expandBajaCatalog() {
+  const groups = [
+    ['outfits', 'Outfit', ['#2563eb','#ec4899','#10b981','#8b5cf6','#f59e0b','#ef4444','#14b8a6','#64748b']],
+    ['headwear', 'Headwear', ['#facc15','#ef4444','#60a5fa','#a78bfa','#34d399','#fb7185','#f97316','#e2e8f0']],
+    ['eyewear', 'Kacamata', ['#172033','#0f766e','#7c3aed','#be123c','#0369a1','#854d0e','#334155','#111827']],
+    ['backItem', 'Aksesori Punggung', ['#ec4899','#2563eb','#10b981','#f59e0b','#8b5cf6','#ef4444','#14b8a6','#64748b']],
+    ['footwear', 'Sepatu', ['#334155','#ec4899','#10b981','#2563eb','#f59e0b','#ef4444','#8b5cf6','#111827']]
+  ];
+  groups.forEach(([type, label, colors]) => {
+    const catalog = BAJA_CATALOG[type];
+    const existing = Object.keys(catalog);
+    for (let n = 1; Object.keys(catalog).length < 100; n++) {
+      const id = `${type}-${String(n).padStart(3, '0')}`;
+      if (catalog[id]) continue;
+      const price = n === 1 ? 0 : 15 + ((n * 17) % 120);
+      catalog[id] = { name: `${label} ${String(n).padStart(3, '0')}`, price, color: colors[(n - 1) % colors.length], variant: n, rarity: price >= 100 ? 'Legendaris' : price >= 55 ? 'Langka' : 'Umum' };
+    }
+  });
+}
+expandBajaCatalog();
 function getCharacterProfile(profile = {}) {
   return { ...BAJA_DEFAULT_CHARACTER, ...(profile.character || {}) };
 }
