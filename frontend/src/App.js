@@ -4,6 +4,12 @@
            bahasa (i18n), crypto ticker, page transition
    ════════════════════════════════════════════════════════════════ */
 
+/* Prevent old-account onboarding redirects from flashing the page. */
+document.documentElement.classList.add('baja-auth-pending');
+const bajaAuthGateStyle = document.createElement('style');
+bajaAuthGateStyle.textContent = '.baja-auth-pending body{visibility:hidden!important}.baja-auth-ready body{visibility:visible!important}';
+document.head.appendChild(bajaAuthGateStyle);
+
 window.renderBajaCharacter = function(character = {}, size = 42) {
   const gender = character.gender === 'female' ? 'female' : 'male';
   const outfit = character.outfit === 'sunset-pink' ? '#ec4899' : (character.outfit === 'mint-hoodie' ? '#10b981' : '#2563eb');
@@ -159,7 +165,10 @@ const BAJA = {
      Bergantung pada firebase.js (auth, getUserProfile)
      ════════════════════════════════════════════════════ */
   initAuthUI() {
-    if (typeof firebase === 'undefined' || typeof auth === 'undefined') return;
+    if (typeof firebase === 'undefined' || typeof auth === 'undefined') {
+      document.documentElement.classList.add('baja-auth-ready');
+      return;
+    }
 
     let slot = document.getElementById('navAuthSlot');
     if (!slot) {
@@ -178,6 +187,8 @@ const BAJA = {
     const authHref    = '/src/pages/auth.html';
 
     auth.onAuthStateChanged(async user => {
+      const isOnboardingPage = window.location.pathname.endsWith('/profile.html') || window.location.pathname.endsWith('/auth.html');
+      if (isOnboardingPage) document.documentElement.classList.add('baja-auth-ready');
       if (user) {
         /* Pengguna login — ambil profil dari database */
         let displayName = user.displayName || 'Pengguna';
@@ -200,10 +211,11 @@ const BAJA = {
           }
         } catch (e) { /* Gagal ambil profil, pakai data lokal */ }
 
-        if (!character && !window.location.pathname.endsWith('/profile.html') && !window.location.pathname.endsWith('/auth.html')) {
+        if (!character && !isOnboardingPage) {
           window.location.replace(profileHref + '?setup=character');
           return;
         }
+        document.documentElement.classList.add('baja-auth-ready');
         const initial = displayName.charAt(0).toUpperCase();
         const avatarMarkup = character && typeof window.renderBajaCharacter === 'function'
           ? window.renderBajaCharacter(character, 42)
@@ -215,6 +227,7 @@ const BAJA = {
           </a>`;
 
       } else {
+        document.documentElement.classList.add('baja-auth-ready');
         /* Pengguna belum login — tampilkan tombol Masuk */
         slot.innerHTML = `
           <a href="${authHref}"
