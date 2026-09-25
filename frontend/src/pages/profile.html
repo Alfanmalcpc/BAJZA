@@ -39,8 +39,21 @@
         <div class="prof-email" id="profEmail">Memuat...</div>
       </div>
     </div>
+    <!-- Character and Buzz -->
+    <div class="prof-section-label">Karakter BAJA</div>
+    <div id="characterSetup" style="border:2px solid #000;border-radius:14px;padding:16px;background:#fff7ed;margin-bottom:18px;">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+        <div id="characterPreview" style="width:82px;height:82px;display:flex;align-items:center;justify-content:center;background:#f8fafc;border:2px solid #000;border-radius:50%;"></div>
+        <div><strong id="characterStatus">Tentukan karakter kamu</strong><p style="margin:4px 0;font-size:13px;">Pilihan ini wajib dan akan tampil di header, profil, serta leaderboard.</p></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">
+        <button type="button" class="prof-modal-btn" data-gender="male" id="chooseMale">Laki-laki</button>
+        <button type="button" class="prof-modal-btn" data-gender="female" id="chooseFemale">Perempuan</button>
+      </div>
+      <div style="margin-top:12px;font-weight:800;color:#b45309;">Buzz: <span id="buzzBalance">0</span></div>
+    </div>
     <!-- Info Grid -->
-    <div class="prof-section-label">👤 Informasi Akun</div>
+    <div class="prof-section-label">Informasi Akun</div>
     <div class="prof-info-grid">
       <div class="prof-info-item">
         <span class="prof-info-label">Penyedia Akun</span>
@@ -110,7 +123,25 @@ const btnPickPhoto    = document.getElementById('btnPickPhoto');
 const photoFileName   = document.getElementById('photoFileName');
 const avatarFileInput = document.getElementById('avatarFileInput');
 const btnLogout       = document.getElementById('btnLogout');
+const characterPreview = document.getElementById('characterPreview');
+const characterStatus = document.getElementById('characterStatus');
+const buzzBalance = document.getElementById('buzzBalance');
 let selectedPhotoDataUrl = null;
+let currentCharacter = null;
+function renderCharacter() {
+  if (!currentCharacter) return;
+  characterPreview.innerHTML = window.renderBajaCharacter(currentCharacter, 76);
+  characterStatus.textContent = currentCharacter.gender === 'female' ? 'Karakter perempuan dipilih' : 'Karakter laki-laki dipilih';
+}
+async function chooseCharacter(gender) {
+  const user = auth.currentUser;
+  if (!user) return;
+  currentCharacter = { ...BAJA_DEFAULT_CHARACTER, ...(currentCharacter || {}), gender };
+  await updateCharacter(user.uid, currentCharacter);
+  renderCharacter();
+}
+document.getElementById('chooseMale').addEventListener('click', () => chooseCharacter('male'));
+document.getElementById('chooseFemale').addEventListener('click', () => chooseCharacter('female'));
 let currentPhotoInDB     = null; // track what's currently saved in DB
 function setAvatar(photoURL) {
   if (photoURL) {
@@ -138,6 +169,9 @@ auth.onAuthStateChanged(async user => {
     try {
       const snap = await db.ref(`users/${user.uid}`).once('value');
       const profile = snap.val() || {};
+      currentCharacter = profile.character || null;
+      buzzBalance.textContent = Number(profile.buzz || 0);
+      renderCharacter();
       // DB photoURL takes priority over Auth photoURL
       currentPhotoInDB = profile.photoURL || user.photoURL || null;
       setAvatar(currentPhotoInDB);

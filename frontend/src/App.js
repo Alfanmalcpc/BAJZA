@@ -4,6 +4,27 @@
            bahasa (i18n), crypto ticker, page transition
    ════════════════════════════════════════════════════════════════ */
 
+window.renderBajaCharacter = function(character = {}, size = 42) {
+  const gender = character.gender === 'female' ? 'female' : 'male';
+  const outfit = character.outfit === 'sunset-pink' ? '#ec4899' : (character.outfit === 'mint-hoodie' ? '#10b981' : '#2563eb');
+  const skin = character.skin || '#f2b28d';
+  const hair = gender === 'female' ? '#5b3425' : '#172033';
+  const accessory = character.accessory === 'crown'
+    ? '<path d="M19 18l3-9 6 5 6-7 6 7 6-5 3 9z" fill="#facc15" stroke="#111827" stroke-width="2"/>'
+    : character.accessory === 'glasses'
+      ? '<g fill="none" stroke="#111827" stroke-width="2"><circle cx="27" cy="29" r="5"/><circle cx="45" cy="29" r="5"/><path d="M32 29h8"/></g>'
+      : '';
+  return `<svg width="${size}" height="${size}" viewBox="0 0 72 72" aria-label="Karakter ${gender === 'female' ? 'perempuan' : 'laki-laki'}" role="img">
+    <circle cx="36" cy="36" r="34" fill="#f8fafc"/>
+    <path d="M16 69c1-16 10-23 20-23s19 7 20 23" fill="${outfit}" stroke="#111827" stroke-width="2"/>
+    <rect x="28" y="40" width="16" height="12" rx="6" fill="${skin}" stroke="#111827" stroke-width="2"/>
+    <circle cx="36" cy="28" r="16" fill="${skin}" stroke="#111827" stroke-width="2"/>
+    <path d="M20 27c0-13 7-21 17-21 12 0 17 9 15 22-4-6-8-10-14-11-5 6-10 9-18 10z" fill="${hair}"/>
+    <circle cx="30" cy="29" r="2" fill="#111827"/><circle cx="42" cy="29" r="2" fill="#111827"/>
+    <path d="M32 36q4 3 8 0" fill="none" stroke="#111827" stroke-width="2" stroke-linecap="round"/>${accessory}
+  </svg>`;
+};
+
 const BAJA = {
   lang:  localStorage.getItem('baja-lang')  || 'id',
   theme: localStorage.getItem('baja-theme') || 'dark',
@@ -165,6 +186,8 @@ const BAJA = {
         /* Pengguna login — ambil profil dari database */
         let displayName = user.displayName || 'Pengguna';
         let photoURL    = user.photoURL    || '';
+        let character   = null;
+        let buzz        = 0;
 
         try {
           if (typeof getUserProfile !== 'undefined') {
@@ -172,6 +195,8 @@ const BAJA = {
             if (profile) {
               displayName = profile.displayName || displayName;
               photoURL    = profile.photoURL    || photoURL;
+              character   = profile.character || null;
+              buzz        = Number(profile.buzz || 0);
               if (profile.lang && profile.lang !== this.lang) {
                 this.applyLang(profile.lang);
               }
@@ -179,21 +204,18 @@ const BAJA = {
           }
         } catch (e) { /* Gagal ambil profil, pakai data lokal */ }
 
+        if (!character && !window.location.pathname.endsWith('/profile.html') && !window.location.pathname.endsWith('/auth.html')) {
+          window.location.replace(profileHref + '?setup=character');
+          return;
+        }
         const initial = displayName.charAt(0).toUpperCase();
+        const avatarMarkup = character && typeof window.renderBajaCharacter === 'function'
+          ? window.renderBajaCharacter(character, 42)
+          : (photoURL ? `<img src="${photoURL}" alt="Avatar" style="width:34px;height:34px;border-radius:50%;object-fit:cover;"/>` : `<div style="width:34px;height:34px;border-radius:50%;background:var(--grad-tools);display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;">${initial}</div>`);
         slot.innerHTML = `
-          <a href="${profileHref}" id="navAvatarLink" title="${displayName}"
-             style="display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--text-1);">
-            ${photoURL
-              ? `<img src="${photoURL}" alt="Avatar"
-                   style="width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,0.15);object-fit:cover;"/>`
-              : `<div style="width:34px;height:34px;border-radius:50%;background:var(--grad-tools);
-                   display:flex;align-items:center;justify-content:center;
-                   font-weight:800;font-size:15px;color:#fff;border:2px solid rgba(255,255,255,0.15);">
-                   ${initial}</div>`
-            }
-            <span style="font-size:14px;font-weight:600;max-width:80px;overflow:hidden;
-                         text-overflow:ellipsis;white-space:nowrap;display:none"
-                  class="nav-username">${displayName.split(' ')[0]}</span>
+          <a href="${profileHref}" id="navAvatarLink" title="${displayName}" style="display:flex;align-items:center;gap:6px;text-decoration:none;color:var(--text-1);">
+            <span style="display:inline-flex;align-items:center;justify-content:center;border-radius:50%;overflow:hidden;">${avatarMarkup}</span>
+            <span style="font-size:11px;font-weight:800;color:#facc15;">Buzz ${buzz}</span>
           </a>`;
 
       } else {
