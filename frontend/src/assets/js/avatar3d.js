@@ -8,6 +8,7 @@ window.renderBajaCharacter3D = function(host, character = {}, options = {}) {
   host.style.position = 'relative'; host.style.overflow = 'hidden';
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(30, 1, .1, 100); camera.position.set(0,1.5,5.6);
+  const zoom = { distance: 5.6, min: 3.1, max: 9.2 };
   const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
   renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.outputColorSpace=THREE.SRGBColorSpace;
   const root = new THREE.Group(); root.position.y=-.62; scene.add(root);
@@ -31,7 +32,17 @@ window.renderBajaCharacter3D = function(host, character = {}, options = {}) {
   if(character.backItem && character.backItem!=='none') mk(new THREE.BoxGeometry(.7,.82,.22),color(0xec4899),[0,.68,.58],null,decor);
   if(character.footwear && character.footwear!=='basic-shoes'){const m=color(0xec4899);footA.material=m;footB.material=m;}
   const resize=()=>{const r=host.getBoundingClientRect();const w=Math.max(1,r.width),h=Math.max(1,r.height);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}; resize(); window.addEventListener('resize',resize);
-  let down=false,lastX=0,rotY=0; canvas.addEventListener('pointerdown',e=>{down=true;lastX=e.clientX;canvas.setPointerCapture(e.pointerId)}); canvas.addEventListener('pointermove',e=>{if(down){rotY+=(e.clientX-lastX)*.012;lastX=e.clientX}}); canvas.addEventListener('pointerup',()=>down=false);
-  const tick=()=>{root.rotation.y+=(rotY-root.rotation.y)*.1;renderer.render(scene,camera);requestAnimationFrame(tick)};tick();
+  let down=false,lastX=0,rotY=0,rotX=0,lastY=0;
+  const applyZoom=()=>{camera.position.z=zoom.distance;camera.lookAt(0,1,0)};
+  const changeZoom=(delta)=>{zoom.distance=Math.max(zoom.min,Math.min(zoom.max,zoom.distance+delta));applyZoom()};
+  canvas.addEventListener('wheel',e=>{e.preventDefault();changeZoom(e.deltaY>0?.45:-.45)},{passive:false});
+  canvas.addEventListener('pointerdown',e=>{down=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId)});
+  canvas.addEventListener('pointermove',e=>{if(down){rotY+=(e.clientX-lastX)*.012;rotX=Math.max(-.55,Math.min(.55,rotX+(e.clientY-lastY)*.008));lastX=e.clientX;lastY=e.clientY}});
+  canvas.addEventListener('pointerup',()=>down=false); canvas.addEventListener('pointercancel',()=>down=false);
+  let pinchStart=0;
+  canvas.addEventListener('touchstart',e=>{if(e.touches.length===2)pinchStart=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY)},{passive:true});
+  canvas.addEventListener('touchmove',e=>{if(e.touches.length===2){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);changeZoom((pinchStart-d)*.012);pinchStart=d;e.preventDefault()}},{passive:false});
+  applyZoom();
+  const tick=()=>{root.rotation.y+=(rotY-root.rotation.y)*.1;root.rotation.x+=(rotX-root.rotation.x)*.1;renderer.render(scene,camera);requestAnimationFrame(tick)};tick();
   return {scene,renderer,root,dispose(){renderer.dispose();host.innerHTML='';}};
 };
