@@ -19,7 +19,7 @@
 <nav class="navbar" id="navbar"><div class="nav-container"><a href="/public/index.html" class="nav-logo" style="text-decoration:none"><div class="logo-badge"><img src="/src/assets/img/Logo.svg" alt="BAJA"></div><div class="logo-text">BAJA</div></a><div class="nav-actions"></div></div></nav>
 <main class="avatar-page"><section class="avatar-hero"><h1>Avatar Shop</h1><p>Toko khusus pakaian dan aksesori karakter 3D chibi. Semua pembelian menggunakan Buzz, bukan Token Aquarium.</p></section>
 <section class="avatar-shop-card"><div style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap"><div><h2 style="color:#fff;margin:0">Kustomisasi Karakter</h2><p style="color:#94a3b8;margin:7px 0 0">Pilih item, beli dengan Buzz, lalu pakai di profil dan header.</p></div><div class="buzz-balance">Buzz: <span id="shopBuzz">0</span></div></div>
-<div class="avatar-shop-layout"><div id="shopCharacterPreview" class="avatar-preview"></div><div class="avatar-items"><h2>Pakaian</h2><div id="outfitItems" class="avatar-grid"></div><h2>Aksesori</h2><div id="accessoryItems" class="avatar-grid"></div></div></div><p id="shopStatus" style="color:#94a3b8;font-size:13px">Memuat Avatar Shop...</p></section></main>
+<div class="avatar-shop-layout"><div id="shopCharacterPreview" class="avatar-preview"></div><div class="avatar-items"><h2>Pakaian</h2><div id="outfitItems" class="avatar-grid"></div><h2>Aksesori Kepala</h2><div id="headwearItems" class="avatar-grid"></div><h2>Kacamata / Wajah</h2><div id="eyewearItems" class="avatar-grid"></div><h2>Aksesori Punggung</h2><div id="backItemItems" class="avatar-grid"></div><h2>Sepatu</h2><div id="footwearItems" class="avatar-grid"></div></div></div><p id="shopStatus" style="color:#94a3b8;font-size:13px">Memuat Avatar Shop...</p></section></main>
 <nav class="bottom-nav"><a href="/public/index.html" class="bottom-nav-link"><span class="bottom-nav-icon">⌂</span><span class="bottom-nav-text">Home</span></a><a href="/src/pages/tools/index.html" class="bottom-nav-link"><span class="bottom-nav-icon">Tools</span><span class="bottom-nav-text">Tools</span></a><a href="/src/pages/finance/index.html" class="bottom-nav-link"><span class="bottom-nav-icon">Finance</span><span class="bottom-nav-text">Finance</span></a><a href="/src/pages/shop.html" class="bottom-nav-link"><span class="bottom-nav-icon">Shop</span><span class="bottom-nav-text">Shop</span></a><a href="/src/pages/tutorial/index.html" class="bottom-nav-link"><span class="bottom-nav-icon">Tutor</span><span class="bottom-nav-text">Tutorial</span></a></nav>
 <script src="/src/App.js"></script><script>
 const shopState = { profile: null, uid: null };
@@ -27,7 +27,10 @@ const shopBuzz = document.getElementById('shopBuzz');
 const shopPreview = document.getElementById('shopCharacterPreview');
 const shopStatus = document.getElementById('shopStatus');
 const outfitItems = document.getElementById('outfitItems');
-const accessoryItems = document.getElementById('accessoryItems');
+const headwearItems = document.getElementById('headwearItems');
+const eyewearItems = document.getElementById('eyewearItems');
+const backItemItems = document.getElementById('backItemItems');
+const footwearItems = document.getElementById('footwearItems');
 function shopButton(type, id, item, owned, equipped) {
   const action = owned ? (equipped ? 'Dipakai' : 'Pakai') : `Beli ${item.price} Buzz`;
   return `<button type="button" data-shop-type="${type}" data-shop-id="${id}" style="padding:12px;border:1px solid ${equipped ? '#facc15' : 'rgba(255,255,255,.14)'};border-radius:12px;background:rgba(15,23,42,.8);color:#fff;text-align:left;cursor:pointer;"><strong>${item.name}</strong><br><small style="color:${equipped ? '#facc15' : '#94a3b8'};">${action}</small></button>`;
@@ -37,15 +40,17 @@ function renderAvatarShop() {
   const character = p.character || { gender: 'male', outfit: 'basic-blue', accessory: 'none' };
   shopBuzz.textContent = Number(p.buzz || 0);
   shopPreview.innerHTML = window.renderBajaCharacter(character, 128);
-  const outfits = p.ownedOutfits || ['basic-blue'];
-  const accessories = p.ownedAccessories || ['none'];
-  outfitItems.innerHTML = Object.entries(BAJA_CATALOG.outfits).map(([id,item]) => shopButton('outfits', id, item, outfits.includes(id), character.outfit === id)).join('');
-  accessoryItems.innerHTML = Object.entries(BAJA_CATALOG.accessories).map(([id,item]) => shopButton('accessories', id, item, accessories.includes(id), character.accessory === id)).join('');
+  const ownedFor = type => p[`owned${type.charAt(0).toUpperCase()}${type.slice(1)}`] || ['none'];
+  outfitItems.innerHTML = Object.entries(BAJA_CATALOG.outfits).map(([id,item]) => shopButton('outfits', id, item, (p.ownedOutfits || ['basic-blue']).includes(id), character.outfit === id)).join('');
+  headwearItems.innerHTML = Object.entries(BAJA_CATALOG.headwear).map(([id,item]) => shopButton('headwear', id, item, ownedFor('headwear').includes(id), character.headwear === id)).join('');
+  eyewearItems.innerHTML = Object.entries(BAJA_CATALOG.eyewear).map(([id,item]) => shopButton('eyewear', id, item, ownedFor('eyewear').includes(id), character.eyewear === id)).join('');
+  backItemItems.innerHTML = Object.entries(BAJA_CATALOG.backItem).map(([id,item]) => shopButton('backItem', id, item, ownedFor('backItem').includes(id), character.backItem === id)).join('');
+  footwearItems.innerHTML = Object.entries(BAJA_CATALOG.footwear).map(([id,item]) => shopButton('footwear', id, item, ownedFor('footwear').includes(id), character.footwear === id)).join('');
   document.querySelectorAll('[data-shop-type]').forEach(button => button.addEventListener('click', () => shopAction(button.dataset.shopType, button.dataset.shopId)));
 }
 async function shopAction(type, id) {
   if (!shopState.uid) { shopStatus.textContent = 'Silakan login untuk memakai Avatar Shop.'; return; }
-  const ownedKey = type === 'outfits' ? 'ownedOutfits' : 'ownedAccessories';
+  const ownedKey = type === 'outfits' ? 'ownedOutfits' : `owned${type.charAt(0).toUpperCase()}${type.slice(1)}`;
   try {
     const owned = shopState.profile[ownedKey] || [type === 'outfits' ? 'basic-blue' : 'none'];
     if (!owned.includes(id)) await buyCharacterItem(shopState.uid, type, id);

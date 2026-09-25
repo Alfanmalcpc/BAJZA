@@ -44,12 +44,9 @@
     <div id="characterSetup" style="border:2px solid #000;border-radius:14px;padding:16px;background:#fff7ed;margin-bottom:18px;">
       <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
         <div id="characterPreview" style="width:82px;height:82px;display:flex;align-items:center;justify-content:center;background:#f8fafc;border:2px solid #000;border-radius:50%;"></div>
-        <div><strong id="characterStatus">Tentukan karakter kamu</strong><p style="margin:4px 0;font-size:13px;">Pilihan ini wajib dan akan tampil di header, profil, serta leaderboard.</p></div>
+        <div><strong id="characterStatus">Tentukan karakter kamu di Pengaturan</strong><p style="margin:4px 0;font-size:13px;">Jenis karakter dipilih di Pengaturan dan akan tampil di header, profil, serta leaderboard.</p><a href="/src/pages/settings.html#character" class="prof-action-btn" style="display:inline-flex;margin-top:8px;padding:8px 12px;">Buka Pengaturan Karakter</a></div>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">
-        <button type="button" class="prof-modal-btn" data-gender="male" id="chooseMale">Laki-laki</button>
-        <button type="button" class="prof-modal-btn" data-gender="female" id="chooseFemale">Perempuan</button>
-      </div>
+      <div style="margin-top:14px;font-size:13px;color:#92400e;">Jenis karakter dikunci setelah dipilih. Perubahan hanya tersedia melalui Pengaturan akun.</div>
       <div style="margin-top:12px;font-weight:800;color:#b45309;">Buzz: <span id="buzzBalance">0</span></div>
     </div>
     <!-- Info Grid -->
@@ -142,8 +139,8 @@ async function chooseCharacter(gender) {
   renderCharacter();
   window.dispatchEvent(new CustomEvent('baja-character-updated', { detail: currentCharacter }));
 }
-document.getElementById('chooseMale').addEventListener('click', () => chooseCharacter('male'));
-document.getElementById('chooseFemale').addEventListener('click', () => chooseCharacter('female'));
+
+
 let currentPhotoInDB     = null; // track what's currently saved in DB
 function setAvatar(photoURL) {
   if (photoURL) {

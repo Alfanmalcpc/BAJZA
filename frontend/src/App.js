@@ -16,11 +16,15 @@ window.renderBajaCharacter = function(character = {}, size = 42) {
   const skin = character.skin || '#f2b28d';
   const hair = gender === 'female' ? '#5b3425' : '#172033';
   const hairShape = gender === 'female' ? 'border-radius:58% 58% 46% 46%;height:48%;top:5%;' : 'border-radius:60% 60% 30% 30%;height:36%;top:5%;';
-  const accessory = character.accessory === 'crown' ? '<i class="baja-3d-crown"></i>' : character.accessory === 'glasses' ? '<i class="baja-3d-glasses"></i>' : character.accessory === 'cat-hood' ? '<i class="baja-3d-cat-hood"><b></b><b></b></i>' : character.accessory === 'backpack' ? '<i class="baja-3d-backpack"></i>' : '';
-  const shoeId = character.shoes || character.accessory;
+  const headwear = character.headwear || character.accessory || 'none';
+  const eyewear = character.eyewear || (character.accessory === 'glasses' ? 'glasses' : 'none');
+  const backItem = character.backItem || (character.accessory === 'backpack' ? 'backpack' : 'none');
+  const accessory = headwear === 'crown' ? '<i class="baja-3d-crown"></i>' : headwear === 'cat-hood' ? '<i class="baja-3d-cat-hood"><b></b><b></b></i>' : eyewear === 'glasses' ? '<i class="baja-3d-glasses"></i>' : '';
+  const shoeId = character.footwear || character.shoes || 'basic-shoes';
+  const backMarkup = backItem === 'backpack' ? '<i class="baja-3d-backpack"></i>' : '';
   const shoes = shoeId === 'pink-sneakers' ? '#f472b6' : shoeId === 'mint-sneakers' ? '#34d399' : '#334155';
   return `<span class="baja-3d-character" aria-label="Karakter 3D ${gender === 'female' ? 'perempuan' : 'laki-laki'}" style="--avatar-size:${size}px;--skin:${skin};--hair:${hair};--outfit:${outfit};--shoes:${shoes};">
-    <span class="baja-3d-back">${accessory.includes('backpack') ? accessory : ''}</span>
+    <span class="baja-3d-back">${backMarkup}</span>
     <span class="baja-3d-leg leg-a"><i></i></span><span class="baja-3d-leg leg-b"><i></i></span>
     <span class="baja-3d-body"><i class="baja-3d-arm arm-a"></i><i class="baja-3d-arm arm-b"></i></span>
     <span class="baja-3d-head"><i class="baja-3d-hair" style="${hairShape}"></i><i class="baja-3d-eye eye-a"></i><i class="baja-3d-eye eye-b"></i><i class="baja-3d-blush blush-a"></i><i class="baja-3d-blush blush-b"></i>${accessory.includes('backpack') ? '' : accessory}</span>

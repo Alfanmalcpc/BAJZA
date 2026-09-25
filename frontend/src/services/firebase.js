@@ -127,7 +127,10 @@ const BAJA_DEFAULT_CHARACTER = {
   skin: '#f2b28d',
   hair: 'short',
   outfit: 'basic-blue',
-  accessory: 'none'
+  headwear: 'none',
+  eyewear: 'none',
+  backItem: 'none',
+  footwear: 'basic-shoes'
 };
 const BAJA_CATALOG = {
   outfits: {
@@ -135,21 +138,33 @@ const BAJA_CATALOG = {
     'sunset-pink': { name: 'Jaket Sunset', price: 40, color: '#ec4899' },
     'mint-hoodie': { name: 'Hoodie Mint', price: 65, color: '#10b981' }
   },
-  accessories: {
-    none: { name: 'Tanpa Aksesori', price: 0 },
-    glasses: { name: 'Kacamata', price: 25 },
+  headwear: {
+    none: { name: 'Tanpa Penutup Kepala', price: 0 },
     crown: { name: 'Mahkota', price: 90 },
-    'cat-hood': { name: 'Hoodie Kucing', price: 70 },
-    backpack: { name: 'Ransel Petualang', price: 55 },
+    'cat-hood': { name: 'Hoodie Kucing', price: 70 }
+  },
+  eyewear: {
+    none: { name: 'Tanpa Kacamata', price: 0 },
+    glasses: { name: 'Kacamata', price: 25 }
+  },
+  backItem: {
+    none: { name: 'Tanpa Tas', price: 0 },
+    backpack: { name: 'Ransel Petualang', price: 55 }
+  },
+  footwear: {
+    'basic-shoes': { name: 'Sepatu Dasar', price: 0 },
     'pink-sneakers': { name: 'Sepatu Pink', price: 45 },
     'mint-sneakers': { name: 'Sepatu Mint', price: 45 }
   },
-  accessoriesLegacy: {
-    none: { name: 'Tanpa Aksesori', price: 0 },
-    glasses: { name: 'Kacamata', price: 25 },
+  headwear: {
+    none: { name: 'Tanpa Penutup Kepala', price: 0 },
     crown: { name: 'Mahkota', price: 90 },
-    'cat-hood': { name: 'Hoodie Kucing', price: 70 },
-    backpack: { name: 'Ransel Petualang', price: 55 }
+    'cat-hood': { name: 'Hoodie Kucing', price: 70 }
+  },
+  footwear: {
+    'basic-shoes': { name: 'Sepatu Dasar', price: 0 },
+    'pink-sneakers': { name: 'Sepatu Pink', price: 45 },
+    'mint-sneakers': { name: 'Sepatu Mint', price: 45 }
   }
 };
 function getCharacterProfile(profile = {}) {
@@ -179,7 +194,7 @@ async function buyCharacterItem(uid, type, itemId) {
   const profileRef = db.ref(`users/${uid}`);
   const snap = await profileRef.once('value');
   const profile = snap.val() || {};
-  const ownedKey = type === 'outfits' ? 'ownedOutfits' : 'ownedAccessories';
+  const ownedKey = type === 'outfits' ? 'ownedOutfits' : `owned${type.charAt(0).toUpperCase()}${type.slice(1)}`;
   const owned = Array.isArray(profile[ownedKey]) ? profile[ownedKey] : [type === 'outfits' ? 'basic-blue' : 'none'];
   if (owned.includes(itemId)) return profile;
   await updateBuzz(uid, -Number(item.price || 0));
@@ -189,10 +204,10 @@ async function buyCharacterItem(uid, type, itemId) {
 }
 async function equipCharacterItem(uid, type, itemId) {
   const profile = await getUserProfile(uid) || {};
-  const ownedKey = type === 'outfits' ? 'ownedOutfits' : 'ownedAccessories';
+  const ownedKey = type === 'outfits' ? 'ownedOutfits' : `owned${type.charAt(0).toUpperCase()}${type.slice(1)}`;
   if (!(profile[ownedKey] || []).includes(itemId)) throw new Error('Item belum dimiliki.');
   const character = { ...BAJA_DEFAULT_CHARACTER, ...(profile.character || {}) };
-  character[type === 'outfits' ? 'outfit' : 'accessory'] = itemId;
+  character[type === 'outfits' ? 'outfit' : type] = itemId;
   return updateCharacter(uid, character);
 }
 

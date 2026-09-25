@@ -65,6 +65,19 @@
       </button>
     </div>
     <div class="section-divider"></div>
+    <div class="section-label" id="character">Karakter Utama</div>
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:14px;border:1px solid var(--border-color,#334155);border-radius:14px;background:rgba(255,255,255,.04);">
+      <div id="settingsCharacterPreview" style="width:92px;height:108px;display:flex;align-items:center;justify-content:center;"></div>
+      <div style="flex:1;min-width:220px;">
+        <strong id="settingsCharacterStatus">Memuat karakter...</strong>
+        <p style="font-size:13px;color:var(--text-2);margin:6px 0;">Jenis karakter ditentukan sekali. Untuk menggantinya, gunakan konfirmasi perubahan di bawah.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+          <button class="lang-btn" id="settingsMale" type="button">Laki-laki</button>
+          <button class="lang-btn" id="settingsFemale" type="button">Perempuan</button>
+        </div>
+      </div>
+    </div>
+    <div class="section-divider"></div>
     <div class="section-label">ℹ️ Tentang</div>
     <div style="color:var(--text-2);font-size:14px;line-height:1.7">
       <strong style="color:var(--text-1)">BAJA</strong> — Platform alat, finansial, dan tutorial berbasis browser.<br>
@@ -78,7 +91,25 @@
 <script>
 const LANG_LABELS = { id: 'Indonesia', en: 'English', ms: 'Melayu', ja: '日本語', ar: 'العربية', zh: '中文' };
 let currentUid = null;
+let currentProfile = null;
 let currentLang = localStorage.getItem('baja-lang') || 'id';
+const settingsPreview = document.getElementById('settingsCharacterPreview');
+const settingsStatus = document.getElementById('settingsCharacterStatus');
+function renderSettingsCharacter() {
+  const character = currentProfile?.character;
+  if (!character) { settingsStatus.textContent = 'Karakter belum dipilih'; return; }
+  settingsPreview.innerHTML = window.renderBajaCharacter(character, 92);
+  settingsStatus.textContent = character.gender === 'female' ? 'Karakter perempuan terkunci' : 'Karakter laki-laki terkunci';
+}
+async function changeCharacterGender(gender) {
+  if (!currentUid) return;
+  if (currentProfile?.character?.gender && currentProfile.character.gender !== gender && !window.confirm('Perubahan jenis karakter hanya dapat dilakukan dengan konfirmasi. Lanjutkan?')) return;
+  const base = { ...BAJA_DEFAULT_CHARACTER, ...(currentProfile?.character || {}), gender };
+  currentProfile.character = await updateCharacter(currentUid, base);
+  renderSettingsCharacter();
+}
+document.getElementById('settingsMale').addEventListener('click', () => changeCharacterGender('male'));
+document.getElementById('settingsFemale').addEventListener('click', () => changeCharacterGender('female'));
 function highlightSelected(lang) {
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.classList.toggle('selected', btn.dataset.lang === lang);
@@ -88,7 +119,9 @@ highlightSelected(currentLang);
 auth.onAuthStateChanged(async user => {
   if (user) {
     currentUid = user.uid;
-    const profile = await getUserProfile(user.uid);
+    currentProfile = await getUserProfile(user.uid) || {};
+    renderSettingsCharacter();
+    const profile = currentProfile;
     if (profile?.lang) {
       currentLang = profile.lang;
       highlightSelected(currentLang);
