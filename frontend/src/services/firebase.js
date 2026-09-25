@@ -151,12 +151,38 @@ async function updateCharacter(uid, character) {
 }
 async function updateBuzz(uid, amount) {
   const ref = db.ref(`users/${uid}/buzz`);
-  const snap = await ref.once('value');
-  const current = Number(snap.val() || 0);
-  const next = current + Number(amount);
-  if (next < 0) throw new Error('Buzz tidak cukup.');
-  await ref.set(next);
-  return next;
+  let result;
+  await ref.transaction(current => {
+    const next = Number(current || 0) + Number(amount);
+    if (next < 0) return;
+    result = next;
+    return next;
+  });
+  if (result === undefined) throw new Error('Buzz tidak cukup.');
+  return result;
+}
+async function buyCharacterItem(uid, type, itemId) {
+  const catalog = BAJA_CATALOG[type] || {};
+  const item = catalog[itemId];
+  if (!item) throw new Error('Item tidak ditemukan.');
+  const profileRef = db.ref(`users/${uid}`);
+  const snap = await profileRef.once('value');
+  const profile = snap.val() || {};
+  const ownedKey = type === 'outfits' ? 'ownedOutfits' : 'ownedAccessories';
+  const owned = Array.isArray(profile[ownedKey]) ? profile[ownedKey] : [type === 'outfits' ? 'basic-blue' : 'none'];
+  if (owned.includes(itemId)) return profile;
+  await updateBuzz(uid, -Number(item.price || 0));
+  owned.push(itemId);
+  await profileRef.update({ [ownedKey]: owned, updatedAt: Date.now() });
+  return { ...profile, [ownedKey]: owned };
+}
+async function equipCharacterItem(uid, type, itemId) {
+  const profile = await getUserProfile(uid) || {};
+  const ownedKey = type === 'outfits' ? 'ownedOutfits' : 'ownedAccessories';
+  if (!(profile[ownedKey] || []).includes(itemId)) throw new Error('Item belum dimiliki.');
+  const character = { ...BAJA_DEFAULT_CHARACTER, ...(profile.character || {}) };
+  character[type === 'outfits' ? 'outfit' : 'accessory'] = itemId;
+  return updateCharacter(uid, character);
 }
 
 /* Ambil data profil pengguna dari database */
