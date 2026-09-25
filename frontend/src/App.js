@@ -194,6 +194,7 @@ const BAJA = {
         let displayName = user.displayName || 'Pengguna';
         let photoURL    = user.photoURL    || '';
         let character   = null;
+        let onboardingRequired = false;
         let buzz        = 0;
 
         try {
@@ -203,6 +204,7 @@ const BAJA = {
               displayName = profile.displayName || displayName;
               photoURL    = profile.photoURL    || photoURL;
               character   = profile.character || null;
+              onboardingRequired = profile.characterOnboardingRequired === true;
               buzz        = Number(profile.buzz || 0);
               if (profile.lang && profile.lang !== this.lang) {
                 this.applyLang(profile.lang);
@@ -211,7 +213,7 @@ const BAJA = {
           }
         } catch (e) { /* Gagal ambil profil, pakai data lokal */ }
 
-        if (!character && !isOnboardingPage) {
+        if (onboardingRequired && !character && !isOnboardingPage) {
           window.location.replace(profileHref + '?setup=character');
           return;
         }

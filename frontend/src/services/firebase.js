@@ -33,7 +33,7 @@ const db   = firebase.database();
 async function bajaSignUp(email, password, displayName) {
   const cred = await auth.createUserWithEmailAndPassword(email, password);
   await cred.user.updateProfile({ displayName });
-  await saveUserProfile(cred.user, { displayName, photoURL: '' });
+  await saveUserProfile(cred.user, { displayName, photoURL: '', characterOnboardingRequired: true });
   return cred.user;
 }
 
@@ -116,6 +116,7 @@ async function saveUserProfile(user, extra = {}) {
     photoURL:    extra.photoURL !== undefined ? extra.photoURL : (existing.photoURL || user.photoURL || ''),
     lang:        extra.lang || existing.lang || localStorage.getItem('baja-lang') || 'id',
     createdAt:   existing.createdAt || extra.createdAt || Date.now(),
+    characterOnboardingRequired: extra.characterOnboardingRequired !== undefined ? extra.characterOnboardingRequired : (existing.characterOnboardingRequired || false),
     updatedAt:   Date.now()
   });
 }
@@ -145,7 +146,7 @@ function getCharacterProfile(profile = {}) {
 }
 async function updateCharacter(uid, character) {
   const clean = { ...BAJA_DEFAULT_CHARACTER, ...character };
-  await db.ref(`users/${uid}`).update({ character: clean, updatedAt: Date.now() });
+  await db.ref(`users/${uid}`).update({ character: clean, characterOnboardingRequired: false, updatedAt: Date.now() });
   return clean;
 }
 async function updateBuzz(uid, amount) {
