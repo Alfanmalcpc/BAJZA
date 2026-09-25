@@ -139,6 +139,7 @@ async function chooseCharacter(gender) {
   currentCharacter = { ...BAJA_DEFAULT_CHARACTER, ...(currentCharacter || {}), gender };
   await updateCharacter(user.uid, currentCharacter);
   renderCharacter();
+  window.dispatchEvent(new CustomEvent('baja-character-updated', { detail: currentCharacter }));
 }
 document.getElementById('chooseMale').addEventListener('click', () => chooseCharacter('male'));
 document.getElementById('chooseFemale').addEventListener('click', () => chooseCharacter('female'));

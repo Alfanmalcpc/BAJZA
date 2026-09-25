@@ -9,21 +9,17 @@ window.renderBajaCharacter = function(character = {}, size = 42) {
   const outfit = character.outfit === 'sunset-pink' ? '#ec4899' : (character.outfit === 'mint-hoodie' ? '#10b981' : '#2563eb');
   const skin = character.skin || '#f2b28d';
   const hair = gender === 'female' ? '#5b3425' : '#172033';
-  const accessory = character.accessory === 'crown'
-    ? '<path d="M19 18l3-9 6 5 6-7 6 7 6-5 3 9z" fill="#facc15" stroke="#111827" stroke-width="2"/>'
-    : character.accessory === 'glasses'
-      ? '<g fill="none" stroke="#111827" stroke-width="2"><circle cx="27" cy="29" r="5"/><circle cx="45" cy="29" r="5"/><path d="M32 29h8"/></g>'
-      : '';
-  return `<svg width="${size}" height="${size}" viewBox="0 0 72 72" aria-label="Karakter ${gender === 'female' ? 'perempuan' : 'laki-laki'}" role="img">
-    <circle cx="36" cy="36" r="34" fill="#f8fafc"/>
-    <path d="M16 69c1-16 10-23 20-23s19 7 20 23" fill="${outfit}" stroke="#111827" stroke-width="2"/>
-    <rect x="28" y="40" width="16" height="12" rx="6" fill="${skin}" stroke="#111827" stroke-width="2"/>
-    <circle cx="36" cy="28" r="16" fill="${skin}" stroke="#111827" stroke-width="2"/>
-    <path d="M20 27c0-13 7-21 17-21 12 0 17 9 15 22-4-6-8-10-14-11-5 6-10 9-18 10z" fill="${hair}"/>
-    <circle cx="30" cy="29" r="2" fill="#111827"/><circle cx="42" cy="29" r="2" fill="#111827"/>
-    <path d="M32 36q4 3 8 0" fill="none" stroke="#111827" stroke-width="2" stroke-linecap="round"/>${accessory}
-  </svg>`;
+  const hairShape = gender === 'female' ? 'border-radius:50% 50% 42% 42%;height:48%;top:8%;' : 'border-radius:55% 55% 25% 25%;height:38%;top:7%;';
+  const accessory = character.accessory === 'crown' ? '<i style="position:absolute;top:-8%;left:25%;width:50%;height:18%;background:#facc15;clip-path:polygon(0 100%,15% 0,38% 70%,50% 0,65% 70%,85% 0,100% 100%);"></i>' : character.accessory === 'glasses' ? '<i style="position:absolute;top:43%;left:22%;width:56%;height:14%;border:2px solid #111827;border-radius:8px;"></i>' : '';
+  return `<span class="baja-3d-character" aria-label="Karakter 3D ${gender === 'female' ? 'perempuan' : 'laki-laki'}" style="--avatar-size:${size}px;--skin:${skin};--hair:${hair};--outfit:${outfit};">
+    <span class="baja-3d-head"><i class="baja-3d-hair" style="${hairShape}"></i><i class="baja-3d-eye eye-a"></i><i class="baja-3d-eye eye-b"></i>${accessory}</span>
+    <span class="baja-3d-body"></span><span class="baja-3d-shadow"></span>
+  </span>`;
 };
+
+const baja3dStyle = document.createElement('style');
+baja3dStyle.textContent = `.baja-3d-character{position:relative;display:inline-block;width:var(--avatar-size);height:var(--avatar-size);vertical-align:middle;filter:drop-shadow(0 5px 3px rgba(15,23,42,.25));}.baja-3d-head{position:absolute;z-index:2;left:18%;top:12%;width:64%;height:55%;background:radial-gradient(circle at 32% 25%,#fff8 0 5%,transparent 7%),linear-gradient(145deg,var(--skin),#c97858);border:2px solid #111827;border-radius:48% 48% 44% 44%;box-shadow:inset -5px -6px 0 #0002, inset 4px 3px 0 #fff4;}.baja-3d-hair{position:absolute;z-index:3;left:4%;width:92%;background:linear-gradient(145deg,#fff4,var(--hair) 22% 78%,#0008);box-shadow:inset -4px -3px 0 #0004;}.baja-3d-eye{position:absolute;z-index:4;top:48%;width:10%;height:10%;background:#111827;border-radius:50%;}.eye-a{left:25%;}.eye-b{right:25%;}.baja-3d-body{position:absolute;z-index:1;left:11%;bottom:0;width:78%;height:48%;background:linear-gradient(145deg,#fff5,var(--outfit) 30% 75%,#0006);border:2px solid #111827;border-radius:45% 45% 22% 22%;box-shadow:inset -7px -5px 0 #0003;}.baja-3d-shadow{position:absolute;z-index:0;left:10%;bottom:-4%;width:80%;height:12%;border-radius:50%;background:#0f172a55;filter:blur(3px);}`;
+document.head.appendChild(baja3dStyle);
 
 const BAJA = {
   lang:  localStorage.getItem('baja-lang')  || 'id',

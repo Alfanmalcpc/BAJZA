@@ -262,9 +262,17 @@
   </div>
 </section>
 <script>
-// Redirect if already logged in
-auth.onAuthStateChanged(user => {
-  if (user) window.location.href = '/public/index.html';
+// Redirect akun aktif ke onboarding karakter atau beranda.
+auth.onAuthStateChanged(async user => {
+  if (!user) return;
+  try {
+    const profile = await getUserProfile(user.uid);
+    window.location.replace(profile && profile.character
+      ? '/public/index.html'
+      : '/src/pages/profile.html?setup=character');
+  } catch (err) {
+    window.location.replace('/src/pages/profile.html?setup=character');
+  }
 });
 function switchTab(tab) {
   const isLogin = tab === 'login';
@@ -319,8 +327,7 @@ async function handleLogin(e) {
       document.getElementById('loginEmail').value.trim(),
       document.getElementById('loginPassword').value
     );
-    showMsg('✅ Berhasil masuk! Mengalihkan...', 'success');
-    setTimeout(() => window.location.href = '/public/index.html', 900);
+    showMsg('✅ Berhasil masuk! Menyiapkan profil karakter...', 'success');
   } catch(err) {
     showMsg('❌ ' + friendlyError(err.code), 'error');
     setLoading('loginBtn', false, 'Masuk ke Akun');
@@ -339,8 +346,7 @@ async function handleRegister(e) {
       pass,
       document.getElementById('regName').value.trim()
     );
-    showMsg('✅ Akun berhasil dibuat! Mengalihkan...', 'success');
-    setTimeout(() => window.location.href = '/public/index.html', 900);
+    showMsg('✅ Akun berhasil dibuat! Pilih karakter kamu...', 'success');
   } catch(err) {
     showMsg('❌ ' + friendlyError(err.code), 'error');
     setLoading('registerBtn', false, 'Buat Akun Baru');
