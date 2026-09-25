@@ -318,19 +318,6 @@
     <p class="store-desc">Koleksi desain antarmuka (UI) website modern, responsive, dan berkarakter kuat dalam bentuk file .ZIP siap pakai dengan kode bersih dan terstruktur.</p>
   </div>
 
-  <!-- BAJA Avatar Shop -->
-  <section id="avatarShop" style="margin:0 0 38px;padding:28px;border:1px solid rgba(0,242,254,.25);border-radius:24px;background:linear-gradient(135deg,rgba(15,23,42,.96),rgba(30,41,59,.75));box-shadow:0 18px 45px rgba(0,0,0,.35);">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;">
-      <div><div class="store-badge" style="margin-bottom:8px;">Avatar Shop</div><h2 style="margin:0;color:#fff;font-size:28px;">Kustomisasi Karakter 3D</h2><p style="margin:7px 0 0;color:#94a3b8;">Beli dan pakai baju atau aksesori dengan mata uang Buzz.</p></div>
-      <div style="padding:12px 18px;border:1px solid rgba(250,204,21,.45);border-radius:14px;color:#facc15;font-weight:800;">Buzz: <span id="shopBuzz">0</span></div>
-    </div>
-    <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;margin-top:22px;">
-      <div id="shopCharacterPreview" style="min-width:130px;min-height:130px;display:flex;align-items:center;justify-content:center;border-radius:22px;background:radial-gradient(circle,#475569,#0f172a);border:1px solid rgba(255,255,255,.12);"></div>
-      <div style="flex:1;min-width:240px;"><h3 style="color:#e2e8f0;margin:0 0 12px;">Pakaian</h3><div id="outfitItems" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;"></div><h3 style="color:#e2e8f0;margin:20px 0 12px;">Aksesori</h3><div id="accessoryItems" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;"></div></div>
-    </div>
-    <p id="shopStatus" style="margin:18px 0 0;color:#94a3b8;font-size:13px;">Masuk untuk mengelola karakter.</p>
-  </section>
-
   <!-- Category Filter -->
   <div class="shop-filters">
     <button class="filter-chip active" onclick="filterShop('all')">🌟 Semua Desain</button>
@@ -502,7 +489,7 @@
     <span class="bottom-nav-icon">📈</span>
     <span class="bottom-nav-text" data-en="Finance" data-id="Dana">Finance</span>
   </a>
-  <a href="/src/pages/shop.html#avatarShop" class="bottom-nav-link active" title="Avatar Shop">
+  <a href="/src/pages/shop.html" class="bottom-nav-link active" title="Avatar Shop">
       <span class="bottom-nav-icon">🛍️</span>
       <span class="bottom-nav-text" data-en="Shop" data-id="Toko">Shop</span>
     </a>
@@ -514,46 +501,6 @@
 
 <script src="/src/App.js"></script>
 <script>
-const shopState = { profile: null, uid: null };
-const shopBuzz = document.getElementById('shopBuzz');
-const shopPreview = document.getElementById('shopCharacterPreview');
-const shopStatus = document.getElementById('shopStatus');
-const outfitItems = document.getElementById('outfitItems');
-const accessoryItems = document.getElementById('accessoryItems');
-function shopButton(type, id, item, owned, equipped) {
-  const action = owned ? (equipped ? 'Dipakai' : 'Pakai') : `Beli ${item.price} Buzz`;
-  return `<button type="button" data-shop-type="${type}" data-shop-id="${id}" style="padding:12px;border:1px solid ${equipped ? '#facc15' : 'rgba(255,255,255,.14)'};border-radius:12px;background:rgba(15,23,42,.8);color:#fff;text-align:left;cursor:pointer;"><strong>${item.name}</strong><br><small style="color:${equipped ? '#facc15' : '#94a3b8'};">${action}</small></button>`;
-}
-function renderAvatarShop() {
-  const p = shopState.profile || {};
-  const character = p.character || { gender: 'male', outfit: 'basic-blue', accessory: 'none' };
-  shopBuzz.textContent = Number(p.buzz || 0);
-  shopPreview.innerHTML = window.renderBajaCharacter(character, 128);
-  const outfits = p.ownedOutfits || ['basic-blue'];
-  const accessories = p.ownedAccessories || ['none'];
-  outfitItems.innerHTML = Object.entries(BAJA_CATALOG.outfits).map(([id,item]) => shopButton('outfits', id, item, outfits.includes(id), character.outfit === id)).join('');
-  accessoryItems.innerHTML = Object.entries(BAJA_CATALOG.accessories).map(([id,item]) => shopButton('accessories', id, item, accessories.includes(id), character.accessory === id)).join('');
-  document.querySelectorAll('[data-shop-type]').forEach(button => button.addEventListener('click', () => shopAction(button.dataset.shopType, button.dataset.shopId)));
-}
-async function shopAction(type, id) {
-  if (!shopState.uid) { shopStatus.textContent = 'Silakan login untuk memakai Avatar Shop.'; return; }
-  const ownedKey = type === 'outfits' ? 'ownedOutfits' : 'ownedAccessories';
-  try {
-    const owned = shopState.profile[ownedKey] || [type === 'outfits' ? 'basic-blue' : 'none'];
-    if (!owned.includes(id)) await buyCharacterItem(shopState.uid, type, id);
-    await equipCharacterItem(shopState.uid, type, id);
-    shopState.profile = await getUserProfile(shopState.uid) || shopState.profile;
-    shopStatus.textContent = 'Karakter berhasil diperbarui.';
-    renderAvatarShop();
-  } catch (error) { shopStatus.textContent = error.message || 'Transaksi gagal.'; }
-}
-auth.onAuthStateChanged(async user => {
-  if (!user) { shopStatus.textContent = 'Silakan login untuk memakai Avatar Shop.'; return; }
-  shopState.uid = user.uid;
-  shopState.profile = await getUserProfile(user.uid) || {};
-  renderAvatarShop();
-});
-
 function filterShop(category) {
   document.querySelectorAll('.filter-chip').forEach(btn => btn.classList.remove('active'));
   event.target.classList.add('active');
