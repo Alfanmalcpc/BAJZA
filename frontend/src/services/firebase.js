@@ -138,7 +138,18 @@ const BAJA_CATALOG = {
   accessories: {
     none: { name: 'Tanpa Aksesori', price: 0 },
     glasses: { name: 'Kacamata', price: 25 },
-    crown: { name: 'Mahkota', price: 90 }
+    crown: { name: 'Mahkota', price: 90 },
+    'cat-hood': { name: 'Hoodie Kucing', price: 70 },
+    backpack: { name: 'Ransel Petualang', price: 55 },
+    'pink-sneakers': { name: 'Sepatu Pink', price: 45 },
+    'mint-sneakers': { name: 'Sepatu Mint', price: 45 }
+  },
+  accessoriesLegacy: {
+    none: { name: 'Tanpa Aksesori', price: 0 },
+    glasses: { name: 'Kacamata', price: 25 },
+    crown: { name: 'Mahkota', price: 90 },
+    'cat-hood': { name: 'Hoodie Kucing', price: 70 },
+    backpack: { name: 'Ransel Petualang', price: 55 }
   }
 };
 function getCharacterProfile(profile = {}) {
