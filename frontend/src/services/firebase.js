@@ -33,7 +33,7 @@ const db   = firebase.database();
 async function bajaSignUp(email, password, displayName) {
   const cred = await auth.createUserWithEmailAndPassword(email, password);
   await cred.user.updateProfile({ displayName });
-  await saveUserProfile(cred.user, { displayName, photoURL: '', characterOnboardingRequired: true });
+  await saveUserProfile(cred.user, { displayName, photoURL: '', characterOnboardingRequired: false });
   return cred.user;
 }
 

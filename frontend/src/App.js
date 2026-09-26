@@ -222,22 +222,25 @@ const BAJA = {
           }
         } catch (e) { /* Gagal ambil profil, pakai data lokal */ }
 
+        /* Onboarding karakter sementara dinonaktifkan
         if (onboardingRequired && !character && !isOnboardingPage) {
           window.location.replace(profileHref + '?setup=character');
           return;
         }
+        */
         document.documentElement.classList.add('baja-auth-ready');
         const initial = displayName.charAt(0).toUpperCase();
         const profileMarkup = photoURL ? `<img src="${photoURL}" alt="Foto profil" style="width:28px;height:28px;border-radius:50%;object-fit:cover;"/>` : `<span style="font-size:11px;font-weight:800;">${initial}</span>`;
         slot.innerHTML = `
           <a href="${profileHref}" id="navAvatarLink" title="${displayName}" style="display:flex;align-items:center;gap:6px;text-decoration:none;color:var(--text-1);">
             <span style="display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;overflow:hidden;background:var(--grad-tools);">${profileMarkup}</span>
-            <span id="navCharacter3D" style="display:inline-flex;align-items:center;justify-content:center;width:46px;height:48px;"></span>
             <span style="font-size:11px;font-weight:800;color:#facc15;">Buzz ${buzz}</span>
           </a>`;
+        /* Karakter 3D navbar sementara dinonaktifkan
         if (character && typeof window.renderBajaCharacter3D === 'function') {
           window.renderBajaCharacter3D(document.getElementById('navCharacter3D'), character);
         }
+        */
 
       } else {
         document.documentElement.classList.add('baja-auth-ready');

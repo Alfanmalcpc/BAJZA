@@ -262,17 +262,10 @@
   </div>
 </section>
 <script>
-// Redirect akun aktif ke onboarding karakter atau beranda.
+// Redirect akun aktif langsung ke beranda
 auth.onAuthStateChanged(async user => {
   if (!user) return;
-  try {
-    const profile = await getUserProfile(user.uid);
-    window.location.replace(profile && profile.character
-      ? '/public/index.html'
-      : '/src/pages/profile.html?setup=character');
-  } catch (err) {
-    window.location.replace('/src/pages/profile.html?setup=character');
-  }
+  window.location.replace('/public/index.html');
 });
 function switchTab(tab) {
   const isLogin = tab === 'login';
@@ -346,7 +339,7 @@ async function handleRegister(e) {
       pass,
       document.getElementById('regName').value.trim()
     );
-    showMsg('✅ Akun berhasil dibuat! Pilih karakter kamu di profil...', 'success');
+    showMsg('✅ Akun berhasil dibuat! Silakan masuk...', 'success');
   } catch(err) {
     showMsg('❌ ' + friendlyError(err.code), 'error');
     setLoading('registerBtn', false, 'Buat Akun Baru');
