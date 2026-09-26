@@ -167,6 +167,9 @@ const BAJA_CATALOG = {
     'mint-sneakers': { name: 'Sepatu Mint', price: 45 }
   }
 };
+/* Shared renderer reads the catalog at runtime for material and accessory colors. */
+window.BAJA_DEFAULT_CHARACTER = BAJA_DEFAULT_CHARACTER;
+window.BAJA_CATALOG = BAJA_CATALOG;
 /* Expand every equipment slot to exactly 100 procedural catalog choices. Each item has a stable ID, price, rarity, color and 3D variant seed. */
 function expandBajaCatalog() {
   const groups = [

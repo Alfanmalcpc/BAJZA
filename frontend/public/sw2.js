@@ -11,6 +11,8 @@ const STATIC_ASSETS = [
   '/app.js',
   '/firebase.js',
   '/manifest.json',
+  '/src/assets/models/male.gltf',
+  '/src/assets/models/female.gltf',
   '/tools/index.html',
   '/finance/index.html',
   '/tutorial/index.html',
