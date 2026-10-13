@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pilihan Model 3D Pohon & Tekstur — BAJA WEB</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: #090d16;
+            color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+        #header {
+            position: absolute;
+            top: 16px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 12px 20px;
+            border-radius: 12px;
+        }
+        #header h1 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #38bdf8;
+            letter-spacing: 0.5px;
+        }
+        #header p {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+        }
+        #texture-palette {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 12px 24px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .tex-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .tex-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            image-rendering: pixelated;
+            background-size: 704px 704px; /* 16x upscale from 256px -> 16 tiles */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+        .tex-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #cbd5e1;
+        }
+        .tree-badge {
+            position: absolute;
+            z-index: 10;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid #38bdf8;
+            color: #f8fafc;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            pointer-events: none;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <div>
+            <h1>🌲 Katalog Pilihan Model 3D Pohon & Tekstur Baru — BAJA WEB</h1>
+            <p>Model GLTF/GLB ringan (CC0) & Tekstur Asli Terbuka Siap Pasang</p>
+        </div>
+        <div style="font-size: 12px; font-weight: 600; color: #10b981; background: rgba(16, 185, 129, 0.15); padding: 4px 10px; border-radius: 6px;">
+            ⚡ 60 FPS Optimized
+        </div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <div id="texture-palette">
+        <span style="font-size: 12px; font-weight: 700; color: #38bdf8; margin-right: 6px;">Koleksi Tekstur Baru:</span>
+        <div class="tex-item">
+            <canvas id="tex-grass" width="44" height="44" class="tex-box"></canvas>
+            <span class="tex-label">Rumput</span>
+        </div>
+        <div class="tex-item">
+            <canvas id="tex-dirt" width="44" height="44" class="tex-box"></canvas>
+            <span class="tex-label">Tanah</span>
+        </div>
+        <div class="tex-item">
+            <canvas id="tex-stone" width="44" height="44" class="tex-box"></canvas>
+            <span class="tex-label">Batu</span>
+        </div>
+        <div class="tex-item">
+            <canvas id="tex-wood" width="44" height="44" class="tex-box"></canvas>
+            <span class="tex-label">Kayu Oak</span>
+        </div>
+        <div class="tex-item">
+            <canvas id="tex-leaves" width="44" height="44" class="tex-box"></canvas>
+            <span class="tex-label">Dedaunan</span>
+        </div>
+        <div class="tex-item">
+            <canvas id="tex-plank" width="44" height="44" class="tex-box"></canvas>
+            <span class="tex-label">Papan Kayu</span>
+        </div>
+        <div class="tex-item">
+            <canvas id="tex-cobble" width="44" height="44" class="tex-box"></canvas>
+            <span class="tex-label">Cobble</span>
+        </div>
+        <div class="tex-item">
+            <canvas id="tex-glass" width="44" height="44" class="tex-box"></canvas>
+            <span class="tex-label">Kaca</span>
+        </div>
+    </div>
+
+    <!-- Badges for trees -->
+    <div id="badge-1" class="tree-badge" style="left: 20%; top: 68%;">1. Oak Organik Rimbun<br><span style="font-size: 10px; font-weight: 400; color: #94a3b8;">tree_oak.glb (196 faces)</span></div>
+    <div id="badge-2" class="tree-badge" style="left: 50%; transform: translateX(-50%); top: 68%;">2. Kanopi Berlapis Realistis<br><span style="font-size: 10px; font-weight: 400; color: #94a3b8;">tree_detailed.glb (402 faces)</span></div>
+    <div id="badge-3" class="tree-badge" style="left: 80%; transform: translateX(-100%); top: 68%;">3. Pinus Cemara Ramping<br><span style="font-size: 10px; font-weight: 400; color: #94a3b8;">tree_pineDefaultA.glb (230 faces)</span></div>
+
+    <script>
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0b1120);
+
+        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 4.5, 12);
+        camera.lookAt(0, 1.5, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.25;
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        container.appendChild(renderer.domElement);
+
+        // Lighting
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x1e293b, 1.1);
+        scene.add(hemiLight);
+
+        const dirLight = new THREE.DirectionalLight(0xfff7ed, 1.8);
+        dirLight.position.set(8, 14, 8);
+        dirLight.castShadow = true;
+        dirLight.shadow.mapSize.width = 2048;
+        dirLight.shadow.mapSize.height = 2048;
+        scene.add(dirLight);
+
+        const fillLight = new THREE.PointLight(0x38bdf8, 1.0, 20);
+        fillLight.position.set(-8, 3, 4);
+        scene.add(fillLight);
+
+        // Floor platform
+        const floorGeom = new THREE.CylinderGeometry(8.5, 9, 0.4, 64);
+        const floorMat = new THREE.MeshStandardMaterial({
+            color: 0x1e293b,
+            roughness: 0.6,
+            metalness: 0.2
+        });
+        const floor = new THREE.Mesh(floorGeom, floorMat);
+        floor.position.y = -0.2;
+        floor.receiveShadow = true;
+        scene.add(floor);
+
+        // Grid ring
+        const grid = new THREE.GridHelper(16, 16, 0x38bdf8, 0x1e293b);
+        grid.position.y = 0.01;
+        scene.add(grid);
+
+        // Pedestals
+        const pedGeom = new THREE.CylinderGeometry(1.4, 1.6, 0.3, 32);
+        const pedMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.5, metalness: 0.4 });
+
+        const pedPositions = [-3.8, 0, 3.8];
+        pedPositions.forEach(x => {
+            const ped = new THREE.Mesh(pedGeom, pedMat);
+            ped.position.set(x, 0.15, 0);
+            ped.receiveShadow = true;
+            ped.castShadow = true;
+            scene.add(ped);
+        });
+
+        // Load Trees
+        const loader = new THREE.GLTFLoader();
+        const treeModels = [];
+
+        function loadTree(url, posX, scale, rotY = 0) {
+            loader.load(url, (gltf) => {
+                const model = gltf.scene;
+                model.position.set(posX, 0.3, 0);
+                model.scale.set(scale, scale, scale);
+                model.rotation.y = rotY;
+                model.traverse(node => {
+                    if (node.isMesh) {
+                        node.castShadow = true;
+                        node.receiveShadow = true;
+                        if (node.material) {
+                            node.material.roughness = 0.75;
+                        }
+                    }
+                });
+                scene.add(model);
+                treeModels.push(model);
+            });
+        }
+
+        loadTree('/src/assets/models/trees/tree_oak.glb', -3.8, 1.5, 0.2);
+        loadTree('/src/assets/models/trees/tree_detailed.glb', 0, 1.35, -0.4);
+        loadTree('/src/assets/models/trees/tree_pineDefaultA.glb', 3.8, 1.5, 0.6);
+
+        // Extract and draw textures to palette canvases
+        const img = new Image();
+        img.src = '/src/assets/textures/voxel_atlas_transparent.png';
+        img.onload = () => {
+            function drawTile(canvasId, col, row) {
+                const cvs = document.getElementById(canvasId);
+                if (!cvs) return;
+                const ctx = cvs.getContext('2d');
+                ctx.imageSmoothingEnabled = false;
+                // Atlas is 256x256, 16x16 tiles = 16px per tile
+                const tileSize = 16;
+                ctx.drawImage(img, col * tileSize, row * tileSize, tileSize, tileSize, 0, 0, cvs.width, cvs.height);
+            }
+
+            // Draw tiles based on craft atlas layout:
+            // Grass side: col 0, row 14
+            drawTile('tex-grass', 0, 14);
+            // Dirt: col 0, row 15
+            drawTile('tex-dirt', 0, 15);
+            // Stone: col 2, row 15
+            drawTile('tex-stone', 2, 15);
+            // Oak Wood bark: col 4, row 14
+            drawTile('tex-wood', 4, 14);
+            // Leaves: col 14, row 15
+            drawTile('tex-leaves', 14, 15);
+            // Plank: col 7, row 15
+            drawTile('tex-plank', 7, 15);
+            // Cobblestone: col 5, row 15
+            drawTile('tex-cobble', 5, 15);
+            // Glass: col 9, row 15
+            drawTile('tex-glass', 9, 15);
+        };
+
+        // Render loop
+        function animate() {
+            requestAnimationFrame(animate);
+            treeModels.forEach(m => {
+                m.rotation.y += 0.008;
+            });
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

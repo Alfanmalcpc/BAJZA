@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>3D Realism Lab & Open World — BAJA WEB</title>
+    <link rel="icon" href="/src/assets/img/Logo.svg"/>
+    <link rel="stylesheet" href="/src/assets/css/style.css"/>
+    <link rel="stylesheet" href="/src/assets/css/responsive.css"/>
+    <!-- Three.js & Controls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+    <style>
+        :root {
+            --baja-neon: #06b6d4;
+            --baja-accent: #3b82f6;
+            --baja-gold: #f59e0b;
+            --baja-glass: rgba(15, 23, 42, 0.78);
+            --baja-border: rgba(255, 255, 255, 0.12);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: #090d16;
+            color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            user-select: none;
+        }
+
+        #viewport-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Top Bar Overlay */
+        .hud-topbar {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            right: 16px;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+        }
+        .hud-pill {
+            pointer-events: auto;
+            background: var(--baja-glass);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--baja-border);
+            border-radius: 999px;
+            padding: 8px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+        .logo-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: #fff;
+            font-weight: 800;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+        }
+        .logo-btn img { width: 24px; height: 24px; }
+
+        /* Mode Switcher */
+        .mode-switcher {
+            pointer-events: auto;
+            background: var(--baja-glass);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--baja-border);
+            border-radius: 999px;
+            padding: 4px;
+            display: flex;
+            gap: 4px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+        .mode-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            padding: 8px 18px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .mode-btn.active {
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+        }
+
+        /* Diagnostic HUD (Minecraft F3 style) */
+        .hud-diag {
+            position: absolute;
+            top: 76px;
+            left: 16px;
+            z-index: 10;
+            background: rgba(10, 15, 29, 0.72);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--baja-border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-family: 'JetBrains Mono', Consolas, monospace;
+            font-size: 11px;
+            line-height: 1.6;
+            color: #cbd5e1;
+            pointer-events: none;
+            max-width: 320px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+        .hud-diag b { color: var(--baja-neon); }
+
+        /* Floating Controls Panel (Right Side) */
+        .hud-panel {
+            position: absolute;
+            top: 76px;
+            right: 16px;
+            z-index: 10;
+            background: var(--baja-glass);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--baja-border);
+            border-radius: 16px;
+            padding: 18px;
+            width: 290px;
+            color: #f1f5f9;
+            box-shadow: 0 16px 36px rgba(0,0,0,0.5);
+            max-height: calc(100vh - 110px);
+            overflow-y: auto;
+        }
+        .hud-panel h3 {
+            font-size: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .control-group {
+            margin-bottom: 14px;
+        }
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 5px;
+            border-radius: 5px;
+            background: #334155;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--baja-neon);
+            cursor: pointer;
+            box-shadow: 0 0 8px var(--baja-neon);
+        }
+        .btn-action {
+            width: 100%;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 1px solid var(--baja-border);
+            color: #f8fafc;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-action:hover {
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+            border-color: #38bdf8;
+        }
+
+        /* Reticle / Crosshair for First-Person */
+        #crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            pointer-events: none;
+            z-index: 5;
+            display: none;
+        }
+        #crosshair::before, #crosshair::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.75);
+            box-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+        }
+        #crosshair::before { top: 5px; left: 0; width: 12px; height: 2px; }
+        #crosshair::after { top: 0; left: 5px; width: 2px; height: 12px; }
+
+        /* Lock Screen Instructions */
+        #lock-prompt {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            background: var(--baja-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--baja-border);
+            padding: 10px 24px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #e2e8f0;
+            pointer-events: auto;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            transition: all 0.2s;
+        }
+        #lock-prompt:hover {
+            background: rgba(2, 132, 199, 0.85);
+            transform: translateX(-50%) scale(1.03);
+        }
+
+        /* Mobile Touch Controls */
+        .mobile-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            z-index: 15;
+            display: none;
+            justify-content: space-between;
+            align-items: flex-end;
+            pointer-events: none;
+        }
+        .touch-pad {
+            pointer-events: auto;
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid var(--baja-border);
+            position: relative;
+            backdrop-filter: blur(8px);
+        }
+        .touch-stick {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--baja-neon);
+            position: absolute;
+            top: 33px;
+            left: 33px;
+            opacity: 0.8;
+            box-shadow: 0 0 12px var(--baja-neon);
+        }
+        .touch-btns {
+            pointer-events: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .touch-btn {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: rgba(30, 41, 59, 0.8);
+            border: 2px solid var(--baja-border);
+            color: #fff;
+            font-weight: 800;
+            font-size: 13px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(8px);
+        }
+        .touch-btn:active { background: #0284c7; transform: scale(0.94); }
+
+        @media (max-width: 768px) {
+            .hud-panel { display: none; }
+            .mobile-controls { display: flex; }
+            .hud-diag { max-width: 220px; font-size: 10px; padding: 8px 12px; }
+            .mode-btn { padding: 6px 12px; font-size: 11px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="viewport-container"></div>
+    <div id="crosshair"></div>
+
+    <!-- Top Bar -->
+    <div class="hud-topbar">
+        <div class="hud-pill">
+            <a href="index.html" class="logo-btn">
+                <img src="/src/assets/img/Logo.svg" alt="BAJA">
+                <span>BAJA 3D</span>
+            </a>
+            <span style="color: var(--baja-border)">|</span>
+            <span style="font-size: 12px; color: #94a3b8; font-weight: 600;">Engine Realistis</span>
+        </div>
+
+        <div class="mode-switcher">
+            <button class="mode-btn active" id="btn-mode-world" onclick="switchMode('world')">
+                <span>🌍</span> Open World Bebas
+            </button>
+            <button class="mode-btn" id="btn-mode-lab" onclick="switchMode('lab')">
+                <span>🔬</span> Lab Detail Mikro & Lubang
+            </button>
+        </div>
+
+        <div class="hud-pill" style="padding: 8px 14px;">
+            <span id="fps-counter" style="font-family: monospace; font-size: 12px; font-weight: 700; color: #10b981;">60 FPS</span>
+        </div>
+    </div>
+
+    <!-- Diagnostic HUD -->
+    <div class="hud-diag" id="hud-diag">
+        <div><b>POS</b>: <span id="pos-display">X: 0.0, Y: 12.5, Z: 0.0</span></div>
+        <div><b>BIOMA</b>: <span id="biome-display">Lembah Berumput Organik</span></div>
+        <div><b>PENCIPTAAN</b>: <span id="engine-display">Smooth Voxel / Procedural Mesh</span></div>
+        <div><b>STATUS</b>: <span id="control-display">WASD Jalan | Shift Lari | Space Lompat</span></div>
+        <div><b>INTERAKSI</b>: Klik Kiri: Naikkan Tanah | Klik Kanan: Galur Air</div>
+    </div>
+
+    <!-- Floating Settings Panel -->
+    <div class="hud-panel" id="hud-panel">
+        <h3 id="panel-title">🎮 Pengaturan Dunia</h3>
+        
+        <div id="world-settings">
+            <div class="control-group">
+                <label><span>Waktu Matahari (Jam)</span><span id="time-val">14:00</span></label>
+                <input type="range" id="slider-time" min="0" max="24" step="0.1" value="14">
+            </div>
+            <div class="control-group">
+                <label><span>Kecepatan Karakter</span><span id="speed-val">1.0x</span></label>
+                <input type="range" id="slider-speed" min="0.5" max="3.0" step="0.1" value="1.0">
+            </div>
+            <div class="control-group">
+                <label><span>Kabut Atmosfer (Fog)</span><span id="fog-val">Sedang</span></label>
+                <input type="range" id="slider-fog" min="0.001" max="0.03" step="0.001" value="0.008">
+            </div>
+            <button class="btn-action" onclick="toggleFlight()">🕊️ Toggle Mode Terbang (Noclip)</button>
+            <button class="btn-action" onclick="resetPlayerPosition()">📍 Reset ke Posisi Awal</button>
+        </div>
+
+        <div id="lab-settings" style="display: none;">
+            <div class="control-group">
+                <label><span>Kilap Metalik (Metallic)</span><span id="metal-val">0.85</span></label>
+                <input type="range" id="slider-metal" min="0" max="1" step="0.05" value="0.85">
+            </div>
+            <div class="control-group">
+                <label><span>Kekasaran Permukaan (Roughness)</span><span id="rough-val">0.25</span></label>
+                <input type="range" id="slider-rough" min="0" max="1" step="0.05" value="0.25">
+            </div>
+            <div class="control-group">
+                <label><span>Kedalaman Lubang & Bump</span><span id="bump-val">1.0</span></label>
+                <input type="range" id="slider-bump" min="0" max="3" step="0.1" value="1.0">
+            </div>
+
+            <div style="margin: 14px 0 6px 0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8;">Preset Pencahayaan Lab:</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px;">
+                <button class="btn-action" style="margin: 0; padding: 6px 8px; font-size: 11px;" onclick="setLabLighting('studio')">💡 Studio Putih</button>
+                <button class="btn-action" style="margin: 0; padding: 6px 8px; font-size: 11px;" onclick="setLabLighting('golden')">🌆 Sunset Emas</button>
+                <button class="btn-action" style="margin: 0; padding: 6px 8px; font-size: 11px;" onclick="setLabLighting('neon')">🌌 Cyber Neon</button>
+                <button class="btn-action" style="margin: 0; padding: 6px 8px; font-size: 11px;" onclick="setLabLighting('direct')">☀️ Terik Siang</button>
+            </div>
+
+            <button class="btn-action" onclick="toggleWireframe()">🕸️ Periksa Wireframe Poligon</button>
+            <button class="btn-action" onclick="focusMicroHole()">🔍 Zoom Lubang Mikro PCB (Sub-mm)</button>
+        </div>
+    </div>
+
+    <!-- First Person Lock Prompt -->
+    <div id="lock-prompt" onclick="requestControlLock()">
+        🎯 Klik untuk Masuk Kendali Kamera Bebas (Mouse Look)
+    </div>
+
+    <!-- Mobile Virtual Joy -->
+    <div class="mobile-controls" id="mobile-controls">
+        <div class="touch-pad" id="touch-joy">
+            <div class="touch-stick" id="touch-stick"></div>
+        </div>
+        <div class="touch-btns">
+            <button class="touch-btn" id="btn-jump">JUMP</button>
+            <button class="touch-btn" id="btn-action-mobile" style="background:#0284c7">ACT</button>
+        </div>
+    </div>
+
+    <script>
+        /* ════════════════════════════════════════════════════════════
+           BAJA 3D Realism Engine (Three.js WebGL)
+           Features:
+           - Realistic Organic Open World (Continuous Noise, No Cubes)
+           - Dynamic Sunlight, Specular Water, PBR Terrain Shader
+           - Micro Detail Lab: Inspect 3D Model down to tiny holes & pads
+           ════════════════════════════════════════════════════════════ */
+        
+        let scene, camera, renderer;
+        let orbitControls, fpControls;
+        let activeMode = 'world'; // 'world' | 'lab'
+        let terrainMesh, waterMesh;
+        let labGroup, pcbModel;
+        let sunLight, hemiLight, ambientLight;
+        let isPointerLocked = false;
+        let isFlying = false;
+
+        // Player physics
+        const player = {
+            velocity: new THREE.Vector3(),
+            direction: new THREE.Vector3(),
+            speedMultiplier: 1.0,
+            height: 1.8,
+            canJump: true,
+            isSprinting: false
+        };
+        const keys = { w: false, a: false, s: false, d: false, space: false, shift: false };
+
+        // Simplex/Perlin multi-octave noise implementation for smooth organic hills
+        function generatePerlinNoise2D(x, z) {
+            // Multi-frequency smooth wave superposition
+            const f1 = 0.008, f2 = 0.02, f3 = 0.06;
+            const h1 = Math.sin(x * f1) * Math.cos(z * f1) * 14.0;
+            const h2 = Math.sin(x * f2 + 1.2) * Math.cos(z * f2 + 0.8) * 6.0;
+            const h3 = Math.sin(x * f3 + z * f3 * 0.5) * 2.0;
+            const ridge = Math.cos((x + z) * 0.005) * 8.0;
+            return h1 + h2 + h3 + ridge;
+        }
+
+        function getTerrainElevation(x, z) {
+            return generatePerlinNoise2D(x, z);
+        }
+
+        // Initialize WebGL Application
+        function initApp() {
+            const container = document.getElementById('viewport-container');
+
+            // Scene setup with bright daylight sky and crisp linear fog
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x93c5fd, 140, 480);
+
+            // Camera placed high on a scenic ridge overlooking the valley
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 24, 55);
+
+            // Renderer with ultra realistic tone mapping and soft shadows
+            renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.22;
+            container.appendChild(renderer.domElement);
+
+            // Lighting Setup
+            setupLighting();
+
+            // Controls
+            orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
+            orbitControls.enableDamping = true;
+            orbitControls.dampingFactor = 0.08;
+            orbitControls.maxDistance = 350;
+            orbitControls.minDistance = 0.2;
+            camera.position.set(0, 24, 55);
+            orbitControls.target.set(0, 8, 10);
+
+            fpControls = new THREE.PointerLockControls(camera, document.body);
+
+            // Build Both Worlds
+            buildRealisticOpenWorld();
+            buildMicroDetailLab();
+
+            // Events
+            setupEventListeners();
+
+            // Start loop
+            animate();
+        }
+
+        function setupLighting() {
+            hemiLight = new THREE.HemisphereLight(0x7dd3fc, 0x15803d, 1.25);
+            scene.add(hemiLight);
+
+            sunLight = new THREE.DirectionalLight(0xfff7ed, 2.6);
+            sunLight.position.set(55, 75, 45);
+            sunLight.castShadow = true;
+            sunLight.shadow.mapSize.width = 2048;
+            sunLight.shadow.mapSize.height = 2048;
+            sunLight.shadow.camera.near = 1.0;
+            sunLight.shadow.camera.far = 400;
+            const d = 160;
+            sunLight.shadow.camera.left = -d;
+            sunLight.shadow.camera.right = d;
+            sunLight.shadow.camera.top = d;
+            sunLight.shadow.camera.bottom = -d;
+            sunLight.shadow.bias = -0.0004;
+            scene.add(sunLight);
+
+            ambientLight = new THREE.AmbientLight(0xdcfce7, 0.45);
+            scene.add(ambientLight);
+        }
+
+        // Build Genshin Impact Inspired Open World (Lush Anime Meadows, Fluffy Trees, Dense Grass & Teleport Waypoint)
+        function buildRealisticOpenWorld() {
+            window.worldGroup = new THREE.Group();
+
+            // 1. Genshin Sky Dome with Gradient Canvas Texture
+            const skyCanvas = document.createElement('canvas');
+            skyCanvas.width = 512;
+            skyCanvas.height = 512;
+            const ctx = skyCanvas.getContext('2d');
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, 512);
+            skyGrad.addColorStop(0.0, '#0284c7');   // Celestial Genshin Blue
+            skyGrad.addColorStop(0.45, '#38bdf8');  // Azure Mid-Sky
+            skyGrad.addColorStop(0.75, '#bae6fd');  // Soft Horizon Mist
+            skyGrad.addColorStop(1.0, '#fef08a');   // Warm Golden Sun Glint
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, 512, 512);
+
+            const skyTex = new THREE.CanvasTexture(skyCanvas);
+            const skyGeo = new THREE.SphereGeometry(450, 32, 24);
+            const skyMat = new THREE.MeshBasicMaterial({
+                map: skyTex,
+                side: THREE.BackSide,
+                fog: false
+            });
+            const skyDome = new THREE.Mesh(skyGeo, skyMat);
+            window.worldGroup.add(skyDome);
+            window.skyDome = skyDome;
+
+            // Procedural anime grass blades texture with lush green tones
+            const grassCanvas = document.createElement('canvas');
+            grassCanvas.width = 512;
+            grassCanvas.height = 512;
+            const gctx = grassCanvas.getContext('2d');
+            gctx.fillStyle = '#16a34a'; // Vibrant spring grass
+            gctx.fillRect(0, 0, 512, 512);
+            for (let i = 0; i < 4500; i++) {
+                const gx = Math.random() * 512;
+                const gy = Math.random() * 512;
+                const glen = 4 + Math.random() * 8;
+                gctx.strokeStyle = Math.random() > 0.45 ? '#84cc16' : '#15803d';
+                gctx.lineWidth = 1.4;
+                gctx.beginPath();
+                gctx.moveTo(gx, gy);
+                gctx.lineTo(gx + (Math.random() - 0.5) * 3, gy - glen);
+                gctx.stroke();
+            }
+            const grassTex = new THREE.CanvasTexture(grassCanvas);
+            grassTex.wrapS = THREE.RepeatWrapping;
+            grassTex.wrapT = THREE.RepeatWrapping;
+            grassTex.repeat.set(32, 32);
+
+            // 2. High-Density Smooth Terrain with Genshin Mondstadt Color Palette
+            const terrainSize = 360;
+            const segments = 160;
+            const geo = new THREE.PlaneGeometry(terrainSize, terrainSize, segments, segments);
+            geo.rotateX(-Math.PI / 2);
+
+            const pos = geo.attributes.position;
+            const colors = [];
+            const color = new THREE.Color();
+
+            for (let i = 0; i < pos.count; i++) {
+                const x = pos.getX(i);
+                const z = pos.getZ(i);
+                const y = getTerrainElevation(x, z);
+                pos.setY(i, y);
+
+                // Genshin Color Palette: Warm sand shore -> Lush emerald meadow -> Golden ridge
+                if (y < -0.8) {
+                    color.setHex(0xeab308); // Warm golden shore sand
+                } else if (y < 9.0) {
+                    // Mondstadt lush meadow with sunny lime highlights
+                    const t = (y - (-0.8)) / 9.8;
+                    const cBase = new THREE.Color(0x15803d); // Deep lush spring green
+                    const cHighlight = new THREE.Color(0x84cc16); // Sunlit chartreuse lime
+                    color.lerpColors(cBase, cHighlight, t);
+                    const noise = Math.sin(x * 0.15) * Math.cos(z * 0.15) * 0.04;
+                    color.r += noise;
+                    color.g += noise;
+                } else if (y < 16.0) {
+                    // Weathered warm cliff stone
+                    const t = (y - 9.0) / 7.0;
+                    const cGrass = new THREE.Color(0x15803d);
+                    const cRock = new THREE.Color(0x64748b);
+                    color.lerpColors(cGrass, cRock, t);
+                } else {
+                    // Mountain peak
+                    const t = Math.min(1.0, (y - 16.0) / 5.0);
+                    const cRock = new THREE.Color(0x64748b);
+                    const cSnow = new THREE.Color(0xf1f5f9);
+                    color.lerpColors(cRock, cSnow, t);
+                }
+                colors.push(color.r, color.g, color.b);
+            }
+            geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+            geo.attributes.position.needsUpdate = true;
+            geo.attributes.color.needsUpdate = true;
+            geo.computeVertexNormals();
+
+            const terrainMat = new THREE.MeshStandardMaterial({
+                map: grassTex,
+                vertexColors: true,
+                roughness: 0.75,
+                metalness: 0.05,
+                flatShading: false
+            });
+
+            terrainMesh = new THREE.Mesh(geo, terrainMat);
+            terrainMesh.receiveShadow = true;
+            terrainMesh.castShadow = true;
+            window.worldGroup.add(terrainMesh);
+
+            // 3. Genshin Crystal Turquoise Lake
+            const waterGeo = new THREE.PlaneGeometry(terrainSize, terrainSize, 40, 40);
+            waterGeo.rotateX(-Math.PI / 2);
+            const waterMat = new THREE.MeshStandardMaterial({
+                color: 0x06b6d4, // Vibrant anime cyan
+                roughness: 0.04,
+                metalness: 0.85,
+                transparent: true,
+                opacity: 0.84
+            });
+            waterMesh = new THREE.Mesh(waterGeo, waterMat);
+            waterMesh.position.y = -1.0;
+            waterMesh.receiveShadow = true;
+            window.worldGroup.add(waterMesh);
+
+            // 4. Genshin Fluffy Anime Trees & Foliage
+            addGenshinAnimeTrees(window.worldGroup);
+
+            // 5. Genshin Dense Swaying Grass Blades & Wild Flowers (InstancedMesh - High Perf)
+            addGenshinGrassAndFlowers(window.worldGroup);
+
+            // 6. Genshin Teleport Waypoint & Ancient Ruins
+            addGenshinWaypointAndRuins(window.worldGroup);
+
+            // 7. Stylized Fluffy Anime Clouds
+            addGenshinAnimeClouds(window.worldGroup);
+
+            // 8. Floating Anemo Elemental Wisps (Cyan Motes)
+            addGenshinElementalWisps(window.worldGroup);
+
+            // 9. Distant Anime Mountain Peaks (Mondstadt Horizons)
+            addGenshinDistantMountains(window.worldGroup);
+
+            // 10. Radiant Genshin Sun with Corona Halo
+            addGenshinAnimeSun(window.worldGroup);
+
+            scene.add(window.worldGroup);
+        }
+
+        // 4. Genshin Fluffy Anime Trees (Windrise / Mondstadt Style)
+        function addGenshinAnimeTrees(parentGroup) {
+            const trunkGeo = new THREE.CylinderGeometry(0.38, 0.75, 5.0, 10);
+            const trunkMat = new THREE.MeshStandardMaterial({ color: 0x3d1d07, roughness: 0.88 });
+
+            // Foliage materials: Layered anime forest green, vibrant spring emerald, and sunlit golden lime
+            const foliageMat1 = new THREE.MeshStandardMaterial({ color: 0x059669, roughness: 0.5 });
+            const foliageMat2 = new THREE.MeshStandardMaterial({ color: 0x16a34a, roughness: 0.45 });
+            const foliageMat3 = new THREE.MeshStandardMaterial({ color: 0x84cc16, roughness: 0.4 });
+
+            const sphereGeo = new THREE.DodecahedronGeometry(1.85, 2);
+
+            for (let i = 0; i < 90; i++) {
+                const rx = (Math.random() - 0.5) * 260;
+                const rz = (Math.random() - 0.5) * 260;
+                if (Math.hypot(rx - 0, rz - 55) < 14) continue;
+                if (Math.hypot(rx - 6, rz - 22) < 9) continue;
+
+                const ry = getTerrainElevation(rx, rz);
+
+                if (ry > 0.2 && ry < 11.5) {
+                    const treeGroup = new THREE.Group();
+                    
+                    // Trunk
+                    const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+                    trunk.position.y = 2.5;
+                    trunk.rotation.z = (Math.random() - 0.5) * 0.15;
+                    trunk.castShadow = true;
+                    trunk.receiveShadow = true;
+                    treeGroup.add(trunk);
+
+                    // Multi-sphere fluffy cloud canopy
+                    const canopyPuffs = [
+                        { x: 0, y: 5.2, z: 0, s: 1.9, m: foliageMat1 },
+                        { x: 1.3, y: 4.6, z: 0.6, s: 1.45, m: foliageMat2 },
+                        { x: -1.2, y: 4.8, z: -0.6, s: 1.5, m: foliageMat1 },
+                        { x: 0.6, y: 6.0, z: -0.4, s: 1.45, m: foliageMat3 },
+                        { x: -0.6, y: 5.6, z: 0.8, s: 1.4, m: foliageMat2 },
+                        { x: 0.8, y: 4.8, z: -0.8, s: 1.3, m: foliageMat1 }
+                    ];
+
+                    canopyPuffs.forEach(p => {
+                        const puff = new THREE.Mesh(sphereGeo, p.m);
+                        puff.position.set(p.x, p.y, p.z);
+                        puff.scale.set(p.s, p.s * 0.88, p.s);
+                        puff.castShadow = true;
+                        puff.receiveShadow = true;
+                        treeGroup.add(puff);
+                    });
+
+                    treeGroup.position.set(rx, ry, rz);
+                    const treeScale = 0.95 + Math.random() * 0.55;
+                    treeGroup.scale.set(treeScale, treeScale, treeScale);
+                    parentGroup.add(treeGroup);
+                }
+            }
+        }
+
+        // 5. Genshin Dense Swaying Grass Field & Anime Flowers (InstancedMesh)
+        let grassInstancedMesh = null;
+        function addGenshinGrassAndFlowers(parentGroup) {
+            const grassCount = 4200;
+            // Tapered 3D anime grass tuft geometry
+            const tuftGeo = new THREE.ConeGeometry(0.35, 1.4, 4, 1, true);
+            tuftGeo.translate(0, 0.7, 0);
+            tuftGeo.scale(1.0, 1.0, 0.4);
+
+            const grassMat = new THREE.MeshStandardMaterial({
+                color: 0x84cc16,
+                roughness: 0.45,
+                metalness: 0.05,
+                side: THREE.DoubleSide
+            });
+
+            grassInstancedMesh = new THREE.InstancedMesh(tuftGeo, grassMat, grassCount);
+            grassInstancedMesh.receiveShadow = true;
+            grassInstancedMesh.castShadow = true;
+
+            const dummy = new THREE.Object3D();
+            let idx = 0;
+
+            for (let i = 0; i < grassCount; i++) {
+                const rx = (Math.random() - 0.5) * 190;
+                const rz = (Math.random() - 0.5) * 190;
+                const ry = getTerrainElevation(rx, rz);
+
+                if (ry > 0.0 && ry < 12.0) {
+                    dummy.position.set(rx, ry, rz);
+                    dummy.rotation.y = Math.random() * Math.PI * 2;
+                    dummy.rotation.x = (Math.random() - 0.5) * 0.25;
+                    const scale = 0.85 + Math.random() * 0.65;
+                    dummy.scale.set(scale, scale * (0.85 + Math.random() * 0.5), scale);
+                    dummy.updateMatrix();
+                    grassInstancedMesh.setMatrixAt(idx++, dummy.matrix);
+                }
+            }
+            grassInstancedMesh.count = idx;
+            grassInstancedMesh.instanceMatrix.needsUpdate = true;
+            parentGroup.add(grassInstancedMesh);
+
+            // Scattered Anime Flowers (Yellow Sweet Flowers & White Cecilias)
+            const flowerCount = 500;
+            const flowerGeo = new THREE.ConeGeometry(0.28, 0.55, 6);
+            const flowerMatY = new THREE.MeshBasicMaterial({ color: 0xfde047 });
+            const flowerMatW = new THREE.MeshBasicMaterial({ color: 0x67e8f9 });
+
+            const flowerMeshY = new THREE.InstancedMesh(flowerGeo, flowerMatY, flowerCount / 2);
+            const flowerMeshW = new THREE.InstancedMesh(flowerGeo, flowerMatW, flowerCount / 2);
+
+            let idy = 0, idw = 0;
+            for (let i = 0; i < flowerCount; i++) {
+                const rx = (Math.random() - 0.5) * 180;
+                const rz = (Math.random() - 0.5) * 180;
+                const ry = getTerrainElevation(rx, rz);
+                if (ry > 0.5 && ry < 10.0) {
+                    dummy.position.set(rx, ry + 0.35, rz);
+                    dummy.rotation.set((Math.random()-0.5)*0.2, Math.random()*Math.PI*2, 0);
+                    dummy.scale.setScalar(0.75 + Math.random() * 0.5);
+                    dummy.updateMatrix();
+                    if (Math.random() > 0.5 && idy < flowerCount / 2) {
+                        flowerMeshY.setMatrixAt(idy++, dummy.matrix);
+                    } else if (idw < flowerCount / 2) {
+                        flowerMeshW.setMatrixAt(idw++, dummy.matrix);
+                    }
+                }
+            }
+            flowerMeshY.count = idy; flowerMeshY.instanceMatrix.needsUpdate = true;
+            flowerMeshW.count = idw; flowerMeshW.instanceMatrix.needsUpdate = true;
+            parentGroup.add(flowerMeshY);
+            parentGroup.add(flowerMeshW);
+        }
+
+        // 6. Genshin Teleport Waypoint & Ancient Ruins Landmark
+        let waypointCrystal = null;
+        let waypointRings = [];
+        function addGenshinWaypointAndRuins(parentGroup) {
+            const landmarkGroup = new THREE.Group();
+
+            // Weathered tiered stone pedestal dais
+            const baseTier1 = new THREE.CylinderGeometry(2.6, 3.2, 0.7, 16);
+            const stoneMat1 = new THREE.MeshStandardMaterial({
+                color: 0x334155,
+                roughness: 0.85,
+                metalness: 0.15
+            });
+            const tier1 = new THREE.Mesh(baseTier1, stoneMat1);
+            tier1.position.y = 0.35;
+            tier1.castShadow = true;
+            tier1.receiveShadow = true;
+            landmarkGroup.add(tier1);
+
+            const baseTier2 = new THREE.CylinderGeometry(1.8, 2.3, 0.6, 16);
+            const stoneMat2 = new THREE.MeshStandardMaterial({
+                color: 0x475569,
+                roughness: 0.8,
+                metalness: 0.2
+            });
+            const tier2 = new THREE.Mesh(baseTier2, stoneMat2);
+            tier2.position.y = 0.95;
+            tier2.castShadow = true;
+            tier2.receiveShadow = true;
+            landmarkGroup.add(tier2);
+
+            // 3 elegant curved ruin pillars with gold metallic caps
+            const pillarGeo = new THREE.CylinderGeometry(0.22, 0.32, 4.4, 12);
+            const goldMat = new THREE.MeshStandardMaterial({
+                color: 0xf59e0b,
+                metalness: 0.85,
+                roughness: 0.2
+            });
+            const finialGeo = new THREE.ConeGeometry(0.35, 0.7, 12);
+
+            for (let i = 0; i < 3; i++) {
+                const angle = (i / 3) * Math.PI * 2;
+                const pillar = new THREE.Mesh(pillarGeo, stoneMat2);
+                pillar.position.set(Math.cos(angle) * 1.7, 2.6, Math.sin(angle) * 1.7);
+                pillar.rotation.y = -angle;
+                pillar.rotation.z = Math.cos(angle) * 0.08;
+                pillar.castShadow = true;
+                pillar.receiveShadow = true;
+                landmarkGroup.add(pillar);
+
+                const finial = new THREE.Mesh(finialGeo, goldMat);
+                finial.position.set(Math.cos(angle) * 1.7, 5.0, Math.sin(angle) * 1.7);
+                finial.castShadow = true;
+                landmarkGroup.add(finial);
+            }
+
+            // Glowing Floating Anemo Crystal (Teleport Core)
+            const crystalGeo = new THREE.OctahedronGeometry(1.2, 0);
+            const crystalMat = new THREE.MeshStandardMaterial({
+                color: 0x06b6d4,
+                emissive: 0x00f5ff,
+                emissiveIntensity: 2.2,
+                roughness: 0.05,
+                metalness: 0.85,
+                transparent: true,
+                opacity: 0.96
+            });
+            waypointCrystal = new THREE.Mesh(crystalGeo, crystalMat);
+            waypointCrystal.position.y = 3.6;
+            landmarkGroup.add(waypointCrystal);
+
+            // Floating orbital energy rings
+            const ringGeo = new THREE.TorusGeometry(1.65, 0.07, 12, 32);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+            const ring1 = new THREE.Mesh(ringGeo, ringMat);
+            ring1.position.y = 3.6;
+            ring1.rotation.x = Math.PI / 3;
+            landmarkGroup.add(ring1);
+            waypointRings.push(ring1);
+
+            const ring2 = new THREE.Mesh(ringGeo, ringMat);
+            ring2.position.y = 3.6;
+            ring2.rotation.y = Math.PI / 4;
+            landmarkGroup.add(ring2);
+            waypointRings.push(ring2);
+
+            // Dynamic Cyan PointLight from Waypoint
+            const waypointLight = new THREE.PointLight(0x00f5ff, 5.0, 25);
+            waypointLight.position.y = 3.6;
+            landmarkGroup.add(waypointLight);
+
+            // Position Landmark prominently on scenic ridge
+            const wx = 6.0, wz = 22.0;
+            const wy = getTerrainElevation(wx, wz);
+            landmarkGroup.position.set(wx, wy, wz);
+            parentGroup.add(landmarkGroup);
+        }
+
+        // 7. Fluffy Stylized Anime Clouds
+        let animeCloudList = [];
+        function addGenshinAnimeClouds(parentGroup) {
+            const cloudMat = new THREE.MeshStandardMaterial({
+                color: 0xffffff,
+                roughness: 0.85,
+                metalness: 0.05
+            });
+            const cloudPuffGeo = new THREE.DodecahedronGeometry(7.5, 2);
+
+            // Framed directly across the northern vista
+            for (let i = 0; i < 16; i++) {
+                const cloudGroup = new THREE.Group();
+                const puffs = 6;
+                for (let j = 0; j < puffs; j++) {
+                    const puff = new THREE.Mesh(cloudPuffGeo, cloudMat);
+                    puff.position.set(
+                        (j - puffs / 2) * 8.5 + (Math.random() - 0.5) * 4.0,
+                        (Math.random() - 0.5) * 3.5,
+                        (Math.random() - 0.5) * 5.0
+                    );
+                    const s = 0.85 + Math.random() * 0.7;
+                    puff.scale.set(s, s * 0.55, s);
+                    cloudGroup.add(puff);
+                }
+                const cx = (Math.random() - 0.5) * 280;
+                const cz = -60 - Math.random() * 140;
+                const cy = 26 + Math.random() * 28;
+                cloudGroup.position.set(cx, cy, cz);
+                parentGroup.add(cloudGroup);
+                animeCloudList.push(cloudGroup);
+            }
+        }
+
+        // 8. Floating Anemo Elemental Wisps (Cyan Sparks)
+        let elementalPoints = null;
+        function addGenshinElementalWisps(parentGroup) {
+            const wispCount = 180;
+            const wispGeo = new THREE.BufferGeometry();
+            const positions = new Float32Array(wispCount * 3);
+
+            for (let i = 0; i < wispCount; i++) {
+                positions[i * 3] = (Math.random() - 0.5) * 140;
+                positions[i * 3 + 1] = 2.0 + Math.random() * 18.0;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 140;
+            }
+            wispGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+            const wispMat = new THREE.PointsMaterial({
+                color: 0x22d3ee,
+                size: 0.65,
+                transparent: true,
+                opacity: 0.85,
+                blending: THREE.AdditiveBlending
+            });
+
+            elementalPoints = new THREE.Points(wispGeo, wispMat);
+            parentGroup.add(elementalPoints);
+        }
+
+        // 9. Distant Anime Mountain Peaks (Mondstadt Horizons)
+        function addGenshinDistantMountains(parentGroup) {
+            const mtnMat1 = new THREE.MeshStandardMaterial({
+                color: 0x475569, // Misty slate purple/blue
+                roughness: 0.9,
+                metalness: 0.05,
+                flatShading: true
+            });
+            const mtnMat2 = new THREE.MeshStandardMaterial({
+                color: 0x64748b, // Lighter ridge peak
+                roughness: 0.85,
+                metalness: 0.05,
+                flatShading: true
+            });
+
+            // Arc of towering peaks across the northern/western horizon
+            const mtnPeaks = [
+                { x: -140, z: -180, r: 65, h: 95, m: mtnMat1 },
+                { x: -60,  z: -210, r: 85, h: 125, m: mtnMat2 },
+                { x: 20,   z: -230, r: 95, h: 140, m: mtnMat1 },
+                { x: 110,  z: -200, r: 75, h: 110, m: mtnMat2 },
+                { x: 180,  z: -170, r: 60, h: 85, m: mtnMat1 }
+            ];
+
+            mtnPeaks.forEach(p => {
+                const geo = new THREE.ConeGeometry(p.r, p.h, 7);
+                const mtn = new THREE.Mesh(geo, p.m);
+                mtn.position.set(p.x, p.h * 0.42, p.z);
+                mtn.rotation.y = Math.random() * Math.PI;
+                parentGroup.add(mtn);
+            });
+        }
+
+        // 10. Radiant Genshin Sun with Corona Halo
+        function addGenshinAnimeSun(parentGroup) {
+            const sunGroup = new THREE.Group();
+            // Sun Core
+            const sunGeo = new THREE.SphereGeometry(18, 16, 16);
+            const sunMat = new THREE.MeshBasicMaterial({ color: 0xffffff, fog: false });
+            const sunMesh = new THREE.Mesh(sunGeo, sunMat);
+            sunGroup.add(sunMesh);
+
+            // Sun Corona Ring
+            const ringGeo = new THREE.RingGeometry(18, 54, 32);
+            const ringMat = new THREE.MeshBasicMaterial({
+                color: 0xfde047,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.6,
+                fog: false
+            });
+            const sunRing = new THREE.Mesh(ringGeo, ringMat);
+            sunGroup.add(sunRing);
+
+            sunGroup.position.set(45, 62, -135);
+            sunGroup.lookAt(0, 24, 55);
+            parentGroup.add(sunGroup);
+        }
+
+        // Build Micro Detail & Hole Inspection Lab
+        function buildMicroDetailLab() {
+            labGroup = new THREE.Group();
+            labGroup.visible = false;
+
+            // Inspection stage pedestal
+            const stageGeo = new THREE.CylinderGeometry(5.0, 5.5, 0.4, 64);
+            const stageMat = new THREE.MeshStandardMaterial({
+                color: 0x0f172a,
+                metalness: 0.7,
+                roughness: 0.3
+            });
+            const stage = new THREE.Mesh(stageGeo, stageMat);
+            stage.position.y = -0.2;
+            stage.receiveShadow = true;
+            labGroup.add(stage);
+
+            // Circular LED ring guide
+            const ringGeo = new THREE.TorusGeometry(4.8, 0.06, 16, 64);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.rotation.x = Math.PI / 2;
+            ring.position.y = 0.01;
+            labGroup.add(ring);
+
+            // Load high-detail PCB model
+            const loader = new THREE.GLTFLoader();
+            loader.load('/src/assets/models/pcb_prototype_board.glb', function(gltf) {
+                pcbModel = gltf.scene;
+                pcbModel.position.set(0, 0.4, 0);
+                pcbModel.scale.set(0.65, 0.65, 0.65);
+                pcbModel.traverse(function(node) {
+                    if (node.isMesh) {
+                        node.castShadow = true;
+                        node.receiveShadow = true;
+                        if (node.material) {
+                            node.material.roughness = 0.25;
+                            node.material.metalness = 0.85;
+                            node.material.needsUpdate = true;
+                        }
+                    }
+                });
+                labGroup.add(pcbModel);
+            }, undefined, function(err) {
+                console.warn('GLB fallback to procedural micro board');
+                createProceduralMicroInspectionBoard(labGroup);
+            });
+
+            scene.add(labGroup);
+        }
+
+        // Fallback procedural board with physical through-holes and gold pads
+        function createProceduralMicroInspectionBoard(parent) {
+            const boardGeo = new THREE.BoxGeometry(4.0, 0.12, 4.0);
+            const boardMat = new THREE.MeshStandardMaterial({
+                color: 0x0d5c2c,
+                metalness: 0.4,
+                roughness: 0.3
+            });
+            const board = new THREE.Mesh(boardGeo, boardMat);
+            board.position.y = 0.2;
+            board.castShadow = true;
+            board.receiveShadow = true;
+            parent.add(board);
+
+            // Add an array of metallic gold solder pads with deep dark holes
+            const padGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.14, 16);
+            const padMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.15 });
+            const holeGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.15, 12);
+            const holeMat = new THREE.MeshBasicMaterial({ color: 0x09090b });
+
+            for (let x = -1.5; x <= 1.5; x += 0.3) {
+                for (let z = -1.5; z <= 1.5; z += 0.3) {
+                    const pad = new THREE.Mesh(padGeo, padMat);
+                    pad.position.set(x, 0.21, z);
+                    const hole = new THREE.Mesh(holeGeo, holeMat);
+                    hole.position.set(x, 0.215, z);
+                    parent.add(pad, hole);
+                }
+            }
+        }
+
+        // Mode Switching
+        window.switchMode = function(mode) {
+            activeMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+
+            if (mode === 'world') {
+                document.getElementById('btn-mode-world').classList.add('active');
+                window.worldGroup.visible = true;
+                labGroup.visible = false;
+                scene.background = null;
+                scene.fog = new THREE.Fog(0x93c5fd, 140, 480);
+                document.getElementById('world-settings').style.display = 'block';
+                document.getElementById('lab-settings').style.display = 'none';
+                document.getElementById('panel-title').innerHTML = '🎮 Pengaturan Dunia';
+                document.getElementById('lock-prompt').style.display = 'block';
+                document.getElementById('hud-diag').style.display = 'block';
+                camera.position.set(0, 24, 55);
+                orbitControls.target.set(0, 8, 10);
+            } else {
+                document.getElementById('btn-mode-lab').classList.add('active');
+                window.worldGroup.visible = false;
+                labGroup.visible = true;
+                scene.background = new THREE.Color(0x0a0f1d);
+                scene.fog = new THREE.FogExp2(0x0a0f1d, 0.001);
+                document.getElementById('world-settings').style.display = 'none';
+                document.getElementById('lab-settings').style.display = 'block';
+                document.getElementById('panel-title').innerHTML = '🔬 Lab Detail Mikro';
+                document.getElementById('lock-prompt').style.display = 'none';
+                document.getElementById('crosshair').style.display = 'none';
+                document.getElementById('hud-diag').style.display = 'none';
+                if (fpControls.isLocked) fpControls.unlock();
+                camera.position.set(2.8, 3.2, 3.8);
+                orbitControls.target.set(0, 0.4, 0);
+            }
+        };
+
+        // Pointer Lock & Controls Event Setup
+        function setupEventListeners() {
+            window.addEventListener('resize', onWindowResize);
+
+            // Keyboard
+            document.addEventListener('keydown', (e) => {
+                switch(e.code) {
+                    case 'KeyW': keys.w = true; break;
+                    case 'KeyA': keys.a = true; break;
+                    case 'KeyS': keys.s = true; break;
+                    case 'KeyD': keys.d = true; break;
+                    case 'Space': keys.space = true; break;
+                    case 'ShiftLeft':
+                    case 'ShiftRight':
+                        keys.shift = true;
+                        player.isSprinting = true;
+                        break;
+                }
+            });
+
+            document.addEventListener('keyup', (e) => {
+                switch(e.code) {
+                    case 'KeyW': keys.w = false; break;
+                    case 'KeyA': keys.a = false; break;
+                    case 'KeyS': keys.s = false; break;
+                    case 'KeyD': keys.d = false; break;
+                    case 'Space': keys.space = false; break;
+                    case 'ShiftLeft':
+                    case 'ShiftRight':
+                        keys.shift = false;
+                        player.isSprinting = false;
+                        break;
+                }
+            });
+
+            // Pointer lock callbacks
+            fpControls.addEventListener('lock', () => {
+                isPointerLocked = true;
+                document.getElementById('lock-prompt').style.display = 'none';
+                document.getElementById('crosshair').style.display = 'block';
+            });
+            fpControls.addEventListener('unlock', () => {
+                isPointerLocked = false;
+                if (activeMode === 'world') {
+                    document.getElementById('lock-prompt').style.display = 'block';
+                }
+                document.getElementById('crosshair').style.display = 'none';
+            });
+
+            // Minecraft-style Terraforming Interaction (Sculpting Organic Hills)
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2(0, 0); // Center of screen
+
+            window.addEventListener('mousedown', (e) => {
+                if (!isPointerLocked || activeMode !== 'world') return;
+
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObject(terrainMesh);
+
+                if (intersects.length > 0) {
+                    const hit = intersects[0];
+                    const posAttr = terrainMesh.geometry.attributes.position;
+                    const delta = (e.button === 0) ? 1.6 : -1.6; // Left click up, right click down
+                    const brushRadius = 8.0;
+
+                    for (let i = 0; i < posAttr.count; i++) {
+                        const vx = posAttr.getX(i);
+                        const vz = posAttr.getZ(i);
+                        const dist = Math.hypot(vx - hit.point.x, vz - hit.point.z);
+                        if (dist < brushRadius) {
+                            const falloff = Math.cos((dist / brushRadius) * (Math.PI / 2));
+                            posAttr.setY(i, posAttr.getY(i) + delta * falloff);
+                        }
+                    }
+                    posAttr.needsUpdate = true;
+                    terrainMesh.geometry.computeVertexNormals();
+                }
+            });
+
+            // Sliders hook
+            document.getElementById('slider-time').addEventListener('input', (e) => {
+                const hour = parseFloat(e.target.value);
+                const angle = (hour / 24) * Math.PI * 2 - Math.PI / 2;
+                sunLight.position.x = Math.cos(angle) * 110;
+                sunLight.position.y = Math.sin(angle) * 110;
+                document.getElementById('time-val').textContent = `${Math.floor(hour).toString().padStart(2, '0')}:00`;
+                
+                // Sky & lighting color shifts
+                if (hour < 5 || hour > 19) {
+                    sunLight.intensity = 0.2;
+                    scene.background.setHex(0x050811);
+                    scene.fog.color.setHex(0x050811);
+                } else if (hour < 7 || hour > 17) {
+                    sunLight.intensity = 1.2;
+                    sunLight.color.setHex(0xf97316); // Golden hour
+                    scene.background.setHex(0x451a03);
+                    scene.fog.color.setHex(0x451a03);
+                } else {
+                    sunLight.intensity = 1.8;
+                    sunLight.color.setHex(0xfffaed);
+                    scene.background.setHex(0x0c1427);
+                    scene.fog.color.setHex(0x0c1427);
+                }
+            });
+
+            document.getElementById('slider-speed').addEventListener('input', (e) => {
+                player.speedMultiplier = parseFloat(e.target.value);
+                document.getElementById('speed-val').textContent = `${player.speedMultiplier.toFixed(1)}x`;
+            });
+
+            document.getElementById('slider-fog').addEventListener('input', (e) => {
+                scene.fog.density = parseFloat(e.target.value);
+            });
+
+            // Micro Lab Sliders
+            document.getElementById('slider-metal').addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                document.getElementById('metal-val').textContent = val.toFixed(2);
+                if (pcbModel) {
+                    pcbModel.traverse(n => { if (n.isMesh && n.material) n.material.metalness = val; });
+                }
+            });
+            document.getElementById('slider-rough').addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                document.getElementById('rough-val').textContent = val.toFixed(2);
+                if (pcbModel) {
+                    pcbModel.traverse(n => { if (n.isMesh && n.material) n.material.roughness = val; });
+                }
+            });
+        }
+
+        window.setLabLighting = function(preset) {
+            if (!hemiLight || !sunLight) return;
+            if (preset === 'studio') {
+                hemiLight.color.setHex(0xffffff);
+                hemiLight.groundColor.setHex(0x334155);
+                sunLight.color.setHex(0xffffff);
+                sunLight.intensity = 1.6;
+                scene.background.setHex(0x0f172a);
+            } else if (preset === 'golden') {
+                hemiLight.color.setHex(0xfde047);
+                hemiLight.groundColor.setHex(0x78350f);
+                sunLight.color.setHex(0xf97316);
+                sunLight.intensity = 2.2;
+                scene.background.setHex(0x1c1917);
+            } else if (preset === 'neon') {
+                hemiLight.color.setHex(0x06b6d4);
+                hemiLight.groundColor.setHex(0xec4899);
+                sunLight.color.setHex(0xa855f7);
+                sunLight.intensity = 2.0;
+                scene.background.setHex(0x030712);
+            } else if (preset === 'direct') {
+                hemiLight.color.setHex(0xfffaed);
+                hemiLight.groundColor.setHex(0x475569);
+                sunLight.color.setHex(0xffffff);
+                sunLight.intensity = 2.5;
+                scene.background.setHex(0x020617);
+            }
+        };
+
+        window.requestControlLock = function() {
+            if (activeMode === 'world') {
+                fpControls.lock();
+            }
+        };
+
+        window.toggleFlight = function() {
+            isFlying = !isFlying;
+            document.getElementById('control-display').textContent = isFlying ? 'Mode Terbang Aktif (Noclip Bebas)' : 'WASD Jalan | Shift Lari | Space Lompat';
+        };
+
+        window.resetPlayerPosition = function() {
+            camera.position.set(0, 12, 0);
+            player.velocity.set(0, 0, 0);
+        };
+
+        window.toggleWireframe = function() {
+            if (pcbModel) {
+                pcbModel.traverse(n => {
+                    if (n.isMesh && n.material) {
+                        n.material.wireframe = !n.material.wireframe;
+                    }
+                });
+            }
+        };
+
+        window.focusMicroHole = function() {
+            // Extreme macro zoom directly into one of the matrix pads (sub-millimeter view)
+            camera.position.set(0.15, 0.45, 0.15);
+            orbitControls.target.set(0, 0.38, 0);
+        };
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // Animation Loop
+        let prevTime = performance.now();
+        let frameCount = 0;
+        let lastFpsUpdate = 0;
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const time = performance.now();
+            const delta = Math.min((time - prevTime) / 1000, 0.1);
+            prevTime = time;
+
+            // FPS Counter
+            frameCount++;
+            if (time - lastFpsUpdate > 500) {
+                const fps = Math.round((frameCount * 1000) / (time - lastFpsUpdate));
+                document.getElementById('fps-counter').textContent = `${fps} FPS`;
+                frameCount = 0;
+                lastFpsUpdate = time;
+            }
+
+            if (activeMode === 'world') {
+                // Animate water waves
+                if (waterMesh) {
+                    waterMesh.position.y = -1.0 + Math.sin(time * 0.002) * 0.08;
+                }
+
+                // Animate Genshin Teleport Waypoint
+                if (waypointCrystal) {
+                    waypointCrystal.rotation.y += 0.015;
+                    waypointCrystal.position.y = 3.2 + Math.sin(time * 0.003) * 0.18;
+                }
+                if (waypointRings && waypointRings[0]) {
+                    waypointRings[0].rotation.z += 0.015;
+                    waypointRings[0].rotation.x = Math.PI / 3 + Math.sin(time * 0.002) * 0.1;
+                }
+
+                // Animate Genshin Clouds Drift
+                animeCloudList.forEach(cloud => {
+                    cloud.position.x += 0.03;
+                    if (cloud.position.x > 320) cloud.position.x = -320;
+                });
+
+                // Animate Anemo Elemental Wisps
+                if (elementalPoints) {
+                    const pos = elementalPoints.geometry.attributes.position;
+                    for (let i = 1; i < pos.count * 3; i += 3) {
+                        pos.array[i] += 0.04;
+                        if (pos.array[i] > 22.0) pos.array[i] = 1.5;
+                    }
+                    pos.needsUpdate = true;
+                }
+
+                // Player physics when in first person
+                if (isPointerLocked) {
+                    const moveSpeed = (player.isSprinting ? 22.0 : 10.0) * player.speedMultiplier;
+                    
+                    player.direction.z = Number(keys.w) - Number(keys.s);
+                    player.direction.x = Number(keys.d) - Number(keys.a);
+                    player.direction.normalize();
+
+                    if (keys.w || keys.s) player.velocity.z -= player.direction.z * moveSpeed * delta;
+                    if (keys.d || keys.a) player.velocity.x -= player.direction.x * moveSpeed * delta;
+
+                    // Damping
+                    player.velocity.x -= player.velocity.x * 10.0 * delta;
+                    player.velocity.z -= player.velocity.z * 10.0 * delta;
+
+                    fpControls.moveRight(-player.velocity.x * delta);
+                    fpControls.moveForward(-player.velocity.z * delta);
+
+                    // Terrain Collision & Gravity
+                    if (!isFlying) {
+                        const groundY = getTerrainElevation(camera.position.x, camera.position.z);
+                        const targetY = groundY + player.height;
+
+                        if (keys.space && player.canJump) {
+                            player.velocity.y = 8.0;
+                            player.canJump = false;
+                        }
+
+                        player.velocity.y -= 22.0 * delta; // Gravity
+                        camera.position.y += player.velocity.y * delta;
+
+                        if (camera.position.y <= targetY) {
+                            camera.position.y = targetY;
+                            player.velocity.y = 0;
+                            player.canJump = true;
+                        }
+                    } else {
+                        // Flying controls
+                        if (keys.space) camera.position.y += 12.0 * delta;
+                        if (keys.shift) camera.position.y -= 12.0 * delta;
+                    }
+
+                    // Update HUD coordinates
+                    document.getElementById('pos-display').textContent = 
+                        `X: ${camera.position.x.toFixed(1)}, Y: ${camera.position.y.toFixed(1)}, Z: ${camera.position.z.toFixed(1)}`;
+                } else {
+                    orbitControls.update();
+                }
+            } else {
+                // Lab mode slow turntable rotation
+                if (pcbModel && !orbitControls.state == -1) {
+                    pcbModel.rotation.y += 0.003;
+                }
+                orbitControls.update();
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // Launch on load
+        window.addEventListener('DOMContentLoaded', () => {
+            initApp();
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('mode') === 'lab') {
+                setTimeout(() => switchMode('lab'), 100);
+            }
+        });
+    </script>
+</body>
+</html>

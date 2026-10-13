@@ -5,4 +5,7 @@ promo_scratch/
 .env
 .env.*
 !.env.example
+*.bak
+google_flow_*.png
+
 

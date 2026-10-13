@@ -582,69 +582,99 @@ async function fetchVideoDirect(url, platform, isAudio, fmt) {
   try {
     let resultUrl = '';
     let resultTitle = `BAJA_${platform}_${isAudio ? 'audio' : (fmt.quality || 'video')}`;
-    if (platform === 'tiktok') {
-      setModalProgress(40, 'Mengekstrak data TikTok...');
-      const res = await fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`);
-      const json = await res.json();
-      if (json.code !== 0) throw new Error(json.msg || 'Gagal ekstrak dari TikTok');
-      // TikWM provides hdplay for higher quality if available
-      if (isAudio) {
-        resultUrl = json.data.music;
-      } else if (fmt.quality === 'max' && json.data.hdplay) {
-        resultUrl = json.data.hdplay;
-      } else {
-        resultUrl = json.data.play;
-      }
-      resultTitle = json.data.title ? json.data.title.substring(0,30) : resultTitle;
-    } 
-    else {
-      // YouTube / IG using public API aggregators
-      setModalProgress(30, `Memproses link ${platform} (${fmt.name})...`);
-      const cobaltInstances = [
-        { url: 'https://api.cobalt.tools', v: 11 },
-        { url: 'https://co.wuk.sh', v: 7 },
-        { url: 'https://cobalt.api.sbe.sh', v: 11 },
-        { url: 'https://api.vreden.web.id/api/ytmp4?url=', v: 'get' }
-      ];
-      let success = false;
-      const requestedQuality = fmt.quality || '720';
-      for (let instance of cobaltInstances) {
-        try {
-          if (instance.v === 'get') continue;
-          const ep = instance.v === 11 ? instance.url : `${instance.url}/api/json`;
-          const reqBody = instance.v === 11 
-            ? JSON.stringify({ url: url, isAudioOnly: isAudio, videoQuality: requestedQuality, filenamePattern: 'nerdy' })
-            : JSON.stringify({ url: url, isAudioOnly: isAudio, vQuality: requestedQuality });
-          const res = await fetch(ep, {
-            method: 'POST',
-            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-            body: reqBody
-          });
-          const data = await res.json();
-          if (data && data.url) {
-            resultUrl = data.url; success = true; break;
-          } else if (data && data.status === 'redirect') {
-             resultUrl = data.url; success = true; break;
+    let extraMedia = [];
+
+    // Helper to fix relative URLs
+    const fixUrl = (u, base) => (!u ? '' : (u.startsWith('http') ? u : (base ? base + u : 'https://www.tikwm.com' + u)));
+
+    // STEP 1: Coba Internal API /api/downloader (Express / Cloudflare Pages)
+    setModalProgress(35, `Menghubungkan server ekstraksi ${platform.toUpperCase()}...`);
+    let apiSuccess = false;
+    try {
+      const apiReq = await fetch(`/api/downloader?url=${encodeURIComponent(url)}&platform=${encodeURIComponent(platform)}`, {
+        headers: { 'Accept': 'application/json' }
+      });
+      if (apiReq.ok) {
+        const apiData = await apiReq.json();
+        if (apiData && apiData.success) {
+          apiSuccess = true;
+          if (apiData.title) resultTitle = apiData.title.substring(0, 40);
+          if (platform === 'tiktok') {
+            if (isAudio) {
+              resultUrl = apiData.audio || apiData.video;
+            } else if (fmt.quality === 'max' && apiData.video_hd) {
+              resultUrl = apiData.video_hd;
+            } else {
+              resultUrl = apiData.video || apiData.video_hd;
+            }
+            if (apiData.images && apiData.images.length > 0) {
+              extraMedia = apiData.images.map((img, i) => ({ type: 'image', url: img, label: `Foto ${i+1}` }));
+              if (!resultUrl) resultUrl = apiData.images[0];
+            }
+          } else if (platform === 'instagram') {
+            resultUrl = apiData.video || (apiData.media && apiData.media[0] ? apiData.media[0].url : '');
+            if (apiData.media && apiData.media.length > 0) {
+              extraMedia = apiData.media;
+            }
           }
-        } catch(e) {
-          // ignore instance fail
         }
       }
-      if (!success) {
-        console.warn("Direct APIs failed, falling back to manual services mode.");
+    } catch (e) {
+      console.warn('[BAJA] Internal API tidak tersedia, beralih ke engine langsung:', e.message);
+    }
+
+    // STEP 2: Fallback Engine langsung jika API internal offline
+    if (!apiSuccess || !resultUrl) {
+      if (platform === 'tiktok') {
+        setModalProgress(55, 'Mengekstrak langsung dari TikWM...');
+        const endpoints = [
+          `https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`,
+          `https://api.tikwm.com/api/?url=${encodeURIComponent(url)}`
+        ];
+        let ttData = null;
+        for (const ep of endpoints) {
+          try {
+            const res = await fetch(ep);
+            const json = await res.json();
+            if (json && json.code === 0 && json.data) {
+              ttData = json.data;
+              break;
+            }
+          } catch(err) {}
+        }
+        if (!ttData) throw new Error('Gagal mengekstrak video TikTok. Pastikan video tidak diset ke privat.');
+        if (isAudio) {
+          resultUrl = fixUrl(ttData.music);
+        } else if (fmt.quality === 'max' && ttData.hdplay) {
+          resultUrl = fixUrl(ttData.hdplay);
+        } else {
+          resultUrl = fixUrl(ttData.play) || fixUrl(ttData.hdplay);
+        }
+        if (ttData.images && ttData.images.length > 0) {
+          extraMedia = ttData.images.map((img, i) => ({ type: 'image', url: fixUrl(img), label: `Foto ${i+1}` }));
+          if (!resultUrl) resultUrl = extraMedia[0].url;
+        }
+        if (ttData.title) resultTitle = ttData.title.substring(0, 40);
+      } else if (platform === 'instagram') {
+        // Fallback jika API backend offline
         showServiceModalFallback(url, fmt);
-        return; 
+        return;
+      } else {
+        showServiceModalFallback(url, fmt);
+        return;
       }
     }
+
     setModalProgress(100, 'Berhasil! Menyiapkan file...');
     const safeTitle = resultTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase();
     const ext = isAudio ? 'mp3' : 'mp4';
-    showModalDownload(resultUrl, `${safeTitle}.${ext}`);
+    showModalDownload(resultUrl, `${safeTitle}.${ext}`, extraMedia);
   } catch(e) {
     console.error(e);
     showServiceModalFallback(url, fmt);
   }
 }
+
 // ─── FALLBACK JIKA API GAGAL (MANUAL MODE) ────────────────────────────────
 function showServiceModalFallback(videoUrl, fmt) {
   const services = SERVICES[currentPlatform];
@@ -673,6 +703,7 @@ function showServiceModalFallback(videoUrl, fmt) {
   `).join('');
   document.getElementById('dlModal').classList.add('open');
 }
+
 // ─── MODAL HELPERS ────────────────────────────────────────────────────────
 function openModal(icon, name, isAudio) {
   document.getElementById('modalIcon').textContent = icon;
@@ -686,19 +717,19 @@ function openModal(icon, name, isAudio) {
   document.getElementById('modalProgressLabel').textContent = 'Memulai...';
   document.getElementById('dlModal').classList.add('open');
 }
+
 function setModalProgress(pct, label) {
   document.getElementById('modalProgressBar').style.width = pct + '%';
   document.getElementById('modalProgressLabel').textContent = label;
 }
-function showModalDownload(url, filename) {
+
+function showModalDownload(url, filename, extraMedia) {
   document.getElementById('modalBody').textContent = '✅ Link berhasil didapatkan! Klik tombol di bawah untuk mulai mengunduh.';
   document.getElementById('modalProgress').style.display = 'none';
-  // Show the direct link clearly so user can also long-press / right-click
   const urlEl = document.getElementById('modalUrl');
   urlEl.textContent = url;
   urlEl.style.display = 'block';
   const btn = document.getElementById('modalDownloadBtn');
-  // Use a real <a> tag approach: set href + download, open in same context
   btn.href = url;
   btn.download = filename;
   btn.setAttribute('target', '_blank');
@@ -708,19 +739,59 @@ function showModalDownload(url, filename) {
     downloadFileLocally(url, filename, btn);
   };
   btn.textContent = '⬇️ Download Sekarang — ' + filename;
-  document.getElementById('modalDownloadWrap').style.display = 'block';
+  
+  const wrap = document.getElementById('modalDownloadWrap');
+  wrap.style.display = 'block';
+
+  // Render extra media (thumbnails, slides, alternative streams)
+  const oldExtras = wrap.querySelectorAll('.extra-dl-btn');
+  oldExtras.forEach(el => el.remove());
+
+  if (extraMedia && extraMedia.length > 1) {
+    const extraContainer = document.createElement('div');
+    extraContainer.className = 'extra-dl-btn';
+    extraContainer.style.marginTop = '12px';
+    extraContainer.style.display = 'flex';
+    extraContainer.style.flexWrap = 'wrap';
+    extraContainer.style.gap = '8px';
+    extraContainer.innerHTML = '<div style="width:100%;font-size:12px;font-weight:700;color:#94a3b8;margin-bottom:4px;">Opsi Media Tambahan:</div>';
+    
+    extraMedia.forEach(m => {
+      if (m.url === url) return;
+      const a = document.createElement('a');
+      a.className = 'dl-download-link';
+      a.style.background = 'rgba(255,255,255,0.08)';
+      a.style.border = '1px solid rgba(255,255,255,0.15)';
+      a.style.padding = '8px 12px';
+      a.style.fontSize = '12px';
+      a.style.borderRadius = '8px';
+      a.style.cursor = 'pointer';
+      a.innerHTML = `<span>${m.type === 'video' ? '🎬' : (m.type === 'image' || m.type === 'thumbnail' ? '🖼️' : '📁')}</span> <span style="font-weight:600;">${m.label || m.type}</span>`;
+      a.onclick = (e) => {
+        e.preventDefault();
+        downloadFileLocally(m.url, `${m.type}_${filename}`, a);
+      };
+      extraContainer.appendChild(a);
+    });
+    wrap.appendChild(extraContainer);
+  }
+
   showToast('✅ Link download siap!');
 }
+
 async function downloadFileLocally(url, filename, btn) {
   const originalText = btn ? btn.textContent : '⬇️ Download Sekarang';
-  if (btn) { btn.textContent = '⏳ Memeriksa file...'; btn.style.opacity = '0.75'; btn.style.pointerEvents = 'none'; }
+  if (btn) { btn.textContent = '⏳ Mengunduh file...'; btn.style.opacity = '0.75'; btn.style.pointerEvents = 'none'; }
   let downloaded = false;
-  // Method 1: blob fetch (works if Cobalt sends CORS headers)
+
+  const streamUrl = `/api/downloader/stream?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(filename)}`;
+
+  // Method 1: blob fetch (works if CORS headers allow)
   try {
     const res = await fetch(url, { mode: 'cors' });
     if (res.ok) {
       const blob = await res.blob();
-      if (blob.size > 1000) { // sanity: at least 1KB means it's a real file
+      if (blob.size > 1000) {
         const blobUrl = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = blobUrl;
@@ -730,21 +801,48 @@ async function downloadFileLocally(url, filename, btn) {
         a.remove();
         setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
         downloaded = true;
-        if (btn) btn.textContent = '✅ File sedang diunduh!';
+        if (btn) btn.textContent = '✅ File berhasil diunduh!';
         showToast('✅ Download dimulai!');
       }
     }
   } catch(e) {
-    console.warn('[BAJA] Blob fetch gagal (CORS), fallback ke window.open:', e.message);
+    console.warn('[BAJA] Blob fetch direct gagal, fallback ke stream / anchor:', e.message);
   }
-  // Method 2: window.open – browser handles the download natively
+
+  // Method 2: Stream proxy backend
   if (!downloaded) {
-    window.open(url, '_blank', 'noopener,noreferrer');
-    if (btn) btn.textContent = '✅ Dibuka di tab baru — simpan dari sana!';
-    showToast('⬇️ Tab baru dibuka, simpan video dari sana!');
-    document.getElementById('modalBody').textContent =
-      '📂 File terbuka di tab baru. Klik kanan → "Simpan video sebagai..." untuk menyimpannya.';
+    try {
+      const testRes = await fetch(streamUrl, { method: 'HEAD' });
+      if (testRes.ok) {
+        const a = document.createElement('a');
+        a.href = streamUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        downloaded = true;
+        if (btn) btn.textContent = '✅ File sedang diunduh!';
+        showToast('✅ Download dimulai melalui server!');
+      }
+    } catch(e) {}
   }
+
+  // Method 3: Window open / direct anchor click
+  if (!downloaded) {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    if (btn) btn.textContent = '✅ Dibuka di tab baru — simpan dari sana!';
+    showToast('⬇️ Tab download dibuka!');
+    document.getElementById('modalBody').textContent =
+      '📂 File terbuka di tab baru. Klik kanan atau tahan → "Simpan video sebagai..." untuk menyimpannya.';
+  }
+
   if (btn) {
     btn.style.opacity = '1';
     btn.style.pointerEvents = 'auto';
