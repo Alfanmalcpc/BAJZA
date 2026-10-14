@@ -9,6 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"/>
 <link rel="stylesheet" href="/src/assets/css/style.css"/>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 <script src="/src/services/baja-firebase-bridge.js"></script>
 <script src="/src/services/firebase.js"></script>
 <style>
@@ -305,7 +307,10 @@ function friendlyError(code) {
     'USER_DISABLED':              'Akun ini telah dinonaktifkan.',
     'EMAIL_EXISTS':               'Email ini sudah terdaftar. Silakan langsung masuk.',
     'OPERATION_NOT_ALLOWED':      'Metode autentikasi ini sedang dinonaktifkan.',
-    'TOO_MANY_ATTEMPTS_TRY_LATER':'Terlalu banyak percobaan gagal. Silakan tunggu sebentar.'
+    'TOO_MANY_ATTEMPTS_TRY_LATER':'Terlalu banyak percobaan gagal. Silakan tunggu sebentar.',
+    'auth/cancelled-popup-request':'Proses login Google dibatalkan.',
+    'auth/popup-blocked':         'Popup login Google terblokir oleh browser. Izinkan popup untuk melanjutkan.',
+    'auth/unauthorized-domain':   'Domain belum terdaftar di Firebase Auth Authorized Domains.'
   };
   return map[code] || (code ? code.toString() : 'Terjadi kesalahan. Silakan coba lagi.');
 }
@@ -362,12 +367,43 @@ async function handleRegister(e) {
 async function handleGoogle() {
   clearMsg();
   try {
-    await bajaSignInGoogle();
-    showMsg('✅ Berhasil! Mengalihkan...', 'success');
-    setTimeout(() => window.location.href = '/public/index.html', 900);
+    const user = await bajaSignInGoogle();
+    if (!user) return;
+    showMsg('✅ Berhasil masuk dengan Google! Mengalihkan...', 'success');
+    setTimeout(() => {
+      window.location.href = '/public/index.html';
+    }, 800);
   } catch(err) {
-    showMsg('❌ ' + friendlyError(err.code), 'error');
+    const code = err.code || err.message || '';
+    showMsg('❌ ' + friendlyError(code), 'error');
   }
+}
+
+// Tangani hasil redirect login Google jika peramban memblokir popup
+if (typeof firebase !== 'undefined' && typeof firebase.auth === 'function') {
+  firebase.auth().getRedirectResult().then(async result => {
+    if (result && result.user) {
+      const user = result.user;
+      const idToken = await user.getIdToken();
+      const userData = {
+        uid: user.uid,
+        email: user.email || '',
+        displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'Pengguna'),
+        photoURL: user.photoURL || '',
+        buzz: 50
+      };
+      localStorage.setItem('baja_auth_user', JSON.stringify(userData));
+      localStorage.setItem('baja_auth_token', idToken);
+      if (window.auth) {
+        window.auth.currentUser = userData;
+        if (typeof window.auth._notify === 'function') window.auth._notify();
+      }
+      try { await saveUserProfile(userData); } catch (_) {}
+      window.location.href = '/public/index.html';
+    }
+  }).catch(err => {
+    console.warn('[BAJA Auth] Redirect result error:', err);
+  });
 }
 </script>
 <!-- Bottom Navigation -->

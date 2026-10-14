@@ -1,5 +1,25 @@
 // firebase.js — BAJA Secure Backend Authentication & Realtime Service
-// Seluruh komunikasi terhubung ke Backend BAJA (/api/firebase) — ZERO API KEY DI CLIENT!
+// Seluruh mutasi & query database aman lewat Backend Vercel Gateway
+
+const BAJA_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCka7K9HnZIEUpm1qlIFKB7ca43kNz8t74",
+  authDomain: "baja-account.firebaseapp.com",
+  projectId: "baja-account",
+  storageBucket: "baja-account.firebasestorage.app",
+  messagingSenderId: "829858667296",
+  appId: "1:829858667296:web:2e968ca50c0f6b1838d545",
+  measurementId: "G-RMHSJP0VH5"
+};
+
+if (typeof firebase !== 'undefined' && typeof firebase.initializeApp === 'function') {
+  if (!firebase.apps || !firebase.apps.length) {
+    try {
+      firebase.initializeApp(BAJA_FIREBASE_CONFIG);
+    } catch (e) {
+      console.warn('[BAJA Firebase] Init warning:', e);
+    }
+  }
+}
 
 if (typeof window.BajaDatabaseService === 'undefined') {
   console.warn('[BAJA] Memuat bridge backend internal...');
@@ -23,9 +43,60 @@ async function bajaSignIn(email, password) {
 }
 
 async function bajaSignInGoogle() {
-  console.warn('[BAJA Auth] Google login melalui backend flow.');
-  // Redirect / OAuth flow if needed, fallback to standard auth
-  return null;
+  if (typeof firebase === 'undefined' || typeof firebase.auth !== 'function') {
+    throw new Error('Layanan autentikasi Google SDK belum siap. Muat ulang halaman.');
+  }
+
+  const authInstance = firebase.auth();
+  const provider = new firebase.auth.GoogleAuthProvider();
+  provider.addScope('profile');
+  provider.addScope('email');
+
+  let cred;
+  try {
+    cred = await authInstance.signInWithPopup(provider);
+  } catch (err) {
+    if (
+      err.code === 'auth/popup-blocked' ||
+      err.code === 'auth/cancelled-popup-request' ||
+      err.code === 'auth/operation-not-supported-in-this-environment'
+    ) {
+      return authInstance.signInWithRedirect(provider);
+    }
+    throw err;
+  }
+
+  if (!cred || !cred.user) {
+    throw new Error('Gagal mendapatkan sesi otentikasi Google.');
+  }
+
+  const user = cred.user;
+  const idToken = await user.getIdToken();
+  const userData = {
+    uid: user.uid,
+    email: user.email || '',
+    displayName: user.displayName || (user.email ? user.email.split('@')[0] : 'Pengguna'),
+    photoURL: user.photoURL || '',
+    buzz: 50
+  };
+
+  localStorage.setItem('baja_auth_user', JSON.stringify(userData));
+  localStorage.setItem('baja_auth_token', idToken);
+
+  if (window.auth) {
+    window.auth.currentUser = userData;
+    if (typeof window.auth._notify === 'function') {
+      window.auth._notify();
+    }
+  }
+
+  try {
+    await saveUserProfile(userData);
+  } catch (e) {
+    console.warn('[BAJA Auth] Sinkronisasi profil Google ke DB:', e);
+  }
+
+  return userData;
 }
 
 async function bajaSignOut() {

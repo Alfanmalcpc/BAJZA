@@ -288,4 +288,8 @@ if (typeof window.firebase === 'undefined') {
     database: () => window.db,
     initializeApp: () => ({ database: () => window.db, auth: () => window.auth })
   };
+} else {
+  if (!window.firebase.database) {
+    window.firebase.database = () => window.db;
+  }
 }
