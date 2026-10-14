@@ -76,9 +76,18 @@ class BajaDatabaseRef {
     return new BajaDatabaseRef(this.project, this.path, { ...this._query, limitToFirst: n });
   }
 
+  _headers() {
+    const h = { 'Content-Type': 'application/json' };
+    const token = localStorage.getItem('baja_auth_token');
+    if (token) h['Authorization'] = `Bearer ${token}`;
+    return h;
+  }
+
   async once(eventType) {
     const params = new URLSearchParams({ path: this.path, ...this._query });
-    const res = await fetch(`${BAJA_API_BASE}/api/firebase/db/${this.project}?${params.toString()}`);
+    const res = await fetch(`${BAJA_API_BASE}/api/firebase/db/${this.project}?${params.toString()}`, {
+      headers: this._headers()
+    });
     if (!res.ok) {
       throw new Error(`Database error: ${res.statusText}`);
     }
@@ -110,7 +119,7 @@ class BajaDatabaseRef {
   async set(data) {
     const res = await fetch(`${BAJA_API_BASE}/api/firebase/db/${this.project}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this._headers(),
       body: JSON.stringify({ path: this.path, data, method: 'set' })
     });
     return res.json();
@@ -119,7 +128,7 @@ class BajaDatabaseRef {
   async update(data) {
     const res = await fetch(`${BAJA_API_BASE}/api/firebase/db/${this.project}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this._headers(),
       body: JSON.stringify({ path: this.path, data, method: 'update' })
     });
     return res.json();
@@ -128,7 +137,7 @@ class BajaDatabaseRef {
   async remove() {
     const res = await fetch(`${BAJA_API_BASE}/api/firebase/db/${this.project}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this._headers(),
       body: JSON.stringify({ path: this.path, method: 'delete' })
     });
     return res.json();
@@ -137,7 +146,7 @@ class BajaDatabaseRef {
   async push(data) {
     const res = await fetch(`${BAJA_API_BASE}/api/firebase/db/${this.project}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this._headers(),
       body: JSON.stringify({ path: this.path, data, method: 'push' })
     });
     const result = await res.json();

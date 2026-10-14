@@ -204,7 +204,7 @@ const BAJA = {
         let photoURL    = user.photoURL    || '';
         let character   = null;
         let onboardingRequired = false;
-        let buzz        = 0;
+        let buzz        = Number(user.buzz || 0);
 
         try {
           if (typeof getUserProfile !== 'undefined') {
@@ -214,13 +214,15 @@ const BAJA = {
               photoURL    = profile.photoURL    || photoURL;
               character   = profile.character || null;
               onboardingRequired = profile.characterOnboardingRequired === true;
-              buzz        = Number(profile.buzz || 0);
+              buzz        = Number(profile.buzz !== undefined ? profile.buzz : buzz);
               if (profile.lang && profile.lang !== this.lang) {
                 this.applyLang(profile.lang);
               }
             }
           }
-        } catch (e) { /* Gagal ambil profil, pakai data lokal */ }
+        } catch (e) {
+          console.warn('[App] Gagal memuat profil lengkap, gunakan profil sesi:', e);
+        }
 
         /* Onboarding karakter sementara dinonaktifkan
         if (onboardingRequired && !character && !isOnboardingPage) {

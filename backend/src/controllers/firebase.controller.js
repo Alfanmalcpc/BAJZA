@@ -89,7 +89,7 @@ exports.signUp = async (req, res) => {
     };
 
     try {
-      await axios.put(`${cfg.dbUrl}/users/${uid}.json`, initialProfile);
+      await axios.put(`${cfg.dbUrl}/users/${uid}.json?auth=${idToken}`, initialProfile);
     } catch (dbErr) {
       console.warn('[Firebase RTDB] Gagal simpan initial profile:', dbErr.message);
     }
@@ -131,7 +131,7 @@ exports.signIn = async (req, res) => {
     // Fetch rich user profile from Realtime Database
     let profile = null;
     try {
-      const dbResp = await axios.get(`${cfg.dbUrl}/users/${uid}.json`);
+      const dbResp = await axios.get(`${cfg.dbUrl}/users/${uid}.json?auth=${idToken}`);
       profile = dbResp.data;
     } catch (e) {
       console.warn('[Firebase RTDB] Gagal fetch profile saat signin:', e.message);
@@ -149,7 +149,7 @@ exports.signIn = async (req, res) => {
 
     // Update lastLoginAt
     try {
-      await axios.patch(`${cfg.dbUrl}/users/${uid}.json`, { lastLoginAt: Date.now() });
+      await axios.patch(`${cfg.dbUrl}/users/${uid}.json?auth=${idToken}`, { lastLoginAt: Date.now() });
     } catch (_) {}
 
     return res.json({
@@ -187,7 +187,7 @@ exports.lookup = async (req, res) => {
     // Ambil profil DB
     let profile = null;
     try {
-      const dbResp = await axios.get(`${cfg.dbUrl}/users/${uid}.json`);
+      const dbResp = await axios.get(`${cfg.dbUrl}/users/${uid}.json?auth=${idToken}`);
       profile = dbResp.data;
     } catch (_) {}
 
@@ -219,6 +219,10 @@ exports.dbGet = async (req, res) => {
 
     // Forward supported Firebase query params
     const queryParams = [];
+    const authHeader = req.headers.authorization || '';
+    const token = authHeader.replace(/^Bearer\s+/i, '') || req.query.auth;
+    if (token) queryParams.push(`auth=${encodeURIComponent(token)}`);
+
     if (req.query.orderBy) queryParams.push(`orderBy=${encodeURIComponent(req.query.orderBy)}`);
     if (req.query.equalTo) queryParams.push(`equalTo=${encodeURIComponent(req.query.equalTo)}`);
     if (req.query.limitToFirst) queryParams.push(`limitToFirst=${encodeURIComponent(req.query.limitToFirst)}`);
@@ -246,7 +250,10 @@ exports.dbSet = async (req, res) => {
     const cleanPath = (path || '').replace(/^\/+|\/+$/g, '');
     const cfg = getProjectConfig(project);
 
-    const targetUrl = `${cfg.dbUrl}/${cleanPath}.json`;
+    const authHeader = req.headers.authorization || '';
+    const token = authHeader.replace(/^Bearer\s+/i, '') || req.query.auth || req.body.token;
+    const authQuery = token ? `?auth=${encodeURIComponent(token)}` : '';
+    const targetUrl = `${cfg.dbUrl}/${cleanPath}.json${authQuery}`;
 
     let dbResp;
     if (method === 'update' || method === 'patch') {
@@ -276,7 +283,10 @@ exports.dbTransaction = async (req, res) => {
     const cleanPath = (path || '').replace(/^\/+|\/+$/g, '');
     const cfg = getProjectConfig(project);
 
-    const targetUrl = `${cfg.dbUrl}/${cleanPath}.json`;
+    const authHeader = req.headers.authorization || '';
+    const token = authHeader.replace(/^Bearer\s+/i, '') || req.query.auth || req.body.token;
+    const authQuery = token ? `?auth=${encodeURIComponent(token)}` : '';
+    const targetUrl = `${cfg.dbUrl}/${cleanPath}.json${authQuery}`;
 
     // 1. Read current value
     const curResp = await axios.get(targetUrl);
