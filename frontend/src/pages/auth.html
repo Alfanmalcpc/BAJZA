@@ -299,8 +299,15 @@ function friendlyError(code) {
     'auth/network-request-failed':'Koneksi internet bermasalah. Periksa jaringan Anda.',
     'auth/invalid-credential':    'Email atau kata sandi salah. Periksa kembali.',
     'auth/too-many-requests':     'Terlalu banyak percobaan. Coba lagi beberapa saat.',
+    'INVALID_LOGIN_CREDENTIALS':  'Email atau kata sandi salah. Periksa kembali.',
+    'EMAIL_NOT_FOUND':            'Email belum terdaftar. Silakan buat akun baru.',
+    'INVALID_PASSWORD':           'Kata sandi salah. Periksa kembali.',
+    'USER_DISABLED':              'Akun ini telah dinonaktifkan.',
+    'EMAIL_EXISTS':               'Email ini sudah terdaftar. Silakan langsung masuk.',
+    'OPERATION_NOT_ALLOWED':      'Metode autentikasi ini sedang dinonaktifkan.',
+    'TOO_MANY_ATTEMPTS_TRY_LATER':'Terlalu banyak percobaan gagal. Silakan tunggu sebentar.'
   };
-  return map[code] || 'Terjadi kesalahan. Silakan coba lagi.';
+  return map[code] || (code ? code.toString() : 'Terjadi kesalahan. Silakan coba lagi.');
 }
 function setLoading(btnId, loading, label) {
   const btn = document.getElementById(btnId);
@@ -318,9 +325,13 @@ async function handleLogin(e) {
       document.getElementById('loginEmail').value.trim(),
       document.getElementById('loginPassword').value
     );
-    showMsg('✅ Berhasil masuk!', 'success');
+    showMsg('✅ Berhasil masuk! Mengalihkan ke beranda...', 'success');
+    setTimeout(() => {
+      window.location.href = '/public/index.html';
+    }, 800);
   } catch(err) {
-    showMsg('❌ ' + friendlyError(err.code), 'error');
+    const code = err.code || err.message || '';
+    showMsg('❌ ' + friendlyError(code), 'error');
     setLoading('loginBtn', false, 'Masuk ke Akun');
   }
 }
@@ -332,14 +343,19 @@ async function handleRegister(e) {
   if (pass !== conf) { showMsg('❌ Kata sandi tidak cocok.', 'error'); return; }
   setLoading('registerBtn', true, 'Buat Akun Baru');
   try {
-    await bajaSignUp(
-      document.getElementById('regEmail').value.trim(),
-      pass,
-      document.getElementById('regName').value.trim()
-    );
-    showMsg('✅ Akun berhasil dibuat! Silakan masuk...', 'success');
+    const email = document.getElementById('regEmail').value.trim();
+    const name = document.getElementById('regName').value.trim();
+    await bajaSignUp(email, pass, name);
+    showMsg('✅ Akun berhasil dibuat! Otomatis masuk...', 'success');
+    try {
+      await bajaSignIn(email, pass);
+    } catch (_) {}
+    setTimeout(() => {
+      window.location.href = '/public/index.html';
+    }, 800);
   } catch(err) {
-    showMsg('❌ ' + friendlyError(err.code), 'error');
+    const code = err.code || err.message || '';
+    showMsg('❌ ' + friendlyError(code), 'error');
     setLoading('registerBtn', false, 'Buat Akun Baru');
   }
 }

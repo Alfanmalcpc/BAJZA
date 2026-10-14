@@ -230,7 +230,11 @@ class BajaAuthService {
       body: JSON.stringify({ email, password })
     });
     const data = await res.json();
-    if (!res.ok || data.error) throw new Error(data.error || 'Gagal login.');
+    if (!res.ok || data.error) {
+      const err = new Error(data.error || 'Gagal login.');
+      err.code = data.error;
+      throw err;
+    }
     
     this.currentUser = data.user;
     localStorage.setItem('baja_auth_user', JSON.stringify(data.user));
@@ -239,14 +243,18 @@ class BajaAuthService {
     return { user: data.user };
   }
 
-  async createUserWithEmailAndPassword(email, password, displayName) {
+  async createUserWithEmailAndPassword(email, password, displayName = '') {
     const res = await fetch(`${BAJA_API_BASE}/api/firebase/auth/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password, displayName })
     });
     const data = await res.json();
-    if (!res.ok || data.error) throw new Error(data.error || 'Gagal mendaftar.');
+    if (!res.ok || data.error) {
+      const err = new Error(data.error || 'Gagal membuat akun.');
+      err.code = data.error;
+      throw err;
+    }
     
     this.currentUser = data.user;
     localStorage.setItem('baja_auth_user', JSON.stringify(data.user));

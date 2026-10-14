@@ -41,7 +41,9 @@ function getProjectConfig(project) {
 
 exports.signUp = async (req, res) => {
   try {
-    const { email, password, displayName } = req.body;
+    const email = (req.body.email || '').trim();
+    const password = req.body.password;
+    const displayName = req.body.displayName;
     if (!email || !password) {
       return res.status(400).json({ error: 'Email dan password wajib diisi.' });
     }
@@ -109,7 +111,8 @@ exports.signUp = async (req, res) => {
 
 exports.signIn = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = (req.body.email || '').trim();
+    const password = req.body.password;
     if (!email || !password) {
       return res.status(400).json({ error: 'Email dan password wajib diisi.' });
     }
