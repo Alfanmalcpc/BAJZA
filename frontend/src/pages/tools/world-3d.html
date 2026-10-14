@@ -867,6 +867,161 @@
             color: #94a3b8;
             line-height: 1.4;
         }
+
+        /* Inventory Drawer & Slot Count (128 Stack & Auto-Overflow) */
+        .slot-count {
+            position: absolute;
+            bottom: 3px;
+            right: 5px;
+            font-size: 11px;
+            font-weight: 800;
+            color: #f8fafc;
+            font-family: monospace;
+            background: rgba(15, 23, 42, 0.9);
+            padding: 1px 5px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            line-height: 1.1;
+            pointer-events: none;
+        }
+        .slot-empty-label {
+            font-size: 10px;
+            color: #64748b;
+            font-weight: 600;
+        }
+        .baja-inventory-drawer {
+            position: absolute;
+            bottom: 115px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-glass);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 20px 24px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            z-index: 80;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 640px;
+            width: 95%;
+            pointer-events: auto;
+            animation: bajaFadeIn 0.2s ease-out;
+        }
+        .baja-inv-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-glass);
+            padding-bottom: 10px;
+        }
+        .baja-inv-title-group {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .baja-inv-title {
+            font-family: var(--font-display);
+            font-size: 15px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.3px;
+        }
+        .baja-inv-subtitle {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+        .baja-inv-section-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #38bdf8;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        .baja-inv-grid {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 6px;
+        }
+        .inv-slot {
+            height: 52px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-glass);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .inv-slot:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+        .inv-slot.active {
+            border-color: #38bdf8;
+            background: rgba(56, 189, 248, 0.12);
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+        }
+        .inv-slot-key {
+            position: absolute;
+            top: 3px;
+            left: 5px;
+            font-size: 9px;
+            font-weight: 800;
+            color: #64748b;
+            font-family: var(--font-display);
+        }
+        .inv-slot-badge {
+            font-size: 9px;
+            font-weight: 800;
+            color: #38bdf8;
+            text-transform: uppercase;
+            text-align: center;
+            line-height: 1.1;
+            padding: 0 2px;
+            word-break: break-all;
+        }
+        .inv-slot-count {
+            position: absolute;
+            bottom: 2px;
+            right: 4px;
+            font-size: 10px;
+            font-weight: 800;
+            color: #f8fafc;
+            font-family: monospace;
+            background: rgba(15, 23, 42, 0.9);
+            padding: 1px 4px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            line-height: 1.1;
+        }
+        .baja-pickup-toast {
+            position: absolute;
+            bottom: 120px;
+            right: 24px;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            border-radius: 12px;
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #38bdf8;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+            z-index: 30;
+            display: none;
+            pointer-events: none;
+            animation: bajaFadeIn 0.2s ease-out;
+        }
+
 </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
@@ -909,6 +1064,7 @@
         <div><b>POSISI:</b> X: <span id="pos-x">0.0</span>, Y: <span id="pos-y">0.0</span>, Z: <span id="pos-z">0.0</span></div>
         <div><b>CHUNK:</b> [<span id="chunk-x">0</span>, <span id="chunk-z">0</span>] | <span class="highlight" id="biome-name">Plains Padang Rumput</span></div>
         <div><b>TOTAL CHUNKS:</b> <span id="active-chunks">9</span> aktif (<span id="total-blocks">0</span> balok)</div>
+        <div><b>SEED:</b> <span class="highlight" id="diag-seed">12345</span> | <b>MODE:</b> <span class="highlight" id="diag-mode">SURVIVAL</span></div>
         <div><b>TOTAL ENTITAS:</b> <span id="total-entities">0</span> entitas hidup</div>
         <div><b>ITEM AKTIF:</b> <span class="highlight" id="item-name">[1] Blok Rumput</span></div>
         <div style="margin-top: 4px; color: #94a3b8; font-size: 10px;">
@@ -936,9 +1092,30 @@
         <button class="btn-action" onclick="spawnRandomHerd()">Spawn Kawanan Hewan</button>
     </div>
 
+    <!-- INVENTORY DRAWER (NO POP-UP, INTEGRATED HUD) -->
+    <div id="bajaInventoryDrawer" class="baja-inventory-drawer" style="display: none;">
+        <div class="baja-inv-header">
+            <div class="baja-inv-title-group">
+                <span class="baja-inv-title">Tas Penyimpanan Survival</span>
+                <span class="baja-inv-subtitle">Maks. 128 Unit / Slot &bull; Limpahan Otomatis ke Slot Berikutnya</span>
+            </div>
+            <button class="baja-btn baja-btn-glass baja-back-btn" onclick="toggleInventoryDrawer()">Tutup [E]</button>
+        </div>
+        <div class="baja-inv-section-title">Slot Tas Penyimpanan (27 Slot)</div>
+        <div class="baja-inv-grid" id="invBagGrid"></div>
+        <div class="baja-inv-section-title" style="margin-top: 6px;">Hotbar Aktif (9 Slot Bawah)</div>
+        <div class="baja-inv-grid" id="invHotbarMirror"></div>
+    </div>
+
+    <!-- PICKUP TOAST NOTIFICATION -->
+    <div id="bajaPickupToast" class="baja-pickup-toast"></div>
+
     <!-- Hotbar Bottom -->
     <div class="hud-hotbar-container">
-        <div class="hotbar-tip">Pilih Angka [1-9] atau Scroll • Klik Kiri Tebang • Klik Kanan Pasang</div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <div class="hotbar-tip">Pilih Angka [1-9] • Klik Kiri Tebang • Klik Kanan Pasang</div>
+            <button class="baja-btn baja-btn-glass" style="width: auto; padding: 4px 10px; font-size: 11px; border-radius: 9999px; pointer-events: auto;" onclick="toggleInventoryDrawer()">Tas [E]</button>
+        </div>
         <div class="hud-hotbar" id="hudHotbar">
             <div class="hotbar-slot active" data-slot="1" data-type="grass" title="[1] Blok Rumput">
                 <span class="slot-key">1</span>
@@ -1395,7 +1572,8 @@ const TAXONOMY_DATABASE = [
         const interactiveEntities = []; // Entities interactive meshes
 
         let currentChunkX = 0, currentChunkZ = 0;
-        let selectedItemType = 'grass';
+        let selectedItemType = null;
+        let selectedSlot = 1;
         let blockMaterials = {};
         let raycaster, cursorBox;
 
@@ -1678,6 +1856,19 @@ const TAXONOMY_DATABASE = [
         // ==========================================
         // 4. INFINITE CHUNK MANAGER & PROCEDURAL TERRAIN
         // ==========================================
+        function getSeedNumber() {
+            if (typeof activeWorld === 'undefined' || !activeWorld || activeWorld.seed === undefined) return 12345;
+            if (typeof activeWorld.seed === 'number') return activeWorld.seed;
+            let hash = 0;
+            const str = String(activeWorld.seed);
+            for (let i = 0; i < str.length; i++) {
+                hash = ((hash << 5) - hash) + str.charCodeAt(i);
+                hash |= 0;
+            }
+            return Math.abs(hash) || 12345;
+        }
+        window.getSeedNumber = getSeedNumber;
+
         function getElevationNoise(gx, gz) {
             if (typeof activeWorld !== 'undefined') {
                 if (activeWorld.preset === 'superflat') {
@@ -2170,20 +2361,23 @@ const TAXONOMY_DATABASE = [
             const group = new THREE.Group();
 
             if (type === 'cow') {
-                // Sapi Perah 3D
+                // Sapi Perah 3D Compound Detail (Tanduk, Telinga, Ambing Susu, Belang, Ekor)
                 const bodyGeo = new THREE.BoxGeometry(1.4, 1.0, 2.0);
                 const bodyMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.8 });
                 const body = new THREE.Mesh(bodyGeo, bodyMat);
                 body.position.y = 1.3;
                 group.add(body);
 
-                // Black Spots
-                const spotMat = new THREE.MeshStandardMaterial({ color: 0x0f172a });
+                // Belang Hitam Realistis
+                const spotMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 });
                 const spot1 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.6, 0.9), spotMat);
                 spot1.position.set(0.35, 1.35, 0.2);
                 group.add(spot1);
+                const spot2 = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.5, 0.7), spotMat);
+                spot2.position.set(-0.35, 1.3, -0.4);
+                group.add(spot2);
 
-                // Head, Horns & Pink Muzzle
+                // Kepala, Tanduk & Moncong Pink
                 const head = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.7, 0.8), bodyMat);
                 head.position.set(0, 1.7, 1.2);
                 group.add(head);
@@ -2192,29 +2386,51 @@ const TAXONOMY_DATABASE = [
                 muzzle.position.set(0, 1.55, 1.6);
                 group.add(muzzle);
 
+                // Sepasang Tanduk Abu Melengkung
                 const hornMat = new THREE.MeshStandardMaterial({ color: 0x475569 });
-                const horn1 = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.4, 4), hornMat);
+                const horn1 = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.4, 4), hornMat);
                 horn1.position.set(0.35, 2.1, 1.1);
                 horn1.rotation.z = -0.4;
                 group.add(horn1);
-                const horn2 = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.4, 4), hornMat);
+                const horn2 = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.4, 4), hornMat);
                 horn2.position.set(-0.35, 2.1, 1.1);
                 horn2.rotation.z = 0.4;
                 group.add(horn2);
 
-                // 4 Legs
-                const legGeo = new THREE.BoxGeometry(0.3, 0.8, 0.3);
-                const legMat = new THREE.MeshStandardMaterial({ color: 0x334155 });
+                // Telinga Samping
+                const earGeo = new THREE.BoxGeometry(0.2, 0.08, 0.1);
+                const ear1 = new THREE.Mesh(earGeo, bodyMat);
+                ear1.position.set(0.45, 1.85, 1.05);
+                group.add(ear1);
+                const ear2 = new THREE.Mesh(earGeo, bodyMat);
+                ear2.position.set(-0.45, 1.85, 1.05);
+                group.add(ear2);
+
+                // Detail Ambing Susu (Pink Udder)
+                const udder = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.2, 0.55), new THREE.MeshStandardMaterial({ color: 0xfbcfe8, roughness: 0.6 }));
+                udder.position.set(0, 0.72, -0.25);
+                group.add(udder);
+
+                // 4 Kaki Bertapak Gelap
+                const legGeo = new THREE.BoxGeometry(0.28, 0.8, 0.28);
+                const legMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc });
+                const hoofMat = new THREE.MeshStandardMaterial({ color: 0x1e293b });
                 const legPositions = [
                     { x: -0.45, z: 0.7 }, { x: 0.45, z: 0.7 },
                     { x: -0.45, z: -0.7 }, { x: 0.45, z: -0.7 }
                 ];
                 group.legs = [];
                 legPositions.forEach(lp => {
-                    const leg = new THREE.Mesh(legGeo, legMat);
-                    leg.position.set(lp.x, 0.4, lp.z);
-                    group.add(leg);
-                    group.legs.push(leg);
+                    const legGroup = new THREE.Group();
+                    const legMesh = new THREE.Mesh(legGeo, legMat);
+                    legMesh.position.y = 0.4;
+                    legGroup.add(legMesh);
+                    const hoof = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.2, 0.3), hoofMat);
+                    hoof.position.y = 0.1;
+                    legGroup.add(hoof);
+                    legGroup.position.set(lp.x, 0, lp.z);
+                    group.add(legGroup);
+                    group.legs.push(legGroup);
                 });
             } else if (type === 'sheep') {
                 // Domba Wol Fluffy
@@ -2274,7 +2490,7 @@ const TAXONOMY_DATABASE = [
                     group.legs.push(leg);
                 });
             } else if (type === 'pig') {
-                // Babi Pink Lucu
+                // Babi Pink Detail (Moncong Lubang Hidung, Telinga, Ekor Spiral)
                 const body = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.9, 1.8), new THREE.MeshStandardMaterial({ color: 0xf472b6, roughness: 0.7 }));
                 body.position.y = 1.0;
                 group.add(body);
@@ -2283,11 +2499,36 @@ const TAXONOMY_DATABASE = [
                 head.position.set(0, 1.25, 1.05);
                 group.add(head);
 
-                const snout = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.25, 0.2), new THREE.MeshStandardMaterial({ color: 0xfb7185 }));
+                // Moncong Menonjol dengan 2 Lubang Hidung
+                const snout = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.25, 0.22), new THREE.MeshStandardMaterial({ color: 0xfb7185 }));
                 snout.position.set(0, 1.15, 1.45);
                 group.add(snout);
+                const nostrilMat = new THREE.MeshStandardMaterial({ color: 0x831843 });
+                const n1 = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.08, 0.04), nostrilMat);
+                n1.position.set(0.1, 1.15, 1.57);
+                group.add(n1);
+                const n2 = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.08, 0.04), nostrilMat);
+                n2.position.set(-0.1, 1.15, 1.57);
+                group.add(n2);
 
-                const legGeo = new THREE.BoxGeometry(0.25, 0.6, 0.25);
+                // Telinga Segitiga Menjuntai
+                const earGeo = new THREE.BoxGeometry(0.16, 0.16, 0.06);
+                const ear1 = new THREE.Mesh(earGeo, new THREE.MeshStandardMaterial({ color: 0xf472b6 }));
+                ear1.position.set(0.38, 1.62, 1.05);
+                ear1.rotation.z = -0.3;
+                group.add(ear1);
+                const ear2 = new THREE.Mesh(earGeo, new THREE.MeshStandardMaterial({ color: 0xf472b6 }));
+                ear2.position.set(-0.38, 1.62, 1.05);
+                ear2.rotation.z = 0.3;
+                group.add(ear2);
+
+                // Ekor Melingkar di Belakang
+                const tail = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.18, 0.12), new THREE.MeshStandardMaterial({ color: 0xfb7185 }));
+                tail.position.set(0, 1.25, -0.95);
+                tail.rotation.x = 0.4;
+                group.add(tail);
+
+                const legGeo = new THREE.BoxGeometry(0.24, 0.6, 0.24);
                 const legMat = new THREE.MeshStandardMaterial({ color: 0xf472b6 });
                 group.legs = [];
                 [[-0.4, 0.55], [0.4, 0.55], [-0.4, -0.55], [0.4, -0.55]].forEach(([lx, lz]) => {
@@ -2408,31 +2649,48 @@ const TAXONOMY_DATABASE = [
                     group.legs.push(leg);
                 });
             } else {
-                // Ayam Lucu
-                const body = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.65), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+                // Ayam Detail (Jengger Merah, Gelambir, Paruh, Sayap Samping & Ceker)
+                const body = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.5, 0.7), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 }));
                 body.position.y = 0.65;
                 group.add(body);
 
-                const head = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.4, 0.3), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+                // Sayap Samping Kanan & Kiri
+                const wingGeo = new THREE.BoxGeometry(0.06, 0.35, 0.45);
+                const wingMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9 });
+                const wingR = new THREE.Mesh(wingGeo, wingMat);
+                wingR.position.set(0.3, 0.68, 0.05);
+                group.add(wingR);
+                const wingL = new THREE.Mesh(wingGeo, wingMat);
+                wingL.position.set(-0.3, 0.68, 0.05);
+                group.add(wingL);
+
+                // Kepala & Jengger Merah di Atas
+                const head = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.4, 0.32), new THREE.MeshStandardMaterial({ color: 0xffffff }));
                 head.position.set(0, 0.95, 0.3);
                 group.add(head);
 
-                const beak = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.2, 4), new THREE.MeshStandardMaterial({ color: 0xf97316 }));
-                beak.position.set(0, 0.9, 0.5);
+                const comb = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.18, 0.25), new THREE.MeshStandardMaterial({ color: 0xef4444 }));
+                comb.position.set(0, 1.22, 0.3);
+                group.add(comb);
+
+                // Paruh Runcing Oranye & Gelambir Merah
+                const beak = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.22, 4), new THREE.MeshStandardMaterial({ color: 0xf97316 }));
+                beak.position.set(0, 0.9, 0.52);
                 beak.rotation.x = Math.PI / 2;
                 group.add(beak);
 
-                const wattle = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.15, 0.08), new THREE.MeshStandardMaterial({ color: 0xef4444 }));
-                wattle.position.set(0, 0.75, 0.4);
+                const wattle = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.16, 0.1), new THREE.MeshStandardMaterial({ color: 0xef4444 }));
+                wattle.position.set(0, 0.74, 0.42);
                 group.add(wattle);
 
-                const legGeo = new THREE.BoxGeometry(0.1, 0.4, 0.1);
+                // Dua Ceker Oranye
+                const legGeo = new THREE.BoxGeometry(0.08, 0.4, 0.08);
                 const legMat = new THREE.MeshStandardMaterial({ color: 0xf97316 });
                 const leg1 = new THREE.Mesh(legGeo, legMat);
-                leg1.position.set(-0.12, 0.2, 0);
+                leg1.position.set(-0.14, 0.2, 0);
                 group.add(leg1);
                 const leg2 = new THREE.Mesh(legGeo, legMat);
-                leg2.position.set(0.12, 0.2, 0);
+                leg2.position.set(0.14, 0.2, 0);
                 group.add(leg2);
                 group.legs = [leg1, leg2];
             }
@@ -2758,6 +3016,7 @@ const TAXONOMY_DATABASE = [
             if (fpControls && fpControls.lock) {
                 fpControls.lock();
             }
+            applyActiveWorldToScene();
         }
 
         function openPauseMenu() {
@@ -2809,12 +3068,25 @@ const TAXONOMY_DATABASE = [
             });
             livingEntities.length = 0;
 
-            if (activeWorld.mode === 'creative') {
-                isFlying = true;
-                player.speed = 18.0;
-            } else {
+            if (activeWorld.mode === 'survival') {
                 isFlying = false;
                 player.speed = 12.0;
+                inventoryData = new Array(36).fill(null);
+                selectedSlot = 1;
+                selectedItemType = null;
+                if (window.location.search.includes('demo_items=1')) {
+                    addItemToInventory('wood_oak', 150, 'Kayu Oak');
+                    addItemToInventory('wood_birch', 64, 'Kayu Birch');
+                    addItemToInventory('wood_cherry', 32, 'Kayu Sakura');
+                }
+            } else {
+                isFlying = true;
+                player.speed = 18.0;
+            }
+            renderHotbar();
+            renderInventoryDrawer();
+            if (window.location.search.includes('inventory=1')) {
+                toggleInventoryDrawer(true);
             }
 
             const spawnElev = getElevationNoise(0, 0);
@@ -2878,6 +3150,14 @@ const TAXONOMY_DATABASE = [
                 }
                 if (window.location.search.includes('ingame=1')) {
                     playActiveWorld();
+                    if (window.location.search.includes('demo_items=1')) {
+                        addItemToInventory('wood_oak', 150, 'Kayu Oak');
+                        addItemToInventory('wood_birch', 64, 'Kayu Birch');
+                        addItemToInventory('wood_cherry', 32, 'Kayu Sakura');
+                    }
+                    if (window.location.search.includes('inventory=1')) {
+                        toggleInventoryDrawer(true);
+                    }
                 }
             }, 100);
 
@@ -2924,6 +3204,9 @@ const TAXONOMY_DATABASE = [
             // 5. Position Camera & Controls for scenic vista
             fpControls.getObject().position.set(0, 12.6, 8.2);
             camera.rotation.x = -0.28;
+            
+            renderHotbar();
+            renderInventoryDrawer();
             
             animate();
         }
@@ -3060,6 +3343,7 @@ const TAXONOMY_DATABASE = [
                         }
                         break;
                     case 'KeyF': toggleFlight(); break;
+                    case 'KeyE': toggleInventoryDrawer(); break;
                     case 'Digit1': selectHotbarSlot(1); break;
                     case 'Digit2': selectHotbarSlot(2); break;
                     case 'Digit3': selectHotbarSlot(3); break;
@@ -3126,15 +3410,238 @@ const TAXONOMY_DATABASE = [
             });
         }
 
-        function selectHotbarSlot(num) {
-            document.querySelectorAll('.hotbar-slot').forEach(s => s.classList.remove('active'));
-            const slot = document.querySelector(`.hotbar-slot[data-slot="${num}"]`);
-            if (slot) {
-                slot.classList.add('active');
-                selectedItemType = slot.dataset.type;
-                const name = slot.querySelector('.slot-name').textContent;
-                document.getElementById('item-name').textContent = `[${num}] ${name}`;
+
+        // ==========================================
+        // SISTEM INVENTORI 36 SLOT, STACK MAX 128 & AUTO-OVERFLOW
+        // ==========================================
+        const MAX_STACK = 128;
+        // 36 Slot Total: Slot 0-8 adalah Hotbar, Slot 9-35 adalah Tas Penyimpanan
+        let inventoryData = new Array(36).fill(null);
+        let isInventoryOpen = false;
+
+        const ITEM_DEFINITIONS = {
+            wood_oak: { name: 'Kayu Oak', badge: 'OAK', category: 'material' },
+            wood_birch: { name: 'Kayu Birch', badge: 'BIRCH', category: 'material' },
+            wood_pine: { name: 'Kayu Pinus', badge: 'PINUS', category: 'material' },
+            wood_cherry: { name: 'Kayu Sakura', badge: 'SAKURA', category: 'material' },
+            wood_acacia: { name: 'Kayu Akasia', badge: 'AKASIA', category: 'material' },
+            wood_willow: { name: 'Kayu Willow', badge: 'WILLOW', category: 'material' },
+            wood: { name: 'Kayu Oak', badge: 'OAK', category: 'material' },
+            dirt: { name: 'Tanah Subur', badge: 'DIRT', category: 'block' },
+            grass: { name: 'Blok Rumput', badge: 'GRASS', category: 'block' },
+            stone: { name: 'Batu Alam', badge: 'STONE', category: 'block' },
+            sand: { name: 'Pasir Pantai', badge: 'SAND', category: 'block' },
+            glass: { name: 'Kaca Transparan', badge: 'GLASS', category: 'block' },
+            apple: { name: 'Apel Merah Segar', badge: 'APEL', category: 'food' },
+            seed: { name: 'Benih Tanaman', badge: 'BENIH', category: 'item' }
+        };
+
+        function getItemMeta(type, customName) {
+            if (ITEM_DEFINITIONS[type]) {
+                return ITEM_DEFINITIONS[type];
             }
+            return {
+                name: customName || type.toUpperCase(),
+                badge: type.substring(0, 5).toUpperCase(),
+                category: 'item'
+            };
+        }
+
+        window.addItemToInventory = addItemToInventory;
+        window.toggleInventoryDrawer = toggleInventoryDrawer;
+        function addItemToInventory(itemType, amount = 1, customName = '') {
+            if (!itemType || amount <= 0) return 0;
+            let remaining = amount;
+            const meta = getItemMeta(itemType, customName);
+
+            // 1. Tumpuk ke slot yang sudah memiliki item tipe sama dan belum mencapai batas 128
+            for (let i = 0; i < 36; i++) {
+                if (inventoryData[i] && inventoryData[i].type === itemType && inventoryData[i].count < MAX_STACK) {
+                    const space = MAX_STACK - inventoryData[i].count;
+                    const toAdd = Math.min(space, remaining);
+                    inventoryData[i].count += toAdd;
+                    remaining -= toAdd;
+                    if (remaining <= 0) break;
+                }
+            }
+
+            // 2. Jika masih tersisa atau melebihi 128, limpahkan ke slot kosong berikutnya (auto-overflow)
+            if (remaining > 0) {
+                for (let i = 0; i < 36; i++) {
+                    if (!inventoryData[i]) {
+                        const toAdd = Math.min(MAX_STACK, remaining);
+                        inventoryData[i] = {
+                            type: itemType,
+                            name: meta.name,
+                            badge: meta.badge,
+                            count: toAdd
+                        };
+                        remaining -= toAdd;
+                        if (remaining <= 0) break;
+                    }
+                }
+            }
+
+            renderHotbar();
+            renderInventoryDrawer();
+            showPickupToast(meta.name, amount - remaining);
+            return amount - remaining;
+        }
+
+        function showPickupToast(name, qty) {
+            if (qty <= 0) return;
+            const toast = document.getElementById('bajaPickupToast');
+            if (!toast) return;
+            toast.textContent = `+${qty} ${name}`;
+            toast.style.display = 'block';
+            clearTimeout(window._pickupToastTimer);
+            window._pickupToastTimer = setTimeout(() => {
+                toast.style.display = 'none';
+            }, 2200);
+        }
+
+        function toggleInventoryDrawer(forceState) {
+            const drawer = document.getElementById('bajaInventoryDrawer');
+            if (!drawer) return;
+            isInventoryOpen = (forceState !== undefined) ? forceState : !isInventoryOpen;
+            drawer.style.display = isInventoryOpen ? 'flex' : 'none';
+            if (isInventoryOpen) {
+                renderInventoryDrawer();
+                if (document.exitPointerLock) document.exitPointerLock();
+            }
+        }
+
+        function renderHotbar() {
+            const container = document.getElementById('hudHotbar');
+            if (!container) return;
+            container.innerHTML = '';
+
+            for (let i = 0; i < 9; i++) {
+                const item = inventoryData[i];
+                const slotDiv = document.createElement('div');
+                const isSelected = (i + 1) === selectedSlot;
+                slotDiv.className = `hotbar-slot ${isSelected ? 'active' : ''}`;
+                slotDiv.dataset.slot = i + 1;
+                slotDiv.dataset.type = item ? item.type : '';
+
+                slotDiv.onclick = () => selectHotbarSlot(i + 1);
+
+                let inner = `<span class="slot-key">${i + 1}</span>`;
+                if (item) {
+                    inner += `<span class="slot-badge">${item.badge}</span>`;
+                    inner += `<span class="slot-name">${item.name}</span>`;
+                    inner += `<span class="slot-count">${item.count}</span>`;
+                } else {
+                    inner += `<span class="slot-empty-label">Kosong</span>`;
+                }
+                slotDiv.innerHTML = inner;
+                container.appendChild(slotDiv);
+            }
+
+            // Perbarui nama item aktif di HUD
+            const activeItem = inventoryData[selectedSlot - 1];
+            const itemNameEl = document.getElementById('item-name');
+            if (itemNameEl) {
+                if (activeItem) {
+                    selectedItemType = activeItem.type;
+                    itemNameEl.textContent = `[${selectedSlot}] ${activeItem.name} (${activeItem.count} unit)`;
+                } else {
+                    selectedItemType = null;
+                    itemNameEl.textContent = `[${selectedSlot}] Tangan Kosong`;
+                }
+            }
+        }
+
+        function renderInventoryDrawer() {
+            const bagGrid = document.getElementById('invBagGrid');
+            const hotbarMirror = document.getElementById('invHotbarMirror');
+            if (!bagGrid || !hotbarMirror) return;
+
+            bagGrid.innerHTML = '';
+            hotbarMirror.innerHTML = '';
+
+            // Render 27 Slot Tas Penyimpanan (Indeks 9 s/d 35)
+            for (let i = 9; i < 36; i++) {
+                const item = inventoryData[i];
+                const slot = document.createElement('div');
+                slot.className = 'inv-slot';
+                slot.onclick = () => handleSlotClick(i);
+
+                let inner = `<span class="inv-slot-key">${i - 8}</span>`;
+                if (item) {
+                    inner += `<span class="inv-slot-badge">${item.badge}</span>`;
+                    inner += `<span class="inv-slot-count">${item.count}</span>`;
+                    slot.title = `${item.name} (${item.count}/${MAX_STACK})`;
+                } else {
+                    slot.title = 'Slot Kosong';
+                }
+                slot.innerHTML = inner;
+                bagGrid.appendChild(slot);
+            }
+
+            // Render 9 Slot Hotbar Aktif (Indeks 0 s/d 8)
+            for (let i = 0; i < 9; i++) {
+                const item = inventoryData[i];
+                const slot = document.createElement('div');
+                const isSelected = (i + 1) === selectedSlot;
+                slot.className = `inv-slot ${isSelected ? 'active' : ''}`;
+                slot.onclick = () => {
+                    selectHotbarSlot(i + 1);
+                    handleSlotClick(i);
+                };
+
+                let inner = `<span class="inv-slot-key">[${i + 1}]</span>`;
+                if (item) {
+                    inner += `<span class="inv-slot-badge">${item.badge}</span>`;
+                    inner += `<span class="inv-slot-count">${item.count}</span>`;
+                    slot.title = `${item.name} (${item.count}/${MAX_STACK})`;
+                } else {
+                    slot.title = 'Hotbar Kosong';
+                }
+                slot.innerHTML = inner;
+                hotbarMirror.appendChild(slot);
+            }
+        }
+
+        let selectedInventoryIndex = null;
+        function handleSlotClick(idx) {
+            if (selectedInventoryIndex === null) {
+                if (inventoryData[idx]) {
+                    selectedInventoryIndex = idx;
+                    renderInventoryDrawer();
+                }
+            } else {
+                // Tukar item antar slot (Swap atau Gabung)
+                if (selectedInventoryIndex === idx) {
+                    selectedInventoryIndex = null;
+                } else {
+                    const from = inventoryData[selectedInventoryIndex];
+                    const to = inventoryData[idx];
+
+                    if (from && to && from.type === to.type && to.count < MAX_STACK) {
+                        // Gabung tumpukan
+                        const space = MAX_STACK - to.count;
+                        const toAdd = Math.min(space, from.count);
+                        to.count += toAdd;
+                        from.count -= toAdd;
+                        if (from.count <= 0) {
+                            inventoryData[selectedInventoryIndex] = null;
+                        }
+                    } else {
+                        // Tukar slot
+                        inventoryData[idx] = from;
+                        inventoryData[selectedInventoryIndex] = to;
+                    }
+                    selectedInventoryIndex = null;
+                    renderHotbar();
+                    renderInventoryDrawer();
+                }
+            }
+        }
+
+        function selectHotbarSlot(num) {
+            selectedSlot = num;
+            renderHotbar();
         }
 
         function updateHUDStats() {
