@@ -2094,49 +2094,171 @@ const TAXONOMY_DATABASE = [
         // ==========================================
         // 5. PROCEDURAL 3D MODELS (TREES, FRUITS, DROPS, ANIMALS)
         // ==========================================
+        // ══ PROCEDURAL TREE TEXTURE CACHE (BARK & FOLIAGE) ══
+        const treeTextureCache = {};
+
+        function getTreeBarkTexture(treeId, trunkHex) {
+            const cacheKey = 'bark_' + treeId;
+            if (treeTextureCache[cacheKey]) return treeTextureCache[cacheKey];
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 128;
+            canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            ctx.imageSmoothingEnabled = false;
+
+            const baseColor = typeof trunkHex === 'number' 
+                ? '#' + trunkHex.toString(16).padStart(6, '0') 
+                : (trunkHex || '#78350f');
+
+            if (treeId === 'tree_birch' || treeId.includes('birch')) {
+                // Birch: Clean white/cream bark with natural horizontal black lenticels
+                ctx.fillStyle = '#f8fafc';
+                ctx.fillRect(0, 0, 128, 256);
+
+                // Subtle light wood vertical grain
+                for (let x = 0; x < 128; x += 4) {
+                    ctx.fillStyle = (x % 8 === 0) ? '#f1f5f9' : '#e2e8f0';
+                    ctx.fillRect(x, 0, 2, 256);
+                }
+
+                // Characteristic horizontal dark markings (lenticels)
+                const markings = [
+                    { x: 12, y: 16, w: 26, h: 5 },
+                    { x: 68, y: 32, w: 34, h: 6 },
+                    { x: 28, y: 56, w: 40, h: 5 },
+                    { x: 80, y: 78, w: 30, h: 5 },
+                    { x: 8,  y: 104, w: 46, h: 6 },
+                    { x: 74, y: 128, w: 36, h: 5 },
+                    { x: 22, y: 152, w: 42, h: 6 },
+                    { x: 82, y: 176, w: 28, h: 5 },
+                    { x: 14, y: 202, w: 38, h: 6 },
+                    { x: 62, y: 224, w: 44, h: 5 },
+                    { x: 26, y: 242, w: 32, h: 5 }
+                ];
+                markings.forEach(m => {
+                    ctx.fillStyle = '#0f172a';
+                    ctx.fillRect(m.x, m.y, m.w, m.h);
+                    ctx.fillStyle = '#334155';
+                    ctx.fillRect(m.x + 2, m.y + 1, Math.max(1, m.w - 4), Math.max(1, m.h - 2));
+                });
+            } else {
+                // Standard Natural Bark (Oak, Pine, Acacia, Cherry, Jungle, etc.)
+                ctx.fillStyle = baseColor;
+                ctx.fillRect(0, 0, 128, 256);
+
+                // Vertical bark fibers and shadow crevices
+                for (let x = 0; x < 128; x += 4) {
+                    const isCrevice = (x % 16 === 0);
+                    const isRidge = (x % 16 === 8);
+                    if (isCrevice) {
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.32)';
+                        ctx.fillRect(x, 0, 4, 256);
+                    } else if (isRidge) {
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.16)';
+                        ctx.fillRect(x, 0, 3, 256);
+                    }
+                }
+
+                // Natural organic bark variation flecks
+                for (let y = 0; y < 256; y += 8) {
+                    for (let x = 0; x < 128; x += 8) {
+                        const noise = Math.sin(x * 17.3 + y * 9.7);
+                        if (noise > 0.4) {
+                            ctx.fillStyle = 'rgba(0, 0, 0, 0.18)';
+                            ctx.fillRect(x, y, 4, 6);
+                        } else if (noise < -0.4) {
+                            ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+                            ctx.fillRect(x, y, 4, 6);
+                        }
+                    }
+                }
+            }
+
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.wrapS = THREE.RepeatWrapping;
+            tex.wrapT = THREE.RepeatWrapping;
+            tex.repeat.set(2, 1);
+            tex.magFilter = THREE.NearestFilter;
+            tex.minFilter = THREE.NearestFilter;
+            treeTextureCache[cacheKey] = tex;
+            return tex;
+        }
+
+        function getTreeLeafTexture(leafHex, styleKey) {
+            const hexStr = typeof leafHex === 'number'
+                ? '#' + leafHex.toString(16).padStart(6, '0')
+                : (leafHex || '#22c55e');
+            const cacheKey = 'leaf_' + hexStr + '_' + (styleKey || 'deciduous');
+            if (treeTextureCache[cacheKey]) return treeTextureCache[cacheKey];
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 64;
+            canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            ctx.imageSmoothingEnabled = false;
+
+            ctx.fillStyle = hexStr;
+            ctx.fillRect(0, 0, 64, 64);
+
+            // Dappled foliage pixel grid pattern
+            for (let x = 0; x < 64; x += 4) {
+                for (let y = 0; y < 64; y += 4) {
+                    const noise = Math.sin(x * 7.9 + y * 11.3);
+                    if (noise > 0.45) {
+                        ctx.fillStyle = 'rgba(0, 0, 0, 0.24)';
+                        ctx.fillRect(x, y, 4, 4);
+                    } else if (noise < -0.35) {
+                        ctx.fillStyle = 'rgba(255, 255, 255, 0.22)';
+                        ctx.fillRect(x, y, 4, 4);
+                    }
+                }
+            }
+
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.wrapS = THREE.RepeatWrapping;
+            tex.wrapT = THREE.RepeatWrapping;
+            tex.repeat.set(2, 2);
+            tex.magFilter = THREE.NearestFilter;
+            tex.minFilter = THREE.NearestFilter;
+            treeTextureCache[cacheKey] = tex;
+            return tex;
+        }
+
         function spawn3DTree(gx, gy, gz, treeId) {
             const data = TAXONOMY_DATABASE.find(t => t.id === treeId) || TAXONOMY_DATABASE[0];
             const group = new THREE.Group();
 
-            // 1. Organic Trunk
+            // 1. Organic Trunk with Authentic Procedural Bark Texture
+            const barkTex = getTreeBarkTexture(data.id, data.trunk);
             const trunkMat = new THREE.MeshStandardMaterial({
-                color: data.trunk,
+                map: barkTex,
                 roughness: 0.85,
                 flatShading: true
             });
             const trunkHeight = (data.style === 'conifer' || data.style === 'conifer_tall') ? 5.8 : 4.2;
-            const trunkGeo = new THREE.CylinderGeometry(0.32, 0.6, trunkHeight, 10);
+            const trunkGeo = new THREE.CylinderGeometry(0.32, 0.54, trunkHeight, 10);
             const trunk = new THREE.Mesh(trunkGeo, trunkMat);
             trunk.position.y = trunkHeight * 0.5;
             trunk.castShadow = true;
             group.add(trunk);
 
-            // If Birch, add dark horizontal markings along the white trunk
-            if (data.id === 'tree_birch') {
-                const darkMarkMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 });
-                const bandGeo = new THREE.CylinderGeometry(0.33, 0.61, 0.16, 8);
-                [0.9, 1.8, 2.7, 3.5].forEach(by => {
-                    const band = new THREE.Mesh(bandGeo, darkMarkMat);
-                    band.position.y = by;
-                    group.add(band);
-                });
-            }
-
             // Flaring Roots resting on voxel grass
             const rootGeo = new THREE.CylinderGeometry(0.12, 0.28, 1.2, 8);
             [0.3, 1.8, 3.5, 5.0].forEach(ang => {
                 const root = new THREE.Mesh(rootGeo, trunkMat);
-                root.position.set(Math.cos(ang) * 0.55, 0.45, Math.sin(ang) * 0.55);
+                root.position.set(Math.cos(ang) * 0.52, 0.45, Math.sin(ang) * 0.52);
                 root.rotation.z = Math.cos(ang) * 0.45;
                 root.rotation.x = Math.sin(ang) * 0.45;
                 root.castShadow = true;
                 group.add(root);
             });
 
-            // 2. Foliage based on Style
+            // 2. Foliage based on Style with Dappled Pixel Leaves Texture
             if (data.style === 'conifer' || data.style === 'conifer_tall') {
                 // Tiered Pine Cones (Spruce / Pine)
-                const coneMat = new THREE.MeshStandardMaterial({ color: data.leaves[0], roughness: 0.7, flatShading: true });
+                const pineLeafTex = getTreeLeafTexture(data.leaves[0], 'pine');
+                const coneMat = new THREE.MeshStandardMaterial({ map: pineLeafTex, roughness: 0.7, flatShading: true });
                 const tiers = [
                     { y: 3.2, r: 2.2, h: 2.2 },
                     { y: 4.6, r: 1.7, h: 2.0 },
@@ -2151,8 +2273,9 @@ const TAXONOMY_DATABASE = [
                     group.add(cone);
                 });
             } else if (data.style === 'acacia') {
-                // Iconic Savanna Flat Umbrella Canopy
-                const leafMat = new THREE.MeshStandardMaterial({ color: data.leaves[0], roughness: 0.65, flatShading: true });
+                // Savanna Flat Umbrella Canopy
+                const acaciaLeafTex = getTreeLeafTexture(data.leaves[0], 'acacia');
+                const leafMat = new THREE.MeshStandardMaterial({ map: acaciaLeafTex, roughness: 0.65, flatShading: true });
                 const branches = [
                     { x: 0.8, y: trunkHeight, z: 0.4, rx: 0.3, rz: 0.5 },
                     { x: -0.8, y: trunkHeight + 0.3, z: -0.4, rx: -0.2, rz: -0.5 }
@@ -2172,7 +2295,8 @@ const TAXONOMY_DATABASE = [
                 });
             } else if (data.style === 'palm') {
                 // Palm Fronds & Coconuts
-                const frondMat = new THREE.MeshStandardMaterial({ color: data.leaves[0], roughness: 0.6, flatShading: true });
+                const palmLeafTex = getTreeLeafTexture(data.leaves[0], 'palm');
+                const frondMat = new THREE.MeshStandardMaterial({ map: palmLeafTex, roughness: 0.6, flatShading: true });
                 for (let i = 0; i < 7; i++) {
                     const angle = (i / 7) * Math.PI * 2;
                     const fGeo = new THREE.BoxGeometry(0.4, 0.1, 3.2);
@@ -2182,7 +2306,6 @@ const TAXONOMY_DATABASE = [
                     frond.rotation.x = 0.5;
                     group.add(frond);
                 }
-                // Coconuts
                 const cocoMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.8 });
                 for (let i = 0; i < 3; i++) {
                     const coco = new THREE.Mesh(new THREE.DodecahedronGeometry(0.28, 0), cocoMat);
@@ -2190,8 +2313,15 @@ const TAXONOMY_DATABASE = [
                     group.add(coco);
                 }
             } else {
-                // Lush Multi-Layered Low-Poly Canopy
-                const leafMats = data.leaves.map(col => new THREE.MeshStandardMaterial({ color: col, roughness: 0.65, flatShading: true }));
+                // Lush Multi-Layered Low-Poly Canopy with Textured Dapples
+                const leafMats = data.leaves.map(col => {
+                    const lTex = getTreeLeafTexture(col, data.style);
+                    return new THREE.MeshStandardMaterial({
+                        map: lTex,
+                        roughness: 0.65,
+                        flatShading: true
+                    });
+                });
                 const clusters = [
                     { x: 0, y: trunkHeight + 0.5, z: 0, r: 1.85, m: leafMats[0] },
                     { x: 0.9, y: trunkHeight + 0.1, z: 0.5, r: 1.4, m: leafMats[1] || leafMats[0] },
@@ -2209,9 +2339,9 @@ const TAXONOMY_DATABASE = [
                     group.add(mesh);
                 });
 
-                // 3. Spawning Hanging 3D Fruits on Fruit Trees!
+                // Hanging 3D Fruits on Fruit Trees
                 if (data.fruit) {
-                    let fruitColor = 0xdc2626; // Bright Vivid Red Apple
+                    let fruitColor = 0xdc2626;
                     if (data.fruit === 'orange') fruitColor = 0xf97316;
                     else if (data.fruit === 'lemon') fruitColor = 0xfacc15;
                     else if (data.fruit === 'peach') fruitColor = 0xfb7185;
@@ -2251,25 +2381,33 @@ const TAXONOMY_DATABASE = [
             return group;
         }
 
-        // Spawn Wood Log & Fruit Floating Drops when tree is chopped down
+        // Spawn Wood Log & Fruit Floating Drops with Authentic Bark Texture
         function spawnFloatingDrop(x, y, z, itemType) {
             let mesh;
-            if (itemType === 'apple') {
-                const geo = new THREE.SphereGeometry(0.35, 12, 12);
-                const mat = new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.25, metalness: 0.1 });
+            if (itemType === 'apple' || itemType === 'orange' || itemType === 'lemon' || itemType === 'peach') {
+                let col = 0xdc2626;
+                if (itemType === 'orange') col = 0xf97316;
+                else if (itemType === 'lemon') col = 0xfacc15;
+                else if (itemType === 'peach') col = 0xfb7185;
+                const geo = new THREE.SphereGeometry(0.32, 12, 12);
+                const mat = new THREE.MeshStandardMaterial({ color: col, roughness: 0.3, metalness: 0.1 });
                 mesh = new THREE.Mesh(geo, mat);
             } else {
-                const geo = new THREE.CylinderGeometry(0.3, 0.3, 0.9, 8);
-                let col = 0x92400e; // Oak
-                if (itemType === 'log_birch') col = 0xf8fafc;
-                else if (itemType === 'log_pine') col = 0x3b1c0b;
-                else if (itemType === 'log_cherry') col = 0xf472b6;
-                const mat = new THREE.MeshStandardMaterial({ color: col, roughness: 0.8 });
+                // 3D Miniature Wood Log Drop with species bark texture
+                let treeKey = 'tree_oak';
+                let trunkHex = 0x78350f;
+                if (itemType === 'wood_birch' || itemType === 'log_birch') { treeKey = 'tree_birch'; trunkHex = 0xf8fafc; }
+                else if (itemType === 'wood_pine' || itemType === 'log_pine') { treeKey = 'tree_pine'; trunkHex = 0x38200f; }
+                else if (itemType === 'wood_cherry' || itemType === 'log_cherry') { treeKey = 'tree_cherry'; trunkHex = 0x4c0519; }
+                else if (itemType === 'wood_dark_oak' || itemType === 'log_dark_oak') { treeKey = 'tree_dark_oak'; trunkHex = 0x261306; }
+                else if (itemType === 'wood_jungle' || itemType === 'log_jungle') { treeKey = 'tree_jungle'; trunkHex = 0x5c2b0c; }
+                else if (itemType === 'wood_acacia' || itemType === 'log_acacia') { treeKey = 'tree_acacia'; trunkHex = 0x52525b; }
+                else if (itemType === 'wood_mangrove' || itemType === 'log_mangrove') { treeKey = 'tree_mangrove'; trunkHex = 0x451a03; }
+
+                const barkTex = getTreeBarkTexture(treeKey, trunkHex);
+                const geo = new THREE.CylinderGeometry(0.28, 0.28, 0.8, 10);
+                const mat = new THREE.MeshStandardMaterial({ map: barkTex, roughness: 0.85, flatShading: true });
                 mesh = new THREE.Mesh(geo, mat);
-                if (itemType === 'log_birch') {
-                    const ring = new THREE.Mesh(new THREE.CylinderGeometry(0.31, 0.31, 0.16, 8), new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 }));
-                    mesh.add(ring);
-                }
             }
             mesh.position.set(x, y, z);
             mesh.userData = { isItemDrop: true, itemType, baseY: y, rotSpeed: 1.8, seed: Math.random() * 5 };
@@ -2280,49 +2418,34 @@ const TAXONOMY_DATABASE = [
 
         function dropTreeLoot(pos, treeData) {
             const dropCount = 3;
-            let logType = 'log_oak';
-            if (treeData.id.includes('birch')) logType = 'log_birch';
-            else if (treeData.id.includes('pine') || treeData.id.includes('spruce')) logType = 'log_pine';
-            else if (treeData.id.includes('cherry')) logType = 'log_cherry';
+            let logType = 'wood_oak';
+            if (treeData.id.includes('birch')) logType = 'wood_birch';
+            else if (treeData.id.includes('pine') || treeData.id.includes('spruce')) logType = 'wood_pine';
+            else if (treeData.id.includes('cherry')) logType = 'wood_cherry';
+            else if (treeData.id.includes('dark_oak')) logType = 'wood_dark_oak';
+            else if (treeData.id.includes('jungle')) logType = 'wood_jungle';
+            else if (treeData.id.includes('acacia')) logType = 'wood_acacia';
+            else if (treeData.id.includes('mangrove')) logType = 'wood_mangrove';
 
             // 1. Drop Floating Rotating Logs
-            const logGeo = new THREE.CylinderGeometry(0.3, 0.3, 0.9, 8);
-            const logMat = blockMaterials[logType] || blockMaterials.wood;
-
             for (let i = 0; i < dropCount; i++) {
-                const log = new THREE.Mesh(logGeo, logMat);
-                log.position.copy(pos);
-                log.position.x += (Math.random() - 0.5) * 1.8;
-                log.position.z += (Math.random() - 0.5) * 1.8;
-                log.position.y += 0.8 + Math.random() * 0.6;
-                log.rotation.z = Math.PI / 2;
-                log.userData = { isDrop: true, rotSpeed: 2.5 + Math.random(), baseY: log.position.y, seed: Math.random() * 10 };
-                scene.add(log);
-                floatingDrops.push(log);
+                const dropX = pos.x + (Math.random() - 0.5) * 1.5;
+                const dropZ = pos.z + (Math.random() - 0.5) * 1.5;
+                const dropY = pos.y + 0.8 + Math.random() * 0.5;
+                spawnFloatingDrop(dropX, dropY, dropZ, logType);
             }
 
             // 2. Drop Fruits if Fruit Tree
             if (treeData.fruit) {
-                let fColor = 0xef4444;
-                if (treeData.fruit === 'orange') fColor = 0xf97316;
-                else if (treeData.fruit === 'lemon') fColor = 0xfacc15;
-                const fMat = new THREE.MeshStandardMaterial({ color: fColor, roughness: 0.3 });
-                const fGeo = new THREE.SphereGeometry(0.28, 8, 8);
-
                 for (let i = 0; i < 2; i++) {
-                    const fruit = new THREE.Mesh(fGeo, fMat);
-                    fruit.position.copy(pos);
-                    fruit.position.x += (Math.random() - 0.5) * 2.0;
-                    fruit.position.z += (Math.random() - 0.5) * 2.0;
-                    fruit.position.y += 0.6;
-                    fruit.userData = { isDrop: true, rotSpeed: 3.2, baseY: fruit.position.y, seed: Math.random() * 10 };
-                    scene.add(fruit);
-                    floatingDrops.push(fruit);
+                    const dropX = pos.x + (Math.random() - 0.5) * 1.5;
+                    const dropZ = pos.z + (Math.random() - 0.5) * 1.5;
+                    const dropY = pos.y + 0.8;
+                    spawnFloatingDrop(dropX, dropY, dropZ, treeData.fruit);
                 }
             }
         }
 
-        // Spawn Flowers & Plants
         function spawn3DPlant(gx, gy, gz, flowerId) {
             const data = TAXONOMY_DATABASE.find(f => f.id === flowerId) || TAXONOMY_DATABASE[25];
             const group = new THREE.Group();
