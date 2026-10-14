@@ -7,23 +7,31 @@
     <link rel="icon" type="image/svg+xml" href="/src/assets/img/Logo.svg">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Bangers&display=swap" rel="stylesheet">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;700;900&display=swap');
+
         :root {
-            --baja-bg: #090e17;
-            --baja-card: rgba(15, 23, 42, 0.88);
-            --baja-border: #1e293b;
-            --baja-primary: #0284c7;
-            --baja-text: #f8fafc;
-            --baja-subtext: #94a3b8;
-            --baja-green: #22c55e;
-            --baja-yellow: #facc15;
-            --baja-orange: #f97316;
-            --baja-pink: #ec4899;
+            --bg-dark: #07090e;
+            --bg-base: #0b0f19;
+            --bg-glass: rgba(11, 15, 25, 0.85);
+            --bg-card: rgba(17, 24, 39, 0.8);
+            --bg-card-hover: rgba(30, 41, 59, 0.9);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-active: rgba(56, 189, 248, 0.6);
+            --grad-primary: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+            --grad-emerald: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --grad-purple: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+            --grad-amber: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            --glow-cyan: 0 8px 30px rgba(6, 182, 212, 0.35);
+            --glow-blue: 0 8px 30px rgba(59, 130, 246, 0.35);
+            --glow-emerald: 0 8px 30px rgba(16, 185, 129, 0.35);
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-sans: 'Plus Jakarta Sans', sans-serif;
         }
 
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
         }
@@ -32,766 +40,776 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background: var(--baja-bg);
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            color: var(--baja-text);
-        }
-
-        #viewport-container {
-            width: 100vw;
-            height: 100vh;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1;
-            cursor: crosshair;
-        }
-
-        /* Top Bar */
-        .hud-topbar {
-            position: absolute;
-            top: 14px;
-            left: 14px;
-            right: 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 10;
-            pointer-events: none;
-        }
-
-        .hud-pill {
-            pointer-events: auto;
-            background: var(--baja-card);
-            border: 2px solid var(--baja-border);
-            border-radius: 9999px;
-            padding: 6px 14px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-            backdrop-filter: blur(12px);
-        }
-
-        .logo-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-            color: #fff;
-            font-family: 'Bangers', cursive;
-            font-size: 20px;
-            letter-spacing: 0.5px;
-        }
-
-        .logo-btn img {
-            width: 22px;
-            height: 22px;
-        }
-
-        .btn-encyclopedia {
-            pointer-events: auto;
-            background: linear-gradient(135deg, #0284c7, #2563eb);
-            border: 2px solid #38bdf8;
-            color: #fff;
-            padding: 6px 14px;
-            border-radius: 9999px;
-            font-weight: 700;
-            font-size: 12px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
-            transition: all 0.2s;
-        }
-
-        .btn-encyclopedia:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.6);
-        }
-
-        /* Diagnostic HUD */
-        .hud-diag {
-            position: absolute;
-            top: 72px;
-            left: 14px;
-            background: rgba(15, 23, 42, 0.88);
-            border: 2px solid var(--baja-border);
-            border-radius: 12px;
-            padding: 10px 14px;
-            font-family: monospace;
-            font-size: 11px;
-            line-height: 1.6;
-            color: #94a3b8;
-            z-index: 10;
-            pointer-events: none;
-            backdrop-filter: blur(8px);
-            max-width: 320px;
-        }
-
-        .hud-diag b {
+            background-color: var(--bg-dark);
+            font-family: var(--font-sans);
             color: #f8fafc;
         }
 
-        .hud-diag .highlight {
-            color: var(--baja-yellow);
-            font-weight: 700;
+        #viewport-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
         }
 
-        .hud-diag .biome {
-            color: var(--baja-green);
-            font-weight: 700;
-        }
-
-        /* Crosshair */
         #crosshair {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             pointer-events: none;
-            z-index: 20;
+            z-index: 10;
         }
 
         #crosshair::before, #crosshair::after {
             content: '';
             position: absolute;
-            background: rgba(255, 255, 255, 0.9);
-            box-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+            background: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 0 4px rgba(0,0,0,0.8);
         }
-
         #crosshair::before {
-            top: 7px;
+            top: 6px;
             left: 0;
-            width: 16px;
+            width: 14px;
             height: 2px;
         }
-
         #crosshair::after {
             top: 0;
-            left: 7px;
+            left: 6px;
             width: 2px;
-            height: 16px;
+            height: 14px;
         }
 
-        /* Hotbar */
-        .hud-hotbar-container {
+        /* BAJA WEB HUD Topbar */
+        .hud-topbar {
             position: absolute;
-            bottom: 18px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 16px;
+            left: 16px;
+            right: 16px;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            gap: 6px;
-            z-index: 15;
+            justify-content: space-between;
+            z-index: 20;
             pointer-events: none;
         }
 
-        .hotbar-tip {
-            font-size: 11px;
-            font-weight: 700;
-            color: #cbd5e1;
-            background: rgba(15, 23, 42, 0.85);
-            padding: 3px 12px;
-            border-radius: 9999px;
-            border: 1px solid var(--baja-border);
-            text-shadow: 0 1px 2px #000;
-        }
-
-        .hud-hotbar {
-            display: flex;
-            gap: 6px;
-            background: rgba(15, 23, 42, 0.94);
-            border: 3px solid #000;
-            border-radius: 16px;
-            padding: 6px 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 4px 4px 0 #000;
+        .hud-topbar > * {
             pointer-events: auto;
         }
 
-        .hotbar-slot {
-            width: 60px;
-            height: 60px;
-            background: rgba(30, 41, 59, 0.7);
-            border: 2px solid #334155;
-            border-radius: 12px;
+        .baja-hud-pill {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            position: relative;
-            cursor: pointer;
-            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            gap: 12px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            padding: 8px 18px;
+            border-radius: 9999px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .hotbar-slot:hover {
-            background: rgba(51, 65, 85, 0.9);
+        .logo-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #ffffff;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        .logo-btn img {
+            width: 26px;
+            height: 26px;
+            filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.5));
+        }
+
+        .baja-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 9px 18px;
+            border-radius: 12px;
+            font-family: var(--font-display);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            text-decoration: none;
+            border: 1px solid transparent;
+        }
+
+        .baja-btn-primary {
+            background: var(--grad-primary);
+            color: #ffffff;
+            box-shadow: var(--glow-blue);
+        }
+        .baja-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 36px rgba(6, 182, 212, 0.5);
+        }
+
+        .baja-btn-emerald {
+            background: var(--grad-emerald);
+            color: #ffffff;
+            box-shadow: var(--glow-emerald);
+        }
+        .baja-btn-emerald:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 36px rgba(16, 185, 129, 0.5);
+        }
+
+        .baja-btn-glass {
+            background: var(--bg-glass);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--border-glass);
+            color: #e2e8f0;
+        }
+        .baja-btn-glass:hover {
+            background: rgba(30, 41, 59, 0.9);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
             transform: translateY(-2px);
         }
 
-        .hotbar-slot.active {
-            border: 3px solid var(--baja-yellow);
-            background: rgba(250, 204, 21, 0.18);
-            transform: translateY(-6px) scale(1.08);
-            box-shadow: 0 0 14px rgba(250, 204, 21, 0.5);
-        }
-
-        .slot-key {
+        /* Diagnostic Panel */
+        .hud-diag {
             position: absolute;
-            top: 2px;
-            left: 5px;
-            font-size: 10px;
-            font-weight: 800;
-            color: #94a3b8;
-            font-family: monospace;
+            top: 76px;
+            left: 16px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 14px 18px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #cbd5e1;
+            z-index: 20;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+            pointer-events: none;
         }
-
-        .hotbar-slot.active .slot-key {
-            color: var(--baja-yellow);
+        .hud-diag b {
+            color: #38bdf8;
+            font-family: var(--font-display);
         }
-
-        .slot-icon {
-            font-size: 24px;
-            line-height: 1;
-            margin-top: 2px;
-        }
-
-        .slot-name {
-            font-size: 9px;
+        .hud-diag .highlight {
+            color: #4ade80;
             font-weight: 700;
-            color: #e2e8f0;
-            margin-top: 2px;
-            text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 52px;
         }
 
         /* Side Settings Drawer */
         .hud-drawer {
             position: absolute;
-            top: 72px;
-            right: 14px;
-            background: var(--baja-card);
-            border: 2px solid var(--baja-border);
-            border-radius: 16px;
-            padding: 14px 18px;
+            top: 76px;
+            right: 16px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            border-radius: 18px;
+            padding: 16px 20px;
             width: 260px;
-            z-index: 10;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(12px);
-        }
-
-        .drawer-title {
-            font-size: 13px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            margin-bottom: 12px;
-            color: #f8fafc;
             display: flex;
-            align-items: center;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 20;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+        }
+        .drawer-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 13px;
+            color: #38bdf8;
+            letter-spacing: 0.5px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--border-glass);
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
             gap: 6px;
         }
-
-        .control-group {
-            margin-bottom: 12px;
-        }
-
         .control-group label {
             display: flex;
             justify-content: space-between;
             font-size: 11px;
             font-weight: 600;
-            color: var(--baja-subtext);
-            margin-bottom: 4px;
+            color: #94a3b8;
         }
-
         .control-group input[type="range"] {
+            -webkit-appearance: none;
             width: 100%;
-            accent-color: var(--baja-primary);
-            height: 5px;
-            border-radius: 4px;
-            background: #1e293b;
+            height: 6px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
         }
-
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #38bdf8;
+            cursor: pointer;
+            box-shadow: 0 0 10px #38bdf8;
+        }
         .btn-action {
-            width: 100%;
-            background: #1e293b;
-            border: 1px solid #334155;
-            color: #f8fafc;
-            padding: 7px 10px;
-            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            color: #e2e8f0;
+            padding: 8px 12px;
+            border-radius: 10px;
             font-size: 11px;
             font-weight: 700;
             cursor: pointer;
-            margin-top: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
             transition: all 0.2s;
+            font-family: var(--font-display);
         }
-
         .btn-action:hover {
-            background: #334155;
-            border-color: #475569;
+            background: rgba(56, 189, 248, 0.15);
+            border-color: rgba(56, 189, 248, 0.4);
+            color: #ffffff;
         }
 
-        /* Encyclopedia Modal */
-        .entity-biome-badge {
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 9999px;
-            margin-bottom: 6px;
-            display: inline-block;
-            letter-spacing: 0.5px;
-        }
-        #encyclopediaModal {
+        /* Hotbar Bottom */
+        .hud-hotbar-container {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(10px);
-            z-index: 100;
-            display: none;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-box {
-            background: #0f172a;
-            border: 3px solid #000;
-            box-shadow: 8px 8px 0 #000;
-            border-radius: 20px;
-            width: 90vw;
-            max-width: 980px;
-            height: 82vh;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
             flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            z-index: 20;
+            pointer-events: none;
+        }
+        .hotbar-tip {
+            font-size: 11px;
+            color: #94a3b8;
+            background: rgba(11, 15, 25, 0.7);
+            padding: 3px 12px;
+            border-radius: 9999px;
+            border: 1px solid var(--border-glass);
+            backdrop-filter: blur(10px);
+        }
+        .hud-hotbar {
+            display: flex;
+            gap: 6px;
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 8px 12px;
+            border-radius: 18px;
+            border: 1px solid var(--border-glass);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+            pointer-events: auto;
+        }
+        .hotbar-slot {
+            width: 58px;
+            height: 64px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        .hotbar-slot:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+        }
+        .hotbar-slot.active {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: #38bdf8;
+            box-shadow: 0 0 18px rgba(56, 189, 248, 0.4);
+            transform: translateY(-4px);
+        }
+        .slot-key {
+            position: absolute;
+            top: 4px;
+            left: 6px;
+            font-size: 10px;
+            font-weight: 800;
+            color: #64748b;
+            font-family: var(--font-display);
+        }
+        .hotbar-slot.active .slot-key {
+            color: #38bdf8;
+        }
+        .slot-badge {
+            font-size: 11px;
+            font-weight: 800;
+            color: #f1f5f9;
+            font-family: var(--font-display);
+        }
+        .slot-name {
+            font-size: 9px;
+            font-weight: 600;
+            color: #94a3b8;
+            max-width: 52px;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #lock-prompt {
+            position: absolute;
+            bottom: 110px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-glass);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glass);
+            color: #ffffff;
+            font-family: var(--font-display);
+            font-size: 13px;
+            font-weight: 700;
+            padding: 10px 24px;
+            border-radius: 9999px;
+            z-index: 25;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: all 0.2s;
+        }
+        #lock-prompt:hover {
+            border-color: #38bdf8;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+        }
+
+        /* BAJA WEB Hero Screen (Main Menu) */
+        .baja-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(7, 9, 14, 0.75);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .baja-hero-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 28px;
+            padding: 44px 50px;
+            max-width: 540px;
+            width: 90%;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 24px;
+            position: relative;
             overflow: hidden;
         }
 
-        .modal-header {
-            padding: 16px 24px;
-            background: #1e293b;
-            border-bottom: 2px solid #334155;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-header h2 {
-            font-family: 'Bangers', cursive;
-            font-size: 26px;
-            letter-spacing: 1px;
-            color: #f8fafc;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .modal-close {
-            background: #ef4444;
-            border: 2px solid #000;
-            color: #fff;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-weight: 800;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 2px 2px 0 #000;
-        }
-
-        .modal-tabs {
-            display: flex;
-            gap: 8px;
-            padding: 12px 24px;
-            background: #090e17;
-            border-bottom: 1px solid #1e293b;
-            overflow-x: auto;
-        }
-
-        .tab-btn {
-            background: #1e293b;
-            border: 1px solid #334155;
-            color: #94a3b8;
-            padding: 6px 14px;
-            border-radius: 9999px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s;
-        }
-
-        .tab-btn.active {
-            background: var(--baja-primary);
-            color: #fff;
-            border-color: #38bdf8;
-        }
-
-        .modal-content {
-            flex: 1;
-            padding: 20px 24px;
-            overflow-y: auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 14px;
-        }
-
-        .entity-card {
-            background: #1e293b;
-            border: 2px solid #334155;
-            border-radius: 12px;
-            padding: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .entity-card:hover {
-            border-color: var(--baja-yellow);
-            transform: translateY(-3px);
-            background: #273549;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
-        }
-
-        .entity-icon {
-            font-size: 36px;
-            margin-bottom: 6px;
-        }
-
-        .entity-name {
-            font-size: 13px;
-            font-weight: 800;
-            color: #f8fafc;
-            margin-bottom: 2px;
-        }
-
-        .entity-type {
-            font-size: 10px;
-            color: #94a3b8;
-            margin-bottom: 6px;
-        }
-
-        .entity-drop {
-            font-size: 10px;
-            background: rgba(2, 132, 199, 0.2);
-            color: #38bdf8;
-            border-radius: 6px;
-            padding: 2px 6px;
-            font-weight: 600;
-        }
-
-        /* First Person Prompt */
-        #lock-prompt {
+        .baja-hero-card::before {
+            content: '';
             position: absolute;
-            bottom: 106px;
+            top: -120px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(15, 23, 42, 0.9);
-            border: 2px solid var(--baja-border);
-            padding: 7px 16px;
+            width: 320px;
+            height: 220px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, rgba(99, 102, 241, 0.05) 60%, transparent 80%);
+            filter: blur(40px);
+            pointer-events: none;
+        }
+
+        .baja-brand-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 16px;
             border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            font-family: var(--font-display);
             font-size: 12px;
             font-weight: 700;
-            color: #f8fafc;
-            cursor: pointer;
-            z-index: 12;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-            transition: all 0.2s;
+            color: #38bdf8;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
-        #lock-prompt:hover {
-            border-color: var(--baja-primary);
-            background: rgba(2, 132, 199, 0.25);
-        }
-    
-        /* MINECRAFT-STYLE MAIN MENU & WORLD SELECTION */
-        .mc-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: radial-gradient(circle at center, rgba(15, 23, 42, 0.82) 0%, rgba(2, 6, 23, 0.96) 100%);
-            backdrop-filter: blur(14px);
-            z-index: 150;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            user-select: none;
-            transition: opacity 0.25s ease;
+        .baja-brand-badge img {
+            width: 18px;
+            height: 18px;
         }
 
-        .mc-title-wrapper {
-            position: relative;
-            text-align: center;
-            margin-bottom: 24px;
-        }
-
-        .mc-main-logo {
-            font-size: 52px;
+        .baja-hero-title {
+            font-family: var(--font-display);
+            font-size: 40px;
             font-weight: 900;
-            letter-spacing: 4px;
-            font-family: 'Space Grotesk', system-ui, sans-serif;
-            background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 55%, #64748b 100%);
+            line-height: 1.1;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #38bdf8 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            filter: drop-shadow(4px 4px 0 #000);
-            line-height: 1.1;
         }
 
-        .mc-subtitle {
+        .baja-hero-subtitle {
             font-size: 14px;
-            font-weight: 800;
-            letter-spacing: 3px;
-            color: #38bdf8;
-            text-transform: uppercase;
-            margin-top: 4px;
-            text-shadow: 2px 2px 0 #000;
+            color: #94a3b8;
+            line-height: 1.6;
+            max-width: 420px;
         }
 
-        .mc-splash {
-            position: absolute;
-            right: -20px;
-            bottom: -14px;
-            font-size: 16px;
-            font-weight: 900;
-            color: #facc15;
-            text-shadow: 2px 2px 0 #000;
-            transform: rotate(-12deg);
-            animation: mcSplashPulse 1.2s infinite alternate ease-in-out;
-            pointer-events: none;
-            white-space: nowrap;
-        }
-
-        @keyframes mcSplashPulse {
-            0% { transform: rotate(-12deg) scale(0.96); }
-            100% { transform: rotate(-12deg) scale(1.08); }
-        }
-
-        .mc-menu-panel {
+        .baja-hero-actions {
             display: flex;
             flex-direction: column;
             gap: 12px;
-            width: 380px;
-            max-width: 90vw;
+            width: 100%;
         }
 
-        .mc-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
+        .baja-hero-actions .baja-btn {
+            width: 100%;
             padding: 13px 20px;
-            font-family: 'Space Grotesk', system-ui, sans-serif;
-            font-size: 15px;
-            font-weight: 700;
-            color: #f8fafc;
-            background: #1e293b;
-            border: 3px solid #000;
-            box-shadow: 4px 4px 0 #000;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            text-decoration: none;
+            font-size: 14px;
+            border-radius: 14px;
         }
 
-        .mc-btn:hover {
-            transform: translate(-2px, -2px);
-            box-shadow: 6px 6px 0 #000;
-            background: #334155;
-            border-color: #38bdf8;
-        }
-
-        .mc-btn:active {
-            transform: translate(2px, 2px);
-            box-shadow: 2px 2px 0 #000;
-        }
-
-        .mc-btn-primary {
-            background: linear-gradient(135deg, #10b981, #059669);
-            border-color: #000;
-            color: #ffffff;
-        }
-
-        .mc-btn-primary:hover {
-            background: linear-gradient(135deg, #34d399, #10b981);
-            border-color: #6ee7b7;
-        }
-
-        .mc-btn-secondary {
-            background: #0f172a;
-            color: #94a3b8;
-        }
-
-        .mc-btn-danger {
-            background: #ef4444;
-            color: #ffffff;
-        }
-
-        .mc-modal-box {
-            background: #0f172a;
-            border: 3px solid #000;
-            box-shadow: 8px 8px 0 #000;
-            border-radius: 18px;
-            width: 92vw;
-            max-width: 820px;
+        /* BAJA WEB Modals */
+        .baja-modal-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 28px 32px;
+            max-width: 680px;
+            width: 90%;
             max-height: 85vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
+            gap: 20px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85);
             position: relative;
         }
 
-        .mc-modal-header {
+        .baja-modal-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 16px 24px;
-            background: #1e293b;
-            border-bottom: 3px solid #000;
-        }
-
-        .mc-modal-header h2 {
-            font-size: 18px;
-            font-weight: 800;
-            color: #f8fafc;
-            margin: 0;
-        }
-
-        .mc-modal-body {
-            padding: 22px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .mc-modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            padding: 14px 24px;
-            background: #1e293b;
-            border-top: 3px solid #000;
-        }
-
-        .mc-world-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: 14px;
-        }
-
-        .mc-world-card {
-            background: #1e293b;
-            border: 3px solid #000;
-            box-shadow: 4px 4px 0 #000;
-            border-radius: 12px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-
-        .mc-world-card:hover {
-            border-color: #22c55e;
-            transform: translate(-2px, -2px);
-            box-shadow: 6px 6px 0 #000;
-        }
-
-        .mc-world-card.active {
-            border-color: #38bdf8;
-            background: #1e3a5f;
-        }
-
-        .mc-card-top {
-            display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-glass);
         }
 
-        .mc-card-title {
-            font-size: 16px;
+        .baja-modal-header h2 {
+            font-family: var(--font-display);
+            font-size: 20px;
             font-weight: 800;
-            color: #f8fafc;
+            color: #ffffff;
+            letter-spacing: -0.5px;
         }
 
-        .mc-card-badge {
-            font-size: 11px;
-            font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 6px;
-            border: 1px solid rgba(255,255,255,0.15);
-        }
-
-        .mc-card-desc {
-            font-size: 13px;
+        .baja-close-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
             color: #94a3b8;
-            line-height: 1.4;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .baja-close-btn:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.5);
+            color: #f87171;
         }
 
-        .mc-card-meta {
-            font-size: 11px;
-            color: #64748b;
+        .baja-world-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+            overflow-y: auto;
+            max-height: 50vh;
+            padding-right: 6px;
         }
 
-        .mc-card-actions {
+        .baja-world-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+        .baja-world-grid::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 9999px;
+        }
+
+        .baja-world-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .baja-world-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--grad-primary);
+        }
+
+        .baja-world-card:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(56, 189, 248, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .world-meta h3 {
+            font-family: var(--font-display);
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .world-meta p {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+
+        .world-tags {
             display: flex;
             gap: 8px;
-            margin-top: auto;
+            flex-wrap: wrap;
         }
 
-        .mc-form-group {
+        .world-tag {
+            font-size: 10px;
+            font-weight: 700;
+            font-family: var(--font-display);
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            color: #cbd5e1;
+            border: 1px solid var(--border-glass);
+            text-transform: uppercase;
+        }
+
+        .world-tag.tag-survival {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .world-tag.tag-creative {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .baja-form-group {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
+            margin-bottom: 16px;
         }
 
-        .mc-form-group label {
+        .baja-form-group label {
+            font-family: var(--font-display);
             font-size: 13px;
             font-weight: 700;
             color: #cbd5e1;
         }
 
-        .mc-input, .mc-select {
+        .baja-input, .baja-select {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
             padding: 12px 16px;
-            background: #1e293b;
-            border: 2px solid #334155;
-            border-radius: 8px;
-            color: #f8fafc;
-            font-family: inherit;
-            font-size: 14px;
+            color: #ffffff;
+            font-family: var(--font-sans);
+            font-size: 13px;
             outline: none;
-            transition: border-color 0.15s;
+            transition: all 0.2s;
         }
 
-        .mc-input:focus, .mc-select:focus {
+        .baja-input:focus, .baja-select:focus {
             border-color: #38bdf8;
+            background: rgba(255, 255, 255, 0.07);
             box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+        }
+
+        .baja-select option {
+            background: #0f172a;
+            color: #ffffff;
+        }
+
+        .baja-modal-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-glass);
+        }
+
+        /* Encyclopedia Modal Styling */
+        #encyclopediaModal {
+            position: fixed;
+            inset: 0;
+            background: rgba(7, 9, 14, 0.85);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+        }
+
+        .modal-box {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 28px 32px;
+            max-width: 900px;
+            width: 92%;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .modal-header h2 {
+            font-family: var(--font-display);
+            font-size: 18px;
+            font-weight: 800;
+            color: #ffffff;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            color: #94a3b8;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-family: var(--font-display);
+            font-weight: 800;
+        }
+
+        .modal-tabs {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+        }
+        .modal-tabs::-webkit-scrollbar {
+            height: 4px;
+        }
+        .modal-tabs::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 9999px;
+        }
+
+        .tab-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            color: #94a3b8;
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            font-family: var(--font-display);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover {
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        .tab-btn.active {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: #38bdf8;
+            color: #38bdf8;
+        }
+
+        .modal-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            overflow-y: auto;
+            max-height: 56vh;
+            padding-right: 6px;
+        }
+        .modal-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .modal-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 9999px;
+        }
+
+        .encyclopedia-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .encyclopedia-card h4 {
+            font-family: var(--font-display);
+            font-size: 13px;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+        .encyclopedia-card p {
+            font-size: 11px;
+            color: #94a3b8;
+            line-height: 1.4;
         }
 </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -801,31 +819,31 @@
     <div id="viewport-container"></div>
     <div id="crosshair"></div>
 
-    <!-- Top Bar -->
+    <!-- Top Bar BAJA WEB HUD -->
     <div class="hud-topbar">
-        <button class="btn-encyclopedia" onclick="openPauseMenu()" style="background: rgba(30, 41, 59, 0.85); border-color: rgba(148, 163, 184, 0.4);">
-            <span>☰</span>
+        <button class="baja-btn baja-btn-glass" onclick="openPauseMenu()">
+            <span>[Menu]</span>
             <span>Menu & Pilihan Dunia</span>
         </button>
 
-        <div class="hud-pill">
+        <div class="baja-hud-pill">
             <a href="index.html" class="logo-btn">
                 <img src="/src/assets/img/Logo.svg" alt="BAJA">
-                <span>BAJA 3D</span>
+                <span>BAJA 3D WORLD</span>
             </a>
-            <span style="color: var(--baja-border)">|</span>
-            <span style="font-size: 12px; color: #94a3b8; font-weight: 600;">Infinite Voxel & 100+ Organik</span>
+            <span style="color: rgba(255, 255, 255, 0.15)">|</span>
+            <span style="font-size: 12px; color: #94a3b8; font-weight: 600;">Dunia Tak Terbatas</span>
         </div>
 
-        <button class="btn-encyclopedia" onclick="toggleEncyclopedia()">
-            <span>📖</span>
-            <span>Ensiklopedia 100+ Spesies</span>
+        <button class="baja-btn baja-btn-glass" onclick="toggleEncyclopedia()">
+            <span>[Ensiklopedia]</span>
+            <span>110+ Spesies Flora & Fauna</span>
         </button>
 
-        <div class="hud-pill" style="gap: 8px; border-color: #22c55e;">
-            <span style="display:inline-block; width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 8px #22c55e;"></span>
-            <span style="font-size: 12px; font-weight: 700; color: #f8fafc; letter-spacing: 0.5px;">CHUNK STREAMING AKTIF</span>
-            <span style="color: var(--baja-border)">|</span>
+        <div class="baja-hud-pill" style="gap: 8px; border-color: rgba(16, 185, 129, 0.4);">
+            <span style="display:inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
+            <span style="font-size: 11px; font-weight: 800; color: #f8fafc; letter-spacing: 0.5px;">STREAMING AKTIF</span>
+            <span style="color: rgba(255, 255, 255, 0.15)">|</span>
             <span id="fps-counter" style="font-family: monospace; font-size: 12px; font-weight: 700; color: #10b981;">60 FPS</span>
         </div>
     </div>
@@ -833,86 +851,82 @@
     <!-- Diagnostic HUD -->
     <div class="hud-diag" id="hudDiag">
         <div><b>POSISI:</b> X: <span id="pos-x">0.0</span>, Y: <span id="pos-y">0.0</span>, Z: <span id="pos-z">0.0</span></div>
-        <div><b>CHUNK:</b> [<span id="chunk-x">0</span>, <span id="chunk-z">0</span>] | <span class="biome" id="biome-name">Plains Padang Rumput</span></div>
+        <div><b>CHUNK:</b> [<span id="chunk-x">0</span>, <span id="chunk-z">0</span>] | <span class="highlight" id="biome-name">Plains Padang Rumput</span></div>
         <div><b>TOTAL CHUNKS:</b> <span id="active-chunks">9</span> aktif (<span id="total-blocks">0</span> balok)</div>
-        <div><b>TOTAL HEWAN & FLORA:</b> <span id="total-entities">0</span> entitas hidup</div>
-        <div><b>ITEM DIPILIH:</b> <span class="highlight" id="item-name">[1] Blok Rumput</span></div>
-        <div style="margin-top: 4px; color: #cbd5e1; font-size: 10px;">
-            WASD: Jalan • Shift: Lari • Space: Lompat • F: Noclip<br>
-            Klik Kiri: Tebang / Hancurkan • Klik Kanan: Pasang
+        <div><b>TOTAL ENTITAS:</b> <span id="total-entities">0</span> entitas hidup</div>
+        <div><b>ITEM AKTIF:</b> <span class="highlight" id="item-name">[1] Blok Rumput</span></div>
+        <div style="margin-top: 4px; color: #94a3b8; font-size: 10px;">
+            WASD: Gerak | Shift: Lari | Spasi: Lompat | F: Terbang | ESC: Menu
         </div>
     </div>
 
     <!-- Side Settings Drawer -->
     <div class="hud-drawer">
-        <div class="drawer-title">
-            <span>🎮</span>
-            <span>Atmosfer & Dunia</span>
-        </div>
+        <div class="drawer-title">Pengaturan Atmosfer</div>
         <div class="control-group">
-            <label><span>Waktu Matahari (Jam)</span><span id="time-val">14:00</span></label>
+            <label><span>Waktu Matahari</span><span id="time-val">14:00</span></label>
             <input type="range" id="slider-time" min="0" max="24" step="0.25" value="14">
         </div>
         <div class="control-group">
-            <label><span>Kecepatan Awan Kubus</span><span id="cloud-val">1.0x</span></label>
+            <label><span>Kecepatan Awan</span><span id="cloud-val">1.0x</span></label>
             <input type="range" id="slider-cloud" min="0.2" max="3.0" step="0.1" value="1.0">
         </div>
         <div class="control-group">
-            <label><span>Kabut Cakrawala (Fog)</span><span id="fog-val">Minecraft</span></label>
+            <label><span>Kabut Cakrawala</span><span id="fog-val">Sedang</span></label>
             <input type="range" id="slider-fog" min="0.002" max="0.025" step="0.002" value="0.008">
         </div>
-        <button class="btn-action" onclick="toggleFlight()">🦅 Toggle Mode Terbang (Noclip)</button>
-        <button class="btn-action" onclick="teleportSpawn()">📍 Reset ke Spawn Awal</button>
-        <button class="btn-action" onclick="spawnRandomHerd()">🐑 Spawn Kawanan Hewan Acak</button>
+        <button class="btn-action" onclick="toggleFlight()">Toggle Terbang (Noclip)</button>
+        <button class="btn-action" onclick="teleportSpawn()">Reset ke Spawn Awal</button>
+        <button class="btn-action" onclick="spawnRandomHerd()">Spawn Kawanan Hewan</button>
     </div>
 
     <!-- Hotbar Bottom -->
     <div class="hud-hotbar-container">
-        <div class="hotbar-tip">Pilih [1-9] atau Scroll • Klik Kanan Pasang/Tanam • Klik Kiri Tebang</div>
+        <div class="hotbar-tip">Pilih Angka [1-9] atau Scroll • Klik Kiri Tebang • Klik Kanan Pasang</div>
         <div class="hud-hotbar" id="hudHotbar">
             <div class="hotbar-slot active" data-slot="1" data-type="grass" title="[1] Blok Rumput">
                 <span class="slot-key">1</span>
-                <div class="slot-icon">🟩</div>
+                <span class="slot-badge">RUMPUT</span>
                 <span class="slot-name">Rumput</span>
             </div>
             <div class="hotbar-slot" data-slot="2" data-type="dirt" title="[2] Blok Tanah">
                 <span class="slot-key">2</span>
-                <div class="slot-icon">🟫</div>
+                <span class="slot-badge">TANAH</span>
                 <span class="slot-name">Tanah</span>
             </div>
             <div class="hotbar-slot" data-slot="3" data-type="stone" title="[3] Blok Batu">
                 <span class="slot-key">3</span>
-                <div class="slot-icon">🪨</div>
+                <span class="slot-badge">BATU</span>
                 <span class="slot-name">Batu</span>
             </div>
             <div class="hotbar-slot" data-slot="4" data-type="wood" title="[4] Kayu Oak">
                 <span class="slot-key">4</span>
-                <div class="slot-icon">🪵</div>
+                <span class="slot-badge">KAYU</span>
                 <span class="slot-name">Kayu Oak</span>
             </div>
             <div class="hotbar-slot" data-slot="5" data-type="tree_apple" title="[5] Pohon Apel">
                 <span class="slot-key">5</span>
-                <div class="slot-icon">🍎</div>
-                <span class="slot-name">Pohon Apel</span>
+                <span class="slot-badge">APEL</span>
+                <span class="slot-name">Apel</span>
             </div>
             <div class="hotbar-slot" data-slot="6" data-type="tree_cherry" title="[6] Pohon Sakura">
                 <span class="slot-key">6</span>
-                <div class="slot-icon">🌸</div>
+                <span class="slot-badge">SAKURA</span>
                 <span class="slot-name">Sakura</span>
             </div>
             <div class="hotbar-slot" data-slot="7" data-type="tree_birch" title="[7] Pohon Birch">
                 <span class="slot-key">7</span>
-                <div class="slot-icon">🌲</div>
+                <span class="slot-badge">BIRCH</span>
                 <span class="slot-name">Birch</span>
             </div>
-            <div class="hotbar-slot" data-slot="8" data-type="cow" title="[8] Sapi Perah 3D">
+            <div class="hotbar-slot" data-slot="8" data-type="cow" title="[8] Sapi">
                 <span class="slot-key">8</span>
-                <div class="slot-icon">🐄</div>
+                <span class="slot-badge">SAPI</span>
                 <span class="slot-name">Sapi</span>
             </div>
-            <div class="hotbar-slot" data-slot="9" data-type="pickaxe" title="[9] Beliung / Tebang">
+            <div class="hotbar-slot" data-slot="9" data-type="pickaxe" title="[9] Kapak Beliung">
                 <span class="slot-key">9</span>
-                <div class="slot-icon">🪓</div>
+                <span class="slot-badge">KAPAK</span>
                 <span class="slot-name">Tebang</span>
             </div>
         </div>
@@ -920,150 +934,133 @@
 
     <!-- First Person Lock Prompt -->
     <div id="lock-prompt" onclick="requestControlLock()">
-        <span>🎯</span>
-        <span>Klik Layar untuk Kontrol Kamera Bebas (Mouse Look 360°)</span>
+        <span>Klik Layar untuk Kontrol Kamera Bebas (Mouse Look 360)</span>
     </div>
 
     <!-- Encyclopedia 100+ Modal -->
     <div id="encyclopediaModal">
         <div class="modal-box">
             <div class="modal-header">
-                <h2><span>🌿</span> Ensiklopedia 110+ Spesies Flora & Fauna</h2>
-                <button class="modal-close" onclick="toggleEncyclopedia()">✕</button>
+                <h2>Ensiklopedia 110+ Spesies Flora & Fauna</h2>
+                <button class="modal-close" onclick="toggleEncyclopedia()">X</button>
             </div>
             <div class="modal-tabs">
-                <button class="tab-btn active" onclick="filterEncyclopedia('all')">🌟 Semua Spesies (110)</button>
-                <button class="tab-btn" onclick="filterEncyclopedia('biome:plains')">🌾 Plains (25)</button>
-                <button class="tab-btn" onclick="filterEncyclopedia('biome:taiga')">🌲 Taiga Pinus (18)</button>
-                <button class="tab-btn" onclick="filterEncyclopedia('biome:jungle')">🌴 Jungle Tropis (18)</button>
-                <button class="tab-btn" onclick="filterEncyclopedia('biome:dark_forest')">🍂 Dark Forest (15)</button>
-                <button class="tab-btn" onclick="filterEncyclopedia('biome:sakura')">🌸 Sakura Grove (12)</button>
-                <button class="tab-btn" onclick="filterEncyclopedia('biome:savanna')">🏜️ Savanna (11)</button>
-                <button class="tab-btn" onclick="filterEncyclopedia('biome:orchard')">🍎 Kebun Buah (11)</button>
-                <button class="tab-btn" onclick="filterEncyclopedia('cat:tree')">🌳 Pohon (25)</button>
-                <button class="tab-btn" onclick="filterEncyclopedia('cat:flower')">🌸 Bunga (25)</button>
-                <button class="tab-btn" onclick="filterEncyclopedia('cat:farm')">🐄 Hewan (28)</button>
+                <button class="tab-btn active" onclick="filterEncyclopedia('all')">Semua Spesies (110)</button>
+                <button class="tab-btn" onclick="filterEncyclopedia('biome:plains')">Plains (25)</button>
+                <button class="tab-btn" onclick="filterEncyclopedia('biome:taiga')">Taiga Pinus (18)</button>
+                <button class="tab-btn" onclick="filterEncyclopedia('biome:jungle')">Jungle Tropis (18)</button>
+                <button class="tab-btn" onclick="filterEncyclopedia('biome:dark_forest')">Dark Forest (15)</button>
+                <button class="tab-btn" onclick="filterEncyclopedia('biome:sakura')">Sakura Grove (12)</button>
+                <button class="tab-btn" onclick="filterEncyclopedia('biome:savanna')">Savanna (11)</button>
+                <button class="tab-btn" onclick="filterEncyclopedia('biome:orchard')">Kebun Buah (11)</button>
+                <button class="tab-btn" onclick="filterEncyclopedia('cat:tree')">Pohon (25)</button>
+                <button class="tab-btn" onclick="filterEncyclopedia('cat:flower')">Bunga (25)</button>
+                <button class="tab-btn" onclick="filterEncyclopedia('cat:farm')">Hewan (28)</button>
             </div>
             <div class="modal-content" id="encyclopediaGrid"></div>
         </div>
     </div>
 
-    
-    <!-- MINECRAFT MAIN MENU SCREEN -->
-    <div id="mainMenuScreen" class="mc-overlay">
-        <div class="mc-title-wrapper">
-            <div class="mc-main-logo">BAJACRAFT 3D</div>
-            <div class="mc-subtitle">INFINITE VOXEL WORLD & BIOMES</div>
-            <div class="mc-splash" id="mcSplashText">Sistem 7 Biome Aktif!</div>
-        </div>
-        <div class="mc-menu-panel">
-            <button class="mc-btn mc-btn-primary" onclick="openWorldSelectModal()">
-                <span>▶</span> Mainkan Dunia (Play World)
-            </button>
-            <button class="mc-btn" onclick="openCreateWorldModal()">
-                <span>➕</span> Buat Dunia Baru (Create World)
-            </button>
-            <button class="mc-btn" onclick="toggleEncyclopedia()">
-                <span>📖</span> Ensiklopedia Biome (110 Spesies)
-            </button>
-            <button class="mc-btn mc-btn-secondary" onclick="playActiveWorld()">
-                <span>🎮</span> Masuk Langsung ke Dunia
-            </button>
-            <a href="/public/index.html" class="mc-btn mc-btn-secondary">
-                <span>🏠</span> Kembali ke Portal BAJA WEB
-            </a>
-        </div>
-    </div>
-
-    <!-- WORLD SELECTION MODAL -->
-    <div id="worldSelectModal" class="mc-overlay" style="display:none;">
-        <div class="mc-modal-box">
-            <div class="mc-modal-header">
-                <h2>Pilih Dunia untuk Dimainkan</h2>
-                <button class="close-btn" onclick="closeWorldSelectModal()">✕</button>
+    <!-- BAJA WEB HERO SCREEN (MAIN MENU) -->
+    <div id="mainMenuScreen" class="baja-overlay">
+        <div class="baja-hero-card">
+            <div class="baja-brand-badge">
+                <img src="/src/assets/img/Logo.svg" alt="BAJA">
+                <span>BAJA WEB ECOSYSTEM</span>
             </div>
-            <div class="mc-modal-body">
-                <div class="mc-world-grid" id="worldListContainer">
-                    <!-- Dynamic World Cards -->
-                </div>
+            <div>
+                <h1 class="baja-hero-title">BAJA 3D WORLD</h1>
+                <p class="baja-hero-subtitle">Jelajahi dunia voxel tak terbatas dengan integrasi seluruh bioma, pepohonan organik dinamis, dan ekosistem satwa 3D.</p>
             </div>
-            <div class="mc-modal-footer">
-                <button class="mc-btn mc-btn-primary" onclick="openCreateWorldModal()">➕ Buat Dunia Baru</button>
-                <button class="mc-btn" onclick="closeWorldSelectModal()">Tutup</button>
+            <div class="baja-hero-actions">
+                <button class="baja-btn baja-btn-primary" onclick="openWorldSelectModal()">
+                    Pilih & Mainkan Dunia
+                </button>
+                <button class="baja-btn baja-btn-emerald" onclick="openCreateWorldModal()">
+                    + Buat Dunia Baru
+                </button>
+                <button class="baja-btn baja-btn-glass" onclick="toggleEncyclopedia()">
+                    Ensiklopedia 110+ Spesies
+                </button>
+                <button class="baja-btn baja-btn-glass" onclick="playActiveWorld()">
+                    Masuk Langsung ke Dunia
+                </button>
+                <a href="/public/index.html" class="baja-btn baja-btn-glass" style="color: #94a3b8;">
+                    Kembali ke Portal BAJA WEB
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- CREATE NEW WORLD MODAL -->
-    <div id="createWorldModal" class="mc-overlay" style="display:none;">
-        <div class="mc-modal-box" style="max-width: 580px;">
-            <div class="mc-modal-header">
-                <h2>Buat Dunia Baru (Create New World)</h2>
-                <button class="close-btn" onclick="closeCreateWorldModal()">✕</button>
+    <!-- WORLD SELECTION MODAL (BAJA WEB STYLE) -->
+    <div id="worldSelectModal" class="baja-overlay" style="display:none;">
+        <div class="baja-modal-card">
+            <div class="baja-modal-header">
+                <h2>Pilih Dunia</h2>
+                <button class="baja-close-btn" onclick="closeWorldSelectModal()">X</button>
             </div>
-            <div class="mc-modal-body">
-                <div class="mc-form-group">
-                    <label>Nama Dunia:</label>
-                    <input type="text" id="newWorldName" value="Dunia Petualangan Baru" class="mc-input">
+            <div class="baja-world-grid" id="worldListContainer">
+                <!-- Populated dynamically -->
+            </div>
+            <div class="baja-modal-footer">
+                <button class="baja-btn baja-btn-emerald" onclick="openCreateWorldModal()">+ Buat Dunia Baru</button>
+                <button class="baja-btn baja-btn-glass" onclick="closeWorldSelectModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CREATE NEW WORLD MODAL (BAJA WEB STYLE) -->
+    <div id="createWorldModal" class="baja-overlay" style="display:none;">
+        <div class="baja-modal-card" style="max-width: 520px;">
+            <div class="baja-modal-header">
+                <h2>Buat Dunia Baru</h2>
+                <button class="baja-close-btn" onclick="closeCreateWorldModal()">X</button>
+            </div>
+            <div>
+                <div class="baja-form-group">
+                    <label>Nama Dunia</label>
+                    <input type="text" id="newWorldName" value="Dunia Petualangan Baru" class="baja-input">
                 </div>
-                <div class="mc-form-group">
-                    <label>Pilihan Tipe Dunia / Biome Preset:</label>
-                    <select id="newWorldPreset" class="mc-select">
-                        <option value="all">🌍 Multiverse (Semua 7 Biome Alami Tak Terbatas)</option>
-                        <option value="sakura">🌸 Sakura Blossom Paradise (Lembah Sakura Pink)</option>
-                        <option value="taiga">🌲 Snowy Taiga Alpine (Cemara Dingin Bersalju)</option>
-                        <option value="jungle">🌴 Tropical Jungle Oasis (Hutan Hujan & Kelapa)</option>
-                        <option value="savanna">🏜️ Savanna Safari (Padang Rumput Akasia Kering)</option>
-                        <option value="dark_forest">🍂 Dark Forest & Birch (Hutan Ek Gelap & Birch)</option>
-                        <option value="orchard">🍎 Sunny Fruit Orchards (Lembah Kebun Buah Manis)</option>
-                        <option value="amplified">⛰️ Pegunungan Amplified (Tebing Voxel Ekstrem)</option>
-                        <option value="superflat">🟩 Superflat Creative (Dataran Rumput Datar)</option>
+                <div class="baja-form-group">
+                    <label>Tipe Dunia</label>
+                    <select id="newWorldType" class="baja-select">
+                        <option value="standard">Standar (Seluruh Bioma Tak Terbatas Terintegrasi)</option>
+                        <option value="superflat">Datar (Superflat Tanpa Rintangan)</option>
+                        <option value="amplified">Amplified (Pegunungan Tebing Ekstrem)</option>
                     </select>
                 </div>
-                <div class="mc-form-group">
-                    <label>Mode Game:</label>
-                    <select id="newWorldMode" class="mc-select">
-                        <option value="survival">⚔️ Survival Mode (Gravitasi & Lompat Normal)</option>
-                        <option value="creative">🚀 Creative Mode (Bisa Terbang & Blok Bebas)</option>
-                        <option value="peaceful">🕊️ Peaceful Mode (Santai Menjelajahi Bioma)</option>
+                <div class="baja-form-group">
+                    <label>Mode Permainan</label>
+                    <select id="newWorldMode" class="baja-select">
+                        <option value="survival">Survival (Gravitasi & Bertahan Hidup)</option>
+                        <option value="creative">Creative (Mode Terbang & Blok Bebas)</option>
+                        <option value="peaceful">Peaceful (Eksplorasi Santai)</option>
                     </select>
                 </div>
-                <div class="mc-form-group">
-                    <label>Seed Dunia (Opsional):</label>
-                    <input type="text" id="newWorldSeed" placeholder="Ketik seed atau biarkan acak..." class="mc-input">
+                <div class="baja-form-group">
+                    <label>Seed Dunia (Opsional)</label>
+                    <input type="text" id="newWorldSeed" placeholder="Ketik seed atau biarkan acak..." class="baja-input">
                 </div>
             </div>
-            <div class="mc-modal-footer">
-                <button class="mc-btn mc-btn-primary" onclick="confirmCreateNewWorld()">✨ Buat Dunia Sekarang!</button>
-                <button class="mc-btn" onclick="closeCreateWorldModal()">Batal</button>
+            <div class="baja-modal-footer">
+                <button class="baja-btn baja-btn-primary" onclick="confirmCreateNewWorld()">Buat Dunia</button>
+                <button class="baja-btn baja-btn-glass" onclick="closeCreateWorldModal()">Batal</button>
             </div>
         </div>
     </div>
 
     <!-- IN-GAME PAUSE MENU (ESC) -->
-    <div id="pauseMenuModal" class="mc-overlay" style="display:none;">
-        <div class="mc-modal-box" style="max-width: 420px; align-items: center; text-align: center;">
-            <div class="mc-modal-header" style="width: 100%; justify-content: center;">
+    <div id="pauseMenuModal" class="baja-overlay" style="display:none;">
+        <div class="baja-modal-card" style="max-width: 400px; text-align: center;">
+            <div class="baja-modal-header" style="justify-content: center;">
                 <h2>Permainan Dijeda</h2>
             </div>
-            <div class="mc-modal-body" style="width: 100%; align-items: center;">
-                <div class="mc-menu-panel" style="width: 100%;">
-                    <button class="mc-btn mc-btn-primary" onclick="resumeGame()">
-                        <span>▶</span> Lanjutkan Permainan
-                    </button>
-                    <button class="mc-btn" onclick="openWorldSelectModal()">
-                        <span>🗺️</span> Pilihan Dunia
-                    </button>
-                    <button class="mc-btn" onclick="openCreateWorldModal()">
-                        <span>➕</span> Buat Dunia Baru
-                    </button>
-                    <button class="mc-btn" onclick="toggleEncyclopedia()">
-                        <span>📖</span> Ensiklopedia Biome
-                    </button>
-                    <button class="mc-btn mc-btn-secondary" onclick="exitToMainMenu()">
-                        <span>🚪</span> Simpan & Menu Utama
-                    </button>
-                </div>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+                <button class="baja-btn baja-btn-primary" onclick="resumeGame()">Lanjutkan Permainan</button>
+                <button class="baja-btn baja-btn-glass" onclick="openWorldSelectModal()">Pilihan Dunia</button>
+                <button class="baja-btn baja-btn-glass" onclick="openCreateWorldModal()">Buat Dunia Baru</button>
+                <button class="baja-btn baja-btn-glass" onclick="toggleEncyclopedia()">Ensiklopedia Spesies</button>
+                <button class="baja-btn baja-btn-glass" onclick="exitToMainMenu()" style="color: #f87171;">Simpan & Menu Utama</button>
             </div>
         </div>
     </div>
@@ -1073,14 +1070,14 @@
         // 1. DATABASE 110+ SPESIES FLORA & FAUNA
         // ==========================================
                 // ==========================================
-        // 🌍 7 MASTER BIOME DEFINITIONS
+        //  7 MASTER BIOME DEFINITIONS
         // ==========================================
         const BIOMES_CONFIG = {
             plains: {
                 id: 'plains',
                 name: 'Plains (Padang Rumput)',
-                icon: '🌾',
-                badgeText: '🌾 Plains',
+                icon: '',
+                badgeText: ' Plains',
                 color: '#22c55e',
                 badgeBg: 'rgba(34, 197, 94, 0.15)',
                 badgeBorder: '#22c55e',
@@ -1093,8 +1090,8 @@
             sakura: {
                 id: 'sakura',
                 name: 'Cherry Grove (Hutan Sakura)',
-                icon: '🌸',
-                badgeText: '🌸 Sakura Grove',
+                icon: '',
+                badgeText: ' Sakura Grove',
                 color: '#ec4899',
                 badgeBg: 'rgba(236, 72, 153, 0.15)',
                 badgeBorder: '#ec4899',
@@ -1107,8 +1104,8 @@
             taiga: {
                 id: 'taiga',
                 name: 'Taiga & Snowy Pine (Hutan Pinus)',
-                icon: '🌲',
-                badgeText: '🌲 Taiga Salju',
+                icon: '',
+                badgeText: ' Taiga Salju',
                 color: '#0ea5e9',
                 badgeBg: 'rgba(14, 165, 233, 0.15)',
                 badgeBorder: '#0ea5e9',
@@ -1121,8 +1118,8 @@
             jungle: {
                 id: 'jungle',
                 name: 'Tropical Jungle (Hutan Tropis)',
-                icon: '🌴',
-                badgeText: '🌴 Jungle Tropis',
+                icon: '',
+                badgeText: ' Jungle Tropis',
                 color: '#10b981',
                 badgeBg: 'rgba(16, 185, 129, 0.15)',
                 badgeBorder: '#10b981',
@@ -1135,8 +1132,8 @@
             savanna: {
                 id: 'savanna',
                 name: 'Savanna & Desert (Gurun & Savana)',
-                icon: '🏜️',
-                badgeText: '🏜️ Savana Gurun',
+                icon: '️',
+                badgeText: '️ Savana Gurun',
                 color: '#eab308',
                 badgeBg: 'rgba(234, 179, 8, 0.15)',
                 badgeBorder: '#eab308',
@@ -1149,8 +1146,8 @@
             dark_forest: {
                 id: 'dark_forest',
                 name: 'Dark Oak & Birch (Hutan Gelap)',
-                icon: '🍂',
-                badgeText: '🍂 Dark Forest',
+                icon: '',
+                badgeText: ' Dark Forest',
                 color: '#a16207',
                 badgeBg: 'rgba(161, 98, 7, 0.15)',
                 badgeBorder: '#a16207',
@@ -1163,8 +1160,8 @@
             orchard: {
                 id: 'orchard',
                 name: 'Fruit Orchard (Kebun Buah)',
-                icon: '🍎',
-                badgeText: '🍎 Kebun Buah',
+                icon: '',
+                badgeText: ' Kebun Buah',
                 color: '#ef4444',
                 badgeBg: 'rgba(239, 68, 68, 0.15)',
                 badgeBorder: '#ef4444',
@@ -1178,128 +1175,128 @@
 
 const TAXONOMY_DATABASE = [
             // --- POHON (25 Spesies) ---
-            { id: 'tree_oak', biome: 'plains', name: 'Pohon Ek (Oak)', cat: 'tree', icon: '🌳', drop: 'Log Kayu Ek', trunk: 0x5c2e0b, leaves: [0x15803d, 0x22c55e, 0x84cc16], fruit: null, style: 'canopy' },
-            { id: 'tree_dark_oak', biome: 'dark_forest', name: 'Pohon Ek Gelap', cat: 'tree', icon: '🌲', drop: 'Log Ek Gelap', trunk: 0x3b1d07, leaves: [0x14532d, 0x166534, 0x15803d], fruit: null, style: 'dense' },
-            { id: 'tree_birch', biome: 'dark_forest', name: 'Pohon Birch (Betula)', cat: 'tree', icon: '🪵', drop: 'Log Kayu Birch', trunk: 0xf1f5f9, barkStripes: true, leaves: [0x84cc16, 0xa3e635, 0x4d7c0f], fruit: null, style: 'slender' },
-            { id: 'tree_pine', biome: 'taiga', name: 'Pohon Pinus Taiga', cat: 'tree', icon: '🌲', drop: 'Log Kayu Pinus', trunk: 0x451a03, leaves: [0x064e3b, 0x065f46, 0x047857], fruit: null, style: 'conifer' },
-            { id: 'tree_spruce', biome: 'taiga', name: 'Pohon Cemara Salju', cat: 'tree', icon: '🎄', drop: 'Log Cemara', trunk: 0x38220f, leaves: [0x044e3f, 0x0f766e, 0x134e4a], fruit: null, style: 'conifer_tall' },
-            { id: 'tree_cherry', biome: 'sakura', name: 'Pohon Sakura Merah Muda', cat: 'tree', icon: '🌸', drop: 'Log Kayu Sakura', trunk: 0x4a2810, leaves: [0xf472b6, 0xfb7185, 0xfbcfe8], fruit: null, style: 'cherry' },
-            { id: 'tree_willow', biome: 'plains', name: 'Pohon Dedalu (Willow)', cat: 'tree', icon: '🌿', drop: 'Log Kayu Willow', trunk: 0x3f2e18, leaves: [0x365314, 0x4d7c0f, 0x65a30d], fruit: null, style: 'drooping' },
-            { id: 'tree_acacia', biome: 'savanna', name: 'Pohon Akasia Savana', cat: 'tree', icon: '🌴', drop: 'Log Kayu Akasia', trunk: 0x78350f, leaves: [0x4d7c0f, 0x65a30d, 0xa3e635], fruit: null, style: 'acacia' },
-            { id: 'tree_jungle', biome: 'jungle', name: 'Pohon Hutan Hujan Raksasa', cat: 'tree', icon: '🌴', drop: 'Log Kayu Jungle', trunk: 0x451a03, leaves: [0x15803d, 0x16a34a, 0x22c55e], fruit: null, style: 'giant' },
-            { id: 'tree_baobab', biome: 'savanna', name: 'Pohon Baobab Raksasa', cat: 'tree', icon: '🌳', drop: 'Log Kayu Baobab', trunk: 0x57341b, leaves: [0x3f6212, 0x65a30d, 0x84cc16], fruit: null, style: 'baobab' },
-            { id: 'tree_coconut', biome: 'jungle', name: 'Pohon Kelapa Tropis', cat: 'tree', icon: '🥥', drop: 'Batang Kelapa + Buah Kelapa', trunk: 0x664422, leaves: [0x16a34a, 0x22c55e], fruit: 'coconut', style: 'palm' },
-            { id: 'tree_banana', biome: 'jungle', name: 'Pohon Palem Pisang', cat: 'tree', icon: '🍌', drop: 'Batang Palem + Buah Pisang', trunk: 0x4d7c0f, leaves: [0x65a30d, 0x84cc16], fruit: 'banana', style: 'banana' },
-            { id: 'tree_apple', biome: 'orchard', name: 'Pohon Apel Merah', cat: 'tree', icon: '🍎', drop: 'Log Ek + Apel Merah', trunk: 0x5c2e0b, leaves: [0x15803d, 0x22c55e], fruit: 'apple', style: 'fruit' },
-            { id: 'tree_orange', biome: 'orchard', name: 'Pohon Jeruk Manis', cat: 'tree', icon: '🍊', drop: 'Log Buah + Jeruk Segar', trunk: 0x5c2e0b, leaves: [0x16a34a, 0x22c55e], fruit: 'orange', style: 'fruit' },
-            { id: 'tree_lemon', biome: 'orchard', name: 'Pohon Lemon Kuning', cat: 'tree', icon: '🍋', drop: 'Log Buah + Lemon Asam', trunk: 0x5c2e0b, leaves: [0x15803d, 0x4ade80], fruit: 'lemon', style: 'fruit' },
-            { id: 'tree_peach', biome: 'orchard', name: 'Pohon Persik (Peach)', cat: 'tree', icon: '🍑', drop: 'Log Buah + Buah Persik', trunk: 0x502b13, leaves: [0x22c55e, 0x86efac], fruit: 'peach', style: 'fruit' },
-            { id: 'tree_sweet_cherry', biome: 'sakura', name: 'Pohon Ceri Manis', cat: 'tree', icon: '🍒', drop: 'Log Sakura + Buah Ceri', trunk: 0x4a2810, leaves: [0x15803d, 0x4ade80], fruit: 'cherry', style: 'fruit' },
-            { id: 'tree_redwood', biome: 'taiga', name: 'Pohon Redwood Megah', cat: 'tree', icon: '🌲', drop: 'Log Kayu Redwood', trunk: 0x7c2d12, leaves: [0x14532d, 0x15803d], fruit: null, style: 'redwood' },
-            { id: 'tree_maple', biome: 'dark_forest', name: 'Pohon Maple Musim Gugur', cat: 'tree', icon: '🍁', drop: 'Log Kayu Maple', trunk: 0x5c2e0b, leaves: [0xd97706, 0xb45309, 0xb91c1c], fruit: null, style: 'canopy' },
-            { id: 'tree_jacaranda', biome: 'sakura', name: 'Pohon Jacaranda Ungu', cat: 'tree', icon: '💜', drop: 'Log Kayu Jacaranda', trunk: 0x3b1d07, leaves: [0x9333ea, 0xa855f7, 0xc084fc], fruit: null, style: 'cherry' },
-            { id: 'tree_mangrove', biome: 'jungle', name: 'Pohon Bakau (Mangrove)', cat: 'tree', icon: '🌱', drop: 'Log Kayu Mangrove', trunk: 0x451a03, leaves: [0x166534, 0x15803d], fruit: null, style: 'mangrove' },
-            { id: 'tree_cypress', biome: 'taiga', name: 'Pohon Cypress Pensil', cat: 'tree', icon: '🌲', drop: 'Log Kayu Cypress', trunk: 0x3f2e18, leaves: [0x14532d, 0x166534], fruit: null, style: 'cypress' },
-            { id: 'tree_olive', biome: 'savanna', name: 'Pohon Zaitun Kuno', cat: 'tree', icon: '🫒', drop: 'Log Zaitun + Buah Zaitun', trunk: 0x44403c, leaves: [0x4d7c0f, 0x84cc16], fruit: 'olive', style: 'gnarled' },
-            { id: 'tree_cocoa', biome: 'jungle', name: 'Pohon Kakao / Cokelat', cat: 'tree', icon: '🍫', drop: 'Log Jungle + Biji Kakao', trunk: 0x3b1d07, leaves: [0x15803d, 0x22c55e], fruit: 'cocoa', style: 'fruit' },
-            { id: 'tree_bamboo', biome: 'jungle', name: 'Bambu Raksasa Beruas', cat: 'tree', icon: '🎋', drop: 'Batang Bambu', trunk: 0x65a30d, leaves: [0x84cc16, 0xa3e635], fruit: null, style: 'bamboo' },
+            { id: 'tree_oak', biome: 'plains', name: 'Pohon Ek (Oak)', cat: 'tree', icon: '', drop: 'Log Kayu Ek', trunk: 0x5c2e0b, leaves: [0x15803d, 0x22c55e, 0x84cc16], fruit: null, style: 'canopy' },
+            { id: 'tree_dark_oak', biome: 'dark_forest', name: 'Pohon Ek Gelap', cat: 'tree', icon: '', drop: 'Log Ek Gelap', trunk: 0x3b1d07, leaves: [0x14532d, 0x166534, 0x15803d], fruit: null, style: 'dense' },
+            { id: 'tree_birch', biome: 'dark_forest', name: 'Pohon Birch (Betula)', cat: 'tree', icon: '', drop: 'Log Kayu Birch', trunk: 0xf1f5f9, barkStripes: true, leaves: [0x84cc16, 0xa3e635, 0x4d7c0f], fruit: null, style: 'slender' },
+            { id: 'tree_pine', biome: 'taiga', name: 'Pohon Pinus Taiga', cat: 'tree', icon: '', drop: 'Log Kayu Pinus', trunk: 0x451a03, leaves: [0x064e3b, 0x065f46, 0x047857], fruit: null, style: 'conifer' },
+            { id: 'tree_spruce', biome: 'taiga', name: 'Pohon Cemara Salju', cat: 'tree', icon: '', drop: 'Log Cemara', trunk: 0x38220f, leaves: [0x044e3f, 0x0f766e, 0x134e4a], fruit: null, style: 'conifer_tall' },
+            { id: 'tree_cherry', biome: 'sakura', name: 'Pohon Sakura Merah Muda', cat: 'tree', icon: '', drop: 'Log Kayu Sakura', trunk: 0x4a2810, leaves: [0xf472b6, 0xfb7185, 0xfbcfe8], fruit: null, style: 'cherry' },
+            { id: 'tree_willow', biome: 'plains', name: 'Pohon Dedalu (Willow)', cat: 'tree', icon: '', drop: 'Log Kayu Willow', trunk: 0x3f2e18, leaves: [0x365314, 0x4d7c0f, 0x65a30d], fruit: null, style: 'drooping' },
+            { id: 'tree_acacia', biome: 'savanna', name: 'Pohon Akasia Savana', cat: 'tree', icon: '', drop: 'Log Kayu Akasia', trunk: 0x78350f, leaves: [0x4d7c0f, 0x65a30d, 0xa3e635], fruit: null, style: 'acacia' },
+            { id: 'tree_jungle', biome: 'jungle', name: 'Pohon Hutan Hujan Raksasa', cat: 'tree', icon: '', drop: 'Log Kayu Jungle', trunk: 0x451a03, leaves: [0x15803d, 0x16a34a, 0x22c55e], fruit: null, style: 'giant' },
+            { id: 'tree_baobab', biome: 'savanna', name: 'Pohon Baobab Raksasa', cat: 'tree', icon: '', drop: 'Log Kayu Baobab', trunk: 0x57341b, leaves: [0x3f6212, 0x65a30d, 0x84cc16], fruit: null, style: 'baobab' },
+            { id: 'tree_coconut', biome: 'jungle', name: 'Pohon Kelapa Tropis', cat: 'tree', icon: '', drop: 'Batang Kelapa + Buah Kelapa', trunk: 0x664422, leaves: [0x16a34a, 0x22c55e], fruit: 'coconut', style: 'palm' },
+            { id: 'tree_banana', biome: 'jungle', name: 'Pohon Palem Pisang', cat: 'tree', icon: '', drop: 'Batang Palem + Buah Pisang', trunk: 0x4d7c0f, leaves: [0x65a30d, 0x84cc16], fruit: 'banana', style: 'banana' },
+            { id: 'tree_apple', biome: 'orchard', name: 'Pohon Apel Merah', cat: 'tree', icon: '', drop: 'Log Ek + Apel Merah', trunk: 0x5c2e0b, leaves: [0x15803d, 0x22c55e], fruit: 'apple', style: 'fruit' },
+            { id: 'tree_orange', biome: 'orchard', name: 'Pohon Jeruk Manis', cat: 'tree', icon: '', drop: 'Log Buah + Jeruk Segar', trunk: 0x5c2e0b, leaves: [0x16a34a, 0x22c55e], fruit: 'orange', style: 'fruit' },
+            { id: 'tree_lemon', biome: 'orchard', name: 'Pohon Lemon Kuning', cat: 'tree', icon: '', drop: 'Log Buah + Lemon Asam', trunk: 0x5c2e0b, leaves: [0x15803d, 0x4ade80], fruit: 'lemon', style: 'fruit' },
+            { id: 'tree_peach', biome: 'orchard', name: 'Pohon Persik (Peach)', cat: 'tree', icon: '', drop: 'Log Buah + Buah Persik', trunk: 0x502b13, leaves: [0x22c55e, 0x86efac], fruit: 'peach', style: 'fruit' },
+            { id: 'tree_sweet_cherry', biome: 'sakura', name: 'Pohon Ceri Manis', cat: 'tree', icon: '', drop: 'Log Sakura + Buah Ceri', trunk: 0x4a2810, leaves: [0x15803d, 0x4ade80], fruit: 'cherry', style: 'fruit' },
+            { id: 'tree_redwood', biome: 'taiga', name: 'Pohon Redwood Megah', cat: 'tree', icon: '', drop: 'Log Kayu Redwood', trunk: 0x7c2d12, leaves: [0x14532d, 0x15803d], fruit: null, style: 'redwood' },
+            { id: 'tree_maple', biome: 'dark_forest', name: 'Pohon Maple Musim Gugur', cat: 'tree', icon: '', drop: 'Log Kayu Maple', trunk: 0x5c2e0b, leaves: [0xd97706, 0xb45309, 0xb91c1c], fruit: null, style: 'canopy' },
+            { id: 'tree_jacaranda', biome: 'sakura', name: 'Pohon Jacaranda Ungu', cat: 'tree', icon: '', drop: 'Log Kayu Jacaranda', trunk: 0x3b1d07, leaves: [0x9333ea, 0xa855f7, 0xc084fc], fruit: null, style: 'cherry' },
+            { id: 'tree_mangrove', biome: 'jungle', name: 'Pohon Bakau (Mangrove)', cat: 'tree', icon: '', drop: 'Log Kayu Mangrove', trunk: 0x451a03, leaves: [0x166534, 0x15803d], fruit: null, style: 'mangrove' },
+            { id: 'tree_cypress', biome: 'taiga', name: 'Pohon Cypress Pensil', cat: 'tree', icon: '', drop: 'Log Kayu Cypress', trunk: 0x3f2e18, leaves: [0x14532d, 0x166534], fruit: null, style: 'cypress' },
+            { id: 'tree_olive', biome: 'savanna', name: 'Pohon Zaitun Kuno', cat: 'tree', icon: '', drop: 'Log Zaitun + Buah Zaitun', trunk: 0x44403c, leaves: [0x4d7c0f, 0x84cc16], fruit: 'olive', style: 'gnarled' },
+            { id: 'tree_cocoa', biome: 'jungle', name: 'Pohon Kakao / Cokelat', cat: 'tree', icon: '', drop: 'Log Jungle + Biji Kakao', trunk: 0x3b1d07, leaves: [0x15803d, 0x22c55e], fruit: 'cocoa', style: 'fruit' },
+            { id: 'tree_bamboo', biome: 'jungle', name: 'Bambu Raksasa Beruas', cat: 'tree', icon: '', drop: 'Batang Bambu', trunk: 0x65a30d, leaves: [0x84cc16, 0xa3e635], fruit: null, style: 'bamboo' },
 
             // --- BUNGA & TANAMAN HIAS (25 Spesies) ---
-            { id: 'flower_rose', biome: 'plains', name: 'Mawar Merah Klasik', cat: 'flower', icon: '🌹', drop: 'Kelopak Mawar Merah', color: 0xef4444 },
-            { id: 'flower_dandelion', biome: 'plains', name: 'Bunga Dandelion Kuning', cat: 'flower', icon: '🌼', drop: 'Bunga Dandelion', color: 0xfacc15 },
-            { id: 'flower_poppy', biome: 'plains', name: 'Bunga Poppy Merona', cat: 'flower', icon: '🌺', drop: 'Bunga Poppy', color: 0xdc2626 },
-            { id: 'flower_blue_orchid', biome: 'taiga', name: 'Anggrek Biru Langka', cat: 'flower', icon: '🪻', drop: 'Anggrek Biru', color: 0x38bdf8 },
-            { id: 'flower_allium', biome: 'dark_forest', name: 'Allium Ungu Bulat', cat: 'flower', icon: '🟣', drop: 'Bunga Allium', color: 0xa855f7 },
-            { id: 'flower_tulip_red', biome: 'orchard', name: 'Tulip Merah Segar', cat: 'flower', icon: '🌷', drop: 'Tulip Merah', color: 0xf43f5e },
-            { id: 'flower_tulip_orange', biome: 'orchard', name: 'Tulip Oranye Senja', cat: 'flower', icon: '🌷', drop: 'Tulip Oranye', color: 0xf97316 },
-            { id: 'flower_tulip_white', biome: 'orchard', name: 'Tulip Putih Bersih', cat: 'flower', icon: '🌷', drop: 'Tulip Putih', color: 0xf8fafc },
-            { id: 'flower_tulip_pink', biome: 'sakura', name: 'Tulip Merah Muda', cat: 'flower', icon: '🌷', drop: 'Tulip Pink', color: 0xf472b6 },
-            { id: 'flower_tulip_blue', biome: 'taiga', name: 'Tulip Biru Es', cat: 'flower', icon: '🌷', drop: 'Tulip Biru', color: 0x0ea5e9 },
-            { id: 'flower_sunflower', biome: 'savanna', name: 'Bunga Matahari Megah', cat: 'flower', icon: '🌻', drop: 'Biji Bunga Matahari', color: 0xeab308 },
-            { id: 'flower_lavender', biome: 'dark_forest', name: 'Lavender Ungu Harum', cat: 'flower', icon: '🪻', drop: 'Tangkai Lavender', color: 0x8b5cf6 },
-            { id: 'flower_daisy', biome: 'plains', name: 'Oxeye Daisy Putih', cat: 'flower', icon: '🌼', drop: 'Bunga Daisy', color: 0xffffff },
-            { id: 'flower_cornflower', biome: 'plains', name: 'Cornflower Biru Cerah', cat: 'flower', icon: '🔷', drop: 'Bunga Cornflower', color: 0x2563eb },
-            { id: 'flower_lily_valley', biome: 'taiga', name: 'Lily of the Valley', cat: 'flower', icon: '🔔', drop: 'Lily Putih', color: 0xf1f5f9 },
-            { id: 'flower_marigold', biome: 'savanna', name: 'Marigold Emas', cat: 'flower', icon: '🏵️', drop: 'Bunga Marigold', color: 0xd97706 },
-            { id: 'flower_hibiscus', biome: 'jungle', name: 'Bunga Sepatu Merah', cat: 'flower', icon: '🌺', drop: 'Bunga Sepatu', color: 0xe11d48 },
-            { id: 'flower_lotus', biome: 'sakura', name: 'Teratai Air Mekar', cat: 'flower', icon: '🪷', drop: 'Bunga Teratai', color: 0xf472b6 },
-            { id: 'flower_frangipani', biome: 'jungle', name: 'Kamboja Bali Putih-Kuning', cat: 'flower', icon: '💮', drop: 'Bunga Kamboja', color: 0xfef08a },
-            { id: 'flower_iris', biome: 'dark_forest', name: 'Bunga Iris Biru Tua', cat: 'flower', icon: '🪻', drop: 'Bunga Iris', color: 0x1d4ed8 },
-            { id: 'flower_peony', biome: 'sakura', name: 'Bunga Peony Rimbun', cat: 'flower', icon: '🌸', drop: 'Kelopak Peony', color: 0xfb7185 },
-            { id: 'flower_carnation', biome: 'sakura', name: 'Anyelir Pink', cat: 'flower', icon: '🌸', drop: 'Bunga Anyelir', color: 0xec4899 },
-            { id: 'flower_hydrangea', biome: 'dark_forest', name: 'Hortensia Biru Pastel', cat: 'flower', icon: '🫐', drop: 'Bunga Hortensia', color: 0x60a5fa },
-            { id: 'flower_dahlia', biome: 'sakura', name: 'Bunga Dahlia Magenta', cat: 'flower', icon: '🏵️', drop: 'Bunga Dahlia', color: 0xbe185d },
-            { id: 'flower_jasmine', biome: 'sakura', name: 'Melati Putih Semerbak', cat: 'flower', icon: '⚪', drop: 'Bunga Melati', color: 0xffffff },
+            { id: 'flower_rose', biome: 'plains', name: 'Mawar Merah Klasik', cat: 'flower', icon: '', drop: 'Kelopak Mawar Merah', color: 0xef4444 },
+            { id: 'flower_dandelion', biome: 'plains', name: 'Bunga Dandelion Kuning', cat: 'flower', icon: '', drop: 'Bunga Dandelion', color: 0xfacc15 },
+            { id: 'flower_poppy', biome: 'plains', name: 'Bunga Poppy Merona', cat: 'flower', icon: '', drop: 'Bunga Poppy', color: 0xdc2626 },
+            { id: 'flower_blue_orchid', biome: 'taiga', name: 'Anggrek Biru Langka', cat: 'flower', icon: '', drop: 'Anggrek Biru', color: 0x38bdf8 },
+            { id: 'flower_allium', biome: 'dark_forest', name: 'Allium Ungu Bulat', cat: 'flower', icon: '', drop: 'Bunga Allium', color: 0xa855f7 },
+            { id: 'flower_tulip_red', biome: 'orchard', name: 'Tulip Merah Segar', cat: 'flower', icon: '', drop: 'Tulip Merah', color: 0xf43f5e },
+            { id: 'flower_tulip_orange', biome: 'orchard', name: 'Tulip Oranye Senja', cat: 'flower', icon: '', drop: 'Tulip Oranye', color: 0xf97316 },
+            { id: 'flower_tulip_white', biome: 'orchard', name: 'Tulip Putih Bersih', cat: 'flower', icon: '', drop: 'Tulip Putih', color: 0xf8fafc },
+            { id: 'flower_tulip_pink', biome: 'sakura', name: 'Tulip Merah Muda', cat: 'flower', icon: '', drop: 'Tulip Pink', color: 0xf472b6 },
+            { id: 'flower_tulip_blue', biome: 'taiga', name: 'Tulip Biru Es', cat: 'flower', icon: '', drop: 'Tulip Biru', color: 0x0ea5e9 },
+            { id: 'flower_sunflower', biome: 'savanna', name: 'Bunga Matahari Megah', cat: 'flower', icon: '', drop: 'Biji Bunga Matahari', color: 0xeab308 },
+            { id: 'flower_lavender', biome: 'dark_forest', name: 'Lavender Ungu Harum', cat: 'flower', icon: '', drop: 'Tangkai Lavender', color: 0x8b5cf6 },
+            { id: 'flower_daisy', biome: 'plains', name: 'Oxeye Daisy Putih', cat: 'flower', icon: '', drop: 'Bunga Daisy', color: 0xffffff },
+            { id: 'flower_cornflower', biome: 'plains', name: 'Cornflower Biru Cerah', cat: 'flower', icon: '', drop: 'Bunga Cornflower', color: 0x2563eb },
+            { id: 'flower_lily_valley', biome: 'taiga', name: 'Lily of the Valley', cat: 'flower', icon: '', drop: 'Lily Putih', color: 0xf1f5f9 },
+            { id: 'flower_marigold', biome: 'savanna', name: 'Marigold Emas', cat: 'flower', icon: '️', drop: 'Bunga Marigold', color: 0xd97706 },
+            { id: 'flower_hibiscus', biome: 'jungle', name: 'Bunga Sepatu Merah', cat: 'flower', icon: '', drop: 'Bunga Sepatu', color: 0xe11d48 },
+            { id: 'flower_lotus', biome: 'sakura', name: 'Teratai Air Mekar', cat: 'flower', icon: '', drop: 'Bunga Teratai', color: 0xf472b6 },
+            { id: 'flower_frangipani', biome: 'jungle', name: 'Kamboja Bali Putih-Kuning', cat: 'flower', icon: '', drop: 'Bunga Kamboja', color: 0xfef08a },
+            { id: 'flower_iris', biome: 'dark_forest', name: 'Bunga Iris Biru Tua', cat: 'flower', icon: '', drop: 'Bunga Iris', color: 0x1d4ed8 },
+            { id: 'flower_peony', biome: 'sakura', name: 'Bunga Peony Rimbun', cat: 'flower', icon: '', drop: 'Kelopak Peony', color: 0xfb7185 },
+            { id: 'flower_carnation', biome: 'sakura', name: 'Anyelir Pink', cat: 'flower', icon: '', drop: 'Bunga Anyelir', color: 0xec4899 },
+            { id: 'flower_hydrangea', biome: 'dark_forest', name: 'Hortensia Biru Pastel', cat: 'flower', icon: '', drop: 'Bunga Hortensia', color: 0x60a5fa },
+            { id: 'flower_dahlia', biome: 'sakura', name: 'Bunga Dahlia Magenta', cat: 'flower', icon: '️', drop: 'Bunga Dahlia', color: 0xbe185d },
+            { id: 'flower_jasmine', biome: 'sakura', name: 'Melati Putih Semerbak', cat: 'flower', icon: '', drop: 'Bunga Melati', color: 0xffffff },
 
             // --- SEMAK, PERTANIAN & FUNGI (15 Spesies) ---
-            { id: 'crop_wheat', biome: 'plains', name: 'Gandum Emas Matang', cat: 'crop', icon: '🌾', drop: 'Gandum + Benih', color: 0xeab308 },
-            { id: 'crop_carrot', biome: 'orchard', name: 'Tanaman Wortel Segar', cat: 'crop', icon: '🥕', drop: 'Wortel Manis', color: 0xf97316 },
-            { id: 'crop_potato', biome: 'orchard', name: 'Tanaman Kentang Subur', cat: 'crop', icon: '🥔', drop: 'Umbi Kentang', color: 0xca8a04 },
-            { id: 'crop_beetroot', biome: 'orchard', name: 'Tanaman Bit Merah', cat: 'crop', icon: '🍠', drop: 'Bit Merah', color: 0x881337 },
-            { id: 'crop_berry_bush', biome: 'taiga', name: 'Semak Berry Manis', cat: 'crop', icon: '🫐', drop: 'Buah Manis Berry', color: 0xdc2626 },
-            { id: 'crop_blueberry', biome: 'taiga', name: 'Semak Blueberry Liar', cat: 'crop', icon: '🫐', drop: 'Blueberry Segar', color: 0x1d4ed8 },
-            { id: 'crop_melon', biome: 'jungle', name: 'Buah Semangka Hijau', cat: 'crop', icon: '🍉', drop: 'Irisan Semangka', color: 0x15803d },
-            { id: 'crop_pumpkin', biome: 'savanna', name: 'Labu Kuning Besar', cat: 'crop', icon: '🎃', drop: 'Labu Halloween', color: 0xea580c },
-            { id: 'crop_cactus_saguaro', biome: 'savanna', name: 'Kaktus Saguaro Berduri', cat: 'crop', icon: '🌵', drop: 'Blok Kaktus', color: 0x15803d },
-            { id: 'crop_cactus_pear', biome: 'savanna', name: 'Kaktus Centong Buah', cat: 'crop', icon: '🌵', drop: 'Buah Kaktus', color: 0x16a34a },
-            { id: 'crop_sugarcane', biome: 'jungle', name: 'Tebu Manis Hijau', cat: 'crop', icon: '🎋', drop: 'Batang Gula Tebu', color: 0x65a30d },
-            { id: 'crop_wild_grass', biome: 'plains', name: 'Rumput Ilalang Tinggi', cat: 'crop', icon: '🌱', drop: 'Serat Rumput', color: 0x4ade80 },
-            { id: 'crop_forest_fern', biome: 'taiga', name: 'Pakis Liar Hutan Lembap', cat: 'crop', icon: '🌿', drop: 'Daun Pakis', color: 0x166534 },
-            { id: 'fungus_red_mushroom', biome: 'dark_forest', name: 'Jamur Merah Bintik Putih', cat: 'crop', icon: '🍄', drop: 'Jamur Merah Rebus', color: 0xef4444 },
-            { id: 'fungus_brown_mushroom', biome: 'dark_forest', name: 'Jamur Cokelat Payung', cat: 'crop', icon: '🍄', drop: 'Jamur Cokelat', color: 0x78350f },
+            { id: 'crop_wheat', biome: 'plains', name: 'Gandum Emas Matang', cat: 'crop', icon: '', drop: 'Gandum + Benih', color: 0xeab308 },
+            { id: 'crop_carrot', biome: 'orchard', name: 'Tanaman Wortel Segar', cat: 'crop', icon: '', drop: 'Wortel Manis', color: 0xf97316 },
+            { id: 'crop_potato', biome: 'orchard', name: 'Tanaman Kentang Subur', cat: 'crop', icon: '', drop: 'Umbi Kentang', color: 0xca8a04 },
+            { id: 'crop_beetroot', biome: 'orchard', name: 'Tanaman Bit Merah', cat: 'crop', icon: '', drop: 'Bit Merah', color: 0x881337 },
+            { id: 'crop_berry_bush', biome: 'taiga', name: 'Semak Berry Manis', cat: 'crop', icon: '', drop: 'Buah Manis Berry', color: 0xdc2626 },
+            { id: 'crop_blueberry', biome: 'taiga', name: 'Semak Blueberry Liar', cat: 'crop', icon: '', drop: 'Blueberry Segar', color: 0x1d4ed8 },
+            { id: 'crop_melon', biome: 'jungle', name: 'Buah Semangka Hijau', cat: 'crop', icon: '', drop: 'Irisan Semangka', color: 0x15803d },
+            { id: 'crop_pumpkin', biome: 'savanna', name: 'Labu Kuning Besar', cat: 'crop', icon: '', drop: 'Labu Halloween', color: 0xea580c },
+            { id: 'crop_cactus_saguaro', biome: 'savanna', name: 'Kaktus Saguaro Berduri', cat: 'crop', icon: '', drop: 'Blok Kaktus', color: 0x15803d },
+            { id: 'crop_cactus_pear', biome: 'savanna', name: 'Kaktus Centong Buah', cat: 'crop', icon: '', drop: 'Buah Kaktus', color: 0x16a34a },
+            { id: 'crop_sugarcane', biome: 'jungle', name: 'Tebu Manis Hijau', cat: 'crop', icon: '', drop: 'Batang Gula Tebu', color: 0x65a30d },
+            { id: 'crop_wild_grass', biome: 'plains', name: 'Rumput Ilalang Tinggi', cat: 'crop', icon: '', drop: 'Serat Rumput', color: 0x4ade80 },
+            { id: 'crop_forest_fern', biome: 'taiga', name: 'Pakis Liar Hutan Lembap', cat: 'crop', icon: '', drop: 'Daun Pakis', color: 0x166534 },
+            { id: 'fungus_red_mushroom', biome: 'dark_forest', name: 'Jamur Merah Bintik Putih', cat: 'crop', icon: '', drop: 'Jamur Merah Rebus', color: 0xef4444 },
+            { id: 'fungus_brown_mushroom', biome: 'dark_forest', name: 'Jamur Cokelat Payung', cat: 'crop', icon: '', drop: 'Jamur Cokelat', color: 0x78350f },
 
             // --- HEWAN TERNAK & MAMALIA DARAT (18 Spesies) ---
-            { id: 'animal_cow', biome: 'plains', name: 'Sapi Perah Belang', cat: 'farm', icon: '🐄', drop: 'Daging Sapi + Kulit', body: 0xf8fafc, spots: 0x0f172a, sound: 'Moo' },
-            { id: 'animal_brown_bull', biome: 'savanna', name: 'Sapi Jantan Cokelat', cat: 'farm', icon: '🐂', drop: 'Daging Sapi', body: 0x78350f, spots: null, sound: 'Moo' },
-            { id: 'animal_sheep_white', biome: 'plains', name: 'Domba Wol Putih', cat: 'farm', icon: '🐑', drop: 'Wol Putih + Daging', body: 0xf8fafc, wool: 0xffffff },
-            { id: 'animal_sheep_black', biome: 'dark_forest', name: 'Domba Wol Hitam', cat: 'farm', icon: '🐑', drop: 'Wol Hitam', body: 0x1e293b, wool: 0x0f172a },
-            { id: 'animal_sheep_pink', biome: 'sakura', name: 'Domba Pink Langka', cat: 'farm', icon: '🐑', drop: 'Wol Pink Spesial', body: 0xf472b6, wool: 0xf472b6 },
-            { id: 'animal_pig', biome: 'plains', name: 'Babi Merah Muda Lucu', cat: 'farm', icon: '🐖', drop: 'Daging Babi', body: 0xfb7185 },
-            { id: 'animal_chicken', biome: 'plains', name: 'Ayam Petelur', cat: 'farm', icon: '🐔', drop: 'Telur + Bulu Ayam', body: 0xffffff, wattle: 0xef4444 },
-            { id: 'animal_chick', biome: 'plains', name: 'Anak Ayam Kuning', cat: 'farm', icon: '🐥', drop: 'Bulu Halus', body: 0xfacc15 },
-            { id: 'animal_horse_brown', biome: 'plains', name: 'Kuda Balap Cokelat', cat: 'farm', icon: '🐎', drop: 'Kulit Kuda', body: 0x78350f, mane: 0x271206 },
-            { id: 'animal_horse_white', biome: 'plains', name: 'Kuda Putih Megah', cat: 'farm', icon: '🦄', drop: 'Kulit Kuda Halus', body: 0xf8fafc, mane: 0xffffff },
-            { id: 'animal_donkey', biome: 'savanna', name: 'Keledai Abu-abu', cat: 'farm', icon: '🫏', drop: 'Kulit Keledai', body: 0x64748b },
-            { id: 'animal_goat', biome: 'taiga', name: 'Kambing Gunung Bertanduk', cat: 'farm', icon: '🐐', drop: 'Tanduk + Daging', body: 0xe2e8f0, horns: true },
-            { id: 'animal_rabbit_white', biome: 'taiga', name: 'Kelinci Salju Putih', cat: 'farm', icon: '🐇', drop: 'Kaki Kelinci', body: 0xffffff },
-            { id: 'animal_rabbit_brown', biome: 'plains', name: 'Kelinci Hutan Cokelat', cat: 'farm', icon: '🐰', drop: 'Bulu Kelinci', body: 0x92400e },
-            { id: 'animal_duck', biome: 'plains', name: 'Bebek Mallard Leher Hijau', cat: 'farm', icon: '🦆', drop: 'Bulu Bebek', body: 0x78350f, head: 0x15803d },
-            { id: 'animal_goose', biome: 'plains', name: 'Angsa Putih Berleher Panjang', cat: 'farm', icon: '🦢', drop: 'Bulu Angsa Halus', body: 0xffffff },
-            { id: 'animal_cat', biome: 'sakura', name: 'Kucing Belang Calico', cat: 'farm', icon: '🐱', drop: 'Ikan Favorit', body: 0xf97316, patches: 0x0f172a },
-            { id: 'animal_dog', biome: 'plains', name: 'Anjing Gembala Setia', cat: 'farm', icon: '🐶', drop: 'Tulang Anjing', body: 0xd97706, collar: 0xef4444 },
+            { id: 'animal_cow', biome: 'plains', name: 'Sapi Perah Belang', cat: 'farm', icon: '', drop: 'Daging Sapi + Kulit', body: 0xf8fafc, spots: 0x0f172a, sound: 'Moo' },
+            { id: 'animal_brown_bull', biome: 'savanna', name: 'Sapi Jantan Cokelat', cat: 'farm', icon: '', drop: 'Daging Sapi', body: 0x78350f, spots: null, sound: 'Moo' },
+            { id: 'animal_sheep_white', biome: 'plains', name: 'Domba Wol Putih', cat: 'farm', icon: '', drop: 'Wol Putih + Daging', body: 0xf8fafc, wool: 0xffffff },
+            { id: 'animal_sheep_black', biome: 'dark_forest', name: 'Domba Wol Hitam', cat: 'farm', icon: '', drop: 'Wol Hitam', body: 0x1e293b, wool: 0x0f172a },
+            { id: 'animal_sheep_pink', biome: 'sakura', name: 'Domba Pink Langka', cat: 'farm', icon: '', drop: 'Wol Pink Spesial', body: 0xf472b6, wool: 0xf472b6 },
+            { id: 'animal_pig', biome: 'plains', name: 'Babi Merah Muda Lucu', cat: 'farm', icon: '', drop: 'Daging Babi', body: 0xfb7185 },
+            { id: 'animal_chicken', biome: 'plains', name: 'Ayam Petelur', cat: 'farm', icon: '', drop: 'Telur + Bulu Ayam', body: 0xffffff, wattle: 0xef4444 },
+            { id: 'animal_chick', biome: 'plains', name: 'Anak Ayam Kuning', cat: 'farm', icon: '', drop: 'Bulu Halus', body: 0xfacc15 },
+            { id: 'animal_horse_brown', biome: 'plains', name: 'Kuda Balap Cokelat', cat: 'farm', icon: '', drop: 'Kulit Kuda', body: 0x78350f, mane: 0x271206 },
+            { id: 'animal_horse_white', biome: 'plains', name: 'Kuda Putih Megah', cat: 'farm', icon: '', drop: 'Kulit Kuda Halus', body: 0xf8fafc, mane: 0xffffff },
+            { id: 'animal_donkey', biome: 'savanna', name: 'Keledai Abu-abu', cat: 'farm', icon: '', drop: 'Kulit Keledai', body: 0x64748b },
+            { id: 'animal_goat', biome: 'taiga', name: 'Kambing Gunung Bertanduk', cat: 'farm', icon: '', drop: 'Tanduk + Daging', body: 0xe2e8f0, horns: true },
+            { id: 'animal_rabbit_white', biome: 'taiga', name: 'Kelinci Salju Putih', cat: 'farm', icon: '', drop: 'Kaki Kelinci', body: 0xffffff },
+            { id: 'animal_rabbit_brown', biome: 'plains', name: 'Kelinci Hutan Cokelat', cat: 'farm', icon: '', drop: 'Bulu Kelinci', body: 0x92400e },
+            { id: 'animal_duck', biome: 'plains', name: 'Bebek Mallard Leher Hijau', cat: 'farm', icon: '', drop: 'Bulu Bebek', body: 0x78350f, head: 0x15803d },
+            { id: 'animal_goose', biome: 'plains', name: 'Angsa Putih Berleher Panjang', cat: 'farm', icon: '', drop: 'Bulu Angsa Halus', body: 0xffffff },
+            { id: 'animal_cat', biome: 'sakura', name: 'Kucing Belang Calico', cat: 'farm', icon: '', drop: 'Ikan Favorit', body: 0xf97316, patches: 0x0f172a },
+            { id: 'animal_dog', biome: 'plains', name: 'Anjing Gembala Setia', cat: 'farm', icon: '', drop: 'Tulang Anjing', body: 0xd97706, collar: 0xef4444 },
 
             // --- HEWAN LIAR & HUTAN (10 Spesies) ---
-            { id: 'animal_wolf', biome: 'taiga', name: 'Serigala Rimba Abu-abu', cat: 'wild', icon: '🐺', drop: 'Taring Serigala', body: 0x64748b },
-            { id: 'animal_fox', biome: 'taiga', name: 'Rubah Merah Berekor Lebat', cat: 'wild', icon: '🦊', drop: 'Bulu Rubah', body: 0xea580c, tip: 0xffffff },
-            { id: 'animal_deer', biome: 'dark_forest', name: 'Rusa Bertanduk Gagah', cat: 'wild', icon: '🦌', drop: 'Tanduk Rusa', body: 0xa16207, antlers: true },
-            { id: 'animal_brown_bear', biome: 'taiga', name: 'Beruang Grizzly Cokelat', cat: 'wild', icon: '🐻', drop: 'Cakar Beruang', body: 0x451a03 },
-            { id: 'animal_polar_bear', biome: 'taiga', name: 'Beruang Kutub Salju', cat: 'wild', icon: '🐻‍❄️', drop: 'Lemak Beruang Kutub', body: 0xf8fafc },
-            { id: 'animal_panda', biome: 'jungle', name: 'Panda Raksasa Lucu', cat: 'wild', icon: '🐼', drop: 'Rebung Bambu', body: 0xffffff, black: 0x0f172a },
-            { id: 'animal_squirrel', biome: 'dark_forest', name: 'Tupai Pohon Gesit', cat: 'wild', icon: '🐿️', drop: 'Biji Kenari', body: 0xb45309 },
-            { id: 'animal_hedgehog', biome: 'savanna', name: 'Landak Mini Berduri', cat: 'wild', icon: '🦔', drop: 'Duri Pelindung', body: 0x78350f },
-            { id: 'animal_monkey', biome: 'jungle', name: 'Monyet Ekor Panjang', cat: 'wild', icon: '🐒', drop: 'Kulit Pisang', body: 0x92400e },
-            { id: 'animal_raccoon', biome: 'dark_forest', name: 'Rakun Bertopeng Hutan', cat: 'wild', icon: '🦝', drop: 'Barang Jarahan', body: 0x475569 },
+            { id: 'animal_wolf', biome: 'taiga', name: 'Serigala Rimba Abu-abu', cat: 'wild', icon: '', drop: 'Taring Serigala', body: 0x64748b },
+            { id: 'animal_fox', biome: 'taiga', name: 'Rubah Merah Berekor Lebat', cat: 'wild', icon: '', drop: 'Bulu Rubah', body: 0xea580c, tip: 0xffffff },
+            { id: 'animal_deer', biome: 'dark_forest', name: 'Rusa Bertanduk Gagah', cat: 'wild', icon: '', drop: 'Tanduk Rusa', body: 0xa16207, antlers: true },
+            { id: 'animal_brown_bear', biome: 'taiga', name: 'Beruang Grizzly Cokelat', cat: 'wild', icon: '', drop: 'Cakar Beruang', body: 0x451a03 },
+            { id: 'animal_polar_bear', biome: 'taiga', name: 'Beruang Kutub Salju', cat: 'wild', icon: '‍️', drop: 'Lemak Beruang Kutub', body: 0xf8fafc },
+            { id: 'animal_panda', biome: 'jungle', name: 'Panda Raksasa Lucu', cat: 'wild', icon: '', drop: 'Rebung Bambu', body: 0xffffff, black: 0x0f172a },
+            { id: 'animal_squirrel', biome: 'dark_forest', name: 'Tupai Pohon Gesit', cat: 'wild', icon: '️', drop: 'Biji Kenari', body: 0xb45309 },
+            { id: 'animal_hedgehog', biome: 'savanna', name: 'Landak Mini Berduri', cat: 'wild', icon: '', drop: 'Duri Pelindung', body: 0x78350f },
+            { id: 'animal_monkey', biome: 'jungle', name: 'Monyet Ekor Panjang', cat: 'wild', icon: '', drop: 'Kulit Pisang', body: 0x92400e },
+            { id: 'animal_raccoon', biome: 'dark_forest', name: 'Rakun Bertopeng Hutan', cat: 'wild', icon: '', drop: 'Barang Jarahan', body: 0x475569 },
 
             // --- BURUNG & SERANGGA UDARA (10 Spesies) ---
-            { id: 'animal_eagle', biome: 'taiga', name: 'Burung Elang Angkasa', cat: 'air', icon: '🦅', drop: 'Bulu Elang', body: 0x451a03, head: 0xffffff, fly: true },
-            { id: 'animal_owl', biome: 'dark_forest', name: 'Burung Hantu Malam', cat: 'air', icon: '🦉', drop: 'Bulu Burung Hantu', body: 0x78350f, fly: true },
-            { id: 'animal_sparrow', biome: 'plains', name: 'Burung Pipit Ceria', cat: 'air', icon: '🐦', drop: 'Bulu Kecil', body: 0xa16207, fly: true },
-            { id: 'animal_parrot', biome: 'jungle', name: 'Burung Beo Tropis Merah-Kuning', cat: 'air', icon: '🦜', drop: 'Bulu Warna-warni', body: 0xef4444, wings: 0x3b82f6, fly: true },
-            { id: 'animal_dove', biome: 'plains', name: 'Burung Merpati Putih', cat: 'air', icon: '🕊️', drop: 'Simbol Kedamaian', body: 0xffffff, fly: true },
-            { id: 'animal_bee', biome: 'orchard', name: 'Lebah Madu Berdengung', cat: 'air', icon: '🐝', drop: 'Madu Botol + Lilin', body: 0xfacc15, stripes: 0x0f172a, fly: true },
-            { id: 'animal_butterfly_blue', biome: 'sakura', name: 'Kupu-kupu Morpho Biru', cat: 'air', icon: '🦋', drop: 'Serbuk Sayap Biru', body: 0x38bdf8, fly: true },
-            { id: 'animal_butterfly_monarch', biome: 'plains', name: 'Kupu-kupu Monarch Oranye', cat: 'air', icon: '🦋', drop: 'Serbuk Sayap Oranye', body: 0xf97316, fly: true },
-            { id: 'animal_dragonfly', biome: 'plains', name: 'Capung Sayap Kaca', cat: 'air', icon: '🪰', drop: 'Mata Majemuk', body: 0x06b6d4, fly: true },
-            { id: 'animal_firefly', biome: 'dark_forest', name: 'Kunang-kunang Bercahaya', cat: 'air', icon: '✨', drop: 'Kantong Cahaya', body: 0xa3e635, glow: true, fly: true },
+            { id: 'animal_eagle', biome: 'taiga', name: 'Burung Elang Angkasa', cat: 'air', icon: '', drop: 'Bulu Elang', body: 0x451a03, head: 0xffffff, fly: true },
+            { id: 'animal_owl', biome: 'dark_forest', name: 'Burung Hantu Malam', cat: 'air', icon: '', drop: 'Bulu Burung Hantu', body: 0x78350f, fly: true },
+            { id: 'animal_sparrow', biome: 'plains', name: 'Burung Pipit Ceria', cat: 'air', icon: '', drop: 'Bulu Kecil', body: 0xa16207, fly: true },
+            { id: 'animal_parrot', biome: 'jungle', name: 'Burung Beo Tropis Merah-Kuning', cat: 'air', icon: '', drop: 'Bulu Warna-warni', body: 0xef4444, wings: 0x3b82f6, fly: true },
+            { id: 'animal_dove', biome: 'plains', name: 'Burung Merpati Putih', cat: 'air', icon: '️', drop: 'Simbol Kedamaian', body: 0xffffff, fly: true },
+            { id: 'animal_bee', biome: 'orchard', name: 'Lebah Madu Berdengung', cat: 'air', icon: '', drop: 'Madu Botol + Lilin', body: 0xfacc15, stripes: 0x0f172a, fly: true },
+            { id: 'animal_butterfly_blue', biome: 'sakura', name: 'Kupu-kupu Morpho Biru', cat: 'air', icon: '', drop: 'Serbuk Sayap Biru', body: 0x38bdf8, fly: true },
+            { id: 'animal_butterfly_monarch', biome: 'plains', name: 'Kupu-kupu Monarch Oranye', cat: 'air', icon: '', drop: 'Serbuk Sayap Oranye', body: 0xf97316, fly: true },
+            { id: 'animal_dragonfly', biome: 'plains', name: 'Capung Sayap Kaca', cat: 'air', icon: '', drop: 'Mata Majemuk', body: 0x06b6d4, fly: true },
+            { id: 'animal_firefly', biome: 'dark_forest', name: 'Kunang-kunang Bercahaya', cat: 'air', icon: '', drop: 'Kantong Cahaya', body: 0xa3e635, glow: true, fly: true },
 
             // --- HEWAN AIR & AMFIBI (7 Spesies) ---
-            { id: 'animal_frog', biome: 'jungle', name: 'Katak Hijau Lompat', cat: 'water', icon: '🐸', drop: 'Kaki Katak Lompat', body: 0x22c55e },
-            { id: 'animal_turtle', biome: 'jungle', name: 'Kura-kura Tempurung Hijau', cat: 'water', icon: '🐢', drop: 'Keping Tempurung', body: 0x166534 },
-            { id: 'animal_goldfish', biome: 'plains', name: 'Ikan Mas Koki Cantik', cat: 'water', icon: '🐠', drop: 'Sisik Emas', body: 0xf97316 },
-            { id: 'animal_salmon', biome: 'taiga', name: 'Ikan Salmon Sungai', cat: 'water', icon: '🐟', drop: 'Ikan Salmon Segar', body: 0xfb7185 },
-            { id: 'animal_clownfish', biome: 'jungle', name: 'Ikan Badut Nemo Belang', cat: 'water', icon: '🐡', drop: 'Sisik Oranye Belang', body: 0xea580c, stripes: 0xffffff },
-            { id: 'animal_crab', biome: 'jungle', name: 'Kepiting Capit Merah', cat: 'water', icon: '🦀', drop: 'Capit Kepiting', body: 0xef4444 },
-            { id: 'animal_squid', biome: 'jungle', name: 'Cumi-cumi / Gurita Mini', cat: 'water', icon: '🦑', drop: 'Kantung Tinta Hitam', body: 0x0284c7 }
+            { id: 'animal_frog', biome: 'jungle', name: 'Katak Hijau Lompat', cat: 'water', icon: '', drop: 'Kaki Katak Lompat', body: 0x22c55e },
+            { id: 'animal_turtle', biome: 'jungle', name: 'Kura-kura Tempurung Hijau', cat: 'water', icon: '', drop: 'Keping Tempurung', body: 0x166534 },
+            { id: 'animal_goldfish', biome: 'plains', name: 'Ikan Mas Koki Cantik', cat: 'water', icon: '', drop: 'Sisik Emas', body: 0xf97316 },
+            { id: 'animal_salmon', biome: 'taiga', name: 'Ikan Salmon Sungai', cat: 'water', icon: '', drop: 'Ikan Salmon Segar', body: 0xfb7185 },
+            { id: 'animal_clownfish', biome: 'jungle', name: 'Ikan Badut Nemo Belang', cat: 'water', icon: '', drop: 'Sisik Oranye Belang', body: 0xea580c, stripes: 0xffffff },
+            { id: 'animal_crab', biome: 'jungle', name: 'Kepiting Capit Merah', cat: 'water', icon: '', drop: 'Capit Kepiting', body: 0xef4444 },
+            { id: 'animal_squid', biome: 'jungle', name: 'Cumi-cumi / Gurita Mini', cat: 'water', icon: '', drop: 'Kantung Tinta Hitam', body: 0x0284c7 }
         ];
 
         // Global Constants & State
@@ -1651,16 +1648,9 @@ const TAXONOMY_DATABASE = [
         }
 
         function getBiomeAt(gx, gz) {
-            if (typeof activeWorld !== 'undefined') {
-                if (activeWorld.preset === 'sakura') return BIOMES_CONFIG.sakura;
-                if (activeWorld.preset === 'taiga') return BIOMES_CONFIG.taiga;
-                if (activeWorld.preset === 'jungle') return BIOMES_CONFIG.jungle;
-                if (activeWorld.preset === 'savanna') return BIOMES_CONFIG.savanna;
-                if (activeWorld.preset === 'dark_forest') return BIOMES_CONFIG.dark_forest;
-                if (activeWorld.preset === 'orchard') return BIOMES_CONFIG.orchard;
-                if (activeWorld.preset === 'plains' || activeWorld.preset === 'superflat') return BIOMES_CONFIG.plains;
+            if (typeof activeWorld !== 'undefined' && activeWorld.type === 'superflat') {
+                return BIOMES_CONFIG.plains;
             }
-
             if (Math.abs(gx) <= 12 && Math.abs(gz) <= 12) return BIOMES_CONFIG.plains;
 
             const seedOffset = (typeof activeWorld !== 'undefined' && activeWorld.seed) ? (activeWorld.seed % 500) : 0;
@@ -1670,11 +1660,11 @@ const TAXONOMY_DATABASE = [
             const moisture = Math.cos(sx * 0.02) * Math.sin(sz * 0.02) + 0.3 * Math.cos(sz * 0.05);
 
             if (temp < -0.3) return BIOMES_CONFIG.taiga;
-            if (temp > 0.4 && moisture < -0.1) return BIOMES_CONFIG.savanna;
-            if (moisture > 0.4 && temp > 0.1) return BIOMES_CONFIG.jungle;
-            if (temp >= -0.2 && temp <= 0.3 && moisture >= 0.2) return BIOMES_CONFIG.sakura;
-            if (temp < 0.2 && moisture < 0.1 && moisture > -0.3) return BIOMES_CONFIG.dark_forest;
-            if (temp > 0.1 && temp < 0.4 && moisture > -0.2) return BIOMES_CONFIG.orchard;
+            if (temp > 0.4 && moisture > 0.2) return BIOMES_CONFIG.jungle;
+            if (temp > 0.3 && moisture <= 0.2) return BIOMES_CONFIG.savanna;
+            if (temp <= 0.3 && temp >= -0.2 && moisture > 0.4) return BIOMES_CONFIG.dark_forest;
+            if (temp >= -0.1 && temp <= 0.3 && moisture < -0.2) return BIOMES_CONFIG.sakura;
+            if (temp > -0.1 && temp < 0.2 && moisture >= -0.2 && moisture <= 0.2) return BIOMES_CONFIG.orchard;
             return BIOMES_CONFIG.plains;
         }
 
@@ -2526,106 +2516,53 @@ const TAXONOMY_DATABASE = [
         // ==========================================
         const WORLD_STORAGE_KEY = 'bajacraft_worlds_v1';
         
-        const PRESET_WORLDS = [
+        const DEFAULT_SAVED_WORLDS = [
             {
-                id: 'world_multiverse',
-                name: '🌍 Dunia Petualangan (Multiverse)',
-                preset: 'all',
+                id: 'world_survival_1',
+                name: 'Dunia Bertahan Hidup',
+                type: 'standard',
                 mode: 'survival',
-                desc: 'Jelajahi perpaduan 7 bioma alami tak terbatas secara dinamis.',
-                badge: 'Multiverse 7 Biome',
-                badgeColor: '#10b981',
+                desc: 'Dunia tak terbatas dengan seluruh bioma alami terintegrasi penuh.',
+                date: '14/10/2026',
                 seed: 12345
             },
             {
-                id: 'world_sakura',
-                name: '🌸 Sakura Blossom Paradise',
-                preset: 'sakura',
-                mode: 'peaceful',
-                desc: 'Hamparan bukit pohon sakura pink mekar dengan domba dan kelinci lucu.',
-                badge: 'Cherry Grove',
-                badgeColor: '#f472b6',
+                id: 'world_creative_1',
+                name: 'Dunia Proyek Kreatif',
+                type: 'standard',
+                mode: 'creative',
+                desc: 'Mode kreatif bebas melayang dan membangun variasi balok.',
+                date: '14/10/2026',
                 seed: 88888
             },
             {
-                id: 'world_taiga',
-                name: '🌲 Snowy Taiga Alpine',
-                preset: 'taiga',
-                mode: 'survival',
-                desc: 'Hutan pinus cemara dingin bersalju lebat, dihuni serigala dan rusa.',
-                badge: 'Snowy Taiga',
-                badgeColor: '#0ea5e9',
-                seed: 45678
-            },
-            {
-                id: 'world_jungle',
-                name: '🌴 Tropical Jungle Oasis',
-                preset: 'jungle',
+                id: 'world_superflat_1',
+                name: 'Dunia Datar Superflat',
+                type: 'superflat',
                 mode: 'creative',
-                desc: 'Hutan hujan tropis rimbun dengan pohon kelapa, burung beo, dan monyet.',
-                badge: 'Rainforest',
-                badgeColor: '#059669',
-                seed: 99999
-            },
-            {
-                id: 'world_savanna',
-                name: '🏜️ Savanna Safari Wild',
-                preset: 'savanna',
-                mode: 'survival',
-                desc: 'Padang rumput hangat berpohon akasia payung dengan kawanan singa dan kuda.',
-                badge: 'Savanna Safari',
-                badgeColor: '#eab308',
-                seed: 77777
-            },
-            {
-                id: 'world_orchard',
-                name: '🍎 Sunny Fruit Orchards',
-                preset: 'orchard',
-                mode: 'survival',
-                desc: 'Lembah kebun pohon apel manis berbuah lebat dengan ternak babi pink dan ayam.',
-                badge: 'Fruit Orchard',
-                badgeColor: '#f97316',
-                seed: 33333
-            },
-            {
-                id: 'world_amplified',
-                name: '⛰️ Pegunungan Amplified Ekstrem',
-                preset: 'amplified',
-                mode: 'survival',
-                desc: 'Dunia tebing voxel menjulang tinggi dan jurang megah spektakuler.',
-                badge: 'Amplified Hills',
-                badgeColor: '#8b5cf6',
-                seed: 11111
-            },
-            {
-                id: 'world_superflat',
-                name: '🟩 Superflat Creative Building',
-                preset: 'superflat',
-                mode: 'creative',
-                desc: 'Dataran rumput luas tanpa bukit, sempurna untuk bebas membangun balok.',
-                badge: 'Superflat',
-                badgeColor: '#22c55e',
+                desc: 'Dataran rumput luas tanpa rintangan untuk konstruksi bebas.',
+                date: '14/10/2026',
                 seed: 55555
             }
         ];
+        let activeWorld = Object.assign({}, DEFAULT_SAVED_WORLDS[0]);
 
-        let activeWorld = Object.assign({}, PRESET_WORLDS[0]);
-
+        
         function getStoredWorlds() {
             try {
-                const stored = localStorage.getItem(WORLD_STORAGE_KEY);
+                const stored = localStorage.getItem('bajacraft_saved_worlds');
                 if (stored) {
                     const parsed = JSON.parse(stored);
                     if (Array.isArray(parsed) && parsed.length > 0) return parsed;
                 }
-            } catch (e) {}
-            return PRESET_WORLDS.slice();
+            } catch(e) {}
+            return DEFAULT_SAVED_WORLDS;
         }
 
-        function saveStoredWorlds(list) {
+        function saveStoredWorlds(worlds) {
             try {
-                localStorage.setItem(WORLD_STORAGE_KEY, JSON.stringify(list));
-            } catch (e) {}
+                localStorage.setItem('bajacraft_saved_worlds', JSON.stringify(worlds));
+            } catch(e) {}
         }
 
         function renderWorldList() {
@@ -2635,26 +2572,25 @@ const TAXONOMY_DATABASE = [
             container.innerHTML = '';
 
             worlds.forEach(w => {
-                const isSelected = w.id === activeWorld.id;
                 const card = document.createElement('div');
-                card.className = 'mc-world-card' + (isSelected ? ' active' : '');
+                card.className = 'baja-world-card';
+                const typeLabel = w.type === 'superflat' ? 'Datar' : (w.type === 'amplified' ? 'Amplified' : 'Standar');
+                const modeClass = w.mode === 'creative' ? 'tag-creative' : 'tag-survival';
+
                 card.innerHTML = `
-                    <div class="mc-card-top">
-                        <div class="mc-card-title">${w.name}</div>
-                        <span class="mc-card-badge" style="background: ${w.badgeColor || '#10b981'}22; color: ${w.badgeColor || '#10b981'}; border-color: ${w.badgeColor || '#10b981'}55;">
-                            ${w.badge || w.preset}
-                        </span>
+                    <div class="world-meta">
+                        <h3>${w.name}</h3>
+                        <p>${w.desc || 'Dunia voxel tak terbatas dengan integrasi seluruh bioma.'}</p>
+                        <div class="world-tags">
+                            <span class="world-tag ${modeClass}">${w.mode.toUpperCase()}</span>
+                            <span class="world-tag">TIPE: ${typeLabel.toUpperCase()}</span>
+                            <span class="world-tag">SEED: ${w.seed || 'Acak'}</span>
+                            <span class="world-tag">${w.date || '14/10/2026'}</span>
+                        </div>
                     </div>
-                    <div class="mc-card-desc">${w.desc || 'Dunia voxel kustom pemain.'}</div>
-                    <div class="mc-card-meta">Mode: <strong>${w.mode.toUpperCase()}</strong> | Seed: ${w.seed || 'Default'}</div>
-                    <div class="mc-card-actions">
-                        <button class="mc-btn mc-btn-primary" style="padding: 8px 16px; font-size: 13px;" onclick="loadAndPlayWorld('${w.id}')">
-                            ▶ Masuk Dunia
-                        </button>
-                        ${!w.id.startsWith('world_') ? `
-                        <button class="mc-btn mc-btn-danger" style="padding: 8px 12px; font-size: 13px;" onclick="deleteCustomWorld('${w.id}', event)">
-                            🗑️
-                        </button>` : ''}
+                    <div style="display:flex; gap:8px;">
+                        <button class="baja-btn baja-btn-primary" onclick="loadAndPlayWorld('${w.id}')">Mainkan</button>
+                        ${w.id.startsWith('custom_') ? `<button class="baja-btn baja-btn-glass" onclick="deleteWorld('${w.id}')" style="color:#f87171;">Hapus</button>` : ''}
                     </div>
                 `;
                 container.appendChild(card);
@@ -2662,85 +2598,91 @@ const TAXONOMY_DATABASE = [
         }
 
         function openWorldSelectModal() {
+            const titleScreen = document.getElementById('mainMenuScreen');
+            if (titleScreen) titleScreen.style.display = 'none';
             renderWorldList();
-            document.getElementById('worldSelectModal').style.display = 'flex';
+            const modal = document.getElementById('worldSelectModal');
+            if (modal) modal.style.display = 'flex';
         }
 
         function closeWorldSelectModal() {
-            document.getElementById('worldSelectModal').style.display = 'none';
+            const modal = document.getElementById('worldSelectModal');
+            if (modal) modal.style.display = 'none';
+            const titleScreen = document.getElementById('mainMenuScreen');
+            if (titleScreen) titleScreen.style.display = 'flex';
         }
 
         function openCreateWorldModal() {
-            document.getElementById('newWorldName').value = 'Dunia Petualangan Baru ' + (Math.floor(Math.random() * 900) + 100);
-            document.getElementById('createWorldModal').style.display = 'flex';
+            const titleScreen = document.getElementById('mainMenuScreen');
+            if (titleScreen) titleScreen.style.display = 'none';
+            const worldModal = document.getElementById('worldSelectModal');
+            if (worldModal) worldModal.style.display = 'none';
+            const modal = document.getElementById('createWorldModal');
+            if (modal) modal.style.display = 'flex';
         }
 
         function closeCreateWorldModal() {
-            document.getElementById('createWorldModal').style.display = 'none';
+            const modal = document.getElementById('createWorldModal');
+            if (modal) modal.style.display = 'none';
+            openWorldSelectModal();
         }
 
         function confirmCreateNewWorld() {
-            const name = document.getElementById('newWorldName').value.trim() || 'Dunia Tanpa Nama';
-            const preset = document.getElementById('newWorldPreset').value;
-            const mode = document.getElementById('newWorldMode').value;
-            const seedStr = document.getElementById('newWorldSeed').value.trim();
-            const seed = seedStr ? (parseInt(seedStr) || Math.abs(seedStr.split('').reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0))) : Math.floor(Math.random() * 999999);
+            const nameInput = document.getElementById('newWorldName');
+            const typeSelect = document.getElementById('newWorldType');
+            const modeSelect = document.getElementById('newWorldMode');
+            const seedInput = document.getElementById('newWorldSeed');
 
-            const presetBadges = {
-                all: { name: 'Multiverse 7 Biome', color: '#10b981' },
-                sakura: { name: 'Cherry Grove', color: '#f472b6' },
-                taiga: { name: 'Snowy Taiga', color: '#0ea5e9' },
-                jungle: { name: 'Rainforest', color: '#059669' },
-                savanna: { name: 'Savanna Safari', color: '#eab308' },
-                dark_forest: { name: 'Dark Forest', color: '#6366f1' },
-                orchard: { name: 'Fruit Orchard', color: '#f97316' },
-                amplified: { name: 'Amplified Hills', color: '#8b5cf6' },
-                superflat: { name: 'Superflat', color: '#22c55e' }
-            };
+            const name = (nameInput && nameInput.value.trim()) || 'Dunia Baru';
+            const type = (typeSelect && typeSelect.value) || 'standard';
+            const mode = (modeSelect && modeSelect.value) || 'survival';
+            const seed = (seedInput && seedInput.value.trim()) ? parseInt(seedInput.value.trim()) || Math.floor(Math.random() * 999999) : Math.floor(Math.random() * 999999);
 
-            const newWorldObj = {
+            const newWorld = {
                 id: 'custom_' + Date.now(),
                 name: name,
-                preset: preset,
+                type: type,
                 mode: mode,
-                desc: 'Dunia kustom buatan pemain dengan variasi procedural voxel.',
-                badge: (presetBadges[preset] || {}).name || preset,
-                badgeColor: (presetBadges[preset] || {}).color || '#10b981',
+                desc: 'Dunia kustom buatan pemain.',
+                date: new Date().toLocaleDateString('id-ID'),
                 seed: seed
             };
 
             const worlds = getStoredWorlds();
-            worlds.unshift(newWorldObj);
+            worlds.unshift(newWorld);
             saveStoredWorlds(worlds);
 
             closeCreateWorldModal();
-            loadAndPlayWorld(newWorldObj.id);
+            loadAndPlayWorld(newWorld.id);
         }
 
-        function deleteCustomWorld(id, e) {
-            if (e) e.stopPropagation();
-            if (!confirm('Hapus dunia ini secara permanen?')) return;
+        function deleteWorld(worldId) {
             let worlds = getStoredWorlds();
-            worlds = worlds.filter(w => w.id !== id);
+            worlds = worlds.filter(w => w.id !== worldId);
             saveStoredWorlds(worlds);
             renderWorldList();
         }
 
         function loadAndPlayWorld(worldId) {
             const worlds = getStoredWorlds();
-            const target = worlds.find(w => w.id === worldId) || PRESET_WORLDS[0];
+            const target = worlds.find(w => w.id === worldId) || worlds[0];
             activeWorld = target;
-
-            applyActiveWorldToScene();
-
             closeWorldSelectModal();
-            if (document.getElementById('pauseMenuModal')) document.getElementById('pauseMenuModal').style.display = 'none';
+            closeCreateWorldModal();
+            const pauseModal = document.getElementById('pauseMenuModal');
+            if (pauseModal) pauseModal.style.display = 'none';
             playActiveWorld();
         }
 
         function playActiveWorld() {
             const titleScreen = document.getElementById('mainMenuScreen');
             if (titleScreen) titleScreen.style.display = 'none';
+            const worldModal = document.getElementById('worldSelectModal');
+            if (worldModal) worldModal.style.display = 'none';
+            const createModal = document.getElementById('createWorldModal');
+            if (createModal) createModal.style.display = 'none';
+            const pauseModal = document.getElementById('pauseMenuModal');
+            if (pauseModal) pauseModal.style.display = 'none';
             if (fpControls && fpControls.lock) {
                 fpControls.lock();
             }
@@ -2838,15 +2780,17 @@ const TAXONOMY_DATABASE = [
             initRaycastCursor();
             setupEventListeners();
             buildEncyclopediaGrid();
-            if (window.location.search.includes('encyclopedia=1')) {
-                toggleEncyclopedia();
-            }
-            if (window.location.search.includes('worlds=1')) {
-                openWorldSelectModal();
-            }
-            if (window.location.search.includes('ingame=1')) {
-                playActiveWorld();
-            }
+            setTimeout(() => {
+                if (window.location.search.includes('encyclopedia=1')) {
+                    toggleEncyclopedia();
+                }
+                if (window.location.search.includes('worlds=1')) {
+                    openWorldSelectModal();
+                }
+                if (window.location.search.includes('ingame=1')) {
+                    playActiveWorld();
+                }
+            }, 100);
 
             // Initial Spawn & Chunk Loading
             updateChunksAroundPlayer();
