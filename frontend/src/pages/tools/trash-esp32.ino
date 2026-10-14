@@ -37,8 +37,8 @@
 // --------------------------------------------------------------
 
 // Firebase Configuration
-#define FIREBASE_HOST   "baja-iot-default-rtdb.asia-southeast1.firebasedatabase.app"
-#define FIREBASE_AUTH   "AIzaSyDCh3CQHqdi7SxhDHLJ6IsQ7hq4GSOi6yI"
+#define FIREBASE_HOST   "MASUKKAN_FIREBASE_HOST_ANDA"
+#define FIREBASE_AUTH   "MASUKKAN_FIREBASE_AUTH_ANDA"
 
 // --- PIN & ADC ------------------------------------------------
 #if USE_MUX

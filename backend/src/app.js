@@ -7,6 +7,7 @@ const aiRoutes = require('./routes/ai.routes');
 const paymentRoutes = require('./routes/payment.routes');
 const downloaderRoutes = require('./routes/downloader.routes');
 const veoRoutes = require('./routes/veo.routes');
+const firebaseRoutes = require('./routes/firebase.routes');
 
 const app = express();
 
@@ -55,6 +56,7 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api/downloader', downloaderRoutes);
 app.use('/api/veo', veoRoutes);
+app.use('/api/firebase', firebaseRoutes);
 
 // Redirect root to public/index.html
 app.get('/', (req, res) => {

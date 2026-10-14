@@ -3,319 +3,531 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>3D Realism Lab & Open World — BAJA WEB</title>
-    <link rel="icon" href="/src/assets/img/Logo.svg"/>
-    <link rel="stylesheet" href="/src/assets/css/style.css"/>
-    <link rel="stylesheet" href="/src/assets/css/responsive.css"/>
-    <!-- Three.js & Controls -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-
+    <title>3D Voxel & Organic Infinite World — BAJA WEB</title>
+    <link rel="icon" type="image/svg+xml" href="/src/assets/img/Logo.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Bangers&display=swap" rel="stylesheet">
     <style>
         :root {
-            --baja-neon: #06b6d4;
-            --baja-accent: #3b82f6;
-            --baja-gold: #f59e0b;
-            --baja-glass: rgba(15, 23, 42, 0.78);
-            --baja-border: rgba(255, 255, 255, 0.12);
+            --baja-bg: #090e17;
+            --baja-card: rgba(15, 23, 42, 0.88);
+            --baja-border: #1e293b;
+            --baja-primary: #0284c7;
+            --baja-text: #f8fafc;
+            --baja-subtext: #94a3b8;
+            --baja-green: #22c55e;
+            --baja-yellow: #facc15;
+            --baja-orange: #f97316;
+            --baja-pink: #ec4899;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            background: #090d16;
-            color: #f8fafc;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            overflow: hidden;
-            width: 100vw;
-            height: 100vh;
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
             user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: var(--baja-bg);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--baja-text);
         }
 
         #viewport-container {
+            width: 100vw;
+            height: 100vh;
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
             z-index: 1;
+            cursor: crosshair;
         }
 
-        /* Top Bar Overlay */
+        /* Top Bar */
         .hud-topbar {
             position: absolute;
-            top: 16px;
-            left: 16px;
-            right: 16px;
-            z-index: 10;
+            top: 14px;
+            left: 14px;
+            right: 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            z-index: 10;
             pointer-events: none;
         }
+
         .hud-pill {
             pointer-events: auto;
-            background: var(--baja-glass);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--baja-border);
-            border-radius: 999px;
-            padding: 8px 18px;
+            background: var(--baja-card);
+            border: 2px solid var(--baja-border);
+            border-radius: 9999px;
+            padding: 6px 14px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            gap: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(12px);
         }
+
         .logo-btn {
             display: flex;
             align-items: center;
             gap: 8px;
             text-decoration: none;
             color: #fff;
-            font-weight: 800;
-            font-size: 15px;
+            font-family: 'Bangers', cursive;
+            font-size: 20px;
             letter-spacing: 0.5px;
         }
-        .logo-btn img { width: 24px; height: 24px; }
 
-        /* Mode Switcher */
-        .mode-switcher {
-            pointer-events: auto;
-            background: var(--baja-glass);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--baja-border);
-            border-radius: 999px;
-            padding: 4px;
-            display: flex;
-            gap: 4px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        .logo-btn img {
+            width: 22px;
+            height: 22px;
         }
-        .mode-btn {
-            background: transparent;
-            border: none;
-            color: #94a3b8;
-            padding: 8px 18px;
-            border-radius: 999px;
-            font-size: 13px;
+
+        .btn-encyclopedia {
+            pointer-events: auto;
+            background: linear-gradient(135deg, #0284c7, #2563eb);
+            border: 2px solid #38bdf8;
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 9999px;
             font-weight: 700;
+            font-size: 12px;
             cursor: pointer;
-            transition: all 0.25s ease;
             display: flex;
             align-items: center;
             gap: 6px;
-        }
-        .mode-btn.active {
-            background: linear-gradient(135deg, #0284c7, #2563eb);
-            color: #ffffff;
-            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
+            transition: all 0.2s;
         }
 
-        /* Diagnostic HUD (Minecraft F3 style) */
+        .btn-encyclopedia:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.6);
+        }
+
+        /* Diagnostic HUD */
         .hud-diag {
             position: absolute;
-            top: 76px;
-            left: 16px;
-            z-index: 10;
-            background: rgba(10, 15, 29, 0.72);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--baja-border);
+            top: 72px;
+            left: 14px;
+            background: rgba(15, 23, 42, 0.88);
+            border: 2px solid var(--baja-border);
             border-radius: 12px;
-            padding: 12px 16px;
-            font-family: 'JetBrains Mono', Consolas, monospace;
+            padding: 10px 14px;
+            font-family: monospace;
             font-size: 11px;
             line-height: 1.6;
-            color: #cbd5e1;
-            pointer-events: none;
-            max-width: 320px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-        }
-        .hud-diag b { color: var(--baja-neon); }
-
-        /* Floating Controls Panel (Right Side) */
-        .hud-panel {
-            position: absolute;
-            top: 76px;
-            right: 16px;
-            z-index: 10;
-            background: var(--baja-glass);
-            backdrop-filter: blur(16px);
-            border: 1px solid var(--baja-border);
-            border-radius: 16px;
-            padding: 18px;
-            width: 290px;
-            color: #f1f5f9;
-            box-shadow: 0 16px 36px rgba(0,0,0,0.5);
-            max-height: calc(100vh - 110px);
-            overflow-y: auto;
-        }
-        .hud-panel h3 {
-            font-size: 14px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 12px;
-            color: #38bdf8;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .control-group {
-            margin-bottom: 14px;
-        }
-        .control-group label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            font-weight: 600;
             color: #94a3b8;
-            margin-bottom: 6px;
-        }
-        .control-group input[type="range"] {
-            width: 100%;
-            height: 5px;
-            border-radius: 5px;
-            background: #334155;
-            outline: none;
-            -webkit-appearance: none;
-        }
-        .control-group input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: var(--baja-neon);
-            cursor: pointer;
-            box-shadow: 0 0 8px var(--baja-neon);
-        }
-        .btn-action {
-            width: 100%;
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-            border: 1px solid var(--baja-border);
-            color: #f8fafc;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 6px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 6px;
-        }
-        .btn-action:hover {
-            background: linear-gradient(135deg, #0284c7, #2563eb);
-            border-color: #38bdf8;
+            z-index: 10;
+            pointer-events: none;
+            backdrop-filter: blur(8px);
+            max-width: 320px;
         }
 
-        /* Reticle / Crosshair for First-Person */
+        .hud-diag b {
+            color: #f8fafc;
+        }
+
+        .hud-diag .highlight {
+            color: var(--baja-yellow);
+            font-weight: 700;
+        }
+
+        .hud-diag .biome {
+            color: var(--baja-green);
+            font-weight: 700;
+        }
+
+        /* Crosshair */
         #crosshair {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 12px;
-            height: 12px;
+            width: 16px;
+            height: 16px;
             pointer-events: none;
-            z-index: 5;
-            display: none;
+            z-index: 20;
         }
+
         #crosshair::before, #crosshair::after {
             content: '';
             position: absolute;
-            background: rgba(255, 255, 255, 0.75);
+            background: rgba(255, 255, 255, 0.9);
             box-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
         }
-        #crosshair::before { top: 5px; left: 0; width: 12px; height: 2px; }
-        #crosshair::after { top: 0; left: 5px; width: 2px; height: 12px; }
 
-        /* Lock Screen Instructions */
-        #lock-prompt {
+        #crosshair::before {
+            top: 7px;
+            left: 0;
+            width: 16px;
+            height: 2px;
+        }
+
+        #crosshair::after {
+            top: 0;
+            left: 7px;
+            width: 2px;
+            height: 16px;
+        }
+
+        /* Hotbar */
+        .hud-hotbar-container {
             position: absolute;
-            bottom: 24px;
+            bottom: 18px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 10;
-            background: var(--baja-glass);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--baja-border);
-            padding: 10px 24px;
-            border-radius: 999px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #e2e8f0;
-            pointer-events: auto;
-            cursor: pointer;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-            transition: all 0.2s;
-        }
-        #lock-prompt:hover {
-            background: rgba(2, 132, 199, 0.85);
-            transform: translateX(-50%) scale(1.03);
-        }
-
-        /* Mobile Touch Controls */
-        .mobile-controls {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            z-index: 15;
-            display: none;
-            justify-content: space-between;
-            align-items: flex-end;
-            pointer-events: none;
-        }
-        .touch-pad {
-            pointer-events: auto;
-            width: 110px;
-            height: 110px;
-            border-radius: 50%;
-            background: rgba(15, 23, 42, 0.6);
-            border: 2px solid var(--baja-border);
-            position: relative;
-            backdrop-filter: blur(8px);
-        }
-        .touch-stick {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: var(--baja-neon);
-            position: absolute;
-            top: 33px;
-            left: 33px;
-            opacity: 0.8;
-            box-shadow: 0 0 12px var(--baja-neon);
-        }
-        .touch-btns {
-            pointer-events: auto;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            align-items: center;
+            gap: 6px;
+            z-index: 15;
+            pointer-events: none;
         }
-        .touch-btn {
-            width: 58px;
-            height: 58px;
-            border-radius: 50%;
-            background: rgba(30, 41, 59, 0.8);
-            border: 2px solid var(--baja-border);
-            color: #fff;
-            font-weight: 800;
-            font-size: 13px;
+
+        .hotbar-tip {
+            font-size: 11px;
+            font-weight: 700;
+            color: #cbd5e1;
+            background: rgba(15, 23, 42, 0.85);
+            padding: 3px 12px;
+            border-radius: 9999px;
+            border: 1px solid var(--baja-border);
+            text-shadow: 0 1px 2px #000;
+        }
+
+        .hud-hotbar {
             display: flex;
+            gap: 6px;
+            background: rgba(15, 23, 42, 0.94);
+            border: 3px solid #000;
+            border-radius: 16px;
+            padding: 6px 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 4px 4px 0 #000;
+            pointer-events: auto;
+        }
+
+        .hotbar-slot {
+            width: 60px;
+            height: 60px;
+            background: rgba(30, 41, 59, 0.7);
+            border: 2px solid #334155;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hotbar-slot:hover {
+            background: rgba(51, 65, 85, 0.9);
+            transform: translateY(-2px);
+        }
+
+        .hotbar-slot.active {
+            border: 3px solid var(--baja-yellow);
+            background: rgba(250, 204, 21, 0.18);
+            transform: translateY(-6px) scale(1.08);
+            box-shadow: 0 0 14px rgba(250, 204, 21, 0.5);
+        }
+
+        .slot-key {
+            position: absolute;
+            top: 2px;
+            left: 5px;
+            font-size: 10px;
+            font-weight: 800;
+            color: #94a3b8;
+            font-family: monospace;
+        }
+
+        .hotbar-slot.active .slot-key {
+            color: var(--baja-yellow);
+        }
+
+        .slot-icon {
+            font-size: 24px;
+            line-height: 1;
+            margin-top: 2px;
+        }
+
+        .slot-name {
+            font-size: 9px;
+            font-weight: 700;
+            color: #e2e8f0;
+            margin-top: 2px;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 52px;
+        }
+
+        /* Side Settings Drawer */
+        .hud-drawer {
+            position: absolute;
+            top: 72px;
+            right: 14px;
+            background: var(--baja-card);
+            border: 2px solid var(--baja-border);
+            border-radius: 16px;
+            padding: 14px 18px;
+            width: 260px;
+            z-index: 10;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+        }
+
+        .drawer-title {
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 12px;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .control-group {
+            margin-bottom: 12px;
+        }
+
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--baja-subtext);
+            margin-bottom: 4px;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            accent-color: var(--baja-primary);
+            height: 5px;
+            border-radius: 4px;
+            background: #1e293b;
+        }
+
+        .btn-action {
+            width: 100%;
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #f8fafc;
+            padding: 7px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            background: #334155;
+            border-color: #475569;
+        }
+
+        /* Encyclopedia Modal */
+        .entity-biome-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            margin-bottom: 6px;
+            display: inline-block;
+            letter-spacing: 0.5px;
+        }
+        #encyclopediaModal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            display: none;
             justify-content: center;
             align-items: center;
-            backdrop-filter: blur(8px);
         }
-        .touch-btn:active { background: #0284c7; transform: scale(0.94); }
 
-        @media (max-width: 768px) {
-            .hud-panel { display: none; }
-            .mobile-controls { display: flex; }
-            .hud-diag { max-width: 220px; font-size: 10px; padding: 8px 12px; }
-            .mode-btn { padding: 6px 12px; font-size: 11px; }
+        .modal-box {
+            background: #0f172a;
+            border: 3px solid #000;
+            box-shadow: 8px 8px 0 #000;
+            border-radius: 20px;
+            width: 90vw;
+            max-width: 980px;
+            height: 82vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            background: #1e293b;
+            border-bottom: 2px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-family: 'Bangers', cursive;
+            font-size: 26px;
+            letter-spacing: 1px;
+            color: #f8fafc;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-close {
+            background: #ef4444;
+            border: 2px solid #000;
+            color: #fff;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 2px 2px 0 #000;
+        }
+
+        .modal-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 12px 24px;
+            background: #090e17;
+            border-bottom: 1px solid #1e293b;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #94a3b8;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: var(--baja-primary);
+            color: #fff;
+            border-color: #38bdf8;
+        }
+
+        .modal-content {
+            flex: 1;
+            padding: 20px 24px;
+            overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 14px;
+        }
+
+        .entity-card {
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .entity-card:hover {
+            border-color: var(--baja-yellow);
+            transform: translateY(-3px);
+            background: #273549;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .entity-icon {
+            font-size: 36px;
+            margin-bottom: 6px;
+        }
+
+        .entity-name {
+            font-size: 13px;
+            font-weight: 800;
+            color: #f8fafc;
+            margin-bottom: 2px;
+        }
+
+        .entity-type {
+            font-size: 10px;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+
+        .entity-drop {
+            font-size: 10px;
+            background: rgba(2, 132, 199, 0.2);
+            color: #38bdf8;
+            border-radius: 6px;
+            padding: 2px 6px;
+            font-weight: 600;
+        }
+
+        /* First Person Prompt */
+        #lock-prompt {
+            position: absolute;
+            bottom: 106px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.9);
+            border: 2px solid var(--baja-border);
+            padding: 7px 16px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #f8fafc;
+            cursor: pointer;
+            z-index: 12;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+            transition: all 0.2s;
+        }
+
+        #lock-prompt:hover {
+            border-color: var(--baja-primary);
+            background: rgba(2, 132, 199, 0.25);
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
 </head>
 <body>
     <div id="viewport-container"></div>
@@ -329,1146 +541,1896 @@
                 <span>BAJA 3D</span>
             </a>
             <span style="color: var(--baja-border)">|</span>
-            <span style="font-size: 12px; color: #94a3b8; font-weight: 600;">Engine Realistis</span>
+            <span style="font-size: 12px; color: #94a3b8; font-weight: 600;">Infinite Voxel & 100+ Organik</span>
         </div>
 
-        <div class="mode-switcher">
-            <button class="mode-btn active" id="btn-mode-world" onclick="switchMode('world')">
-                <span>🌍</span> Open World Bebas
-            </button>
-            <button class="mode-btn" id="btn-mode-lab" onclick="switchMode('lab')">
-                <span>🔬</span> Lab Detail Mikro & Lubang
-            </button>
-        </div>
+        <button class="btn-encyclopedia" onclick="toggleEncyclopedia()">
+            <span>📖</span>
+            <span>Ensiklopedia 100+ Spesies</span>
+        </button>
 
-        <div class="hud-pill" style="padding: 8px 14px;">
+        <div class="hud-pill" style="gap: 8px; border-color: #22c55e;">
+            <span style="display:inline-block; width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 8px #22c55e;"></span>
+            <span style="font-size: 12px; font-weight: 700; color: #f8fafc; letter-spacing: 0.5px;">CHUNK STREAMING AKTIF</span>
+            <span style="color: var(--baja-border)">|</span>
             <span id="fps-counter" style="font-family: monospace; font-size: 12px; font-weight: 700; color: #10b981;">60 FPS</span>
         </div>
     </div>
 
     <!-- Diagnostic HUD -->
-    <div class="hud-diag" id="hud-diag">
-        <div><b>POS</b>: <span id="pos-display">X: 0.0, Y: 12.5, Z: 0.0</span></div>
-        <div><b>BIOMA</b>: <span id="biome-display">Lembah Berumput Organik</span></div>
-        <div><b>PENCIPTAAN</b>: <span id="engine-display">Smooth Voxel / Procedural Mesh</span></div>
-        <div><b>STATUS</b>: <span id="control-display">WASD Jalan | Shift Lari | Space Lompat</span></div>
-        <div><b>INTERAKSI</b>: Klik Kiri: Naikkan Tanah | Klik Kanan: Galur Air</div>
+    <div class="hud-diag" id="hudDiag">
+        <div><b>POSISI:</b> X: <span id="pos-x">0.0</span>, Y: <span id="pos-y">0.0</span>, Z: <span id="pos-z">0.0</span></div>
+        <div><b>CHUNK:</b> [<span id="chunk-x">0</span>, <span id="chunk-z">0</span>] | <span class="biome" id="biome-name">Plains Padang Rumput</span></div>
+        <div><b>TOTAL CHUNKS:</b> <span id="active-chunks">9</span> aktif (<span id="total-blocks">0</span> balok)</div>
+        <div><b>TOTAL HEWAN & FLORA:</b> <span id="total-entities">0</span> entitas hidup</div>
+        <div><b>ITEM DIPILIH:</b> <span class="highlight" id="item-name">[1] Blok Rumput</span></div>
+        <div style="margin-top: 4px; color: #cbd5e1; font-size: 10px;">
+            WASD: Jalan • Shift: Lari • Space: Lompat • F: Noclip<br>
+            Klik Kiri: Tebang / Hancurkan • Klik Kanan: Pasang
+        </div>
     </div>
 
-    <!-- Floating Settings Panel -->
-    <div class="hud-panel" id="hud-panel">
-        <h3 id="panel-title">🎮 Pengaturan Dunia</h3>
-        
-        <div id="world-settings">
-            <div class="control-group">
-                <label><span>Waktu Matahari (Jam)</span><span id="time-val">14:00</span></label>
-                <input type="range" id="slider-time" min="0" max="24" step="0.1" value="14">
-            </div>
-            <div class="control-group">
-                <label><span>Kecepatan Karakter</span><span id="speed-val">1.0x</span></label>
-                <input type="range" id="slider-speed" min="0.5" max="3.0" step="0.1" value="1.0">
-            </div>
-            <div class="control-group">
-                <label><span>Kabut Atmosfer (Fog)</span><span id="fog-val">Sedang</span></label>
-                <input type="range" id="slider-fog" min="0.001" max="0.03" step="0.001" value="0.008">
-            </div>
-            <button class="btn-action" onclick="toggleFlight()">🕊️ Toggle Mode Terbang (Noclip)</button>
-            <button class="btn-action" onclick="resetPlayerPosition()">📍 Reset ke Posisi Awal</button>
+    <!-- Side Settings Drawer -->
+    <div class="hud-drawer">
+        <div class="drawer-title">
+            <span>🎮</span>
+            <span>Atmosfer & Dunia</span>
         </div>
+        <div class="control-group">
+            <label><span>Waktu Matahari (Jam)</span><span id="time-val">14:00</span></label>
+            <input type="range" id="slider-time" min="0" max="24" step="0.25" value="14">
+        </div>
+        <div class="control-group">
+            <label><span>Kecepatan Awan Kubus</span><span id="cloud-val">1.0x</span></label>
+            <input type="range" id="slider-cloud" min="0.2" max="3.0" step="0.1" value="1.0">
+        </div>
+        <div class="control-group">
+            <label><span>Kabut Cakrawala (Fog)</span><span id="fog-val">Minecraft</span></label>
+            <input type="range" id="slider-fog" min="0.002" max="0.025" step="0.002" value="0.008">
+        </div>
+        <button class="btn-action" onclick="toggleFlight()">🦅 Toggle Mode Terbang (Noclip)</button>
+        <button class="btn-action" onclick="teleportSpawn()">📍 Reset ke Spawn Awal</button>
+        <button class="btn-action" onclick="spawnRandomHerd()">🐑 Spawn Kawanan Hewan Acak</button>
+    </div>
 
-        <div id="lab-settings" style="display: none;">
-            <div class="control-group">
-                <label><span>Kilap Metalik (Metallic)</span><span id="metal-val">0.85</span></label>
-                <input type="range" id="slider-metal" min="0" max="1" step="0.05" value="0.85">
+    <!-- Hotbar Bottom -->
+    <div class="hud-hotbar-container">
+        <div class="hotbar-tip">Pilih [1-9] atau Scroll • Klik Kanan Pasang/Tanam • Klik Kiri Tebang</div>
+        <div class="hud-hotbar" id="hudHotbar">
+            <div class="hotbar-slot active" data-slot="1" data-type="grass" title="[1] Blok Rumput">
+                <span class="slot-key">1</span>
+                <div class="slot-icon">🟩</div>
+                <span class="slot-name">Rumput</span>
             </div>
-            <div class="control-group">
-                <label><span>Kekasaran Permukaan (Roughness)</span><span id="rough-val">0.25</span></label>
-                <input type="range" id="slider-rough" min="0" max="1" step="0.05" value="0.25">
+            <div class="hotbar-slot" data-slot="2" data-type="dirt" title="[2] Blok Tanah">
+                <span class="slot-key">2</span>
+                <div class="slot-icon">🟫</div>
+                <span class="slot-name">Tanah</span>
             </div>
-            <div class="control-group">
-                <label><span>Kedalaman Lubang & Bump</span><span id="bump-val">1.0</span></label>
-                <input type="range" id="slider-bump" min="0" max="3" step="0.1" value="1.0">
+            <div class="hotbar-slot" data-slot="3" data-type="stone" title="[3] Blok Batu">
+                <span class="slot-key">3</span>
+                <div class="slot-icon">🪨</div>
+                <span class="slot-name">Batu</span>
             </div>
-
-            <div style="margin: 14px 0 6px 0; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8;">Preset Pencahayaan Lab:</div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px;">
-                <button class="btn-action" style="margin: 0; padding: 6px 8px; font-size: 11px;" onclick="setLabLighting('studio')">💡 Studio Putih</button>
-                <button class="btn-action" style="margin: 0; padding: 6px 8px; font-size: 11px;" onclick="setLabLighting('golden')">🌆 Sunset Emas</button>
-                <button class="btn-action" style="margin: 0; padding: 6px 8px; font-size: 11px;" onclick="setLabLighting('neon')">🌌 Cyber Neon</button>
-                <button class="btn-action" style="margin: 0; padding: 6px 8px; font-size: 11px;" onclick="setLabLighting('direct')">☀️ Terik Siang</button>
+            <div class="hotbar-slot" data-slot="4" data-type="wood" title="[4] Kayu Oak">
+                <span class="slot-key">4</span>
+                <div class="slot-icon">🪵</div>
+                <span class="slot-name">Kayu Oak</span>
             </div>
-
-            <button class="btn-action" onclick="toggleWireframe()">🕸️ Periksa Wireframe Poligon</button>
-            <button class="btn-action" onclick="focusMicroHole()">🔍 Zoom Lubang Mikro PCB (Sub-mm)</button>
+            <div class="hotbar-slot" data-slot="5" data-type="tree_apple" title="[5] Pohon Apel">
+                <span class="slot-key">5</span>
+                <div class="slot-icon">🍎</div>
+                <span class="slot-name">Pohon Apel</span>
+            </div>
+            <div class="hotbar-slot" data-slot="6" data-type="tree_cherry" title="[6] Pohon Sakura">
+                <span class="slot-key">6</span>
+                <div class="slot-icon">🌸</div>
+                <span class="slot-name">Sakura</span>
+            </div>
+            <div class="hotbar-slot" data-slot="7" data-type="tree_birch" title="[7] Pohon Birch">
+                <span class="slot-key">7</span>
+                <div class="slot-icon">🌲</div>
+                <span class="slot-name">Birch</span>
+            </div>
+            <div class="hotbar-slot" data-slot="8" data-type="cow" title="[8] Sapi Perah 3D">
+                <span class="slot-key">8</span>
+                <div class="slot-icon">🐄</div>
+                <span class="slot-name">Sapi</span>
+            </div>
+            <div class="hotbar-slot" data-slot="9" data-type="pickaxe" title="[9] Beliung / Tebang">
+                <span class="slot-key">9</span>
+                <div class="slot-icon">🪓</div>
+                <span class="slot-name">Tebang</span>
+            </div>
         </div>
     </div>
 
     <!-- First Person Lock Prompt -->
     <div id="lock-prompt" onclick="requestControlLock()">
-        🎯 Klik untuk Masuk Kendali Kamera Bebas (Mouse Look)
+        <span>🎯</span>
+        <span>Klik Layar untuk Kontrol Kamera Bebas (Mouse Look 360°)</span>
     </div>
 
-    <!-- Mobile Virtual Joy -->
-    <div class="mobile-controls" id="mobile-controls">
-        <div class="touch-pad" id="touch-joy">
-            <div class="touch-stick" id="touch-stick"></div>
-        </div>
-        <div class="touch-btns">
-            <button class="touch-btn" id="btn-jump">JUMP</button>
-            <button class="touch-btn" id="btn-action-mobile" style="background:#0284c7">ACT</button>
+    <!-- Encyclopedia 100+ Modal -->
+    <div id="encyclopediaModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h2><span>🌿</span> Ensiklopedia 110+ Spesies Flora & Fauna</h2>
+                <button class="modal-close" onclick="toggleEncyclopedia()">✕</button>
+            </div>
+            <div class="modal-tabs">
+                <button class="tab-btn active" onclick="filterEncyclopedia('all')">🌟 Semua Spesies (110)</button>
+                <button class="tab-btn" onclick="filterEncyclopedia('biome:plains')">🌾 Plains (25)</button>
+                <button class="tab-btn" onclick="filterEncyclopedia('biome:taiga')">🌲 Taiga Pinus (18)</button>
+                <button class="tab-btn" onclick="filterEncyclopedia('biome:jungle')">🌴 Jungle Tropis (18)</button>
+                <button class="tab-btn" onclick="filterEncyclopedia('biome:dark_forest')">🍂 Dark Forest (15)</button>
+                <button class="tab-btn" onclick="filterEncyclopedia('biome:sakura')">🌸 Sakura Grove (12)</button>
+                <button class="tab-btn" onclick="filterEncyclopedia('biome:savanna')">🏜️ Savanna (11)</button>
+                <button class="tab-btn" onclick="filterEncyclopedia('biome:orchard')">🍎 Kebun Buah (11)</button>
+                <button class="tab-btn" onclick="filterEncyclopedia('cat:tree')">🌳 Pohon (25)</button>
+                <button class="tab-btn" onclick="filterEncyclopedia('cat:flower')">🌸 Bunga (25)</button>
+                <button class="tab-btn" onclick="filterEncyclopedia('cat:farm')">🐄 Hewan (28)</button>
+            </div>
+            <div class="modal-content" id="encyclopediaGrid"></div>
         </div>
     </div>
 
     <script>
-        /* ════════════════════════════════════════════════════════════
-           BAJA 3D Realism Engine (Three.js WebGL)
-           Features:
-           - Realistic Organic Open World (Continuous Noise, No Cubes)
-           - Dynamic Sunlight, Specular Water, PBR Terrain Shader
-           - Micro Detail Lab: Inspect 3D Model down to tiny holes & pads
-           ════════════════════════════════════════════════════════════ */
+        // ==========================================
+        // 1. DATABASE 110+ SPESIES FLORA & FAUNA
+        // ==========================================
+                // ==========================================
+        // 🌍 7 MASTER BIOME DEFINITIONS
+        // ==========================================
+        const BIOMES_CONFIG = {
+            plains: {
+                id: 'plains',
+                name: 'Plains (Padang Rumput)',
+                icon: '🌾',
+                badgeText: '🌾 Plains',
+                color: '#22c55e',
+                badgeBg: 'rgba(34, 197, 94, 0.15)',
+                badgeBorder: '#22c55e',
+                grassColor: 0x48bb78,
+                dirtColor: 0x78350f,
+                skyColor: 0x87ceeb,
+                fogColor: 0xc6e2ff,
+                desc: 'Padang rumput luas berbukit landai, kaya satwa ternak dan bunga liar.'
+            },
+            sakura: {
+                id: 'sakura',
+                name: 'Cherry Grove (Hutan Sakura)',
+                icon: '🌸',
+                badgeText: '🌸 Sakura Grove',
+                color: '#ec4899',
+                badgeBg: 'rgba(236, 72, 153, 0.15)',
+                badgeBorder: '#ec4899',
+                grassColor: 0x68d391,
+                dirtColor: 0x831843,
+                skyColor: 0xa5b4fc,
+                fogColor: 0xfbcfe8,
+                desc: 'Hutan bunga sakura merah muda dengan ketenangan kelopak bunga mekar.'
+            },
+            taiga: {
+                id: 'taiga',
+                name: 'Taiga & Snowy Pine (Hutan Pinus)',
+                icon: '🌲',
+                badgeText: '🌲 Taiga Salju',
+                color: '#0ea5e9',
+                badgeBg: 'rgba(14, 165, 233, 0.15)',
+                badgeBorder: '#0ea5e9',
+                grassColor: 0x276749,
+                dirtColor: 0x451a03,
+                skyColor: 0x7dd3fc,
+                fogColor: 0xe2e8f0,
+                desc: 'Hutan pinus beriklim dingin menjulang tinggi dengan satwa kutub.'
+            },
+            jungle: {
+                id: 'jungle',
+                name: 'Tropical Jungle (Hutan Tropis)',
+                icon: '🌴',
+                badgeText: '🌴 Jungle Tropis',
+                color: '#10b981',
+                badgeBg: 'rgba(16, 185, 129, 0.15)',
+                badgeBorder: '#10b981',
+                grassColor: 0x2f855a,
+                dirtColor: 0x365314,
+                skyColor: 0x38bdf8,
+                fogColor: 0xa7f3d0,
+                desc: 'Hutan hujan tropis rimbun berkanopi lebat, palem kelapa, dan fauna eksotis.'
+            },
+            savanna: {
+                id: 'savanna',
+                name: 'Savanna & Desert (Gurun & Savana)',
+                icon: '🏜️',
+                badgeText: '🏜️ Savana Gurun',
+                color: '#eab308',
+                badgeBg: 'rgba(234, 179, 8, 0.15)',
+                badgeBorder: '#eab308',
+                grassColor: 0x9ae6b4,
+                dirtColor: 0x92400e,
+                skyColor: 0xfde047,
+                fogColor: 0xfef08a,
+                desc: 'Savana hangat dengan pohon akasia payung, baobab, dan fauna padang luas.'
+            },
+            dark_forest: {
+                id: 'dark_forest',
+                name: 'Dark Oak & Birch (Hutan Gelap)',
+                icon: '🍂',
+                badgeText: '🍂 Dark Forest',
+                color: '#a16207',
+                badgeBg: 'rgba(161, 98, 7, 0.15)',
+                badgeBorder: '#a16207',
+                grassColor: 0x38a169,
+                dirtColor: 0x292524,
+                skyColor: 0x94a3b8,
+                fogColor: 0xd6d3d1,
+                desc: 'Hutan lebat misterius berpohon ek gelap, birch belang, dan aneka ragam jamur.'
+            },
+            orchard: {
+                id: 'orchard',
+                name: 'Fruit Orchard (Kebun Buah)',
+                icon: '🍎',
+                badgeText: '🍎 Kebun Buah',
+                color: '#ef4444',
+                badgeBg: 'rgba(239, 68, 68, 0.15)',
+                badgeBorder: '#ef4444',
+                grassColor: 0x38a169,
+                dirtColor: 0x78350f,
+                skyColor: 0x67e8f9,
+                fogColor: 0xbbf7d0,
+                desc: 'Perkebunan buah yang subur berlimpah pohon apel manis, jeruk, dan lebah.'
+            }
+        };
+
+const TAXONOMY_DATABASE = [
+            // --- POHON (25 Spesies) ---
+            { id: 'tree_oak', biome: 'plains', name: 'Pohon Ek (Oak)', cat: 'tree', icon: '🌳', drop: 'Log Kayu Ek', trunk: 0x5c2e0b, leaves: [0x15803d, 0x22c55e, 0x84cc16], fruit: null, style: 'canopy' },
+            { id: 'tree_dark_oak', biome: 'dark_forest', name: 'Pohon Ek Gelap', cat: 'tree', icon: '🌲', drop: 'Log Ek Gelap', trunk: 0x3b1d07, leaves: [0x14532d, 0x166534, 0x15803d], fruit: null, style: 'dense' },
+            { id: 'tree_birch', biome: 'dark_forest', name: 'Pohon Birch (Betula)', cat: 'tree', icon: '🪵', drop: 'Log Kayu Birch', trunk: 0xf1f5f9, barkStripes: true, leaves: [0x84cc16, 0xa3e635, 0x4d7c0f], fruit: null, style: 'slender' },
+            { id: 'tree_pine', biome: 'taiga', name: 'Pohon Pinus Taiga', cat: 'tree', icon: '🌲', drop: 'Log Kayu Pinus', trunk: 0x451a03, leaves: [0x064e3b, 0x065f46, 0x047857], fruit: null, style: 'conifer' },
+            { id: 'tree_spruce', biome: 'taiga', name: 'Pohon Cemara Salju', cat: 'tree', icon: '🎄', drop: 'Log Cemara', trunk: 0x38220f, leaves: [0x044e3f, 0x0f766e, 0x134e4a], fruit: null, style: 'conifer_tall' },
+            { id: 'tree_cherry', biome: 'sakura', name: 'Pohon Sakura Merah Muda', cat: 'tree', icon: '🌸', drop: 'Log Kayu Sakura', trunk: 0x4a2810, leaves: [0xf472b6, 0xfb7185, 0xfbcfe8], fruit: null, style: 'cherry' },
+            { id: 'tree_willow', biome: 'plains', name: 'Pohon Dedalu (Willow)', cat: 'tree', icon: '🌿', drop: 'Log Kayu Willow', trunk: 0x3f2e18, leaves: [0x365314, 0x4d7c0f, 0x65a30d], fruit: null, style: 'drooping' },
+            { id: 'tree_acacia', biome: 'savanna', name: 'Pohon Akasia Savana', cat: 'tree', icon: '🌴', drop: 'Log Kayu Akasia', trunk: 0x78350f, leaves: [0x4d7c0f, 0x65a30d, 0xa3e635], fruit: null, style: 'acacia' },
+            { id: 'tree_jungle', biome: 'jungle', name: 'Pohon Hutan Hujan Raksasa', cat: 'tree', icon: '🌴', drop: 'Log Kayu Jungle', trunk: 0x451a03, leaves: [0x15803d, 0x16a34a, 0x22c55e], fruit: null, style: 'giant' },
+            { id: 'tree_baobab', biome: 'savanna', name: 'Pohon Baobab Raksasa', cat: 'tree', icon: '🌳', drop: 'Log Kayu Baobab', trunk: 0x57341b, leaves: [0x3f6212, 0x65a30d, 0x84cc16], fruit: null, style: 'baobab' },
+            { id: 'tree_coconut', biome: 'jungle', name: 'Pohon Kelapa Tropis', cat: 'tree', icon: '🥥', drop: 'Batang Kelapa + Buah Kelapa', trunk: 0x664422, leaves: [0x16a34a, 0x22c55e], fruit: 'coconut', style: 'palm' },
+            { id: 'tree_banana', biome: 'jungle', name: 'Pohon Palem Pisang', cat: 'tree', icon: '🍌', drop: 'Batang Palem + Buah Pisang', trunk: 0x4d7c0f, leaves: [0x65a30d, 0x84cc16], fruit: 'banana', style: 'banana' },
+            { id: 'tree_apple', biome: 'orchard', name: 'Pohon Apel Merah', cat: 'tree', icon: '🍎', drop: 'Log Ek + Apel Merah', trunk: 0x5c2e0b, leaves: [0x15803d, 0x22c55e], fruit: 'apple', style: 'fruit' },
+            { id: 'tree_orange', biome: 'orchard', name: 'Pohon Jeruk Manis', cat: 'tree', icon: '🍊', drop: 'Log Buah + Jeruk Segar', trunk: 0x5c2e0b, leaves: [0x16a34a, 0x22c55e], fruit: 'orange', style: 'fruit' },
+            { id: 'tree_lemon', biome: 'orchard', name: 'Pohon Lemon Kuning', cat: 'tree', icon: '🍋', drop: 'Log Buah + Lemon Asam', trunk: 0x5c2e0b, leaves: [0x15803d, 0x4ade80], fruit: 'lemon', style: 'fruit' },
+            { id: 'tree_peach', biome: 'orchard', name: 'Pohon Persik (Peach)', cat: 'tree', icon: '🍑', drop: 'Log Buah + Buah Persik', trunk: 0x502b13, leaves: [0x22c55e, 0x86efac], fruit: 'peach', style: 'fruit' },
+            { id: 'tree_sweet_cherry', biome: 'sakura', name: 'Pohon Ceri Manis', cat: 'tree', icon: '🍒', drop: 'Log Sakura + Buah Ceri', trunk: 0x4a2810, leaves: [0x15803d, 0x4ade80], fruit: 'cherry', style: 'fruit' },
+            { id: 'tree_redwood', biome: 'taiga', name: 'Pohon Redwood Megah', cat: 'tree', icon: '🌲', drop: 'Log Kayu Redwood', trunk: 0x7c2d12, leaves: [0x14532d, 0x15803d], fruit: null, style: 'redwood' },
+            { id: 'tree_maple', biome: 'dark_forest', name: 'Pohon Maple Musim Gugur', cat: 'tree', icon: '🍁', drop: 'Log Kayu Maple', trunk: 0x5c2e0b, leaves: [0xd97706, 0xb45309, 0xb91c1c], fruit: null, style: 'canopy' },
+            { id: 'tree_jacaranda', biome: 'sakura', name: 'Pohon Jacaranda Ungu', cat: 'tree', icon: '💜', drop: 'Log Kayu Jacaranda', trunk: 0x3b1d07, leaves: [0x9333ea, 0xa855f7, 0xc084fc], fruit: null, style: 'cherry' },
+            { id: 'tree_mangrove', biome: 'jungle', name: 'Pohon Bakau (Mangrove)', cat: 'tree', icon: '🌱', drop: 'Log Kayu Mangrove', trunk: 0x451a03, leaves: [0x166534, 0x15803d], fruit: null, style: 'mangrove' },
+            { id: 'tree_cypress', biome: 'taiga', name: 'Pohon Cypress Pensil', cat: 'tree', icon: '🌲', drop: 'Log Kayu Cypress', trunk: 0x3f2e18, leaves: [0x14532d, 0x166534], fruit: null, style: 'cypress' },
+            { id: 'tree_olive', biome: 'savanna', name: 'Pohon Zaitun Kuno', cat: 'tree', icon: '🫒', drop: 'Log Zaitun + Buah Zaitun', trunk: 0x44403c, leaves: [0x4d7c0f, 0x84cc16], fruit: 'olive', style: 'gnarled' },
+            { id: 'tree_cocoa', biome: 'jungle', name: 'Pohon Kakao / Cokelat', cat: 'tree', icon: '🍫', drop: 'Log Jungle + Biji Kakao', trunk: 0x3b1d07, leaves: [0x15803d, 0x22c55e], fruit: 'cocoa', style: 'fruit' },
+            { id: 'tree_bamboo', biome: 'jungle', name: 'Bambu Raksasa Beruas', cat: 'tree', icon: '🎋', drop: 'Batang Bambu', trunk: 0x65a30d, leaves: [0x84cc16, 0xa3e635], fruit: null, style: 'bamboo' },
+
+            // --- BUNGA & TANAMAN HIAS (25 Spesies) ---
+            { id: 'flower_rose', biome: 'plains', name: 'Mawar Merah Klasik', cat: 'flower', icon: '🌹', drop: 'Kelopak Mawar Merah', color: 0xef4444 },
+            { id: 'flower_dandelion', biome: 'plains', name: 'Bunga Dandelion Kuning', cat: 'flower', icon: '🌼', drop: 'Bunga Dandelion', color: 0xfacc15 },
+            { id: 'flower_poppy', biome: 'plains', name: 'Bunga Poppy Merona', cat: 'flower', icon: '🌺', drop: 'Bunga Poppy', color: 0xdc2626 },
+            { id: 'flower_blue_orchid', biome: 'taiga', name: 'Anggrek Biru Langka', cat: 'flower', icon: '🪻', drop: 'Anggrek Biru', color: 0x38bdf8 },
+            { id: 'flower_allium', biome: 'dark_forest', name: 'Allium Ungu Bulat', cat: 'flower', icon: '🟣', drop: 'Bunga Allium', color: 0xa855f7 },
+            { id: 'flower_tulip_red', biome: 'orchard', name: 'Tulip Merah Segar', cat: 'flower', icon: '🌷', drop: 'Tulip Merah', color: 0xf43f5e },
+            { id: 'flower_tulip_orange', biome: 'orchard', name: 'Tulip Oranye Senja', cat: 'flower', icon: '🌷', drop: 'Tulip Oranye', color: 0xf97316 },
+            { id: 'flower_tulip_white', biome: 'orchard', name: 'Tulip Putih Bersih', cat: 'flower', icon: '🌷', drop: 'Tulip Putih', color: 0xf8fafc },
+            { id: 'flower_tulip_pink', biome: 'sakura', name: 'Tulip Merah Muda', cat: 'flower', icon: '🌷', drop: 'Tulip Pink', color: 0xf472b6 },
+            { id: 'flower_tulip_blue', biome: 'taiga', name: 'Tulip Biru Es', cat: 'flower', icon: '🌷', drop: 'Tulip Biru', color: 0x0ea5e9 },
+            { id: 'flower_sunflower', biome: 'savanna', name: 'Bunga Matahari Megah', cat: 'flower', icon: '🌻', drop: 'Biji Bunga Matahari', color: 0xeab308 },
+            { id: 'flower_lavender', biome: 'dark_forest', name: 'Lavender Ungu Harum', cat: 'flower', icon: '🪻', drop: 'Tangkai Lavender', color: 0x8b5cf6 },
+            { id: 'flower_daisy', biome: 'plains', name: 'Oxeye Daisy Putih', cat: 'flower', icon: '🌼', drop: 'Bunga Daisy', color: 0xffffff },
+            { id: 'flower_cornflower', biome: 'plains', name: 'Cornflower Biru Cerah', cat: 'flower', icon: '🔷', drop: 'Bunga Cornflower', color: 0x2563eb },
+            { id: 'flower_lily_valley', biome: 'taiga', name: 'Lily of the Valley', cat: 'flower', icon: '🔔', drop: 'Lily Putih', color: 0xf1f5f9 },
+            { id: 'flower_marigold', biome: 'savanna', name: 'Marigold Emas', cat: 'flower', icon: '🏵️', drop: 'Bunga Marigold', color: 0xd97706 },
+            { id: 'flower_hibiscus', biome: 'jungle', name: 'Bunga Sepatu Merah', cat: 'flower', icon: '🌺', drop: 'Bunga Sepatu', color: 0xe11d48 },
+            { id: 'flower_lotus', biome: 'sakura', name: 'Teratai Air Mekar', cat: 'flower', icon: '🪷', drop: 'Bunga Teratai', color: 0xf472b6 },
+            { id: 'flower_frangipani', biome: 'jungle', name: 'Kamboja Bali Putih-Kuning', cat: 'flower', icon: '💮', drop: 'Bunga Kamboja', color: 0xfef08a },
+            { id: 'flower_iris', biome: 'dark_forest', name: 'Bunga Iris Biru Tua', cat: 'flower', icon: '🪻', drop: 'Bunga Iris', color: 0x1d4ed8 },
+            { id: 'flower_peony', biome: 'sakura', name: 'Bunga Peony Rimbun', cat: 'flower', icon: '🌸', drop: 'Kelopak Peony', color: 0xfb7185 },
+            { id: 'flower_carnation', biome: 'sakura', name: 'Anyelir Pink', cat: 'flower', icon: '🌸', drop: 'Bunga Anyelir', color: 0xec4899 },
+            { id: 'flower_hydrangea', biome: 'dark_forest', name: 'Hortensia Biru Pastel', cat: 'flower', icon: '🫐', drop: 'Bunga Hortensia', color: 0x60a5fa },
+            { id: 'flower_dahlia', biome: 'sakura', name: 'Bunga Dahlia Magenta', cat: 'flower', icon: '🏵️', drop: 'Bunga Dahlia', color: 0xbe185d },
+            { id: 'flower_jasmine', biome: 'sakura', name: 'Melati Putih Semerbak', cat: 'flower', icon: '⚪', drop: 'Bunga Melati', color: 0xffffff },
+
+            // --- SEMAK, PERTANIAN & FUNGI (15 Spesies) ---
+            { id: 'crop_wheat', biome: 'plains', name: 'Gandum Emas Matang', cat: 'crop', icon: '🌾', drop: 'Gandum + Benih', color: 0xeab308 },
+            { id: 'crop_carrot', biome: 'orchard', name: 'Tanaman Wortel Segar', cat: 'crop', icon: '🥕', drop: 'Wortel Manis', color: 0xf97316 },
+            { id: 'crop_potato', biome: 'orchard', name: 'Tanaman Kentang Subur', cat: 'crop', icon: '🥔', drop: 'Umbi Kentang', color: 0xca8a04 },
+            { id: 'crop_beetroot', biome: 'orchard', name: 'Tanaman Bit Merah', cat: 'crop', icon: '🍠', drop: 'Bit Merah', color: 0x881337 },
+            { id: 'crop_berry_bush', biome: 'taiga', name: 'Semak Berry Manis', cat: 'crop', icon: '🫐', drop: 'Buah Manis Berry', color: 0xdc2626 },
+            { id: 'crop_blueberry', biome: 'taiga', name: 'Semak Blueberry Liar', cat: 'crop', icon: '🫐', drop: 'Blueberry Segar', color: 0x1d4ed8 },
+            { id: 'crop_melon', biome: 'jungle', name: 'Buah Semangka Hijau', cat: 'crop', icon: '🍉', drop: 'Irisan Semangka', color: 0x15803d },
+            { id: 'crop_pumpkin', biome: 'savanna', name: 'Labu Kuning Besar', cat: 'crop', icon: '🎃', drop: 'Labu Halloween', color: 0xea580c },
+            { id: 'crop_cactus_saguaro', biome: 'savanna', name: 'Kaktus Saguaro Berduri', cat: 'crop', icon: '🌵', drop: 'Blok Kaktus', color: 0x15803d },
+            { id: 'crop_cactus_pear', biome: 'savanna', name: 'Kaktus Centong Buah', cat: 'crop', icon: '🌵', drop: 'Buah Kaktus', color: 0x16a34a },
+            { id: 'crop_sugarcane', biome: 'jungle', name: 'Tebu Manis Hijau', cat: 'crop', icon: '🎋', drop: 'Batang Gula Tebu', color: 0x65a30d },
+            { id: 'crop_wild_grass', biome: 'plains', name: 'Rumput Ilalang Tinggi', cat: 'crop', icon: '🌱', drop: 'Serat Rumput', color: 0x4ade80 },
+            { id: 'crop_forest_fern', biome: 'taiga', name: 'Pakis Liar Hutan Lembap', cat: 'crop', icon: '🌿', drop: 'Daun Pakis', color: 0x166534 },
+            { id: 'fungus_red_mushroom', biome: 'dark_forest', name: 'Jamur Merah Bintik Putih', cat: 'crop', icon: '🍄', drop: 'Jamur Merah Rebus', color: 0xef4444 },
+            { id: 'fungus_brown_mushroom', biome: 'dark_forest', name: 'Jamur Cokelat Payung', cat: 'crop', icon: '🍄', drop: 'Jamur Cokelat', color: 0x78350f },
+
+            // --- HEWAN TERNAK & MAMALIA DARAT (18 Spesies) ---
+            { id: 'animal_cow', biome: 'plains', name: 'Sapi Perah Belang', cat: 'farm', icon: '🐄', drop: 'Daging Sapi + Kulit', body: 0xf8fafc, spots: 0x0f172a, sound: 'Moo' },
+            { id: 'animal_brown_bull', biome: 'savanna', name: 'Sapi Jantan Cokelat', cat: 'farm', icon: '🐂', drop: 'Daging Sapi', body: 0x78350f, spots: null, sound: 'Moo' },
+            { id: 'animal_sheep_white', biome: 'plains', name: 'Domba Wol Putih', cat: 'farm', icon: '🐑', drop: 'Wol Putih + Daging', body: 0xf8fafc, wool: 0xffffff },
+            { id: 'animal_sheep_black', biome: 'dark_forest', name: 'Domba Wol Hitam', cat: 'farm', icon: '🐑', drop: 'Wol Hitam', body: 0x1e293b, wool: 0x0f172a },
+            { id: 'animal_sheep_pink', biome: 'sakura', name: 'Domba Pink Langka', cat: 'farm', icon: '🐑', drop: 'Wol Pink Spesial', body: 0xf472b6, wool: 0xf472b6 },
+            { id: 'animal_pig', biome: 'plains', name: 'Babi Merah Muda Lucu', cat: 'farm', icon: '🐖', drop: 'Daging Babi', body: 0xfb7185 },
+            { id: 'animal_chicken', biome: 'plains', name: 'Ayam Petelur', cat: 'farm', icon: '🐔', drop: 'Telur + Bulu Ayam', body: 0xffffff, wattle: 0xef4444 },
+            { id: 'animal_chick', biome: 'plains', name: 'Anak Ayam Kuning', cat: 'farm', icon: '🐥', drop: 'Bulu Halus', body: 0xfacc15 },
+            { id: 'animal_horse_brown', biome: 'plains', name: 'Kuda Balap Cokelat', cat: 'farm', icon: '🐎', drop: 'Kulit Kuda', body: 0x78350f, mane: 0x271206 },
+            { id: 'animal_horse_white', biome: 'plains', name: 'Kuda Putih Megah', cat: 'farm', icon: '🦄', drop: 'Kulit Kuda Halus', body: 0xf8fafc, mane: 0xffffff },
+            { id: 'animal_donkey', biome: 'savanna', name: 'Keledai Abu-abu', cat: 'farm', icon: '🫏', drop: 'Kulit Keledai', body: 0x64748b },
+            { id: 'animal_goat', biome: 'taiga', name: 'Kambing Gunung Bertanduk', cat: 'farm', icon: '🐐', drop: 'Tanduk + Daging', body: 0xe2e8f0, horns: true },
+            { id: 'animal_rabbit_white', biome: 'taiga', name: 'Kelinci Salju Putih', cat: 'farm', icon: '🐇', drop: 'Kaki Kelinci', body: 0xffffff },
+            { id: 'animal_rabbit_brown', biome: 'plains', name: 'Kelinci Hutan Cokelat', cat: 'farm', icon: '🐰', drop: 'Bulu Kelinci', body: 0x92400e },
+            { id: 'animal_duck', biome: 'plains', name: 'Bebek Mallard Leher Hijau', cat: 'farm', icon: '🦆', drop: 'Bulu Bebek', body: 0x78350f, head: 0x15803d },
+            { id: 'animal_goose', biome: 'plains', name: 'Angsa Putih Berleher Panjang', cat: 'farm', icon: '🦢', drop: 'Bulu Angsa Halus', body: 0xffffff },
+            { id: 'animal_cat', biome: 'sakura', name: 'Kucing Belang Calico', cat: 'farm', icon: '🐱', drop: 'Ikan Favorit', body: 0xf97316, patches: 0x0f172a },
+            { id: 'animal_dog', biome: 'plains', name: 'Anjing Gembala Setia', cat: 'farm', icon: '🐶', drop: 'Tulang Anjing', body: 0xd97706, collar: 0xef4444 },
+
+            // --- HEWAN LIAR & HUTAN (10 Spesies) ---
+            { id: 'animal_wolf', biome: 'taiga', name: 'Serigala Rimba Abu-abu', cat: 'wild', icon: '🐺', drop: 'Taring Serigala', body: 0x64748b },
+            { id: 'animal_fox', biome: 'taiga', name: 'Rubah Merah Berekor Lebat', cat: 'wild', icon: '🦊', drop: 'Bulu Rubah', body: 0xea580c, tip: 0xffffff },
+            { id: 'animal_deer', biome: 'dark_forest', name: 'Rusa Bertanduk Gagah', cat: 'wild', icon: '🦌', drop: 'Tanduk Rusa', body: 0xa16207, antlers: true },
+            { id: 'animal_brown_bear', biome: 'taiga', name: 'Beruang Grizzly Cokelat', cat: 'wild', icon: '🐻', drop: 'Cakar Beruang', body: 0x451a03 },
+            { id: 'animal_polar_bear', biome: 'taiga', name: 'Beruang Kutub Salju', cat: 'wild', icon: '🐻‍❄️', drop: 'Lemak Beruang Kutub', body: 0xf8fafc },
+            { id: 'animal_panda', biome: 'jungle', name: 'Panda Raksasa Lucu', cat: 'wild', icon: '🐼', drop: 'Rebung Bambu', body: 0xffffff, black: 0x0f172a },
+            { id: 'animal_squirrel', biome: 'dark_forest', name: 'Tupai Pohon Gesit', cat: 'wild', icon: '🐿️', drop: 'Biji Kenari', body: 0xb45309 },
+            { id: 'animal_hedgehog', biome: 'savanna', name: 'Landak Mini Berduri', cat: 'wild', icon: '🦔', drop: 'Duri Pelindung', body: 0x78350f },
+            { id: 'animal_monkey', biome: 'jungle', name: 'Monyet Ekor Panjang', cat: 'wild', icon: '🐒', drop: 'Kulit Pisang', body: 0x92400e },
+            { id: 'animal_raccoon', biome: 'dark_forest', name: 'Rakun Bertopeng Hutan', cat: 'wild', icon: '🦝', drop: 'Barang Jarahan', body: 0x475569 },
+
+            // --- BURUNG & SERANGGA UDARA (10 Spesies) ---
+            { id: 'animal_eagle', biome: 'taiga', name: 'Burung Elang Angkasa', cat: 'air', icon: '🦅', drop: 'Bulu Elang', body: 0x451a03, head: 0xffffff, fly: true },
+            { id: 'animal_owl', biome: 'dark_forest', name: 'Burung Hantu Malam', cat: 'air', icon: '🦉', drop: 'Bulu Burung Hantu', body: 0x78350f, fly: true },
+            { id: 'animal_sparrow', biome: 'plains', name: 'Burung Pipit Ceria', cat: 'air', icon: '🐦', drop: 'Bulu Kecil', body: 0xa16207, fly: true },
+            { id: 'animal_parrot', biome: 'jungle', name: 'Burung Beo Tropis Merah-Kuning', cat: 'air', icon: '🦜', drop: 'Bulu Warna-warni', body: 0xef4444, wings: 0x3b82f6, fly: true },
+            { id: 'animal_dove', biome: 'plains', name: 'Burung Merpati Putih', cat: 'air', icon: '🕊️', drop: 'Simbol Kedamaian', body: 0xffffff, fly: true },
+            { id: 'animal_bee', biome: 'orchard', name: 'Lebah Madu Berdengung', cat: 'air', icon: '🐝', drop: 'Madu Botol + Lilin', body: 0xfacc15, stripes: 0x0f172a, fly: true },
+            { id: 'animal_butterfly_blue', biome: 'sakura', name: 'Kupu-kupu Morpho Biru', cat: 'air', icon: '🦋', drop: 'Serbuk Sayap Biru', body: 0x38bdf8, fly: true },
+            { id: 'animal_butterfly_monarch', biome: 'plains', name: 'Kupu-kupu Monarch Oranye', cat: 'air', icon: '🦋', drop: 'Serbuk Sayap Oranye', body: 0xf97316, fly: true },
+            { id: 'animal_dragonfly', biome: 'plains', name: 'Capung Sayap Kaca', cat: 'air', icon: '🪰', drop: 'Mata Majemuk', body: 0x06b6d4, fly: true },
+            { id: 'animal_firefly', biome: 'dark_forest', name: 'Kunang-kunang Bercahaya', cat: 'air', icon: '✨', drop: 'Kantong Cahaya', body: 0xa3e635, glow: true, fly: true },
+
+            // --- HEWAN AIR & AMFIBI (7 Spesies) ---
+            { id: 'animal_frog', biome: 'jungle', name: 'Katak Hijau Lompat', cat: 'water', icon: '🐸', drop: 'Kaki Katak Lompat', body: 0x22c55e },
+            { id: 'animal_turtle', biome: 'jungle', name: 'Kura-kura Tempurung Hijau', cat: 'water', icon: '🐢', drop: 'Keping Tempurung', body: 0x166534 },
+            { id: 'animal_goldfish', biome: 'plains', name: 'Ikan Mas Koki Cantik', cat: 'water', icon: '🐠', drop: 'Sisik Emas', body: 0xf97316 },
+            { id: 'animal_salmon', biome: 'taiga', name: 'Ikan Salmon Sungai', cat: 'water', icon: '🐟', drop: 'Ikan Salmon Segar', body: 0xfb7185 },
+            { id: 'animal_clownfish', biome: 'jungle', name: 'Ikan Badut Nemo Belang', cat: 'water', icon: '🐡', drop: 'Sisik Oranye Belang', body: 0xea580c, stripes: 0xffffff },
+            { id: 'animal_crab', biome: 'jungle', name: 'Kepiting Capit Merah', cat: 'water', icon: '🦀', drop: 'Capit Kepiting', body: 0xef4444 },
+            { id: 'animal_squid', biome: 'jungle', name: 'Cumi-cumi / Gurita Mini', cat: 'water', icon: '🦑', drop: 'Kantung Tinta Hitam', body: 0x0284c7 }
+        ];
+
+        // Global Constants & State
+        const BLOCK_SIZE = 2.0;
+        const CHUNK_SIZE = 8; // 8x8 blocks per chunk for fast, responsive chunk streaming
+        const RENDER_DISTANCE = 2; // Radius 2 chunks: (2*2+1)^2 = 25 chunks loaded around player
         
-        let scene, camera, renderer;
-        let orbitControls, fpControls;
-        let activeMode = 'world'; // 'world' | 'lab'
-        let terrainMesh, waterMesh;
-        let labGroup, pcbModel;
-        let sunLight, hemiLight, ambientLight;
+        let scene, camera, renderer, fpControls, clock;
         let isPointerLocked = false;
         let isFlying = false;
 
         // Player physics
         const player = {
+            height: 1.8,
+            speed: 12.0,
+            sprintSpeed: 20.0,
             velocity: new THREE.Vector3(),
             direction: new THREE.Vector3(),
-            speedMultiplier: 1.0,
-            height: 1.8,
-            canJump: true,
-            isSprinting: false
+            gravity: 34.0,
+            canJump: false,
+            moveForward: false,
+            moveBackward: false,
+            moveLeft: false,
+            moveRight: false,
+            speedMultiplier: 1.0
         };
-        const keys = { w: false, a: false, s: false, d: false, space: false, shift: false };
 
-        // Simplex/Perlin multi-octave noise implementation for smooth organic hills
-        function generatePerlinNoise2D(x, z) {
-            // Multi-frequency smooth wave superposition
-            const f1 = 0.008, f2 = 0.02, f3 = 0.06;
-            const h1 = Math.sin(x * f1) * Math.cos(z * f1) * 14.0;
-            const h2 = Math.sin(x * f2 + 1.2) * Math.cos(z * f2 + 0.8) * 6.0;
-            const h3 = Math.sin(x * f3 + z * f3 * 0.5) * 2.0;
-            const ridge = Math.cos((x + z) * 0.005) * 8.0;
-            return h1 + h2 + h3 + ridge;
+        // World Data Management
+        const loadedChunks = new Map(); // Key: "cx,cz" -> Chunk Object
+        const livingEntities = []; // Array of active roaming animals & props
+        const floatingDrops = []; // Array of dropped rotating items (logs, fruits)
+        const interactiveBlocks = new Map(); // Global block lookup for raycasting: "gx,gy,gz" -> mesh
+        const interactiveEntities = []; // Entities interactive meshes
+
+        let currentChunkX = 0, currentChunkZ = 0;
+        let selectedItemType = 'grass';
+        let blockMaterials = {};
+        let raycaster, cursorBox;
+
+        // Atmospheric Sky & Sun
+        let sunPivot, sunMesh, moonMesh, sunLight, ambientLight, cloudGroup;
+        let dayTime = 14.0; // 0.0 - 24.0
+
+        // ==========================================
+        // 2. PROCEDURAL TEXTURES & BLOCK MATERIALS
+        // ==========================================
+        function initBlockMaterials() {
+            function makePixelTexture(type) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 64;
+                canvas.height = 64;
+                const ctx = canvas.getContext('2d');
+
+                if (type === 'grass_top') {
+                    ctx.fillStyle = '#22c55e';
+                    ctx.fillRect(0, 0, 64, 64);
+                    // Pixel noise
+                    for (let i = 0; i < 90; i++) {
+                        ctx.fillStyle = Math.random() > 0.5 ? '#16a34a' : '#86efac';
+                        const px = Math.floor(Math.random() * 16) * 4;
+                        const py = Math.floor(Math.random() * 16) * 4;
+                        ctx.fillRect(px, py, 4, 4);
+                    }
+                } else if (type === 'grass_side') {
+                    ctx.fillStyle = '#78350f';
+                    ctx.fillRect(0, 0, 64, 64);
+                    // Dirt pebbles
+                    for (let i = 0; i < 70; i++) {
+                        ctx.fillStyle = Math.random() > 0.5 ? '#5c2a08' : '#92400e';
+                        ctx.fillRect(Math.floor(Math.random()*16)*4, Math.floor(Math.random()*16)*4, 4, 4);
+                    }
+                    // Grass top fringe
+                    ctx.fillStyle = '#22c55e';
+                    ctx.fillRect(0, 0, 64, 16);
+                    for (let x = 0; x < 16; x++) {
+                        const h = 16 + Math.floor(Math.random() * 3) * 4;
+                        ctx.fillRect(x * 4, 0, 4, h);
+                    }
+                } else if (type === 'dirt') {
+                    ctx.fillStyle = '#78350f';
+                    ctx.fillRect(0, 0, 64, 64);
+                    for (let i = 0; i < 110; i++) {
+                        ctx.fillStyle = Math.random() > 0.5 ? '#5c2a08' : '#92400e';
+                        ctx.fillRect(Math.floor(Math.random()*16)*4, Math.floor(Math.random()*16)*4, 4, 4);
+                    }
+                } else if (type === 'stone') {
+                    ctx.fillStyle = '#64748b';
+                    ctx.fillRect(0, 0, 64, 64);
+                    for (let i = 0; i < 100; i++) {
+                        ctx.fillStyle = Math.random() > 0.5 ? '#475569' : '#94a3b8';
+                        ctx.fillRect(Math.floor(Math.random()*16)*4, Math.floor(Math.random()*16)*4, 4, 4);
+                    }
+                } else if (type === 'wood_oak') {
+                    ctx.fillStyle = '#b45309';
+                    ctx.fillRect(0, 0, 64, 64);
+                    ctx.fillStyle = '#92400e';
+                    ctx.fillRect(0, 16, 64, 2);
+                    ctx.fillRect(0, 32, 64, 2);
+                    ctx.fillRect(0, 48, 64, 2);
+                    for (let i = 0; i < 50; i++) {
+                        ctx.fillStyle = '#78350f';
+                        ctx.fillRect(Math.floor(Math.random()*16)*4, Math.floor(Math.random()*16)*4, 4, 4);
+                    }
+                } else if (type === 'wood_birch') {
+                    ctx.fillStyle = '#f1f5f9';
+                    ctx.fillRect(0, 0, 64, 64);
+                    ctx.fillStyle = '#0f172a';
+                    for (let i = 0; i < 16; i++) {
+                        const py = Math.floor(Math.random()*14)*4;
+                        const px = Math.floor(Math.random()*12)*4;
+                        ctx.fillRect(px, py, 12, 3);
+                    }
+                } else if (type === 'wood_pine') {
+                    ctx.fillStyle = '#451a03';
+                    ctx.fillRect(0, 0, 64, 64);
+                    for (let i = 0; i < 60; i++) {
+                        ctx.fillStyle = '#271206';
+                        ctx.fillRect(Math.floor(Math.random()*16)*4, Math.floor(Math.random()*16)*4, 4, 4);
+                    }
+                } else if (type === 'wood_cherry') {
+                    ctx.fillStyle = '#f472b6';
+                    ctx.fillRect(0, 0, 64, 64);
+                    for (let i = 0; i < 60; i++) {
+                        ctx.fillStyle = '#fb7185';
+                        ctx.fillRect(Math.floor(Math.random()*16)*4, Math.floor(Math.random()*16)*4, 4, 4);
+                    }
+                } else if (type === 'sand') {
+                    ctx.fillStyle = '#fde047';
+                    ctx.fillRect(0, 0, 64, 64);
+                    for (let i = 0; i < 70; i++) {
+                        ctx.fillStyle = '#eab308';
+                        ctx.fillRect(Math.floor(Math.random()*16)*4, Math.floor(Math.random()*16)*4, 4, 4);
+                    }
+                }
+
+                const tex = new THREE.CanvasTexture(canvas);
+                tex.magFilter = THREE.NearestFilter;
+                tex.minFilter = THREE.NearestFilter;
+                return tex;
+            }
+
+            const grassTop = makePixelTexture('grass_top');
+            const grassSide = makePixelTexture('grass_side');
+            const dirtTex = makePixelTexture('dirt');
+            const stoneTex = makePixelTexture('stone');
+            const oakTex = makePixelTexture('wood_oak');
+            const birchTex = makePixelTexture('wood_birch');
+            const pineTex = makePixelTexture('wood_pine');
+            const cherryTex = makePixelTexture('wood_cherry');
+            const sandTex = makePixelTexture('sand');
+
+            blockMaterials.grass = [
+                new THREE.MeshStandardMaterial({ map: grassSide, roughness: 0.8 }),
+                new THREE.MeshStandardMaterial({ map: grassSide, roughness: 0.8 }),
+                new THREE.MeshStandardMaterial({ map: grassTop, roughness: 0.7 }),
+                new THREE.MeshStandardMaterial({ map: dirtTex, roughness: 0.9 }),
+                new THREE.MeshStandardMaterial({ map: grassSide, roughness: 0.8 }),
+                new THREE.MeshStandardMaterial({ map: grassSide, roughness: 0.8 })
+            ];
+            blockMaterials.dirt = new THREE.MeshStandardMaterial({ map: dirtTex, roughness: 0.9 });
+            blockMaterials.stone = new THREE.MeshStandardMaterial({ map: stoneTex, roughness: 0.85 });
+            blockMaterials.wood = new THREE.MeshStandardMaterial({ map: oakTex, roughness: 0.7 });
+            blockMaterials.log_oak = new THREE.MeshStandardMaterial({ map: oakTex, roughness: 0.7 });
+            blockMaterials.log_birch = new THREE.MeshStandardMaterial({ map: birchTex, roughness: 0.7 });
+            blockMaterials.log_pine = new THREE.MeshStandardMaterial({ map: pineTex, roughness: 0.7 });
+            blockMaterials.log_cherry = new THREE.MeshStandardMaterial({ map: cherryTex, roughness: 0.7 });
+            blockMaterials.sand = new THREE.MeshStandardMaterial({ map: sandTex, roughness: 0.9 });
         }
 
-        function getTerrainElevation(x, z) {
-            return generatePerlinNoise2D(x, z);
-        }
+        // ==========================================
+        // 3. MINECRAFT ATMOSPHERE, SUN CYCLE & CLOUDS
+        // ==========================================
+        function setupAtmosphere() {
+            // Lighting
+            ambientLight = new THREE.AmbientLight(0xffffff, 0.45);
+            scene.add(ambientLight);
 
-        // Initialize WebGL Application
-        function initApp() {
-            const container = document.getElementById('viewport-container');
+            sunPivot = new THREE.Group();
+            scene.add(sunPivot);
 
-            // Scene setup with bright daylight sky and crisp linear fog
-            scene = new THREE.Scene();
-            scene.fog = new THREE.Fog(0x93c5fd, 140, 480);
-
-            // Camera placed high on a scenic ridge overlooking the valley
-            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 24, 55);
-
-            // Renderer with ultra realistic tone mapping and soft shadows
-            renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-            renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1.22;
-            container.appendChild(renderer.domElement);
-
-            // Lighting Setup
-            setupLighting();
-
-            // Controls
-            orbitControls = new THREE.OrbitControls(camera, renderer.domElement);
-            orbitControls.enableDamping = true;
-            orbitControls.dampingFactor = 0.08;
-            orbitControls.maxDistance = 350;
-            orbitControls.minDistance = 0.2;
-            camera.position.set(0, 24, 55);
-            orbitControls.target.set(0, 8, 10);
-
-            fpControls = new THREE.PointerLockControls(camera, document.body);
-
-            // Build Both Worlds
-            buildRealisticOpenWorld();
-            buildMicroDetailLab();
-
-            // Events
-            setupEventListeners();
-
-            // Start loop
-            animate();
-        }
-
-        function setupLighting() {
-            hemiLight = new THREE.HemisphereLight(0x7dd3fc, 0x15803d, 1.25);
-            scene.add(hemiLight);
-
-            sunLight = new THREE.DirectionalLight(0xfff7ed, 2.6);
-            sunLight.position.set(55, 75, 45);
+            sunLight = new THREE.DirectionalLight(0xfffaed, 1.25);
+            sunLight.position.set(120, 180, 100);
             sunLight.castShadow = true;
-            sunLight.shadow.mapSize.width = 2048;
-            sunLight.shadow.mapSize.height = 2048;
-            sunLight.shadow.camera.near = 1.0;
+            sunLight.shadow.mapSize.width = 1024;
+            sunLight.shadow.mapSize.height = 1024;
+            sunLight.shadow.camera.near = 10;
             sunLight.shadow.camera.far = 400;
-            const d = 160;
+            const d = 100;
             sunLight.shadow.camera.left = -d;
             sunLight.shadow.camera.right = d;
             sunLight.shadow.camera.top = d;
             sunLight.shadow.camera.bottom = -d;
-            sunLight.shadow.bias = -0.0004;
-            scene.add(sunLight);
+            sunPivot.add(sunLight);
 
-            ambientLight = new THREE.AmbientLight(0xdcfce7, 0.45);
-            scene.add(ambientLight);
-        }
+            // Minecraft Square Sun
+            const sunGeo = new THREE.BoxGeometry(22, 22, 4);
+            const sunMat = new THREE.MeshBasicMaterial({ color: 0xfffbeb });
+            sunMesh = new THREE.Mesh(sunGeo, sunMat);
+            sunMesh.position.set(160, 200, 0);
+            sunMesh.lookAt(0, 0, 0);
+            sunPivot.add(sunMesh);
 
-        // Build Genshin Impact Inspired Open World (Lush Anime Meadows, Fluffy Trees, Dense Grass & Teleport Waypoint)
-        function buildRealisticOpenWorld() {
-            window.worldGroup = new THREE.Group();
+            // Minecraft Square Moon
+            const moonGeo = new THREE.BoxGeometry(18, 18, 3);
+            const moonMat = new THREE.MeshBasicMaterial({ color: 0xe0e7ff });
+            moonMesh = new THREE.Mesh(moonGeo, moonMat);
+            moonMesh.position.set(-160, -200, 0);
+            moonMesh.lookAt(0, 0, 0);
+            sunPivot.add(moonMesh);
 
-            // 1. Genshin Sky Dome with Gradient Canvas Texture
-            const skyCanvas = document.createElement('canvas');
-            skyCanvas.width = 512;
-            skyCanvas.height = 512;
-            const ctx = skyCanvas.getContext('2d');
-            const skyGrad = ctx.createLinearGradient(0, 0, 0, 512);
-            skyGrad.addColorStop(0.0, '#0284c7');   // Celestial Genshin Blue
-            skyGrad.addColorStop(0.45, '#38bdf8');  // Azure Mid-Sky
-            skyGrad.addColorStop(0.75, '#bae6fd');  // Soft Horizon Mist
-            skyGrad.addColorStop(1.0, '#fef08a');   // Warm Golden Sun Glint
-            ctx.fillStyle = skyGrad;
-            ctx.fillRect(0, 0, 512, 512);
+            // Minecraft Volumetric Voxel Clouds at altitude Y = 45
+            cloudGroup = new THREE.Group();
+            cloudGroup.position.y = 19.0;
+            scene.add(cloudGroup);
 
-            const skyTex = new THREE.CanvasTexture(skyCanvas);
-            const skyGeo = new THREE.SphereGeometry(450, 32, 24);
-            const skyMat = new THREE.MeshBasicMaterial({
-                map: skyTex,
-                side: THREE.BackSide,
+            const cloudBoxGeo = new THREE.BoxGeometry(BLOCK_SIZE * 3, 2.5, BLOCK_SIZE * 3);
+            const cloudMat = new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.78,
                 fog: false
             });
-            const skyDome = new THREE.Mesh(skyGeo, skyMat);
-            window.worldGroup.add(skyDome);
-            window.skyDome = skyDome;
 
-            // Procedural anime grass blades texture with lush green tones
-            const grassCanvas = document.createElement('canvas');
-            grassCanvas.width = 512;
-            grassCanvas.height = 512;
-            const gctx = grassCanvas.getContext('2d');
-            gctx.fillStyle = '#16a34a'; // Vibrant spring grass
-            gctx.fillRect(0, 0, 512, 512);
-            for (let i = 0; i < 4500; i++) {
-                const gx = Math.random() * 512;
-                const gy = Math.random() * 512;
-                const glen = 4 + Math.random() * 8;
-                gctx.strokeStyle = Math.random() > 0.45 ? '#84cc16' : '#15803d';
-                gctx.lineWidth = 1.4;
-                gctx.beginPath();
-                gctx.moveTo(gx, gy);
-                gctx.lineTo(gx + (Math.random() - 0.5) * 3, gy - glen);
-                gctx.stroke();
-            }
-            const grassTex = new THREE.CanvasTexture(grassCanvas);
-            grassTex.wrapS = THREE.RepeatWrapping;
-            grassTex.wrapT = THREE.RepeatWrapping;
-            grassTex.repeat.set(32, 32);
-
-            // 2. High-Density Smooth Terrain with Genshin Mondstadt Color Palette
-            const terrainSize = 360;
-            const segments = 160;
-            const geo = new THREE.PlaneGeometry(terrainSize, terrainSize, segments, segments);
-            geo.rotateX(-Math.PI / 2);
-
-            const pos = geo.attributes.position;
-            const colors = [];
-            const color = new THREE.Color();
-
-            for (let i = 0; i < pos.count; i++) {
-                const x = pos.getX(i);
-                const z = pos.getZ(i);
-                const y = getTerrainElevation(x, z);
-                pos.setY(i, y);
-
-                // Genshin Color Palette: Warm sand shore -> Lush emerald meadow -> Golden ridge
-                if (y < -0.8) {
-                    color.setHex(0xeab308); // Warm golden shore sand
-                } else if (y < 9.0) {
-                    // Mondstadt lush meadow with sunny lime highlights
-                    const t = (y - (-0.8)) / 9.8;
-                    const cBase = new THREE.Color(0x15803d); // Deep lush spring green
-                    const cHighlight = new THREE.Color(0x84cc16); // Sunlit chartreuse lime
-                    color.lerpColors(cBase, cHighlight, t);
-                    const noise = Math.sin(x * 0.15) * Math.cos(z * 0.15) * 0.04;
-                    color.r += noise;
-                    color.g += noise;
-                } else if (y < 16.0) {
-                    // Weathered warm cliff stone
-                    const t = (y - 9.0) / 7.0;
-                    const cGrass = new THREE.Color(0x15803d);
-                    const cRock = new THREE.Color(0x64748b);
-                    color.lerpColors(cGrass, cRock, t);
-                } else {
-                    // Mountain peak
-                    const t = Math.min(1.0, (y - 16.0) / 5.0);
-                    const cRock = new THREE.Color(0x64748b);
-                    const cSnow = new THREE.Color(0xf1f5f9);
-                    color.lerpColors(cRock, cSnow, t);
-                }
-                colors.push(color.r, color.g, color.b);
-            }
-            geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-            geo.attributes.position.needsUpdate = true;
-            geo.attributes.color.needsUpdate = true;
-            geo.computeVertexNormals();
-
-            const terrainMat = new THREE.MeshStandardMaterial({
-                map: grassTex,
-                vertexColors: true,
-                roughness: 0.75,
-                metalness: 0.05,
-                flatShading: false
-            });
-
-            terrainMesh = new THREE.Mesh(geo, terrainMat);
-            terrainMesh.receiveShadow = true;
-            terrainMesh.castShadow = true;
-            window.worldGroup.add(terrainMesh);
-
-            // 3. Genshin Crystal Turquoise Lake
-            const waterGeo = new THREE.PlaneGeometry(terrainSize, terrainSize, 40, 40);
-            waterGeo.rotateX(-Math.PI / 2);
-            const waterMat = new THREE.MeshStandardMaterial({
-                color: 0x06b6d4, // Vibrant anime cyan
-                roughness: 0.04,
-                metalness: 0.85,
-                transparent: true,
-                opacity: 0.84
-            });
-            waterMesh = new THREE.Mesh(waterGeo, waterMat);
-            waterMesh.position.y = -1.0;
-            waterMesh.receiveShadow = true;
-            window.worldGroup.add(waterMesh);
-
-            // 4. Genshin Fluffy Anime Trees & Foliage
-            addGenshinAnimeTrees(window.worldGroup);
-
-            // 5. Genshin Dense Swaying Grass Blades & Wild Flowers (InstancedMesh - High Perf)
-            addGenshinGrassAndFlowers(window.worldGroup);
-
-            // 6. Genshin Teleport Waypoint & Ancient Ruins
-            addGenshinWaypointAndRuins(window.worldGroup);
-
-            // 7. Stylized Fluffy Anime Clouds
-            addGenshinAnimeClouds(window.worldGroup);
-
-            // 8. Floating Anemo Elemental Wisps (Cyan Motes)
-            addGenshinElementalWisps(window.worldGroup);
-
-            // 9. Distant Anime Mountain Peaks (Mondstadt Horizons)
-            addGenshinDistantMountains(window.worldGroup);
-
-            // 10. Radiant Genshin Sun with Corona Halo
-            addGenshinAnimeSun(window.worldGroup);
-
-            scene.add(window.worldGroup);
-        }
-
-        // 4. Genshin Fluffy Anime Trees (Windrise / Mondstadt Style)
-        function addGenshinAnimeTrees(parentGroup) {
-            const trunkGeo = new THREE.CylinderGeometry(0.38, 0.75, 5.0, 10);
-            const trunkMat = new THREE.MeshStandardMaterial({ color: 0x3d1d07, roughness: 0.88 });
-
-            // Foliage materials: Layered anime forest green, vibrant spring emerald, and sunlit golden lime
-            const foliageMat1 = new THREE.MeshStandardMaterial({ color: 0x059669, roughness: 0.5 });
-            const foliageMat2 = new THREE.MeshStandardMaterial({ color: 0x16a34a, roughness: 0.45 });
-            const foliageMat3 = new THREE.MeshStandardMaterial({ color: 0x84cc16, roughness: 0.4 });
-
-            const sphereGeo = new THREE.DodecahedronGeometry(1.85, 2);
-
-            for (let i = 0; i < 90; i++) {
-                const rx = (Math.random() - 0.5) * 260;
-                const rz = (Math.random() - 0.5) * 260;
-                if (Math.hypot(rx - 0, rz - 55) < 14) continue;
-                if (Math.hypot(rx - 6, rz - 22) < 9) continue;
-
-                const ry = getTerrainElevation(rx, rz);
-
-                if (ry > 0.2 && ry < 11.5) {
-                    const treeGroup = new THREE.Group();
-                    
-                    // Trunk
-                    const trunk = new THREE.Mesh(trunkGeo, trunkMat);
-                    trunk.position.y = 2.5;
-                    trunk.rotation.z = (Math.random() - 0.5) * 0.15;
-                    trunk.castShadow = true;
-                    trunk.receiveShadow = true;
-                    treeGroup.add(trunk);
-
-                    // Multi-sphere fluffy cloud canopy
-                    const canopyPuffs = [
-                        { x: 0, y: 5.2, z: 0, s: 1.9, m: foliageMat1 },
-                        { x: 1.3, y: 4.6, z: 0.6, s: 1.45, m: foliageMat2 },
-                        { x: -1.2, y: 4.8, z: -0.6, s: 1.5, m: foliageMat1 },
-                        { x: 0.6, y: 6.0, z: -0.4, s: 1.45, m: foliageMat3 },
-                        { x: -0.6, y: 5.6, z: 0.8, s: 1.4, m: foliageMat2 },
-                        { x: 0.8, y: 4.8, z: -0.8, s: 1.3, m: foliageMat1 }
-                    ];
-
-                    canopyPuffs.forEach(p => {
-                        const puff = new THREE.Mesh(sphereGeo, p.m);
-                        puff.position.set(p.x, p.y, p.z);
-                        puff.scale.set(p.s, p.s * 0.88, p.s);
-                        puff.castShadow = true;
-                        puff.receiveShadow = true;
-                        treeGroup.add(puff);
-                    });
-
-                    treeGroup.position.set(rx, ry, rz);
-                    const treeScale = 0.95 + Math.random() * 0.55;
-                    treeGroup.scale.set(treeScale, treeScale, treeScale);
-                    parentGroup.add(treeGroup);
-                }
-            }
-        }
-
-        // 5. Genshin Dense Swaying Grass Field & Anime Flowers (InstancedMesh)
-        let grassInstancedMesh = null;
-        function addGenshinGrassAndFlowers(parentGroup) {
-            const grassCount = 4200;
-            // Tapered 3D anime grass tuft geometry
-            const tuftGeo = new THREE.ConeGeometry(0.35, 1.4, 4, 1, true);
-            tuftGeo.translate(0, 0.7, 0);
-            tuftGeo.scale(1.0, 1.0, 0.4);
-
-            const grassMat = new THREE.MeshStandardMaterial({
-                color: 0x84cc16,
-                roughness: 0.45,
-                metalness: 0.05,
-                side: THREE.DoubleSide
-            });
-
-            grassInstancedMesh = new THREE.InstancedMesh(tuftGeo, grassMat, grassCount);
-            grassInstancedMesh.receiveShadow = true;
-            grassInstancedMesh.castShadow = true;
-
-            const dummy = new THREE.Object3D();
-            let idx = 0;
-
-            for (let i = 0; i < grassCount; i++) {
-                const rx = (Math.random() - 0.5) * 190;
-                const rz = (Math.random() - 0.5) * 190;
-                const ry = getTerrainElevation(rx, rz);
-
-                if (ry > 0.0 && ry < 12.0) {
-                    dummy.position.set(rx, ry, rz);
-                    dummy.rotation.y = Math.random() * Math.PI * 2;
-                    dummy.rotation.x = (Math.random() - 0.5) * 0.25;
-                    const scale = 0.85 + Math.random() * 0.65;
-                    dummy.scale.set(scale, scale * (0.85 + Math.random() * 0.5), scale);
-                    dummy.updateMatrix();
-                    grassInstancedMesh.setMatrixAt(idx++, dummy.matrix);
-                }
-            }
-            grassInstancedMesh.count = idx;
-            grassInstancedMesh.instanceMatrix.needsUpdate = true;
-            parentGroup.add(grassInstancedMesh);
-
-            // Scattered Anime Flowers (Yellow Sweet Flowers & White Cecilias)
-            const flowerCount = 500;
-            const flowerGeo = new THREE.ConeGeometry(0.28, 0.55, 6);
-            const flowerMatY = new THREE.MeshBasicMaterial({ color: 0xfde047 });
-            const flowerMatW = new THREE.MeshBasicMaterial({ color: 0x67e8f9 });
-
-            const flowerMeshY = new THREE.InstancedMesh(flowerGeo, flowerMatY, flowerCount / 2);
-            const flowerMeshW = new THREE.InstancedMesh(flowerGeo, flowerMatW, flowerCount / 2);
-
-            let idy = 0, idw = 0;
-            for (let i = 0; i < flowerCount; i++) {
-                const rx = (Math.random() - 0.5) * 180;
-                const rz = (Math.random() - 0.5) * 180;
-                const ry = getTerrainElevation(rx, rz);
-                if (ry > 0.5 && ry < 10.0) {
-                    dummy.position.set(rx, ry + 0.35, rz);
-                    dummy.rotation.set((Math.random()-0.5)*0.2, Math.random()*Math.PI*2, 0);
-                    dummy.scale.setScalar(0.75 + Math.random() * 0.5);
-                    dummy.updateMatrix();
-                    if (Math.random() > 0.5 && idy < flowerCount / 2) {
-                        flowerMeshY.setMatrixAt(idy++, dummy.matrix);
-                    } else if (idw < flowerCount / 2) {
-                        flowerMeshW.setMatrixAt(idw++, dummy.matrix);
+            // Create cluster of fluffy cubic cloud puffs
+            for (let cx = -12; cx <= 12; cx++) {
+                for (let cz = -12; cz <= 12; cz++) {
+                    const noise = Math.sin(cx * 0.4) * Math.cos(cz * 0.4);
+                    if (noise > 0.25) {
+                        const cloudPuff = new THREE.Mesh(cloudBoxGeo, cloudMat);
+                        cloudPuff.position.set(cx * BLOCK_SIZE * 4.5, (Math.random() - 0.5) * 1.5, cz * BLOCK_SIZE * 4.5);
+                        cloudGroup.add(cloudPuff);
                     }
                 }
             }
-            flowerMeshY.count = idy; flowerMeshY.instanceMatrix.needsUpdate = true;
-            flowerMeshW.count = idw; flowerMeshW.instanceMatrix.needsUpdate = true;
-            parentGroup.add(flowerMeshY);
-            parentGroup.add(flowerMeshW);
+
+            updateDayNightCycle(14.0);
         }
 
-        // 6. Genshin Teleport Waypoint & Ancient Ruins Landmark
-        let waypointCrystal = null;
-        let waypointRings = [];
-        function addGenshinWaypointAndRuins(parentGroup) {
-            const landmarkGroup = new THREE.Group();
+        function updateDayNightCycle(hour) {
+            dayTime = hour;
+            const angle = ((hour - 6) / 24) * Math.PI * 2;
+            sunPivot.rotation.z = angle;
 
-            // Weathered tiered stone pedestal dais
-            const baseTier1 = new THREE.CylinderGeometry(2.6, 3.2, 0.7, 16);
-            const stoneMat1 = new THREE.MeshStandardMaterial({
-                color: 0x334155,
-                roughness: 0.85,
-                metalness: 0.15
-            });
-            const tier1 = new THREE.Mesh(baseTier1, stoneMat1);
-            tier1.position.y = 0.35;
-            tier1.castShadow = true;
-            tier1.receiveShadow = true;
-            landmarkGroup.add(tier1);
-
-            const baseTier2 = new THREE.CylinderGeometry(1.8, 2.3, 0.6, 16);
-            const stoneMat2 = new THREE.MeshStandardMaterial({
-                color: 0x475569,
-                roughness: 0.8,
-                metalness: 0.2
-            });
-            const tier2 = new THREE.Mesh(baseTier2, stoneMat2);
-            tier2.position.y = 0.95;
-            tier2.castShadow = true;
-            tier2.receiveShadow = true;
-            landmarkGroup.add(tier2);
-
-            // 3 elegant curved ruin pillars with gold metallic caps
-            const pillarGeo = new THREE.CylinderGeometry(0.22, 0.32, 4.4, 12);
-            const goldMat = new THREE.MeshStandardMaterial({
-                color: 0xf59e0b,
-                metalness: 0.85,
-                roughness: 0.2
-            });
-            const finialGeo = new THREE.ConeGeometry(0.35, 0.7, 12);
-
-            for (let i = 0; i < 3; i++) {
-                const angle = (i / 3) * Math.PI * 2;
-                const pillar = new THREE.Mesh(pillarGeo, stoneMat2);
-                pillar.position.set(Math.cos(angle) * 1.7, 2.6, Math.sin(angle) * 1.7);
-                pillar.rotation.y = -angle;
-                pillar.rotation.z = Math.cos(angle) * 0.08;
-                pillar.castShadow = true;
-                pillar.receiveShadow = true;
-                landmarkGroup.add(pillar);
-
-                const finial = new THREE.Mesh(finialGeo, goldMat);
-                finial.position.set(Math.cos(angle) * 1.7, 5.0, Math.sin(angle) * 1.7);
-                finial.castShadow = true;
-                landmarkGroup.add(finial);
+            // Sky Color Interpolation
+            let skyColor, fogColor;
+            if (hour >= 6 && hour < 8) {
+                // Sunrise Golden Dawn
+                skyColor = new THREE.Color(0xfdba74);
+                fogColor = new THREE.Color(0xfed7aa);
+                sunLight.color.setHex(0xffedd5);
+                sunLight.intensity = 0.9;
+                ambientLight.intensity = 0.4;
+            } else if (hour >= 8 && hour < 17) {
+                // Bright Day
+                skyColor = new THREE.Color(0x38bdf8);
+                fogColor = new THREE.Color(0xbae6fd);
+                sunLight.color.setHex(0xfffaed);
+                sunLight.intensity = 1.35;
+                ambientLight.intensity = 0.55;
+            } else if (hour >= 17 && hour < 19) {
+                // Sunset Crimson Gold
+                skyColor = new THREE.Color(0xf97316);
+                fogColor = new THREE.Color(0xfb923c);
+                sunLight.color.setHex(0xf97316);
+                sunLight.intensity = 0.85;
+                ambientLight.intensity = 0.35;
+            } else {
+                // Deep Midnight Blue
+                skyColor = new THREE.Color(0x090e17);
+                fogColor = new THREE.Color(0x0f172a);
+                sunLight.color.setHex(0x818cf8);
+                sunLight.intensity = 0.2;
+                ambientLight.intensity = 0.15;
             }
 
-            // Glowing Floating Anemo Crystal (Teleport Core)
-            const crystalGeo = new THREE.OctahedronGeometry(1.2, 0);
-            const crystalMat = new THREE.MeshStandardMaterial({
-                color: 0x06b6d4,
-                emissive: 0x00f5ff,
-                emissiveIntensity: 2.2,
-                roughness: 0.05,
-                metalness: 0.85,
-                transparent: true,
-                opacity: 0.96
-            });
-            waypointCrystal = new THREE.Mesh(crystalGeo, crystalMat);
-            waypointCrystal.position.y = 3.6;
-            landmarkGroup.add(waypointCrystal);
-
-            // Floating orbital energy rings
-            const ringGeo = new THREE.TorusGeometry(1.65, 0.07, 12, 32);
-            const ringMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
-            const ring1 = new THREE.Mesh(ringGeo, ringMat);
-            ring1.position.y = 3.6;
-            ring1.rotation.x = Math.PI / 3;
-            landmarkGroup.add(ring1);
-            waypointRings.push(ring1);
-
-            const ring2 = new THREE.Mesh(ringGeo, ringMat);
-            ring2.position.y = 3.6;
-            ring2.rotation.y = Math.PI / 4;
-            landmarkGroup.add(ring2);
-            waypointRings.push(ring2);
-
-            // Dynamic Cyan PointLight from Waypoint
-            const waypointLight = new THREE.PointLight(0x00f5ff, 5.0, 25);
-            waypointLight.position.y = 3.6;
-            landmarkGroup.add(waypointLight);
-
-            // Position Landmark prominently on scenic ridge
-            const wx = 6.0, wz = 22.0;
-            const wy = getTerrainElevation(wx, wz);
-            landmarkGroup.position.set(wx, wy, wz);
-            parentGroup.add(landmarkGroup);
+            scene.background = skyColor;
+            scene.fog.color = fogColor;
         }
 
-        // 7. Fluffy Stylized Anime Clouds
-        let animeCloudList = [];
-        function addGenshinAnimeClouds(parentGroup) {
-            const cloudMat = new THREE.MeshStandardMaterial({
-                color: 0xffffff,
-                roughness: 0.85,
-                metalness: 0.05
-            });
-            const cloudPuffGeo = new THREE.DodecahedronGeometry(7.5, 2);
-
-            // Framed directly across the northern vista
-            for (let i = 0; i < 16; i++) {
-                const cloudGroup = new THREE.Group();
-                const puffs = 6;
-                for (let j = 0; j < puffs; j++) {
-                    const puff = new THREE.Mesh(cloudPuffGeo, cloudMat);
-                    puff.position.set(
-                        (j - puffs / 2) * 8.5 + (Math.random() - 0.5) * 4.0,
-                        (Math.random() - 0.5) * 3.5,
-                        (Math.random() - 0.5) * 5.0
-                    );
-                    const s = 0.85 + Math.random() * 0.7;
-                    puff.scale.set(s, s * 0.55, s);
-                    cloudGroup.add(puff);
-                }
-                const cx = (Math.random() - 0.5) * 280;
-                const cz = -60 - Math.random() * 140;
-                const cy = 26 + Math.random() * 28;
-                cloudGroup.position.set(cx, cy, cz);
-                parentGroup.add(cloudGroup);
-                animeCloudList.push(cloudGroup);
+        // ==========================================
+        // 4. INFINITE CHUNK MANAGER & PROCEDURAL TERRAIN
+        // ==========================================
+        function getElevationNoise(gx, gz) {
+            // Create a scenic flat meadow around spawn for pristine viewing
+            if (Math.abs(gx) <= 7 && Math.abs(gz) <= 7) {
+                return 4;
             }
+            // Rolling hills beyond spawn
+            const s1 = Math.sin(gx * 0.12) * Math.cos(gz * 0.12) * 3.5;
+            const s2 = Math.cos(gx * 0.05 + gz * 0.04) * 4.0;
+            const s3 = Math.sin((gx + gz) * 0.25) * 1.0;
+            let elev = Math.floor(s1 + s2 + s3);
+            if (elev < 1) elev = 1;
+            return elev;
         }
 
-        // 8. Floating Anemo Elemental Wisps (Cyan Sparks)
-        let elementalPoints = null;
-        function addGenshinElementalWisps(parentGroup) {
-            const wispCount = 180;
-            const wispGeo = new THREE.BufferGeometry();
-            const positions = new Float32Array(wispCount * 3);
+        function getBiomeAt(gx, gz) {
+            // Peaceful spawn clearing is Plains
+            if (Math.abs(gx) <= 12 && Math.abs(gz) <= 12) return BIOMES_CONFIG.plains;
 
-            for (let i = 0; i < wispCount; i++) {
-                positions[i * 3] = (Math.random() - 0.5) * 140;
-                positions[i * 3 + 1] = 2.0 + Math.random() * 18.0;
-                positions[i * 3 + 2] = (Math.random() - 0.5) * 140;
+            // Deterministic 2D temperature & moisture noise
+            const temp = Math.sin(gx * 0.02) * Math.cos(gz * 0.02) + 0.3 * Math.sin(gx * 0.05);
+            const moisture = Math.cos(gx * 0.02) * Math.sin(gz * 0.02) + 0.3 * Math.cos(gz * 0.05);
+
+            if (temp < -0.35) return BIOMES_CONFIG.taiga;
+            if (temp > 0.35 && moisture < -0.15) return BIOMES_CONFIG.savanna;
+            if (temp > 0.25 && moisture > 0.25) return BIOMES_CONFIG.jungle;
+            if (moisture > 0.35) return BIOMES_CONFIG.sakura;
+            if (temp < 0.1 && moisture < -0.15) return BIOMES_CONFIG.dark_forest;
+            if (moisture > 0.1) return BIOMES_CONFIG.orchard;
+            return BIOMES_CONFIG.plains;
+        }
+
+        // Biome Grass Top Material Cache
+        const biomeGrassMaterials = {};
+        function getBiomeGrassMat(bId) {
+            if (!biomeGrassMaterials[bId]) {
+                const conf = BIOMES_CONFIG[bId] || BIOMES_CONFIG.plains;
+                biomeGrassMaterials[bId] = new THREE.MeshLambertMaterial({ color: conf.grassColor });
             }
-            wispGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-            const wispMat = new THREE.PointsMaterial({
-                color: 0x22d3ee,
-                size: 0.65,
-                transparent: true,
-                opacity: 0.85,
-                blending: THREE.AdditiveBlending
-            });
-
-            elementalPoints = new THREE.Points(wispGeo, wispMat);
-            parentGroup.add(elementalPoints);
+            return biomeGrassMaterials[bId];
         }
 
-        // 9. Distant Anime Mountain Peaks (Mondstadt Horizons)
-        function addGenshinDistantMountains(parentGroup) {
-            const mtnMat1 = new THREE.MeshStandardMaterial({
-                color: 0x475569, // Misty slate purple/blue
-                roughness: 0.9,
-                metalness: 0.05,
-                flatShading: true
-            });
-            const mtnMat2 = new THREE.MeshStandardMaterial({
-                color: 0x64748b, // Lighter ridge peak
-                roughness: 0.85,
-                metalness: 0.05,
-                flatShading: true
-            });
+        function buildChunk(cx, cz) {
+            const key = `${cx},${cz}`;
+            if (loadedChunks.has(key)) return loadedChunks.get(key);
 
-            // Arc of towering peaks across the northern/western horizon
-            const mtnPeaks = [
-                { x: -140, z: -180, r: 65, h: 95, m: mtnMat1 },
-                { x: -60,  z: -210, r: 85, h: 125, m: mtnMat2 },
-                { x: 20,   z: -230, r: 95, h: 140, m: mtnMat1 },
-                { x: 110,  z: -200, r: 75, h: 110, m: mtnMat2 },
-                { x: 180,  z: -170, r: 60, h: 85, m: mtnMat1 }
-            ];
+            const chunkGroup = new THREE.Group();
+            scene.add(chunkGroup);
 
-            mtnPeaks.forEach(p => {
-                const geo = new THREE.ConeGeometry(p.r, p.h, 7);
-                const mtn = new THREE.Mesh(geo, p.m);
-                mtn.position.set(p.x, p.h * 0.42, p.z);
-                mtn.rotation.y = Math.random() * Math.PI;
-                parentGroup.add(mtn);
-            });
-        }
+            const chunkData = {
+                cx, cz,
+                group: chunkGroup,
+                blocks: new Map(),
+                entities: []
+            };
 
-        // 10. Radiant Genshin Sun with Corona Halo
-        function addGenshinAnimeSun(parentGroup) {
-            const sunGroup = new THREE.Group();
-            // Sun Core
-            const sunGeo = new THREE.SphereGeometry(18, 16, 16);
-            const sunMat = new THREE.MeshBasicMaterial({ color: 0xffffff, fog: false });
-            const sunMesh = new THREE.Mesh(sunGeo, sunMat);
-            sunGroup.add(sunMesh);
+            const boxGeo = new THREE.BoxGeometry(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+            const startX = cx * CHUNK_SIZE;
+            const startZ = cz * CHUNK_SIZE;
 
-            // Sun Corona Ring
-            const ringGeo = new THREE.RingGeometry(18, 54, 32);
-            const ringMat = new THREE.MeshBasicMaterial({
-                color: 0xfde047,
-                side: THREE.DoubleSide,
-                transparent: true,
-                opacity: 0.6,
-                fog: false
-            });
-            const sunRing = new THREE.Mesh(ringGeo, ringMat);
-            sunGroup.add(sunRing);
+            for (let x = 0; x < CHUNK_SIZE; x++) {
+                for (let z = 0; z < CHUNK_SIZE; z++) {
+                    const gx = startX + x;
+                    const gz = startZ + z;
+                    const elevation = getElevationNoise(gx, gz);
+                    const biome = getBiomeAt(gx, gz);
 
-            sunGroup.position.set(45, 62, -135);
-            sunGroup.lookAt(0, 24, 55);
-            parentGroup.add(sunGroup);
-        }
+                    // Stack voxel cubes
+                    const minY = Math.max(0, elevation - 1);
+                    for (let gy = minY; gy <= elevation; gy++) {
+                        let mat;
+                        let type = 'stone';
+                        if (gy === elevation) {
+                            mat = getBiomeGrassMat(biome.id);
+                            type = 'grass';
+                        } else if (gy === elevation - 1) {
+                            mat = blockMaterials.dirt;
+                            type = 'dirt';
+                        } else {
+                            mat = blockMaterials.stone;
+                            type = 'stone';
+                        }
 
-        // Build Micro Detail & Hole Inspection Lab
-        function buildMicroDetailLab() {
-            labGroup = new THREE.Group();
-            labGroup.visible = false;
+                        const blockMesh = new THREE.Mesh(boxGeo, mat);
+                        blockMesh.position.set(gx * BLOCK_SIZE, gy * BLOCK_SIZE, gz * BLOCK_SIZE);
+                        blockMesh.receiveShadow = (gy === elevation);
+                        blockMesh.userData = { isBlock: true, gx, gy, gz, type };
+                        chunkGroup.add(blockMesh);
 
-            // Inspection stage pedestal
-            const stageGeo = new THREE.CylinderGeometry(5.0, 5.5, 0.4, 64);
-            const stageMat = new THREE.MeshStandardMaterial({
-                color: 0x0f172a,
-                metalness: 0.7,
-                roughness: 0.3
-            });
-            const stage = new THREE.Mesh(stageGeo, stageMat);
-            stage.position.y = -0.2;
-            stage.receiveShadow = true;
-            labGroup.add(stage);
+                        const bKey = `${gx},${gy},${gz}`;
+                        chunkData.blocks.set(bKey, blockMesh);
+                        interactiveBlocks.set(bKey, blockMesh);
+                    }
 
-            // Circular LED ring guide
-            const ringGeo = new THREE.TorusGeometry(4.8, 0.06, 16, 64);
-            const ringMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
-            const ring = new THREE.Mesh(ringGeo, ringMat);
-            ring.rotation.x = Math.PI / 2;
-            ring.position.y = 0.01;
-            labGroup.add(ring);
+                    // Natural Flora & Fauna Spawning on the top block (skip spawn clearing for showcase)
+                    const spawnSeed = Math.abs(Math.sin(gx * 37.1 + gz * 59.3));
+                    if (spawnSeed > 0.975 && elevation > 0 && (Math.abs(gx) > 7 || Math.abs(gz) > 7)) {
+                        // Spawn Tree belonging to this biome!
+                        const biomeTrees = TAXONOMY_DATABASE.filter(t => t.cat === 'tree' && t.biome === biome.id);
+                        const treeChoice = biomeTrees.length > 0 
+                            ? biomeTrees[Math.floor(Math.abs(Math.sin(gx * 13.7 + gz * 89.1)) * biomeTrees.length)].id 
+                            : 'tree_oak';
 
-            // Load high-detail PCB model
-            const loader = new THREE.GLTFLoader();
-            loader.load('/src/assets/models/pcb_prototype_board.glb', function(gltf) {
-                pcbModel = gltf.scene;
-                pcbModel.position.set(0, 0.4, 0);
-                pcbModel.scale.set(0.65, 0.65, 0.65);
-                pcbModel.traverse(function(node) {
-                    if (node.isMesh) {
-                        node.castShadow = true;
-                        node.receiveShadow = true;
-                        if (node.material) {
-                            node.material.roughness = 0.25;
-                            node.material.metalness = 0.85;
-                            node.material.needsUpdate = true;
+                        const treeModel = spawn3DTree(gx, elevation + 1, gz, treeChoice);
+                        if (treeModel) {
+                            chunkGroup.add(treeModel);
+                            chunkData.entities.push(treeModel);
+                        }
+                    } else if (spawnSeed > 0.88 && spawnSeed <= 0.94 && elevation > 0) {
+                        // Spawn Flower or Crop belonging to this biome!
+                        const biomePlants = TAXONOMY_DATABASE.filter(t => (t.cat === 'flower' || t.cat === 'crop') && t.biome === biome.id);
+                        const plantChoice = biomePlants.length > 0
+                            ? biomePlants[Math.floor(Math.abs(Math.cos(gx * 29.3 + gz * 43.7)) * biomePlants.length)].id
+                            : 'flower_rose';
+
+                        const plantModel = spawn3DPlant(gx, elevation + 1, gz, plantChoice);
+                        if (plantModel) {
+                            chunkGroup.add(plantModel);
+                            chunkData.entities.push(plantModel);
+                        }
+                    } else if (spawnSeed > 0.85 && spawnSeed <= 0.88 && elevation > 0) {
+                        // Spawn Living Animal belonging to this biome!
+                        const biomeAnimals = TAXONOMY_DATABASE.filter(t => (t.cat === 'farm' || t.cat === 'wild' || t.cat === 'air') && t.biome === biome.id);
+                        let animalChoice = 'cow';
+                        if (biomeAnimals.length > 0) {
+                            const chosen = biomeAnimals[Math.floor(Math.abs(Math.sin(gx * 71.3 + gz * 19.9)) * biomeAnimals.length)];
+                            if (chosen.id.includes('pink')) animalChoice = 'sheep_pink';
+                            else if (chosen.id.includes('black')) animalChoice = 'sheep_black';
+                            else if (chosen.id.includes('sheep')) animalChoice = 'sheep';
+                            else if (chosen.id.includes('pig')) animalChoice = 'pig';
+                            else if (chosen.id.includes('chicken') || chosen.id.includes('chick')) animalChoice = 'chicken';
+                            else if (chosen.id.includes('wolf')) animalChoice = 'wolf';
+                            else if (chosen.id.includes('fox')) animalChoice = 'fox';
+                            else if (chosen.id.includes('bear')) animalChoice = 'bear';
+                            else if (chosen.id.includes('panda')) animalChoice = 'panda';
+                            else if (chosen.id.includes('horse') || chosen.id.includes('bull')) animalChoice = 'horse';
+                            else animalChoice = 'cow';
+                        }
+                        const animalModel = spawn3DAnimal(gx, elevation + 1, gz, animalChoice);
+                        if (animalModel) {
+                            chunkGroup.add(animalModel);
+                            chunkData.entities.push(animalModel);
+                            livingEntities.push(animalModel);
                         }
                     }
-                });
-                labGroup.add(pcbModel);
-            }, undefined, function(err) {
-                console.warn('GLB fallback to procedural micro board');
-                createProceduralMicroInspectionBoard(labGroup);
-            });
+                }
+            }
 
-            scene.add(labGroup);
+            loadedChunks.set(key, chunkData);
+            return chunkData;
         }
 
-        // Fallback procedural board with physical through-holes and gold pads
-        function createProceduralMicroInspectionBoard(parent) {
-            const boardGeo = new THREE.BoxGeometry(4.0, 0.12, 4.0);
-            const boardMat = new THREE.MeshStandardMaterial({
-                color: 0x0d5c2c,
-                metalness: 0.4,
-                roughness: 0.3
+        function unloadChunk(key) {
+            if (!loadedChunks.has(key)) return;
+            const chunkData = loadedChunks.get(key);
+
+            // Remove blocks from lookup
+            chunkData.blocks.forEach((mesh, bKey) => {
+                interactiveBlocks.delete(bKey);
             });
-            const board = new THREE.Mesh(boardGeo, boardMat);
-            board.position.y = 0.2;
-            board.castShadow = true;
-            board.receiveShadow = true;
-            parent.add(board);
 
-            // Add an array of metallic gold solder pads with deep dark holes
-            const padGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.14, 16);
-            const padMat = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.9, roughness: 0.15 });
-            const holeGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.15, 12);
-            const holeMat = new THREE.MeshBasicMaterial({ color: 0x09090b });
+            // Remove living entities
+            chunkData.entities.forEach(ent => {
+                const idx = livingEntities.indexOf(ent);
+                if (idx !== -1) livingEntities.splice(idx, 1);
+            });
 
-            for (let x = -1.5; x <= 1.5; x += 0.3) {
-                for (let z = -1.5; z <= 1.5; z += 0.3) {
-                    const pad = new THREE.Mesh(padGeo, padMat);
-                    pad.position.set(x, 0.21, z);
-                    const hole = new THREE.Mesh(holeGeo, holeMat);
-                    hole.position.set(x, 0.215, z);
-                    parent.add(pad, hole);
+            scene.remove(chunkData.group);
+            loadedChunks.delete(key);
+        }
+
+        function updateChunksAroundPlayer() {
+            const px = camera.position.x;
+            const pz = camera.position.z;
+            const newChunkX = Math.floor(px / (CHUNK_SIZE * BLOCK_SIZE));
+            const newChunkZ = Math.floor(pz / (CHUNK_SIZE * BLOCK_SIZE));
+
+            currentChunkX = newChunkX;
+            currentChunkZ = newChunkZ;
+
+            const neededKeys = new Set();
+            for (let dx = -RENDER_DISTANCE; dx <= RENDER_DISTANCE; dx++) {
+                for (let dz = -RENDER_DISTANCE; dz <= RENDER_DISTANCE; dz++) {
+                    const cx = newChunkX + dx;
+                    const cz = newChunkZ + dz;
+                    const key = `${cx},${cz}`;
+                    neededKeys.add(key);
+                    if (!loadedChunks.has(key)) {
+                        buildChunk(cx, cz);
+                    }
+                }
+            }
+
+            // Unload distant chunks
+            loadedChunks.forEach((_, key) => {
+                if (!neededKeys.has(key)) {
+                    unloadChunk(key);
+                }
+            });
+
+            updateHUDStats();
+        }
+
+        // ==========================================
+        // 5. PROCEDURAL 3D MODELS (TREES, FRUITS, DROPS, ANIMALS)
+        // ==========================================
+        function spawn3DTree(gx, gy, gz, treeId) {
+            const data = TAXONOMY_DATABASE.find(t => t.id === treeId) || TAXONOMY_DATABASE[0];
+            const group = new THREE.Group();
+
+            // 1. Organic Trunk
+            const trunkMat = new THREE.MeshStandardMaterial({
+                color: data.trunk,
+                roughness: 0.85,
+                flatShading: true
+            });
+            const trunkHeight = (data.style === 'conifer' || data.style === 'conifer_tall') ? 5.8 : 4.2;
+            const trunkGeo = new THREE.CylinderGeometry(0.32, 0.6, trunkHeight, 10);
+            const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+            trunk.position.y = trunkHeight * 0.5;
+            trunk.castShadow = true;
+            group.add(trunk);
+
+            // If Birch, add dark horizontal markings along the white trunk
+            if (data.id === 'tree_birch') {
+                const darkMarkMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 });
+                const bandGeo = new THREE.CylinderGeometry(0.33, 0.61, 0.16, 8);
+                [0.9, 1.8, 2.7, 3.5].forEach(by => {
+                    const band = new THREE.Mesh(bandGeo, darkMarkMat);
+                    band.position.y = by;
+                    group.add(band);
+                });
+            }
+
+            // Flaring Roots resting on voxel grass
+            const rootGeo = new THREE.CylinderGeometry(0.12, 0.28, 1.2, 8);
+            [0.3, 1.8, 3.5, 5.0].forEach(ang => {
+                const root = new THREE.Mesh(rootGeo, trunkMat);
+                root.position.set(Math.cos(ang) * 0.55, 0.45, Math.sin(ang) * 0.55);
+                root.rotation.z = Math.cos(ang) * 0.45;
+                root.rotation.x = Math.sin(ang) * 0.45;
+                root.castShadow = true;
+                group.add(root);
+            });
+
+            // 2. Foliage based on Style
+            if (data.style === 'conifer' || data.style === 'conifer_tall') {
+                // Tiered Pine Cones
+                const coneMat = new THREE.MeshStandardMaterial({ color: data.leaves[0], roughness: 0.7, flatShading: true });
+                const tiers = [
+                    { y: 3.2, r: 2.2, h: 2.2 },
+                    { y: 4.6, r: 1.7, h: 2.0 },
+                    { y: 5.8, r: 1.2, h: 1.8 },
+                    { y: 6.8, r: 0.7, h: 1.4 }
+                ];
+                tiers.forEach(t => {
+                    const cGeo = new THREE.ConeGeometry(t.r, t.h, 8);
+                    const cone = new THREE.Mesh(cGeo, coneMat);
+                    cone.position.y = t.y;
+                    cone.castShadow = true;
+                    group.add(cone);
+                });
+            } else if (data.style === 'palm') {
+                // Palm Fronds & Coconuts
+                const frondMat = new THREE.MeshStandardMaterial({ color: data.leaves[0], roughness: 0.6, flatShading: true });
+                for (let i = 0; i < 7; i++) {
+                    const angle = (i / 7) * Math.PI * 2;
+                    const fGeo = new THREE.BoxGeometry(0.4, 0.1, 3.2);
+                    const frond = new THREE.Mesh(fGeo, frondMat);
+                    frond.position.set(Math.cos(angle) * 1.5, trunkHeight + 0.2, Math.sin(angle) * 1.5);
+                    frond.rotation.y = angle;
+                    frond.rotation.x = 0.5;
+                    group.add(frond);
+                }
+                // Coconuts
+                const cocoMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.8 });
+                for (let i = 0; i < 3; i++) {
+                    const coco = new THREE.Mesh(new THREE.DodecahedronGeometry(0.28, 0), cocoMat);
+                    coco.position.set((Math.random() - 0.5) * 0.6, trunkHeight - 0.2, (Math.random() - 0.5) * 0.6);
+                    group.add(coco);
+                }
+            } else {
+                // Lush Multi-Layered Low-Poly Canopy
+                const leafMats = data.leaves.map(col => new THREE.MeshStandardMaterial({ color: col, roughness: 0.65, flatShading: true }));
+                const clusters = [
+                    { x: 0, y: trunkHeight + 0.5, z: 0, r: 1.85, m: leafMats[0] },
+                    { x: 0.9, y: trunkHeight + 0.1, z: 0.5, r: 1.4, m: leafMats[1] || leafMats[0] },
+                    { x: -0.9, y: trunkHeight + 0.2, z: -0.4, r: 1.45, m: leafMats[0] },
+                    { x: 0.2, y: trunkHeight + 1.5, z: -0.2, r: 1.5, m: leafMats[leafMats.length - 1] },
+                    { x: -0.4, y: trunkHeight + 1.3, z: 0.6, r: 1.3, m: leafMats[1] || leafMats[0] },
+                    { x: 0.05, y: trunkHeight + 2.5, z: 0.0, r: 1.15, m: leafMats[leafMats.length - 1] }
+                ];
+
+                clusters.forEach(c => {
+                    const geo = new THREE.IcosahedronGeometry(c.r, 1);
+                    const mesh = new THREE.Mesh(geo, c.m);
+                    mesh.position.set(c.x, c.y, c.z);
+                    mesh.castShadow = true;
+                    group.add(mesh);
+                });
+
+                // 3. Spawning Hanging 3D Fruits on Fruit Trees!
+                if (data.fruit) {
+                    let fruitColor = 0xdc2626; // Bright Vivid Red Apple
+                    if (data.fruit === 'orange') fruitColor = 0xf97316;
+                    else if (data.fruit === 'lemon') fruitColor = 0xfacc15;
+                    else if (data.fruit === 'peach') fruitColor = 0xfb7185;
+
+                    const fruitMat = new THREE.MeshStandardMaterial({ color: fruitColor, roughness: 0.3, metalness: 0.05 });
+                    const fruitGeo = new THREE.SphereGeometry(0.38, 12, 12);
+
+                    const fruitPositions = [
+                        { x: 1.2, y: trunkHeight - 0.1, z: 0.7 },
+                        { x: -1.1, y: trunkHeight + 0.2, z: -0.6 },
+                        { x: 0.4, y: trunkHeight + 0.5, z: 1.3 },
+                        { x: -0.7, y: trunkHeight + 0.7, z: -1.1 },
+                        { x: -1.2, y: trunkHeight - 0.2, z: 0.8 },
+                        { x: 1.0, y: trunkHeight + 0.8, z: -0.8 }
+                    ];
+
+                    fruitPositions.forEach(fp => {
+                        const fruit = new THREE.Mesh(fruitGeo, fruitMat);
+                        fruit.position.set(fp.x, fp.y, fp.z);
+                        fruit.castShadow = true;
+                        group.add(fruit);
+                    });
+                }
+            }
+
+            group.position.set(gx * BLOCK_SIZE, (gy - 0.5) * BLOCK_SIZE, gz * BLOCK_SIZE);
+            group.userData = { isTree: true, treeData: data, gx, gy, gz };
+
+            // Register children for raycast chopping
+            group.traverse(child => {
+                if (child.isMesh) {
+                    child.userData = { isEntityPart: true, parentGroup: group };
+                    interactiveEntities.push(child);
+                }
+            });
+
+            return group;
+        }
+
+        // Spawn Wood Log & Fruit Floating Drops when tree is chopped down
+        function spawnFloatingDrop(x, y, z, itemType) {
+            let mesh;
+            if (itemType === 'apple') {
+                const geo = new THREE.SphereGeometry(0.35, 12, 12);
+                const mat = new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.25, metalness: 0.1 });
+                mesh = new THREE.Mesh(geo, mat);
+            } else {
+                const geo = new THREE.CylinderGeometry(0.3, 0.3, 0.9, 8);
+                let col = 0x92400e; // Oak
+                if (itemType === 'log_birch') col = 0xf8fafc;
+                else if (itemType === 'log_pine') col = 0x3b1c0b;
+                else if (itemType === 'log_cherry') col = 0xf472b6;
+                const mat = new THREE.MeshStandardMaterial({ color: col, roughness: 0.8 });
+                mesh = new THREE.Mesh(geo, mat);
+                if (itemType === 'log_birch') {
+                    const ring = new THREE.Mesh(new THREE.CylinderGeometry(0.31, 0.31, 0.16, 8), new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.9 }));
+                    mesh.add(ring);
+                }
+            }
+            mesh.position.set(x, y, z);
+            mesh.userData = { isItemDrop: true, itemType, baseY: y, rotSpeed: 1.8, seed: Math.random() * 5 };
+            scene.add(mesh);
+            floatingDrops.push(mesh);
+            return mesh;
+        }
+
+        function dropTreeLoot(pos, treeData) {
+            const dropCount = 3;
+            let logType = 'log_oak';
+            if (treeData.id.includes('birch')) logType = 'log_birch';
+            else if (treeData.id.includes('pine') || treeData.id.includes('spruce')) logType = 'log_pine';
+            else if (treeData.id.includes('cherry')) logType = 'log_cherry';
+
+            // 1. Drop Floating Rotating Logs
+            const logGeo = new THREE.CylinderGeometry(0.3, 0.3, 0.9, 8);
+            const logMat = blockMaterials[logType] || blockMaterials.wood;
+
+            for (let i = 0; i < dropCount; i++) {
+                const log = new THREE.Mesh(logGeo, logMat);
+                log.position.copy(pos);
+                log.position.x += (Math.random() - 0.5) * 1.8;
+                log.position.z += (Math.random() - 0.5) * 1.8;
+                log.position.y += 0.8 + Math.random() * 0.6;
+                log.rotation.z = Math.PI / 2;
+                log.userData = { isDrop: true, rotSpeed: 2.5 + Math.random(), baseY: log.position.y, seed: Math.random() * 10 };
+                scene.add(log);
+                floatingDrops.push(log);
+            }
+
+            // 2. Drop Fruits if Fruit Tree
+            if (treeData.fruit) {
+                let fColor = 0xef4444;
+                if (treeData.fruit === 'orange') fColor = 0xf97316;
+                else if (treeData.fruit === 'lemon') fColor = 0xfacc15;
+                const fMat = new THREE.MeshStandardMaterial({ color: fColor, roughness: 0.3 });
+                const fGeo = new THREE.SphereGeometry(0.28, 8, 8);
+
+                for (let i = 0; i < 2; i++) {
+                    const fruit = new THREE.Mesh(fGeo, fMat);
+                    fruit.position.copy(pos);
+                    fruit.position.x += (Math.random() - 0.5) * 2.0;
+                    fruit.position.z += (Math.random() - 0.5) * 2.0;
+                    fruit.position.y += 0.6;
+                    fruit.userData = { isDrop: true, rotSpeed: 3.2, baseY: fruit.position.y, seed: Math.random() * 10 };
+                    scene.add(fruit);
+                    floatingDrops.push(fruit);
                 }
             }
         }
 
-        // Mode Switching
-        window.switchMode = function(mode) {
-            activeMode = mode;
-            document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        // Spawn Flowers & Plants
+        function spawn3DPlant(gx, gy, gz, flowerId) {
+            const data = TAXONOMY_DATABASE.find(f => f.id === flowerId) || TAXONOMY_DATABASE[25];
+            const group = new THREE.Group();
 
-            if (mode === 'world') {
-                document.getElementById('btn-mode-world').classList.add('active');
-                window.worldGroup.visible = true;
-                labGroup.visible = false;
-                scene.background = null;
-                scene.fog = new THREE.Fog(0x93c5fd, 140, 480);
-                document.getElementById('world-settings').style.display = 'block';
-                document.getElementById('lab-settings').style.display = 'none';
-                document.getElementById('panel-title').innerHTML = '🎮 Pengaturan Dunia';
-                document.getElementById('lock-prompt').style.display = 'block';
-                document.getElementById('hud-diag').style.display = 'block';
-                camera.position.set(0, 24, 55);
-                orbitControls.target.set(0, 8, 10);
+            // Stalk
+            const stalkGeo = new THREE.CylinderGeometry(0.04, 0.05, 0.9, 6);
+            const stalkMat = new THREE.MeshStandardMaterial({ color: 0x4d7c0f, roughness: 0.7 });
+            const stalk = new THREE.Mesh(stalkGeo, stalkMat);
+            stalk.position.y = 0.45;
+            group.add(stalk);
+
+            // Blossom Head
+            const blossomGeo = new THREE.DodecahedronGeometry(0.24, 0);
+            const blossomMat = new THREE.MeshStandardMaterial({ color: data.color || 0xef4444, roughness: 0.5, flatShading: true });
+            const blossom = new THREE.Mesh(blossomGeo, blossomMat);
+            blossom.position.y = 0.95;
+            group.add(blossom);
+
+            group.position.set(gx * BLOCK_SIZE, (gy + 0.5) * BLOCK_SIZE, gz * BLOCK_SIZE);
+            group.userData = { isPlant: true, plantData: data, gx, gy, gz };
+
+            group.traverse(child => {
+                if (child.isMesh) {
+                    child.userData = { isEntityPart: true, parentGroup: group };
+                    interactiveEntities.push(child);
+                }
+            });
+
+            return group;
+        }
+
+        // Spawn Living 3D Animals (Cow, Sheep, Chicken, Pig) with Wander AI
+        function spawn3DAnimal(gx, gy, gz, type) {
+            const group = new THREE.Group();
+
+            if (type === 'cow') {
+                // Sapi Perah 3D
+                const bodyGeo = new THREE.BoxGeometry(1.4, 1.0, 2.0);
+                const bodyMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.8 });
+                const body = new THREE.Mesh(bodyGeo, bodyMat);
+                body.position.y = 1.3;
+                group.add(body);
+
+                // Black Spots
+                const spotMat = new THREE.MeshStandardMaterial({ color: 0x0f172a });
+                const spot1 = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.6, 0.9), spotMat);
+                spot1.position.set(0.35, 1.35, 0.2);
+                group.add(spot1);
+
+                // Head, Horns & Pink Muzzle
+                const head = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.7, 0.8), bodyMat);
+                head.position.set(0, 1.7, 1.2);
+                group.add(head);
+
+                const muzzle = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.35, 0.3), new THREE.MeshStandardMaterial({ color: 0xfbcfe8, roughness: 0.6 }));
+                muzzle.position.set(0, 1.55, 1.6);
+                group.add(muzzle);
+
+                const hornMat = new THREE.MeshStandardMaterial({ color: 0x475569 });
+                const horn1 = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.4, 4), hornMat);
+                horn1.position.set(0.35, 2.1, 1.1);
+                horn1.rotation.z = -0.4;
+                group.add(horn1);
+                const horn2 = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.4, 4), hornMat);
+                horn2.position.set(-0.35, 2.1, 1.1);
+                horn2.rotation.z = 0.4;
+                group.add(horn2);
+
+                // 4 Legs
+                const legGeo = new THREE.BoxGeometry(0.3, 0.8, 0.3);
+                const legMat = new THREE.MeshStandardMaterial({ color: 0x334155 });
+                const legPositions = [
+                    { x: -0.45, z: 0.7 }, { x: 0.45, z: 0.7 },
+                    { x: -0.45, z: -0.7 }, { x: 0.45, z: -0.7 }
+                ];
+                group.legs = [];
+                legPositions.forEach(lp => {
+                    const leg = new THREE.Mesh(legGeo, legMat);
+                    leg.position.set(lp.x, 0.4, lp.z);
+                    group.add(leg);
+                    group.legs.push(leg);
+                });
+            } else if (type === 'sheep') {
+                // Domba Wol Fluffy
+                const body = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.1, 1.7), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 }));
+                body.position.y = 1.2;
+                group.add(body);
+
+                const head = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.55, 0.6), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
+                head.position.set(0, 1.45, 1.0);
+                group.add(head);
+
+                const legGeo = new THREE.BoxGeometry(0.24, 0.7, 0.24);
+                const legMat = new THREE.MeshStandardMaterial({ color: 0x1e293b });
+                group.legs = [];
+                [[-0.35, 0.6], [0.35, 0.6], [-0.35, -0.6], [0.35, -0.6]].forEach(([lx, lz]) => {
+                    const leg = new THREE.Mesh(legGeo, legMat);
+                    leg.position.set(lx, 0.35, lz);
+                    group.add(leg);
+                    group.legs.push(leg);
+                });
+            } else if (type === 'sheep_pink') {
+                // Domba Pink Langka (Sakura Biome)
+                const body = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.1, 1.7), new THREE.MeshStandardMaterial({ color: 0xf472b6, roughness: 0.9 }));
+                body.position.y = 1.2;
+                group.add(body);
+
+                const head = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.55, 0.6), new THREE.MeshStandardMaterial({ color: 0xfbcfe8 }));
+                head.position.set(0, 1.45, 1.0);
+                group.add(head);
+
+                const legGeo = new THREE.BoxGeometry(0.24, 0.7, 0.24);
+                const legMat = new THREE.MeshStandardMaterial({ color: 0x831843 });
+                group.legs = [];
+                [[-0.35, 0.6], [0.35, 0.6], [-0.35, -0.6], [0.35, -0.6]].forEach(([lx, lz]) => {
+                    const leg = new THREE.Mesh(legGeo, legMat);
+                    leg.position.set(lx, 0.35, lz);
+                    group.add(leg);
+                    group.legs.push(leg);
+                });
+            } else if (type === 'sheep_black') {
+                // Domba Hitam (Dark Forest Biome)
+                const body = new THREE.Mesh(new THREE.BoxGeometry(1.2, 1.1, 1.7), new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.9 }));
+                body.position.y = 1.2;
+                group.add(body);
+
+                const head = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.55, 0.6), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
+                head.position.set(0, 1.45, 1.0);
+                group.add(head);
+
+                const legGeo = new THREE.BoxGeometry(0.24, 0.7, 0.24);
+                const legMat = new THREE.MeshStandardMaterial({ color: 0x0f172a });
+                group.legs = [];
+                [[-0.35, 0.6], [0.35, 0.6], [-0.35, -0.6], [0.35, -0.6]].forEach(([lx, lz]) => {
+                    const leg = new THREE.Mesh(legGeo, legMat);
+                    leg.position.set(lx, 0.35, lz);
+                    group.add(leg);
+                    group.legs.push(leg);
+                });
+            } else if (type === 'pig') {
+                // Babi Pink Lucu
+                const body = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.9, 1.8), new THREE.MeshStandardMaterial({ color: 0xf472b6, roughness: 0.7 }));
+                body.position.y = 1.0;
+                group.add(body);
+
+                const head = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.7, 0.7), new THREE.MeshStandardMaterial({ color: 0xf472b6 }));
+                head.position.set(0, 1.25, 1.05);
+                group.add(head);
+
+                const snout = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.25, 0.2), new THREE.MeshStandardMaterial({ color: 0xfb7185 }));
+                snout.position.set(0, 1.15, 1.45);
+                group.add(snout);
+
+                const legGeo = new THREE.BoxGeometry(0.25, 0.6, 0.25);
+                const legMat = new THREE.MeshStandardMaterial({ color: 0xf472b6 });
+                group.legs = [];
+                [[-0.4, 0.55], [0.4, 0.55], [-0.4, -0.55], [0.4, -0.55]].forEach(([lx, lz]) => {
+                    const leg = new THREE.Mesh(legGeo, legMat);
+                    leg.position.set(lx, 0.3, lz);
+                    group.add(leg);
+                    group.legs.push(leg);
+                });
+            } else if (type === 'wolf') {
+                // Serigala Rimba (Taiga Biome)
+                const body = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.8, 1.6), new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.8 }));
+                body.position.y = 0.9;
+                group.add(body);
+
+                const head = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.55), new THREE.MeshStandardMaterial({ color: 0x475569 }));
+                head.position.set(0, 1.2, 0.9);
+                group.add(head);
+
+                const snout = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.22, 0.35), new THREE.MeshStandardMaterial({ color: 0x334155 }));
+                snout.position.set(0, 1.1, 1.25);
+                group.add(snout);
+
+                const earGeo = new THREE.ConeGeometry(0.08, 0.22, 4);
+                const earMat = new THREE.MeshStandardMaterial({ color: 0x334155 });
+                const ear1 = new THREE.Mesh(earGeo, earMat);
+                ear1.position.set(0.18, 1.55, 0.85);
+                group.add(ear1);
+                const ear2 = new THREE.Mesh(earGeo, earMat);
+                ear2.position.set(-0.18, 1.55, 0.85);
+                group.add(ear2);
+
+                const legGeo = new THREE.BoxGeometry(0.2, 0.65, 0.2);
+                const legMat = new THREE.MeshStandardMaterial({ color: 0x475569 });
+                group.legs = [];
+                [[-0.3, 0.55], [0.3, 0.55], [-0.3, -0.55], [0.3, -0.55]].forEach(([lx, lz]) => {
+                    const leg = new THREE.Mesh(legGeo, legMat);
+                    leg.position.set(lx, 0.32, lz);
+                    group.add(leg);
+                    group.legs.push(leg);
+                });
+            } else if (type === 'fox') {
+                // Rubah Merah Ekor Lebat (Taiga & Dark Forest)
+                const body = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.65, 1.3), new THREE.MeshStandardMaterial({ color: 0xea580c, roughness: 0.7 }));
+                body.position.y = 0.8;
+                group.add(body);
+
+                const head = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.45, 0.5), new THREE.MeshStandardMaterial({ color: 0xea580c }));
+                head.position.set(0, 1.05, 0.75);
+                group.add(head);
+
+                const snout = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.18, 0.28), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+                snout.position.set(0, 0.98, 1.05);
+                group.add(snout);
+
+                const tail = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.7), new THREE.MeshStandardMaterial({ color: 0xea580c }));
+                tail.position.set(0, 0.9, -0.9);
+                tail.rotation.x = -0.4;
+                group.add(tail);
+
+                const legGeo = new THREE.BoxGeometry(0.16, 0.55, 0.16);
+                const legMat = new THREE.MeshStandardMaterial({ color: 0x1e293b });
+                group.legs = [];
+                [[-0.24, 0.45], [0.24, 0.45], [-0.24, -0.45], [0.24, -0.45]].forEach(([lx, lz]) => {
+                    const leg = new THREE.Mesh(legGeo, legMat);
+                    leg.position.set(lx, 0.27, lz);
+                    group.add(leg);
+                    group.legs.push(leg);
+                });
+            } else if (type === 'panda') {
+                // Panda Hutan Bambu (Jungle Biome)
+                const body = new THREE.Mesh(new THREE.BoxGeometry(1.3, 1.05, 1.7), new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.8 }));
+                body.position.y = 1.1;
+                group.add(body);
+
+                const head = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.7, 0.7), new THREE.MeshStandardMaterial({ color: 0xf8fafc }));
+                head.position.set(0, 1.35, 1.0);
+                group.add(head);
+
+                const earGeo = new THREE.BoxGeometry(0.18, 0.18, 0.1);
+                const blackMat = new THREE.MeshStandardMaterial({ color: 0x0f172a });
+                const ear1 = new THREE.Mesh(earGeo, blackMat);
+                ear1.position.set(0.35, 1.75, 0.9);
+                group.add(ear1);
+                const ear2 = new THREE.Mesh(earGeo, blackMat);
+                ear2.position.set(-0.35, 1.75, 0.9);
+                group.add(ear2);
+
+                const legGeo = new THREE.BoxGeometry(0.28, 0.65, 0.28);
+                group.legs = [];
+                [[-0.4, 0.55], [0.4, 0.55], [-0.4, -0.55], [0.4, -0.55]].forEach(([lx, lz]) => {
+                    const leg = new THREE.Mesh(legGeo, blackMat);
+                    leg.position.set(lx, 0.32, lz);
+                    group.add(leg);
+                    group.legs.push(leg);
+                });
+            } else if (type === 'horse') {
+                // Kuda Balap Cokelat Gagah
+                const body = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.1, 2.2), new THREE.MeshStandardMaterial({ color: 0x854d0e, roughness: 0.8 }));
+                body.position.y = 1.4;
+                group.add(body);
+
+                const neck = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.9, 0.5), new THREE.MeshStandardMaterial({ color: 0x854d0e }));
+                neck.position.set(0, 2.0, 1.1);
+                neck.rotation.x = -0.3;
+                group.add(neck);
+
+                const head = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.45, 0.8), new THREE.MeshStandardMaterial({ color: 0x854d0e }));
+                head.position.set(0, 2.3, 1.5);
+                group.add(head);
+
+                const legGeo = new THREE.BoxGeometry(0.24, 0.95, 0.24);
+                const legMat = new THREE.MeshStandardMaterial({ color: 0x451a03 });
+                group.legs = [];
+                [[-0.38, 0.8], [0.38, 0.8], [-0.38, -0.8], [0.38, -0.8]].forEach(([lx, lz]) => {
+                    const leg = new THREE.Mesh(legGeo, legMat);
+                    leg.position.set(lx, 0.47, lz);
+                    group.add(leg);
+                    group.legs.push(leg);
+                });
             } else {
-                document.getElementById('btn-mode-lab').classList.add('active');
-                window.worldGroup.visible = false;
-                labGroup.visible = true;
-                scene.background = new THREE.Color(0x0a0f1d);
-                scene.fog = new THREE.FogExp2(0x0a0f1d, 0.001);
-                document.getElementById('world-settings').style.display = 'none';
-                document.getElementById('lab-settings').style.display = 'block';
-                document.getElementById('panel-title').innerHTML = '🔬 Lab Detail Mikro';
-                document.getElementById('lock-prompt').style.display = 'none';
-                document.getElementById('crosshair').style.display = 'none';
-                document.getElementById('hud-diag').style.display = 'none';
-                if (fpControls.isLocked) fpControls.unlock();
-                camera.position.set(2.8, 3.2, 3.8);
-                orbitControls.target.set(0, 0.4, 0);
-            }
-        };
+                // Ayam Lucu
+                const body = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.65), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+                body.position.y = 0.65;
+                group.add(body);
 
-        // Pointer Lock & Controls Event Setup
+                const head = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.4, 0.3), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+                head.position.set(0, 0.95, 0.3);
+                group.add(head);
+
+                const beak = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.2, 4), new THREE.MeshStandardMaterial({ color: 0xf97316 }));
+                beak.position.set(0, 0.9, 0.5);
+                beak.rotation.x = Math.PI / 2;
+                group.add(beak);
+
+                const wattle = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.15, 0.08), new THREE.MeshStandardMaterial({ color: 0xef4444 }));
+                wattle.position.set(0, 0.75, 0.4);
+                group.add(wattle);
+
+                const legGeo = new THREE.BoxGeometry(0.1, 0.4, 0.1);
+                const legMat = new THREE.MeshStandardMaterial({ color: 0xf97316 });
+                const leg1 = new THREE.Mesh(legGeo, legMat);
+                leg1.position.set(-0.12, 0.2, 0);
+                group.add(leg1);
+                const leg2 = new THREE.Mesh(legGeo, legMat);
+                leg2.position.set(0.12, 0.2, 0);
+                group.add(leg2);
+                group.legs = [leg1, leg2];
+            }
+
+            group.position.set(gx * BLOCK_SIZE, (gy + 0.5) * BLOCK_SIZE, gz * BLOCK_SIZE);
+            group.userData = {
+                isAnimal: true,
+                animalType: type,
+                wanderTimer: Math.random() * 3,
+                walkSpeed: 1.5,
+                isMoving: false,
+                heading: Math.random() * Math.PI * 2
+            };
+
+            group.traverse(child => {
+                if (child.isMesh) {
+                    child.userData = { isEntityPart: true, parentGroup: group };
+                    interactiveEntities.push(child);
+                }
+            });
+
+            return group;
+        }
+
+        // ==========================================
+        // 6. RAYCASTING, MINING & BUILDING
+        // ==========================================
+        function initRaycastCursor() {
+            raycaster = new THREE.Raycaster();
+            const cGeo = new THREE.BoxGeometry(BLOCK_SIZE * 1.02, BLOCK_SIZE * 1.02, BLOCK_SIZE * 1.02);
+            const cMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true });
+            cursorBox = new THREE.Mesh(cGeo, cMat);
+            cursorBox.visible = false;
+            scene.add(cursorBox);
+        }
+
+        function updateRaycastCursor() {
+            if (!isPointerLocked) {
+                if (cursorBox) cursorBox.visible = false;
+                return;
+            }
+            raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+
+            // Check blocks and interactive entities
+            const blockList = Array.from(interactiveBlocks.values());
+            const hits = raycaster.intersectObjects([...blockList, ...interactiveEntities], false);
+
+            if (hits.length > 0 && hits[0].distance < 24.0) {
+                const hit = hits[0];
+                cursorBox.visible = true;
+
+                if (hit.object.userData.isEntityPart) {
+                    // Targeting a tree, plant, or animal
+                    const parent = hit.object.userData.parentGroup;
+                    cursorBox.position.copy(parent.position);
+                    cursorBox.position.y += 1.0;
+                    cursorBox.material.color.setHex(0xef4444); // Red outline for chopping
+                } else if (hit.object.userData.isBlock) {
+                    const block = hit.object;
+                    if (selectedItemType === 'pickaxe') {
+                        cursorBox.position.copy(block.position);
+                        cursorBox.material.color.setHex(0xef4444);
+                    } else {
+                        // Snapped preview for placement
+                        const norm = hit.face.normal;
+                        cursorBox.position.copy(block.position).addScaledVector(norm, BLOCK_SIZE);
+                        cursorBox.material.color.setHex(0xfacc15);
+                    }
+                }
+            } else {
+                cursorBox.visible = false;
+            }
+        }
+
+        function handleWorldInteraction(isRightClick) {
+            raycaster.setFromCamera(new THREE.Vector2(0, 0), camera);
+            const blockList = Array.from(interactiveBlocks.values());
+            const hits = raycaster.intersectObjects([...blockList, ...interactiveEntities], false);
+
+            if (hits.length === 0 || hits[0].distance > 24.0) return;
+            const hit = hits[0];
+
+            if (hit.object.userData.isEntityPart) {
+                // Chopping or Interacting with Entity
+                const parent = hit.object.userData.parentGroup;
+                if (!isRightClick || selectedItemType === 'pickaxe') {
+                    // Chop Tree!
+                    if (parent.userData.isTree) {
+                        dropTreeLoot(parent.position, parent.userData.treeData);
+                    }
+                    scene.remove(parent);
+                    const idx = livingEntities.indexOf(parent);
+                    if (idx !== -1) livingEntities.splice(idx, 1);
+                }
+            } else if (hit.object.userData.isBlock) {
+                const block = hit.object;
+
+                if (!isRightClick && selectedItemType === 'pickaxe') {
+                    // Destroy Voxel Block
+                    const bKey = `${block.userData.gx},${block.userData.gy},${block.userData.gz}`;
+                    scene.remove(block);
+                    interactiveBlocks.delete(bKey);
+                } else if (isRightClick || selectedItemType !== 'pickaxe') {
+                    // Place Block or Plant Entity
+                    const norm = hit.face.normal;
+                    const placePos = block.position.clone().addScaledVector(norm, BLOCK_SIZE);
+                    const pgx = Math.round(placePos.x / BLOCK_SIZE);
+                    const pgy = Math.round(placePos.y / BLOCK_SIZE);
+                    const pgz = Math.round(placePos.z / BLOCK_SIZE);
+                    const pKey = `${pgx},${pgy},${pgz}`;
+
+                    if (!interactiveBlocks.has(pKey)) {
+                        if (selectedItemType.startsWith('tree_')) {
+                            // Plant 3D Tree
+                            const tree = spawn3DTree(pgx, pgy, pgz, selectedItemType);
+                            if (tree) scene.add(tree);
+                        } else if (selectedItemType === 'cow' || selectedItemType === 'sheep') {
+                            // Spawn Animal
+                            const animal = spawn3DAnimal(pgx, pgy, pgz, selectedItemType);
+                            if (animal) {
+                                scene.add(animal);
+                                livingEntities.push(animal);
+                            }
+                        } else {
+                            // Place Voxel Block
+                            const bMat = blockMaterials[selectedItemType] || blockMaterials.wood;
+                            const newBlock = new THREE.Mesh(new THREE.BoxGeometry(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE), bMat);
+                            newBlock.position.set(pgx * BLOCK_SIZE, pgy * BLOCK_SIZE, pgz * BLOCK_SIZE);
+                            newBlock.userData = { isBlock: true, gx: pgx, gy: pgy, gz: pgz, type: selectedItemType };
+                            scene.add(newBlock);
+                            interactiveBlocks.set(pKey, newBlock);
+                        }
+                    }
+                }
+            }
+        }
+
+        // ==========================================
+        // 7. INITIALIZATION & GAME LOOP
+        // ==========================================
+        function initApp() {
+            const container = document.getElementById('viewport-container');
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x38bdf8);
+            scene.fog = new THREE.FogExp2(0xbae6fd, 0.008);
+
+            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 16, 12);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.BasicShadowMap;
+            container.appendChild(renderer.domElement);
+
+            fpControls = new THREE.PointerLockControls(camera, document.body);
+            clock = new THREE.Clock();
+
+            initBlockMaterials();
+            setupAtmosphere();
+            initRaycastCursor();
+            setupEventListeners();
+            buildEncyclopediaGrid();
+            if (window.location.search.includes('encyclopedia=1')) {
+                toggleEncyclopedia();
+            }
+
+            // Initial Spawn & Chunk Loading
+            updateChunksAroundPlayer();
+
+            // ══ Scenic Showcase Vista at Spawn ══
+            // 1. Diverse Showcase Trees along z = 0 to 2
+            const appleTree = spawn3DTree(-2.5, 4, 0.5, 'tree_apple');
+            if (appleTree) scene.add(appleTree);
+
+            const birchTree = spawn3DTree(-0.8, 4, -0.5, 'tree_birch');
+            if (birchTree) scene.add(birchTree);
+
+            const pineTree = spawn3DTree(1.2, 4, -0.5, 'tree_pine');
+            if (pineTree) scene.add(pineTree);
+
+            const cherryTree = spawn3DTree(2.8, 4, 0.5, 'tree_cherry');
+            if (cherryTree) scene.add(cherryTree);
+
+            // 2. Cute Living 3D Animals on the meadow in front
+            const cow = spawn3DAnimal(-1.8, 4, 1.2, 'cow');
+            if (cow) { cow.rotation.y = 0.35; scene.add(cow); livingEntities.push(cow); }
+
+            const sheep = spawn3DAnimal(1.8, 4, 1.2, 'sheep');
+            if (sheep) { sheep.rotation.y = -0.35; scene.add(sheep); livingEntities.push(sheep); }
+
+            const pig = spawn3DAnimal(0.7, 4, 1.6, 'pig');
+            if (pig) { pig.rotation.y = -0.2; scene.add(pig); livingEntities.push(pig); }
+
+            const chick = spawn3DAnimal(-0.7, 4, 1.7, 'chicken');
+            if (chick) { chick.rotation.y = 0.25; scene.add(chick); livingEntities.push(chick); }
+
+            // 3. Floating 3D Wood Logs & Fruit Drops in center
+            spawnFloatingDrop(-1.0, 9.2, 4.2, 'log_oak');
+            spawnFloatingDrop(1.0, 9.2, 4.2, 'log_birch');
+            spawnFloatingDrop(0.0, 9.0, 4.0, 'apple');
+
+            // 4. Flowers across the meadow
+            [-2.2, -1.0, 0, 1.0, 2.2].forEach((fx, fi) => {
+                const flw = spawn3DPlant(fx, 4, 3.4, TAXONOMY_DATABASE[25 + fi].id);
+                if (flw) scene.add(flw);
+            });
+
+            // 5. Position Camera & Controls for scenic vista
+            fpControls.getObject().position.set(0, 11.2, 8.2);
+            camera.rotation.x = -0.28;
+            
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const delta = Math.min(clock.getDelta(), 0.1);
+            const time = clock.getElapsedTime();
+
+            // 1. Drift Voxel Clouds
+            if (cloudGroup) {
+                const cloudSpeed = parseFloat(document.getElementById('slider-cloud').value) || 1.0;
+                cloudGroup.position.x += delta * 1.8 * cloudSpeed;
+                if (cloudGroup.position.x > 180) cloudGroup.position.x = -180;
+            }
+
+            // 2. Animate Floating Wood & Fruit Drops (Bobbing & Rotation)
+            for (let i = 0; i < floatingDrops.length; i++) {
+                const drop = floatingDrops[i];
+                drop.rotation.y += delta * drop.userData.rotSpeed;
+                drop.position.y = drop.userData.baseY + Math.sin(time * 3 + drop.userData.seed) * 0.15;
+            }
+
+            // 3. Living Animal Wander AI & Limb Animations
+            for (let i = 0; i < livingEntities.length; i++) {
+                const animal = livingEntities[i];
+                if (animal.userData.isAnimal) {
+                    animal.userData.wanderTimer -= delta;
+                    if (animal.userData.wanderTimer <= 0) {
+                        animal.userData.wanderTimer = 2.0 + Math.random() * 3.5;
+                        animal.userData.isMoving = Math.random() > 0.4;
+                        animal.userData.heading += (Math.random() - 0.5) * 1.5;
+                    }
+
+                    if (animal.userData.isMoving) {
+                        animal.rotation.y = animal.userData.heading;
+                        animal.translateZ(delta * animal.userData.walkSpeed);
+
+                        // Swing Legs
+                        if (animal.legs) {
+                            const legSwing = Math.sin(time * 8) * 0.4;
+                            animal.legs[0].rotation.x = legSwing;
+                            animal.legs[1].rotation.x = -legSwing;
+                            if (animal.legs[2]) animal.legs[2].rotation.x = -legSwing;
+                            if (animal.legs[3]) animal.legs[3].rotation.x = legSwing;
+                        }
+                    }
+                }
+            }
+
+            // 4. Player Physics & Movement
+            if (isPointerLocked) {
+                player.velocity.x -= player.velocity.x * 10.0 * delta;
+                player.velocity.z -= player.velocity.z * 10.0 * delta;
+
+                if (!isFlying) {
+                    player.velocity.y -= player.gravity * delta;
+                } else {
+                    player.velocity.y -= player.velocity.y * 6.0 * delta;
+                }
+
+                player.direction.z = Number(player.moveForward) - Number(player.moveBackward);
+                player.direction.x = Number(player.moveRight) - Number(player.moveLeft);
+                player.direction.normalize();
+
+                const curSpeed = player.speed * player.speedMultiplier;
+                if (player.moveForward || player.moveBackward) {
+                    player.velocity.z -= player.direction.z * curSpeed * delta * 5.0;
+                }
+                if (player.moveLeft || player.moveRight) {
+                    player.velocity.x -= player.direction.x * curSpeed * delta * 5.0;
+                }
+
+                fpControls.moveRight(-player.velocity.x * delta);
+                fpControls.moveForward(-player.velocity.z * delta);
+                camera.position.y += player.velocity.y * delta;
+
+                // Ground Collision
+                if (!isFlying) {
+                    const gx = Math.round(camera.position.x / BLOCK_SIZE);
+                    const gz = Math.round(camera.position.z / BLOCK_SIZE);
+                    const groundY = getElevationNoise(gx, gz) * BLOCK_SIZE + player.height;
+                    if (camera.position.y < groundY) {
+                        camera.position.y = groundY;
+                        player.velocity.y = 0;
+                        player.canJump = true;
+                    }
+                }
+
+                // Check Infinite Chunk Boundary Cross
+                const cx = Math.floor(camera.position.x / (CHUNK_SIZE * BLOCK_SIZE));
+                const cz = Math.floor(camera.position.z / (CHUNK_SIZE * BLOCK_SIZE));
+                if (cx !== currentChunkX || cz !== currentChunkZ) {
+                    updateChunksAroundPlayer();
+                }
+            }
+
+            updateRaycastCursor();
+            renderer.render(scene, camera);
+        }
+
+        // ==========================================
+        // 8. EVENT LISTENERS & HUD
+        // ==========================================
         function setupEventListeners() {
-            window.addEventListener('resize', onWindowResize);
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
 
             // Keyboard
-            document.addEventListener('keydown', (e) => {
-                switch(e.code) {
-                    case 'KeyW': keys.w = true; break;
-                    case 'KeyA': keys.a = true; break;
-                    case 'KeyS': keys.s = true; break;
-                    case 'KeyD': keys.d = true; break;
-                    case 'Space': keys.space = true; break;
+            window.addEventListener('keydown', (e) => {
+                switch (e.code) {
+                    case 'KeyW': player.moveForward = true; break;
+                    case 'KeyS': player.moveBackward = true; break;
+                    case 'KeyA': player.moveLeft = true; break;
+                    case 'KeyD': player.moveRight = true; break;
                     case 'ShiftLeft':
-                    case 'ShiftRight':
-                        keys.shift = true;
-                        player.isSprinting = true;
+                    case 'ShiftRight': player.speedMultiplier = 1.7; break;
+                    case 'Space':
+                        if (player.canJump && !isFlying) {
+                            player.velocity.y = 13.0;
+                            player.canJump = false;
+                        }
                         break;
+                    case 'KeyF': toggleFlight(); break;
+                    case 'Digit1': selectHotbarSlot(1); break;
+                    case 'Digit2': selectHotbarSlot(2); break;
+                    case 'Digit3': selectHotbarSlot(3); break;
+                    case 'Digit4': selectHotbarSlot(4); break;
+                    case 'Digit5': selectHotbarSlot(5); break;
+                    case 'Digit6': selectHotbarSlot(6); break;
+                    case 'Digit7': selectHotbarSlot(7); break;
+                    case 'Digit8': selectHotbarSlot(8); break;
+                    case 'Digit9': selectHotbarSlot(9); break;
                 }
             });
 
-            document.addEventListener('keyup', (e) => {
-                switch(e.code) {
-                    case 'KeyW': keys.w = false; break;
-                    case 'KeyA': keys.a = false; break;
-                    case 'KeyS': keys.s = false; break;
-                    case 'KeyD': keys.d = false; break;
-                    case 'Space': keys.space = false; break;
+            window.addEventListener('keyup', (e) => {
+                switch (e.code) {
+                    case 'KeyW': player.moveForward = false; break;
+                    case 'KeyS': player.moveBackward = false; break;
+                    case 'KeyA': player.moveLeft = false; break;
+                    case 'KeyD': player.moveRight = false; break;
                     case 'ShiftLeft':
-                    case 'ShiftRight':
-                        keys.shift = false;
-                        player.isSprinting = false;
-                        break;
+                    case 'ShiftRight': player.speedMultiplier = 1.0; break;
                 }
             });
 
-            // Pointer lock callbacks
+            // Mouse Clicks for Place & Break
+            window.addEventListener('mousedown', (e) => {
+                if (!isPointerLocked) return;
+                if (e.button === 0) handleWorldInteraction(false); // Left Click: Chop/Break
+                if (e.button === 2) handleWorldInteraction(true);  // Right Click: Place
+            });
+            window.addEventListener('contextmenu', (e) => e.preventDefault());
+
+            // Pointer Lock state
             fpControls.addEventListener('lock', () => {
                 isPointerLocked = true;
                 document.getElementById('lock-prompt').style.display = 'none';
-                document.getElementById('crosshair').style.display = 'block';
             });
             fpControls.addEventListener('unlock', () => {
                 isPointerLocked = false;
-                if (activeMode === 'world') {
-                    document.getElementById('lock-prompt').style.display = 'block';
-                }
-                document.getElementById('crosshair').style.display = 'none';
+                document.getElementById('lock-prompt').style.display = 'flex';
             });
 
-            // Minecraft-style Terraforming Interaction (Sculpting Organic Hills)
-            const raycaster = new THREE.Raycaster();
-            const mouse = new THREE.Vector2(0, 0); // Center of screen
-
-            window.addEventListener('mousedown', (e) => {
-                if (!isPointerLocked || activeMode !== 'world') return;
-
-                raycaster.setFromCamera(mouse, camera);
-                const intersects = raycaster.intersectObject(terrainMesh);
-
-                if (intersects.length > 0) {
-                    const hit = intersects[0];
-                    const posAttr = terrainMesh.geometry.attributes.position;
-                    const delta = (e.button === 0) ? 1.6 : -1.6; // Left click up, right click down
-                    const brushRadius = 8.0;
-
-                    for (let i = 0; i < posAttr.count; i++) {
-                        const vx = posAttr.getX(i);
-                        const vz = posAttr.getZ(i);
-                        const dist = Math.hypot(vx - hit.point.x, vz - hit.point.z);
-                        if (dist < brushRadius) {
-                            const falloff = Math.cos((dist / brushRadius) * (Math.PI / 2));
-                            posAttr.setY(i, posAttr.getY(i) + delta * falloff);
-                        }
-                    }
-                    posAttr.needsUpdate = true;
-                    terrainMesh.geometry.computeVertexNormals();
-                }
+            // Hotbar Slot Clicks
+            document.querySelectorAll('.hotbar-slot').forEach(slot => {
+                slot.addEventListener('click', () => {
+                    selectHotbarSlot(parseInt(slot.dataset.slot));
+                });
             });
 
-            // Sliders hook
+            // Sliders
             document.getElementById('slider-time').addEventListener('input', (e) => {
-                const hour = parseFloat(e.target.value);
-                const angle = (hour / 24) * Math.PI * 2 - Math.PI / 2;
-                sunLight.position.x = Math.cos(angle) * 110;
-                sunLight.position.y = Math.sin(angle) * 110;
-                document.getElementById('time-val').textContent = `${Math.floor(hour).toString().padStart(2, '0')}:00`;
-                
-                // Sky & lighting color shifts
-                if (hour < 5 || hour > 19) {
-                    sunLight.intensity = 0.2;
-                    scene.background.setHex(0x050811);
-                    scene.fog.color.setHex(0x050811);
-                } else if (hour < 7 || hour > 17) {
-                    sunLight.intensity = 1.2;
-                    sunLight.color.setHex(0xf97316); // Golden hour
-                    scene.background.setHex(0x451a03);
-                    scene.fog.color.setHex(0x451a03);
-                } else {
-                    sunLight.intensity = 1.8;
-                    sunLight.color.setHex(0xfffaed);
-                    scene.background.setHex(0x0c1427);
-                    scene.fog.color.setHex(0x0c1427);
-                }
+                const val = parseFloat(e.target.value);
+                const h = Math.floor(val);
+                const m = Math.floor((val % 1) * 60);
+                document.getElementById('time-val').textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+                updateDayNightCycle(val);
             });
 
-            document.getElementById('slider-speed').addEventListener('input', (e) => {
-                player.speedMultiplier = parseFloat(e.target.value);
-                document.getElementById('speed-val').textContent = `${player.speedMultiplier.toFixed(1)}x`;
+            document.getElementById('slider-cloud').addEventListener('input', (e) => {
+                document.getElementById('cloud-val').textContent = `${parseFloat(e.target.value).toFixed(1)}x`;
             });
 
             document.getElementById('slider-fog').addEventListener('input', (e) => {
                 scene.fog.density = parseFloat(e.target.value);
             });
-
-            // Micro Lab Sliders
-            document.getElementById('slider-metal').addEventListener('input', (e) => {
-                const val = parseFloat(e.target.value);
-                document.getElementById('metal-val').textContent = val.toFixed(2);
-                if (pcbModel) {
-                    pcbModel.traverse(n => { if (n.isMesh && n.material) n.material.metalness = val; });
-                }
-            });
-            document.getElementById('slider-rough').addEventListener('input', (e) => {
-                const val = parseFloat(e.target.value);
-                document.getElementById('rough-val').textContent = val.toFixed(2);
-                if (pcbModel) {
-                    pcbModel.traverse(n => { if (n.isMesh && n.material) n.material.roughness = val; });
-                }
-            });
         }
 
-        window.setLabLighting = function(preset) {
-            if (!hemiLight || !sunLight) return;
-            if (preset === 'studio') {
-                hemiLight.color.setHex(0xffffff);
-                hemiLight.groundColor.setHex(0x334155);
-                sunLight.color.setHex(0xffffff);
-                sunLight.intensity = 1.6;
-                scene.background.setHex(0x0f172a);
-            } else if (preset === 'golden') {
-                hemiLight.color.setHex(0xfde047);
-                hemiLight.groundColor.setHex(0x78350f);
-                sunLight.color.setHex(0xf97316);
-                sunLight.intensity = 2.2;
-                scene.background.setHex(0x1c1917);
-            } else if (preset === 'neon') {
-                hemiLight.color.setHex(0x06b6d4);
-                hemiLight.groundColor.setHex(0xec4899);
-                sunLight.color.setHex(0xa855f7);
-                sunLight.intensity = 2.0;
-                scene.background.setHex(0x030712);
-            } else if (preset === 'direct') {
-                hemiLight.color.setHex(0xfffaed);
-                hemiLight.groundColor.setHex(0x475569);
-                sunLight.color.setHex(0xffffff);
-                sunLight.intensity = 2.5;
-                scene.background.setHex(0x020617);
+        function selectHotbarSlot(num) {
+            document.querySelectorAll('.hotbar-slot').forEach(s => s.classList.remove('active'));
+            const slot = document.querySelector(`.hotbar-slot[data-slot="${num}"]`);
+            if (slot) {
+                slot.classList.add('active');
+                selectedItemType = slot.dataset.type;
+                const name = slot.querySelector('.slot-name').textContent;
+                document.getElementById('item-name').textContent = `[${num}] ${name}`;
             }
-        };
+        }
 
-        window.requestControlLock = function() {
-            if (activeMode === 'world') {
-                fpControls.lock();
-            }
-        };
+        function updateHUDStats() {
+            document.getElementById('pos-x').textContent = camera.position.x.toFixed(1);
+            document.getElementById('pos-y').textContent = camera.position.y.toFixed(1);
+            document.getElementById('pos-z').textContent = camera.position.z.toFixed(1);
+            document.getElementById('chunk-x').textContent = currentChunkX;
+            document.getElementById('chunk-z').textContent = currentChunkZ;
+            document.getElementById('active-chunks').textContent = loadedChunks.size;
+            document.getElementById('total-blocks').textContent = interactiveBlocks.size;
+            document.getElementById('total-entities').textContent = livingEntities.length;
 
-        window.toggleFlight = function() {
+            const biome = getBiomeAt(Math.round(camera.position.x / BLOCK_SIZE), Math.round(camera.position.z / BLOCK_SIZE));
+            document.getElementById('biome-name').textContent = `${biome.icon} ${biome.name}`;
+        }
+
+        function toggleFlight() {
             isFlying = !isFlying;
-            document.getElementById('control-display').textContent = isFlying ? 'Mode Terbang Aktif (Noclip Bebas)' : 'WASD Jalan | Shift Lari | Space Lompat';
-        };
-
-        window.resetPlayerPosition = function() {
-            camera.position.set(0, 12, 0);
-            player.velocity.set(0, 0, 0);
-        };
-
-        window.toggleWireframe = function() {
-            if (pcbModel) {
-                pcbModel.traverse(n => {
-                    if (n.isMesh && n.material) {
-                        n.material.wireframe = !n.material.wireframe;
-                    }
-                });
-            }
-        };
-
-        window.focusMicroHole = function() {
-            // Extreme macro zoom directly into one of the matrix pads (sub-millimeter view)
-            camera.position.set(0.15, 0.45, 0.15);
-            orbitControls.target.set(0, 0.38, 0);
-        };
-
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
         }
 
-        // Animation Loop
-        let prevTime = performance.now();
-        let frameCount = 0;
-        let lastFpsUpdate = 0;
-
-        function animate() {
-            requestAnimationFrame(animate);
-
-            const time = performance.now();
-            const delta = Math.min((time - prevTime) / 1000, 0.1);
-            prevTime = time;
-
-            // FPS Counter
-            frameCount++;
-            if (time - lastFpsUpdate > 500) {
-                const fps = Math.round((frameCount * 1000) / (time - lastFpsUpdate));
-                document.getElementById('fps-counter').textContent = `${fps} FPS`;
-                frameCount = 0;
-                lastFpsUpdate = time;
-            }
-
-            if (activeMode === 'world') {
-                // Animate water waves
-                if (waterMesh) {
-                    waterMesh.position.y = -1.0 + Math.sin(time * 0.002) * 0.08;
-                }
-
-                // Animate Genshin Teleport Waypoint
-                if (waypointCrystal) {
-                    waypointCrystal.rotation.y += 0.015;
-                    waypointCrystal.position.y = 3.2 + Math.sin(time * 0.003) * 0.18;
-                }
-                if (waypointRings && waypointRings[0]) {
-                    waypointRings[0].rotation.z += 0.015;
-                    waypointRings[0].rotation.x = Math.PI / 3 + Math.sin(time * 0.002) * 0.1;
-                }
-
-                // Animate Genshin Clouds Drift
-                animeCloudList.forEach(cloud => {
-                    cloud.position.x += 0.03;
-                    if (cloud.position.x > 320) cloud.position.x = -320;
-                });
-
-                // Animate Anemo Elemental Wisps
-                if (elementalPoints) {
-                    const pos = elementalPoints.geometry.attributes.position;
-                    for (let i = 1; i < pos.count * 3; i += 3) {
-                        pos.array[i] += 0.04;
-                        if (pos.array[i] > 22.0) pos.array[i] = 1.5;
-                    }
-                    pos.needsUpdate = true;
-                }
-
-                // Player physics when in first person
-                if (isPointerLocked) {
-                    const moveSpeed = (player.isSprinting ? 22.0 : 10.0) * player.speedMultiplier;
-                    
-                    player.direction.z = Number(keys.w) - Number(keys.s);
-                    player.direction.x = Number(keys.d) - Number(keys.a);
-                    player.direction.normalize();
-
-                    if (keys.w || keys.s) player.velocity.z -= player.direction.z * moveSpeed * delta;
-                    if (keys.d || keys.a) player.velocity.x -= player.direction.x * moveSpeed * delta;
-
-                    // Damping
-                    player.velocity.x -= player.velocity.x * 10.0 * delta;
-                    player.velocity.z -= player.velocity.z * 10.0 * delta;
-
-                    fpControls.moveRight(-player.velocity.x * delta);
-                    fpControls.moveForward(-player.velocity.z * delta);
-
-                    // Terrain Collision & Gravity
-                    if (!isFlying) {
-                        const groundY = getTerrainElevation(camera.position.x, camera.position.z);
-                        const targetY = groundY + player.height;
-
-                        if (keys.space && player.canJump) {
-                            player.velocity.y = 8.0;
-                            player.canJump = false;
-                        }
-
-                        player.velocity.y -= 22.0 * delta; // Gravity
-                        camera.position.y += player.velocity.y * delta;
-
-                        if (camera.position.y <= targetY) {
-                            camera.position.y = targetY;
-                            player.velocity.y = 0;
-                            player.canJump = true;
-                        }
-                    } else {
-                        // Flying controls
-                        if (keys.space) camera.position.y += 12.0 * delta;
-                        if (keys.shift) camera.position.y -= 12.0 * delta;
-                    }
-
-                    // Update HUD coordinates
-                    document.getElementById('pos-display').textContent = 
-                        `X: ${camera.position.x.toFixed(1)}, Y: ${camera.position.y.toFixed(1)}, Z: ${camera.position.z.toFixed(1)}`;
-                } else {
-                    orbitControls.update();
-                }
-            } else {
-                // Lab mode slow turntable rotation
-                if (pcbModel && !orbitControls.state == -1) {
-                    pcbModel.rotation.y += 0.003;
-                }
-                orbitControls.update();
-            }
-
-            renderer.render(scene, camera);
+        function teleportSpawn() {
+            camera.position.set(0, 14, 8);
+            camera.lookAt(0, 16, 0);
+            updateChunksAroundPlayer();
         }
 
-        // Launch on load
-        window.addEventListener('DOMContentLoaded', () => {
+        function requestControlLock() {
+            fpControls.lock();
+        }
+
+        function spawnRandomHerd() {
+            const types = ['cow', 'sheep', 'chicken'];
+            for (let i = 0; i < 5; i++) {
+                const gx = Math.round(camera.position.x / BLOCK_SIZE) + (Math.random() - 0.5) * 8;
+                const gz = Math.round(camera.position.z / BLOCK_SIZE) + (Math.random() - 0.5) * 8;
+                const gy = getElevationNoise(gx, gz) + 1;
+                const randType = types[Math.floor(Math.random() * types.length)];
+                const anim = spawn3DAnimal(gx, gy, gz, randType);
+                if (anim) {
+                    scene.add(anim);
+                    livingEntities.push(anim);
+                }
+            }
+            updateHUDStats();
+        }
+
+        // ==========================================
+        // 9. ENCYCLOPEDIA 110+ MODAL
+        // ==========================================
+        function toggleEncyclopedia() {
+            const modal = document.getElementById('encyclopediaModal');
+            modal.style.display = (modal.style.display === 'flex' ? 'none' : 'flex');
+        }
+
+        function filterEncyclopedia(filterKey) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+            buildEncyclopediaGrid(filterKey);
+        }
+
+        function buildEncyclopediaGrid(filter = 'all') {
+            const grid = document.getElementById('encyclopediaGrid');
+            grid.innerHTML = '';
+
+            let items = TAXONOMY_DATABASE;
+            if (filter.startsWith('biome:')) {
+                const bId = filter.split(':')[1];
+                items = TAXONOMY_DATABASE.filter(i => i.biome === bId);
+            } else if (filter.startsWith('cat:')) {
+                const cId = filter.split(':')[1];
+                items = TAXONOMY_DATABASE.filter(i => i.cat === cId);
+            } else if (filter === 'farm') {
+                items = TAXONOMY_DATABASE.filter(i => i.cat === 'farm' || i.cat === 'wild');
+            } else if (filter !== 'all') {
+                items = TAXONOMY_DATABASE.filter(i => i.cat === filter || i.biome === filter);
+            }
+
+            items.forEach(item => {
+                const bConf = BIOMES_CONFIG[item.biome] || BIOMES_CONFIG.plains;
+                const card = document.createElement('div');
+                card.className = 'entity-card';
+                card.onclick = () => {
+                    const activeSlot = document.querySelector('.hotbar-slot.active');
+                    if (activeSlot) {
+                        activeSlot.dataset.type = item.id;
+                        activeSlot.querySelector('.slot-icon').textContent = item.icon;
+                        activeSlot.querySelector('.slot-name').textContent = item.name.split(' ')[0];
+                        selectedItemType = item.id;
+                        document.getElementById('item-name').textContent = item.name;
+                    }
+                    toggleEncyclopedia();
+                };
+
+                card.innerHTML = `
+                    <div class="entity-biome-badge" style="background:${bConf.badgeBg}; border:1px solid ${bConf.badgeBorder}; color:${bConf.color};">
+                        ${bConf.badgeText}
+                    </div>
+                    <div class="entity-icon">${item.icon}</div>
+                    <div class="entity-name">${item.name}</div>
+                    <div class="entity-type">${item.cat.toUpperCase()}</div>
+                    <div class="entity-drop">Drop: ${item.drop}</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            window.addEventListener('DOMContentLoaded', initApp);
+        } else {
             initApp();
-            const params = new URLSearchParams(window.location.search);
-            if (params.get('mode') === 'lab') {
-                setTimeout(() => switchMode('lab'), 100);
-            }
-        });
+        }
     </script>
 </body>
 </html>

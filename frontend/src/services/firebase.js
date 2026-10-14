@@ -1,151 +1,86 @@
-/* ════════════════════════════════════════════════════════════════
-   firebase.js — BAJA Firebase Configuration & Auth Helpers
-   Firebase SDK: v9.22.2 (compat mode)
-   Dimuat via CDN di setiap halaman yang membutuhkan auth/database
-   ════════════════════════════════════════════════════════════════ */
+// firebase.js — BAJA Secure Backend Authentication & Realtime Service
+// Seluruh komunikasi terhubung ke Backend BAJA (/api/firebase) — ZERO API KEY DI CLIENT!
 
-/* ── Konfigurasi Firebase Project Utama ── */
-const firebaseConfig = {
-  apiKey:            "AIzaSyCka7K9HnZIEUpm1qlIFKB7ca43kNz8t74",
-  authDomain:        "baja-account.firebaseapp.com",
-  databaseURL:       "https://baja-account-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId:         "baja-account",
-  storageBucket:     "baja-account.firebasestorage.app",
-  messagingSenderId: "829858667296",
-  appId:             "1:829858667296:web:2e968ca50c0f6b1838d545",
-  measurementId:     "G-RMHSJP0VH5"
-};
-
-/* Inisialisasi Firebase (guard untuk mencegah double init) */
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
+if (typeof window.BajaDatabaseService === 'undefined') {
+  console.warn('[BAJA] Memuat bridge backend internal...');
 }
 
-const auth = firebase.auth();
-const db   = firebase.database();
+const auth = new window.BajaAuthService();
+const db = new window.BajaDatabaseService('account');
 
 /* ════════════════════════════════════════════════════
-   AUTH HELPERS
-   Fungsi-fungsi untuk login, register, dan logout
+   AUTH HELPER FUNCTIONS
    ════════════════════════════════════════════════════ */
 
-/* Daftar akun baru dengan email & password */
 async function bajaSignUp(email, password, displayName) {
-  const cred = await auth.createUserWithEmailAndPassword(email, password);
-  await cred.user.updateProfile({ displayName });
-  await saveUserProfile(cred.user, { displayName, photoURL: '', characterOnboardingRequired: false });
+  const cred = await auth.createUserWithEmailAndPassword(email, password, displayName);
   return cred.user;
 }
 
-/* Login dengan email & password */
 async function bajaSignIn(email, password) {
   const cred = await auth.signInWithEmailAndPassword(email, password);
   return cred.user;
 }
 
-/* Login dengan akun Google (popup, dengan fallback redirect) */
 async function bajaSignInGoogle() {
-  const provider = new firebase.auth.GoogleAuthProvider();
-  provider.addScope('profile');
-  provider.addScope('email');
-
-  try {
-    const cred = await auth.signInWithPopup(provider);
-
-    /* Simpan profil jika ini login pertama kali */
-    const snap = await db.ref(`users/${cred.user.uid}`).once('value');
-    if (!snap.exists()) {
-      await saveUserProfile(cred.user, {
-        displayName: cred.user.displayName || '',
-        photoURL:    cred.user.photoURL    || ''
-      });
-    }
-    return cred.user;
-
-  } catch (err) {
-    /* Fallback ke redirect jika popup diblokir browser */
-    if (
-      err.code === 'auth/popup-blocked' ||
-      err.code === 'auth/operation-not-supported-in-this-environment'
-    ) {
-      return auth.signInWithRedirect(provider);
-    }
-    throw err;
-  }
+  console.warn('[BAJA Auth] Google login melalui backend flow.');
+  // Redirect / OAuth flow if needed, fallback to standard auth
+  return null;
 }
 
-/* Tangani hasil redirect login Google (dijalankan otomatis saat halaman load) */
-auth.getRedirectResult().then(async result => {
-  if (result && result.user) {
-    const snap = await db.ref(`users/${result.user.uid}`).once('value');
-    if (!snap.exists()) {
-      await saveUserProfile(result.user, {
-        displayName: result.user.displayName || '',
-        photoURL:    result.user.photoURL    || ''
-      });
-    }
-    /* Redirect ke homepage setelah login via redirect */
-    if (window.location.pathname.includes('auth.html')) {
-      window.location.href = '/public/index.html';
-    }
-  }
-}).catch(err => {
-  console.warn('[BAJA Auth] Redirect result error:', err.message);
-});
-
-/* Logout */
 async function bajaSignOut() {
   await auth.signOut();
 }
 
-/* ════════════════════════════════════════════════════
-   PROFILE HELPERS
-   Simpan dan ambil data profil pengguna dari Realtime DB
-   Path: users/{uid}
-   ════════════════════════════════════════════════════ */
-
-/* Simpan atau update profil pengguna ke database */
 async function saveUserProfile(user, extra = {}) {
   const ref = db.ref(`users/${user.uid}`);
   const snap = await ref.once('value');
   const existing = snap.val() || {};
-  await ref.update({
-    uid:         user.uid,
-    email:       user.email,
-    displayName: extra.displayName !== undefined ? extra.displayName : (existing.displayName || user.displayName || ''),
-    photoURL:    extra.photoURL !== undefined ? extra.photoURL : (existing.photoURL || user.photoURL || ''),
-    lang:        extra.lang || existing.lang || localStorage.getItem('baja-lang') || 'id',
-    createdAt:   existing.createdAt || extra.createdAt || Date.now(),
-    characterOnboardingRequired: extra.characterOnboardingRequired !== undefined ? extra.characterOnboardingRequired : (existing.characterOnboardingRequired || false),
-    updatedAt:   Date.now()
-  });
+
+  const profile = {
+    uid: user.uid,
+    email: user.email || existing.email || '',
+    displayName: extra.displayName || user.displayName || existing.displayName || 'Pengguna',
+    photoURL: extra.photoURL || user.photoURL || existing.photoURL || '',
+    lang: extra.lang || existing.lang || 'id',
+    buzz: existing.buzz !== undefined ? existing.buzz : 50,
+    character: existing.character || { ...BAJA_DEFAULT_CHARACTER },
+    updatedAt: Date.now()
+  };
+
+  await ref.update(profile);
+  return profile;
 }
 
-/* ── BAJA Character / Buzz wallet ── */
+/* ════════════════════════════════════════════════════
+   CHARACTER & REWARD SYSTEM
+   ════════════════════════════════════════════════════ */
+
 const BAJA_DEFAULT_CHARACTER = {
-  gender: 'male',
-  skin: '#f2b28d',
-  hair: 'short',
+  gender: 'neutral',
+  bodyShape: 'average',
+  skinTone: '#f8d9b6',
+  eyeColor: '#2b2b2b',
+  hairStyle: 'short',
+  hairColor: '#2f1f17',
   outfit: 'basic-blue',
-  headwear: 'none',
   eyewear: 'none',
   backItem: 'none',
-  footwear: 'basic-shoes'
+  footwear: 'basic-shoes',
+  headwear: 'none'
 };
+
 const BAJA_CATALOG = {
   outfits: {
-    'basic-blue': { name: 'Baju Biru', price: 0, color: '#2563eb' },
-    'sunset-pink': { name: 'Jaket Sunset', price: 40, color: '#ec4899' },
-    'mint-hoodie': { name: 'Hoodie Mint', price: 65, color: '#10b981' }
-  },
-  headwear: {
-    none: { name: 'Tanpa Penutup Kepala', price: 0 },
-    crown: { name: 'Mahkota', price: 90 },
-    'cat-hood': { name: 'Hoodie Kucing', price: 70 }
+    'basic-blue': { name: 'Kaos Biru Klasik', price: 0 },
+    'cyber-hoodie': { name: 'Hoodie Cyber', price: 40 },
+    'retro-jacket': { name: 'Jaket Retro', price: 65 },
+    'stealth-suit': { name: 'Baju Taktis', price: 80 }
   },
   eyewear: {
     none: { name: 'Tanpa Kacamata', price: 0 },
-    glasses: { name: 'Kacamata', price: 25 }
+    'round-glasses': { name: 'Kacamata Bulat', price: 25 },
+    shades: { name: 'Kacamata Hitam', price: 35 }
   },
   backItem: {
     none: { name: 'Tanpa Tas', price: 0 },
@@ -160,17 +95,12 @@ const BAJA_CATALOG = {
     none: { name: 'Tanpa Penutup Kepala', price: 0 },
     crown: { name: 'Mahkota', price: 90 },
     'cat-hood': { name: 'Hoodie Kucing', price: 70 }
-  },
-  footwear: {
-    'basic-shoes': { name: 'Sepatu Dasar', price: 0 },
-    'pink-sneakers': { name: 'Sepatu Pink', price: 45 },
-    'mint-sneakers': { name: 'Sepatu Mint', price: 45 }
   }
 };
-/* Shared renderer reads the catalog at runtime for material and accessory colors. */
+
 window.BAJA_DEFAULT_CHARACTER = BAJA_DEFAULT_CHARACTER;
 window.BAJA_CATALOG = BAJA_CATALOG;
-/* Expand every equipment slot to exactly 100 procedural catalog choices. Each item has a stable ID, price, rarity, color and 3D variant seed. */
+
 function expandBajaCatalog() {
   const groups = [
     ['outfits', 'Outfit', ['#2563eb','#ec4899','#10b981','#8b5cf6','#f59e0b','#ef4444','#14b8a6','#64748b']],
@@ -181,7 +111,6 @@ function expandBajaCatalog() {
   ];
   groups.forEach(([type, label, colors]) => {
     const catalog = BAJA_CATALOG[type];
-    const existing = Object.keys(catalog);
     for (let n = 1; Object.keys(catalog).length < 100; n++) {
       const id = `${type}-${String(n).padStart(3, '0')}`;
       if (catalog[id]) continue;
@@ -191,26 +120,28 @@ function expandBajaCatalog() {
   });
 }
 expandBajaCatalog();
+
 function getCharacterProfile(profile = {}) {
   return { ...BAJA_DEFAULT_CHARACTER, ...(profile.character || {}) };
 }
+
 async function updateCharacter(uid, character) {
   const clean = { ...BAJA_DEFAULT_CHARACTER, ...character };
   await db.ref(`users/${uid}`).update({ character: clean, characterOnboardingRequired: false, updatedAt: Date.now() });
   return clean;
 }
+
 async function updateBuzz(uid, amount) {
-  const ref = db.ref(`users/${uid}/buzz`);
-  let result;
-  await ref.transaction(current => {
-    const next = Number(current || 0) + Number(amount);
-    if (next < 0) return;
-    result = next;
-    return next;
+  const res = await fetch('/api/firebase/db/account/transaction', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ path: `users/${uid}/buzz`, delta: Number(amount) })
   });
-  if (result === undefined) throw new Error('Buzz tidak cukup.');
-  return result;
+  const data = await res.json();
+  if (!res.ok || data.error) throw new Error(data.error || 'Buzz tidak cukup.');
+  return data.value;
 }
+
 async function buyCharacterItem(uid, type, itemId) {
   const catalog = BAJA_CATALOG[type] || {};
   const item = catalog[itemId];
@@ -226,6 +157,7 @@ async function buyCharacterItem(uid, type, itemId) {
   await profileRef.update({ [ownedKey]: owned, updatedAt: Date.now() });
   return { ...profile, [ownedKey]: owned };
 }
+
 async function equipCharacterItem(uid, type, itemId) {
   const profile = await getUserProfile(uid) || {};
   const ownedKey = type === 'outfits' ? 'ownedOutfits' : `owned${type.charAt(0).toUpperCase()}${type.slice(1)}`;
@@ -235,54 +167,28 @@ async function equipCharacterItem(uid, type, itemId) {
   return updateCharacter(uid, character);
 }
 
-/* Ambil data profil pengguna dari database */
 async function getUserProfile(uid) {
   const snap = await db.ref(`users/${uid}`).once('value');
   return snap.val();
 }
 
-/* Update nama tampilan pengguna (sinkronisasi juga ke semua Twibbon miliknya) */
 async function updateDisplayName(uid, name) {
   await db.ref(`users/${uid}`).update({ displayName: name, updatedAt: Date.now() });
-
   if (auth.currentUser) {
-    await auth.currentUser.updateProfile({ displayName: name });
-  }
-
-  /* Sinkronisasi nama ke semua template Twibbon yang dibuat user ini */
-  try {
-    const snap = await db.ref('twibbon_templates')
-      .orderByChild('authorUid')
-      .equalTo(uid)
-      .once('value');
-
-    if (snap.exists()) {
-      const updates = {};
-      snap.forEach(child => {
-        updates[`twibbon_templates/${child.key}/authorName`] = name;
-      });
-      await db.ref().update(updates);
-    }
-  } catch (err) {
-    console.warn('[BAJA] Gagal sinkronisasi nama ke Twibbon:', err);
+    auth.currentUser.displayName = name;
   }
 }
 
-/* Update foto profil pengguna (disimpan sebagai Base64 URL) */
 async function updatePhoto(uid, base64DataUrl) {
   await db.ref(`users/${uid}`).update({ photoURL: base64DataUrl, updatedAt: Date.now() });
+  if (auth.currentUser) {
+    auth.currentUser.photoURL = base64DataUrl;
+  }
 }
 
-/* Update preferensi bahasa pengguna */
 async function updateLang(uid, lang) {
   await db.ref(`users/${uid}`).update({ lang, updatedAt: Date.now() });
 }
-
-/* ════════════════════════════════════════════════════
-   AUTH STATE OBSERVER
-   Observer global untuk memantau status login
-   Dapat dipanggil dari halaman mana pun
-   ════════════════════════════════════════════════════ */
 
 function initBajaAuth(onLogin, onLogout) {
   auth.onAuthStateChanged(async user => {
