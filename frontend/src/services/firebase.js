@@ -132,7 +132,8 @@ async function updateCharacter(uid, character) {
 }
 
 async function updateBuzz(uid, amount) {
-  const res = await fetch('/api/firebase/db/account/transaction', {
+  const apiBase = window.BAJA_API_BASE || '';
+  const res = await fetch(`${apiBase}/api/firebase/db/account/transaction`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ path: `users/${uid}/buzz`, delta: Number(amount) })

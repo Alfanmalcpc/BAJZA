@@ -3,9 +3,21 @@
  * 
  * Arsitektur Aman:
  * - Tidak ada API Key, Database URL, atau kredensial Firebase yang diekspos ke klien.
- * - Seluruh komunikasi di-routing aman melalui BAJA Express Backend API (/api/firebase).
+ * - Seluruh komunikasi di-routing aman melalui BAJA Express Backend API (/api/firebase) di Vercel.
  * - Menyediakan API drop-in replacement yang kompatibel dengan kode Firebase eksisting.
  */
+
+const getBajaApiBaseUrl = () => {
+  const host = window.location.hostname;
+  if (host === 'bajza.vercel.app') return '';
+  if (host === 'localhost' || host === '127.0.0.1') {
+    if (window.location.port === '5000') return '';
+    return 'http://localhost:5000';
+  }
+  return 'https://bajza.vercel.app';
+};
+const BAJA_API_BASE = getBajaApiBaseUrl();
+window.BAJA_API_BASE = BAJA_API_BASE;
 
 class BajaDataSnapshot {
   constructor(data, key) {
@@ -66,7 +78,7 @@ class BajaDatabaseRef {
 
   async once(eventType) {
     const params = new URLSearchParams({ path: this.path, ...this._query });
-    const res = await fetch(`/api/firebase/db/${this.project}?${params.toString()}`);
+    const res = await fetch(`${BAJA_API_BASE}/api/firebase/db/${this.project}?${params.toString()}`);
     if (!res.ok) {
       throw new Error(`Database error: ${res.statusText}`);
     }
@@ -96,7 +108,7 @@ class BajaDatabaseRef {
   }
 
   async set(data) {
-    const res = await fetch(`/api/firebase/db/${this.project}`, {
+    const res = await fetch(`${BAJA_API_BASE}/api/firebase/db/${this.project}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ path: this.path, data, method: 'set' })
@@ -105,7 +117,7 @@ class BajaDatabaseRef {
   }
 
   async update(data) {
-    const res = await fetch(`/api/firebase/db/${this.project}`, {
+    const res = await fetch(`${BAJA_API_BASE}/api/firebase/db/${this.project}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ path: this.path, data, method: 'update' })
@@ -114,7 +126,7 @@ class BajaDatabaseRef {
   }
 
   async remove() {
-    const res = await fetch(`/api/firebase/db/${this.project}`, {
+    const res = await fetch(`${BAJA_API_BASE}/api/firebase/db/${this.project}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ path: this.path, method: 'delete' })
@@ -123,7 +135,7 @@ class BajaDatabaseRef {
   }
 
   async push(data) {
-    const res = await fetch(`/api/firebase/db/${this.project}`, {
+    const res = await fetch(`${BAJA_API_BASE}/api/firebase/db/${this.project}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ path: this.path, data, method: 'push' })
@@ -169,7 +181,7 @@ class BajaAuthService {
         this.currentUser = JSON.parse(saved);
         const token = localStorage.getItem('baja_auth_token');
         if (token) {
-          fetch('/api/firebase/auth/lookup', {
+          fetch(`${BAJA_API_BASE}/api/firebase/auth/lookup`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ idToken: token })
@@ -203,7 +215,7 @@ class BajaAuthService {
   }
 
   async signInWithEmailAndPassword(email, password) {
-    const res = await fetch('/api/firebase/auth/signin', {
+    const res = await fetch(`${BAJA_API_BASE}/api/firebase/auth/signin`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
@@ -219,7 +231,7 @@ class BajaAuthService {
   }
 
   async createUserWithEmailAndPassword(email, password, displayName) {
-    const res = await fetch('/api/firebase/auth/signup', {
+    const res = await fetch(`${BAJA_API_BASE}/api/firebase/auth/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password, displayName })
@@ -242,8 +254,21 @@ class BajaAuthService {
   }
 }
 
-// Expose globally
+// Expose globally & provide backward-compatible Firebase facade
 window.BajaDataSnapshot = BajaDataSnapshot;
 window.BajaDatabaseRef = BajaDatabaseRef;
 window.BajaDatabaseService = BajaDatabaseService;
 window.BajaAuthService = BajaAuthService;
+
+if (typeof window.firebase === 'undefined') {
+  window.firebase = {
+    apps: [{ name: '[DEFAULT]' }],
+    app: (name) => {
+      if (name === 'petApp') return { database: () => window.petDb, auth: () => window.auth };
+      return { database: () => window.db, auth: () => window.auth };
+    },
+    auth: () => window.auth,
+    database: () => window.db,
+    initializeApp: () => ({ database: () => window.db, auth: () => window.auth })
+  };
+}

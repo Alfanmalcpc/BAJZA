@@ -174,7 +174,7 @@ const BAJA = {
      Bergantung pada firebase.js (auth, getUserProfile)
      ════════════════════════════════════════════════════ */
   initAuthUI() {
-    if (typeof firebase === 'undefined' || typeof auth === 'undefined') {
+    if (typeof auth === 'undefined') {
       document.documentElement.classList.add('baja-auth-ready');
       return;
     }
