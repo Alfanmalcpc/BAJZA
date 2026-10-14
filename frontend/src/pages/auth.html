@@ -36,7 +36,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
+  padding: 30px 20px 100px 20px;
 }
 .auth-box {
   width: 100%;
@@ -262,11 +262,35 @@
   </div>
 </section>
 <script>
-// Redirect akun aktif langsung ke beranda
-auth.onAuthStateChanged(async user => {
-  if (!user) return;
+// Sinkronisasi dan redirect akun aktif ke beranda
+async function syncAndRedirectUser(u) {
+  if (!u) return;
+  try {
+    let idToken = '';
+    if (typeof u.getIdToken === 'function') {
+      idToken = await u.getIdToken();
+    }
+    const userData = {
+      uid: u.uid,
+      email: u.email || '',
+      displayName: u.displayName || (u.email ? u.email.split('@')[0] : 'Pengguna'),
+      photoURL: u.photoURL || '',
+      buzz: 50
+    };
+    if (!localStorage.getItem('baja_auth_user')) {
+      localStorage.setItem('baja_auth_user', JSON.stringify(userData));
+    }
+    if (idToken && !localStorage.getItem('baja_auth_token')) {
+      localStorage.setItem('baja_auth_token', idToken);
+    }
+  } catch (_) {}
   window.location.replace('/public/index.html');
-});
+}
+
+auth.onAuthStateChanged(syncAndRedirectUser);
+if (typeof firebase !== 'undefined' && typeof firebase.auth === 'function') {
+  firebase.auth().onAuthStateChanged(syncAndRedirectUser);
+}
 function switchTab(tab) {
   const isLogin = tab === 'login';
   document.getElementById('loginForm').classList.toggle('hidden', !isLogin);
