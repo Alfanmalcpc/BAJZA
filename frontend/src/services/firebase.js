@@ -1,25 +1,5 @@
 // firebase.js — BAJA Secure Backend Authentication & Realtime Service
-// Seluruh mutasi & query database aman lewat Backend Vercel Gateway
-
-const BAJA_FIREBASE_CONFIG = {
-  apiKey: "AIzaSyCka7K9HnZIEUpm1qlIFKB7ca43kNz8t74",
-  authDomain: "baja-account.firebaseapp.com",
-  projectId: "baja-account",
-  storageBucket: "baja-account.firebasestorage.app",
-  messagingSenderId: "829858667296",
-  appId: "1:829858667296:web:2e968ca50c0f6b1838d545",
-  measurementId: "G-RMHSJP0VH5"
-};
-
-if (typeof firebase !== 'undefined' && typeof firebase.initializeApp === 'function') {
-  if (!firebase.apps || !firebase.apps.length) {
-    try {
-      firebase.initializeApp(BAJA_FIREBASE_CONFIG);
-    } catch (e) {
-      console.warn('[BAJA Firebase] Init warning:', e);
-    }
-  }
-}
+// Seluruh mutasi & query database aman lewat Backend Vercel Gateway — ZERO CLIENT KEYS
 
 if (typeof window.BajaDatabaseService === 'undefined') {
   console.warn('[BAJA] Memuat bridge backend internal...');
@@ -45,6 +25,15 @@ async function bajaSignIn(email, password) {
 async function bajaSignInGoogle() {
   if (typeof firebase === 'undefined' || typeof firebase.auth !== 'function') {
     throw new Error('Layanan autentikasi Google SDK belum siap. Muat ulang halaman.');
+  }
+
+  // Inisialisasi Firebase secara dinamis dari Gateway Backend tanpa hardcoded API Key di kode
+  if (!firebase.apps || !firebase.apps.length) {
+    const apiBase = window.BAJA_API_BASE || 'https://bajza.vercel.app';
+    const cfgRes = await fetch(`${apiBase}/api/firebase/auth/config`);
+    if (!cfgRes.ok) throw new Error('Gagal menghubungi gateway autentikasi.');
+    const cfg = await cfgRes.json();
+    firebase.initializeApp(cfg);
   }
 
   const authInstance = firebase.auth();

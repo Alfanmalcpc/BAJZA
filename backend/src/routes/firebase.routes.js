@@ -3,6 +3,7 @@ const router = express.Router();
 const firebaseController = require('../controllers/firebase.controller');
 
 // ── Auth Endpoints ──────────────────────────────
+router.get('/auth/config', firebaseController.getPublicConfig);
 router.post('/auth/signup', firebaseController.signUp);
 router.post('/auth/signin', firebaseController.signIn);
 router.post('/auth/lookup', firebaseController.lookup);

@@ -39,6 +39,15 @@ function getProjectConfig(project) {
 // AUTH CONTROLLER (Server-Side Firebase Identity Toolkit)
 // ─────────────────────────────────────────────────────────────
 
+exports.getPublicConfig = (req, res) => {
+  const cfg = getProjectConfig('account');
+  res.json({
+    apiKey: cfg.apiKey,
+    authDomain: cfg.projectId + '.firebaseapp.com',
+    projectId: cfg.projectId
+  });
+};
+
 exports.signUp = async (req, res) => {
   try {
     const email = (req.body.email || '').trim();
