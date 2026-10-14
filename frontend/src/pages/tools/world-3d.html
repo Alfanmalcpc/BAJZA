@@ -493,6 +493,62 @@
         }
 
         /* BAJA WEB Modals */
+        .baja-hero-card.wide-mode {
+            max-width: 860px;
+        }
+
+        .baja-view-panel {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            animation: bajaFadeIn 0.25s ease-out;
+        }
+
+        @keyframes bajaFadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .baja-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .baja-panel-title {
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .baja-back-btn {
+            width: auto !important;
+            padding: 8px 16px !important;
+            font-size: 13px !important;
+            border-radius: 10px !important;
+        }
+
+        .baja-form-body {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            text-align: left;
+            width: 100%;
+        }
+
+        .baja-panel-footer {
+            width: 100%;
+            padding-top: 14px;
+            border-top: 1px solid var(--border-glass);
+        }
+
         .baja-modal-card {
             background: var(--bg-glass);
             border: 1px solid var(--border-glass);
@@ -937,130 +993,137 @@
         <span>Klik Layar untuk Kontrol Kamera Bebas (Mouse Look 360)</span>
     </div>
 
-    <!-- Encyclopedia 100+ Modal -->
-    <div id="encyclopediaModal">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h2>Ensiklopedia 110+ Spesies Flora & Fauna</h2>
-                <button class="modal-close" onclick="toggleEncyclopedia()">X</button>
-            </div>
-            <div class="modal-tabs">
-                <button class="tab-btn active" onclick="filterEncyclopedia('all')">Semua Spesies (110)</button>
-                <button class="tab-btn" onclick="filterEncyclopedia('biome:plains')">Plains (25)</button>
-                <button class="tab-btn" onclick="filterEncyclopedia('biome:taiga')">Taiga Pinus (18)</button>
-                <button class="tab-btn" onclick="filterEncyclopedia('biome:jungle')">Jungle Tropis (18)</button>
-                <button class="tab-btn" onclick="filterEncyclopedia('biome:dark_forest')">Dark Forest (15)</button>
-                <button class="tab-btn" onclick="filterEncyclopedia('biome:sakura')">Sakura Grove (12)</button>
-                <button class="tab-btn" onclick="filterEncyclopedia('biome:savanna')">Savanna (11)</button>
-                <button class="tab-btn" onclick="filterEncyclopedia('biome:orchard')">Kebun Buah (11)</button>
-                <button class="tab-btn" onclick="filterEncyclopedia('cat:tree')">Pohon (25)</button>
-                <button class="tab-btn" onclick="filterEncyclopedia('cat:flower')">Bunga (25)</button>
-                <button class="tab-btn" onclick="filterEncyclopedia('cat:farm')">Hewan (28)</button>
-            </div>
-            <div class="modal-content" id="encyclopediaGrid"></div>
-        </div>
-    </div>
-
-    <!-- BAJA WEB HERO SCREEN (MAIN MENU) -->
+    <!-- BAJA WEB INTEGRATED HUB (NO POP-UPS) -->
     <div id="mainMenuScreen" class="baja-overlay">
-        <div class="baja-hero-card">
-            <div class="baja-brand-badge">
-                <img src="/src/assets/img/Logo.svg" alt="BAJA">
-                <span>BAJA WEB ECOSYSTEM</span>
+        <div class="baja-hero-card" id="bajaHeroCard">
+            
+            <!-- VIEW 1: HERO / MAIN MENU -->
+            <div id="bajaViewHero" class="baja-view-panel" style="display:flex; align-items:center; text-align:center;">
+                <div class="baja-brand-badge">
+                    <img src="/src/assets/img/Logo.svg" alt="BAJA">
+                    <span>BAJA WEB ECOSYSTEM</span>
+                </div>
+                <div>
+                    <h1 class="baja-hero-title">BAJA 3D WORLD</h1>
+                    <p class="baja-hero-subtitle">Jelajahi dunia voxel tak terbatas dengan integrasi seluruh bioma, pepohonan organik dinamis, dan ekosistem satwa 3D.</p>
+                </div>
+                <div class="baja-hero-actions">
+                    <button class="baja-btn baja-btn-primary" onclick="playActiveWorld()">
+                        Mainkan Sekarang
+                    </button>
+                    <button class="baja-btn baja-btn-glass" onclick="switchBajaHubView('worlds')">
+                        Pilihan Dunia
+                    </button>
+                    <button class="baja-btn baja-btn-emerald" onclick="switchBajaHubView('create')">
+                        + Buat Dunia Baru
+                    </button>
+                    <button class="baja-btn baja-btn-glass" onclick="switchBajaHubView('encyclopedia')">
+                        Ensiklopedia 110+ Spesies
+                    </button>
+                    <a href="/public/index.html" class="baja-btn baja-btn-glass" style="color: #94a3b8;">
+                        Kembali ke Portal BAJA WEB
+                    </a>
+                </div>
             </div>
-            <div>
-                <h1 class="baja-hero-title">BAJA 3D WORLD</h1>
-                <p class="baja-hero-subtitle">Jelajahi dunia voxel tak terbatas dengan integrasi seluruh bioma, pepohonan organik dinamis, dan ekosistem satwa 3D.</p>
+
+            <!-- VIEW 2: WORLD SELECTION (INTEGRATED VIEW, NO POP-UP) -->
+            <div id="bajaViewWorlds" class="baja-view-panel" style="display:none;">
+                <div class="baja-panel-header">
+                    <button class="baja-btn baja-btn-glass baja-back-btn" onclick="switchBajaHubView('hero')">
+                        &larr; Kembali
+                    </button>
+                    <h2 class="baja-panel-title">Pilihan Dunia</h2>
+                    <div style="width: 70px;"></div>
+                </div>
+                <div class="baja-world-grid" id="worldListContainer">
+                    <!-- Populated dynamically -->
+                </div>
+                <div class="baja-panel-footer">
+                    <button class="baja-btn baja-btn-emerald" style="width: 100%;" onclick="switchBajaHubView('create')">
+                        + Buat Dunia Baru
+                    </button>
+                </div>
             </div>
-            <div class="baja-hero-actions">
-                <button class="baja-btn baja-btn-primary" onclick="openWorldSelectModal()">
-                    Pilih & Mainkan Dunia
-                </button>
-                <button class="baja-btn baja-btn-emerald" onclick="openCreateWorldModal()">
-                    + Buat Dunia Baru
-                </button>
-                <button class="baja-btn baja-btn-glass" onclick="toggleEncyclopedia()">
-                    Ensiklopedia 110+ Spesies
-                </button>
-                <button class="baja-btn baja-btn-glass" onclick="playActiveWorld()">
-                    Masuk Langsung ke Dunia
-                </button>
-                <a href="/public/index.html" class="baja-btn baja-btn-glass" style="color: #94a3b8;">
-                    Kembali ke Portal BAJA WEB
-                </a>
+
+            <!-- VIEW 3: CREATE WORLD (INTEGRATED VIEW, NO POP-UP) -->
+            <div id="bajaViewCreate" class="baja-view-panel" style="display:none;">
+                <div class="baja-panel-header">
+                    <button class="baja-btn baja-btn-glass baja-back-btn" onclick="switchBajaHubView('worlds')">
+                        &larr; Kembali
+                    </button>
+                    <h2 class="baja-panel-title">Buat Dunia Baru</h2>
+                    <div style="width: 70px;"></div>
+                </div>
+                <div class="baja-form-body">
+                    <div class="baja-form-group">
+                        <label>Nama Dunia</label>
+                        <input type="text" id="newWorldName" value="Dunia Petualangan Baru" class="baja-input">
+                    </div>
+                    <div class="baja-form-group">
+                        <label>Tipe Dunia</label>
+                        <select id="newWorldType" class="baja-select">
+                            <option value="standard">Standar (Seluruh Bioma Tak Terbatas Terintegrasi)</option>
+                            <option value="superflat">Datar (Superflat Tanpa Rintangan)</option>
+                            <option value="amplified">Amplified (Pegunungan Tebing Ekstrem)</option>
+                        </select>
+                    </div>
+                    <div class="baja-form-group">
+                        <label>Mode Permainan</label>
+                        <select id="newWorldMode" class="baja-select">
+                            <option value="survival">Survival (Gravitasi &amp; Bertahan Hidup)</option>
+                            <option value="creative">Creative (Mode Terbang &amp; Blok Bebas)</option>
+                            <option value="peaceful">Peaceful (Eksplorasi Santai)</option>
+                        </select>
+                    </div>
+                    <div class="baja-form-group">
+                        <label>Seed Dunia (Opsional)</label>
+                        <input type="text" id="newWorldSeed" placeholder="Ketik seed atau biarkan acak..." class="baja-input">
+                    </div>
+                </div>
+                <div class="baja-panel-footer">
+                    <button class="baja-btn baja-btn-primary" style="width: 100%;" onclick="confirmCreateNewWorld()">
+                        Buat &amp; Mainkan Dunia
+                    </button>
+                </div>
             </div>
+
+            <!-- VIEW 4: ENCYCLOPEDIA (INTEGRATED VIEW, NO POP-UP) -->
+            <div id="bajaViewEncyclopedia" class="baja-view-panel" style="display:none;">
+                <div class="baja-panel-header">
+                    <button class="baja-btn baja-btn-glass baja-back-btn" onclick="switchBajaHubView('hero')">
+                        &larr; Kembali
+                    </button>
+                    <h2 class="baja-panel-title">Ensiklopedia 110+ Spesies</h2>
+                    <div style="width: 70px;"></div>
+                </div>
+                <div class="modal-tabs">
+                    <button class="tab-btn active" onclick="filterEncyclopedia('all')">Semua (110)</button>
+                    <button class="tab-btn" onclick="filterEncyclopedia('biome:plains')">Plains</button>
+                    <button class="tab-btn" onclick="filterEncyclopedia('biome:taiga')">Taiga</button>
+                    <button class="tab-btn" onclick="filterEncyclopedia('biome:jungle')">Jungle</button>
+                    <button class="tab-btn" onclick="filterEncyclopedia('biome:dark_forest')">Dark Forest</button>
+                    <button class="tab-btn" onclick="filterEncyclopedia('biome:sakura')">Sakura</button>
+                    <button class="tab-btn" onclick="filterEncyclopedia('biome:savanna')">Savanna</button>
+                    <button class="tab-btn" onclick="filterEncyclopedia('cat:tree')">Pohon</button>
+                    <button class="tab-btn" onclick="filterEncyclopedia('cat:farm')">Hewan</button>
+                </div>
+                <div class="modal-content" id="encyclopediaGrid" style="max-height: 48vh; overflow-y: auto;"></div>
+            </div>
+
         </div>
     </div>
 
-    <!-- WORLD SELECTION MODAL (BAJA WEB STYLE) -->
-    <div id="worldSelectModal" class="baja-overlay" style="display:none;">
-        <div class="baja-modal-card">
-            <div class="baja-modal-header">
-                <h2>Pilih Dunia</h2>
-                <button class="baja-close-btn" onclick="closeWorldSelectModal()">X</button>
-            </div>
-            <div class="baja-world-grid" id="worldListContainer">
-                <!-- Populated dynamically -->
-            </div>
-            <div class="baja-modal-footer">
-                <button class="baja-btn baja-btn-emerald" onclick="openCreateWorldModal()">+ Buat Dunia Baru</button>
-                <button class="baja-btn baja-btn-glass" onclick="closeWorldSelectModal()">Tutup</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- CREATE NEW WORLD MODAL (BAJA WEB STYLE) -->
-    <div id="createWorldModal" class="baja-overlay" style="display:none;">
-        <div class="baja-modal-card" style="max-width: 520px;">
-            <div class="baja-modal-header">
-                <h2>Buat Dunia Baru</h2>
-                <button class="baja-close-btn" onclick="closeCreateWorldModal()">X</button>
-            </div>
-            <div>
-                <div class="baja-form-group">
-                    <label>Nama Dunia</label>
-                    <input type="text" id="newWorldName" value="Dunia Petualangan Baru" class="baja-input">
-                </div>
-                <div class="baja-form-group">
-                    <label>Tipe Dunia</label>
-                    <select id="newWorldType" class="baja-select">
-                        <option value="standard">Standar (Seluruh Bioma Tak Terbatas Terintegrasi)</option>
-                        <option value="superflat">Datar (Superflat Tanpa Rintangan)</option>
-                        <option value="amplified">Amplified (Pegunungan Tebing Ekstrem)</option>
-                    </select>
-                </div>
-                <div class="baja-form-group">
-                    <label>Mode Permainan</label>
-                    <select id="newWorldMode" class="baja-select">
-                        <option value="survival">Survival (Gravitasi & Bertahan Hidup)</option>
-                        <option value="creative">Creative (Mode Terbang & Blok Bebas)</option>
-                        <option value="peaceful">Peaceful (Eksplorasi Santai)</option>
-                    </select>
-                </div>
-                <div class="baja-form-group">
-                    <label>Seed Dunia (Opsional)</label>
-                    <input type="text" id="newWorldSeed" placeholder="Ketik seed atau biarkan acak..." class="baja-input">
-                </div>
-            </div>
-            <div class="baja-modal-footer">
-                <button class="baja-btn baja-btn-primary" onclick="confirmCreateNewWorld()">Buat Dunia</button>
-                <button class="baja-btn baja-btn-glass" onclick="closeCreateWorldModal()">Batal</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- IN-GAME PAUSE MENU (ESC) -->
+    <!-- IN-GAME PAUSE MENU (NO POP-UP DIALOG, CLEAN GLASS CARD) -->
     <div id="pauseMenuModal" class="baja-overlay" style="display:none;">
-        <div class="baja-modal-card" style="max-width: 400px; text-align: center;">
-            <div class="baja-modal-header" style="justify-content: center;">
-                <h2>Permainan Dijeda</h2>
+        <div class="baja-hero-card" style="max-width: 420px; padding: 32px 36px; text-align: center;">
+            <div class="baja-brand-badge">
+                <span>STATUS PERMAINAN</span>
             </div>
-            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+            <h2 style="font-family: var(--font-display); font-size: 24px; font-weight: 800; color: #ffffff; margin: 0;">Permainan Dijeda</h2>
+            <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
                 <button class="baja-btn baja-btn-primary" onclick="resumeGame()">Lanjutkan Permainan</button>
-                <button class="baja-btn baja-btn-glass" onclick="openWorldSelectModal()">Pilihan Dunia</button>
-                <button class="baja-btn baja-btn-glass" onclick="openCreateWorldModal()">Buat Dunia Baru</button>
-                <button class="baja-btn baja-btn-glass" onclick="toggleEncyclopedia()">Ensiklopedia Spesies</button>
-                <button class="baja-btn baja-btn-glass" onclick="exitToMainMenu()" style="color: #f87171;">Simpan & Menu Utama</button>
+                <button class="baja-btn baja-btn-glass" onclick="pauseToWorldSelect()">Pilihan Dunia</button>
+                <button class="baja-btn baja-btn-glass" onclick="exitToMainMenu()" style="color: #f87171;">Simpan &amp; Menu Utama</button>
             </div>
         </div>
     </div>
@@ -2597,34 +2660,51 @@ const TAXONOMY_DATABASE = [
             });
         }
 
+        function switchBajaHubView(viewName) {
+            const heroView = document.getElementById('bajaViewHero');
+            const worldsView = document.getElementById('bajaViewWorlds');
+            const createView = document.getElementById('bajaViewCreate');
+            const encView = document.getElementById('bajaViewEncyclopedia');
+            const card = document.getElementById('bajaHeroCard');
+
+            if (heroView) heroView.style.display = (viewName === 'hero') ? 'flex' : 'none';
+            if (worldsView) worldsView.style.display = (viewName === 'worlds') ? 'block' : 'none';
+            if (createView) createView.style.display = (viewName === 'create') ? 'block' : 'none';
+            if (encView) encView.style.display = (viewName === 'encyclopedia') ? 'block' : 'none';
+
+            if (card) {
+                if (viewName === 'encyclopedia') {
+                    card.classList.add('wide-mode');
+                } else {
+                    card.classList.remove('wide-mode');
+                }
+            }
+
+            if (viewName === 'worlds') {
+                renderWorldList();
+            } else if (viewName === 'encyclopedia') {
+                buildEncyclopediaGrid('all');
+            }
+        }
+
         function openWorldSelectModal() {
             const titleScreen = document.getElementById('mainMenuScreen');
-            if (titleScreen) titleScreen.style.display = 'none';
-            renderWorldList();
-            const modal = document.getElementById('worldSelectModal');
-            if (modal) modal.style.display = 'flex';
+            if (titleScreen) titleScreen.style.display = 'flex';
+            switchBajaHubView('worlds');
         }
 
         function closeWorldSelectModal() {
-            const modal = document.getElementById('worldSelectModal');
-            if (modal) modal.style.display = 'none';
-            const titleScreen = document.getElementById('mainMenuScreen');
-            if (titleScreen) titleScreen.style.display = 'flex';
+            switchBajaHubView('hero');
         }
 
         function openCreateWorldModal() {
             const titleScreen = document.getElementById('mainMenuScreen');
-            if (titleScreen) titleScreen.style.display = 'none';
-            const worldModal = document.getElementById('worldSelectModal');
-            if (worldModal) worldModal.style.display = 'none';
-            const modal = document.getElementById('createWorldModal');
-            if (modal) modal.style.display = 'flex';
+            if (titleScreen) titleScreen.style.display = 'flex';
+            switchBajaHubView('create');
         }
 
         function closeCreateWorldModal() {
-            const modal = document.getElementById('createWorldModal');
-            if (modal) modal.style.display = 'none';
-            openWorldSelectModal();
+            switchBajaHubView('worlds');
         }
 
         function confirmCreateNewWorld() {
@@ -2652,7 +2732,6 @@ const TAXONOMY_DATABASE = [
             worlds.unshift(newWorld);
             saveStoredWorlds(worlds);
 
-            closeCreateWorldModal();
             loadAndPlayWorld(newWorld.id);
         }
 
@@ -2667,20 +2746,13 @@ const TAXONOMY_DATABASE = [
             const worlds = getStoredWorlds();
             const target = worlds.find(w => w.id === worldId) || worlds[0];
             activeWorld = target;
-            closeWorldSelectModal();
-            closeCreateWorldModal();
-            const pauseModal = document.getElementById('pauseMenuModal');
-            if (pauseModal) pauseModal.style.display = 'none';
+            applyActiveWorldToScene();
             playActiveWorld();
         }
 
         function playActiveWorld() {
             const titleScreen = document.getElementById('mainMenuScreen');
             if (titleScreen) titleScreen.style.display = 'none';
-            const worldModal = document.getElementById('worldSelectModal');
-            if (worldModal) worldModal.style.display = 'none';
-            const createModal = document.getElementById('createWorldModal');
-            if (createModal) createModal.style.display = 'none';
             const pauseModal = document.getElementById('pauseMenuModal');
             if (pauseModal) pauseModal.style.display = 'none';
             if (fpControls && fpControls.lock) {
@@ -2700,14 +2772,31 @@ const TAXONOMY_DATABASE = [
             if (fpControls && fpControls.lock) fpControls.lock();
         }
 
+        function pauseToWorldSelect() {
+            const pauseModal = document.getElementById('pauseMenuModal');
+            if (pauseModal) pauseModal.style.display = 'none';
+            const titleScreen = document.getElementById('mainMenuScreen');
+            if (titleScreen) titleScreen.style.display = 'flex';
+            switchBajaHubView('worlds');
+        }
+
         function exitToMainMenu() {
             const pauseModal = document.getElementById('pauseMenuModal');
             if (pauseModal) pauseModal.style.display = 'none';
             const titleScreen = document.getElementById('mainMenuScreen');
             if (titleScreen) titleScreen.style.display = 'flex';
+            switchBajaHubView('hero');
             if (fpControls && fpControls.unlock) fpControls.unlock();
         }
 
+        function toggleEncyclopedia() {
+            const titleScreen = document.getElementById('mainMenuScreen');
+            if (titleScreen && titleScreen.style.display !== 'none') {
+                switchBajaHubView('encyclopedia');
+            } else {
+                openPauseMenu();
+            }
+        }
         function applyActiveWorldToScene() {
             loadedChunks.forEach(chunk => {
                 scene.remove(chunk.group);
