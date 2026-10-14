@@ -4,27 +4,27 @@ require('dotenv').config();
 // Mapping project configurations from environment variables with fallback defaults
 const PROJECT_CONFIGS = {
   account: {
-    apiKey: process.env.FIREBASE_ACCOUNT_API_KEY || process.env.FIREBASE_API_KEY || '[REDACTED]',
+    apiKey: process.env.FIREBASE_ACCOUNT_API_KEY || process.env.FIREBASE_API_KEY || 'AIzaSyCka7K9HnZIEUpm1qlIFKB7ca43kNz8t74',
     dbUrl: (process.env.FIREBASE_ACCOUNT_DB_URL || 'https://baja-account-default-rtdb.asia-southeast1.firebasedatabase.app').replace(/\/$/, ''),
     projectId: process.env.FIREBASE_ACCOUNT_PROJECT_ID || 'baja-account'
   },
   twibbon: {
-    apiKey: process.env.FIREBASE_TWIBBON_API_KEY || '[REDACTED]',
+    apiKey: process.env.FIREBASE_TWIBBON_API_KEY || 'AIzaSyCCQzPFgS_Ngr35-FEtqCNjQjo_vXg4l6M',
     dbUrl: (process.env.FIREBASE_TWIBBON_DB_URL || 'https://baja-twibon-default-rtdb.asia-southeast1.firebasedatabase.app').replace(/\/$/, ''),
     projectId: process.env.FIREBASE_TWIBBON_PROJECT_ID || 'baja-twibon'
   },
   pet: {
-    apiKey: process.env.FIREBASE_PET_API_KEY || '[REDACTED]',
+    apiKey: process.env.FIREBASE_PET_API_KEY || 'AIzaSyBDqnLVyH4Dr3biOof0oUI4Jwj2CV0C91U',
     dbUrl: (process.env.FIREBASE_PET_DB_URL || 'https://baja-pet-default-rtdb.asia-southeast1.firebasedatabase.app').replace(/\/$/, ''),
     projectId: process.env.FIREBASE_PET_PROJECT_ID || 'baja-pet'
   },
   multiplay: {
-    apiKey: process.env.FIREBASE_MULTIPLAY_API_KEY || '[REDACTED]',
+    apiKey: process.env.FIREBASE_MULTIPLAY_API_KEY || 'AIzaSyDOco4URrTX8LEUHAyzBHnTh3qYSkSANWQ',
     dbUrl: (process.env.FIREBASE_MULTIPLAY_DB_URL || 'https://baja-multiplay-photobooth-default-rtdb.asia-southeast1.firebasedatabase.app').replace(/\/$/, ''),
     projectId: process.env.FIREBASE_MULTIPLAY_PROJECT_ID || 'baja-multiplay-photobooth'
   },
   iot: {
-    apiKey: process.env.FIREBASE_IOT_API_KEY || '[REDACTED]',
+    apiKey: process.env.FIREBASE_IOT_API_KEY || 'AIzaSyDCh3CQHqdi7SxhDHLJ6IsQ7hq4GSOi6yI',
     dbUrl: (process.env.FIREBASE_IOT_DB_URL || 'https://baja-iot-default-rtdb.asia-southeast1.firebasedatabase.app').replace(/\/$/, ''),
     projectId: process.env.FIREBASE_IOT_PROJECT_ID || 'baja-iot'
   }
