@@ -525,7 +525,275 @@
             border-color: var(--baja-primary);
             background: rgba(2, 132, 199, 0.25);
         }
-    </style>
+    
+        /* MINECRAFT-STYLE MAIN MENU & WORLD SELECTION */
+        .mc-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, rgba(15, 23, 42, 0.82) 0%, rgba(2, 6, 23, 0.96) 100%);
+            backdrop-filter: blur(14px);
+            z-index: 150;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+            transition: opacity 0.25s ease;
+        }
+
+        .mc-title-wrapper {
+            position: relative;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .mc-main-logo {
+            font-size: 52px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            font-family: 'Space Grotesk', system-ui, sans-serif;
+            background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 55%, #64748b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(4px 4px 0 #000);
+            line-height: 1.1;
+        }
+
+        .mc-subtitle {
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            color: #38bdf8;
+            text-transform: uppercase;
+            margin-top: 4px;
+            text-shadow: 2px 2px 0 #000;
+        }
+
+        .mc-splash {
+            position: absolute;
+            right: -20px;
+            bottom: -14px;
+            font-size: 16px;
+            font-weight: 900;
+            color: #facc15;
+            text-shadow: 2px 2px 0 #000;
+            transform: rotate(-12deg);
+            animation: mcSplashPulse 1.2s infinite alternate ease-in-out;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        @keyframes mcSplashPulse {
+            0% { transform: rotate(-12deg) scale(0.96); }
+            100% { transform: rotate(-12deg) scale(1.08); }
+        }
+
+        .mc-menu-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 380px;
+            max-width: 90vw;
+        }
+
+        .mc-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 13px 20px;
+            font-family: 'Space Grotesk', system-ui, sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: #f8fafc;
+            background: #1e293b;
+            border: 3px solid #000;
+            box-shadow: 4px 4px 0 #000;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-decoration: none;
+        }
+
+        .mc-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 #000;
+            background: #334155;
+            border-color: #38bdf8;
+        }
+
+        .mc-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0 #000;
+        }
+
+        .mc-btn-primary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-color: #000;
+            color: #ffffff;
+        }
+
+        .mc-btn-primary:hover {
+            background: linear-gradient(135deg, #34d399, #10b981);
+            border-color: #6ee7b7;
+        }
+
+        .mc-btn-secondary {
+            background: #0f172a;
+            color: #94a3b8;
+        }
+
+        .mc-btn-danger {
+            background: #ef4444;
+            color: #ffffff;
+        }
+
+        .mc-modal-box {
+            background: #0f172a;
+            border: 3px solid #000;
+            box-shadow: 8px 8px 0 #000;
+            border-radius: 18px;
+            width: 92vw;
+            max-width: 820px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .mc-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background: #1e293b;
+            border-bottom: 3px solid #000;
+        }
+
+        .mc-modal-header h2 {
+            font-size: 18px;
+            font-weight: 800;
+            color: #f8fafc;
+            margin: 0;
+        }
+
+        .mc-modal-body {
+            padding: 22px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .mc-modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 14px 24px;
+            background: #1e293b;
+            border-top: 3px solid #000;
+        }
+
+        .mc-world-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 14px;
+        }
+
+        .mc-world-card {
+            background: #1e293b;
+            border: 3px solid #000;
+            box-shadow: 4px 4px 0 #000;
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .mc-world-card:hover {
+            border-color: #22c55e;
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0 #000;
+        }
+
+        .mc-world-card.active {
+            border-color: #38bdf8;
+            background: #1e3a5f;
+        }
+
+        .mc-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .mc-card-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: #f8fafc;
+        }
+
+        .mc-card-badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .mc-card-desc {
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.4;
+        }
+
+        .mc-card-meta {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .mc-card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: auto;
+        }
+
+        .mc-form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .mc-form-group label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #cbd5e1;
+        }
+
+        .mc-input, .mc-select {
+            padding: 12px 16px;
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            color: #f8fafc;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .mc-input:focus, .mc-select:focus {
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+        }
+</style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
 </head>
@@ -535,6 +803,11 @@
 
     <!-- Top Bar -->
     <div class="hud-topbar">
+        <button class="btn-encyclopedia" onclick="openPauseMenu()" style="background: rgba(30, 41, 59, 0.85); border-color: rgba(148, 163, 184, 0.4);">
+            <span>☰</span>
+            <span>Menu & Pilihan Dunia</span>
+        </button>
+
         <div class="hud-pill">
             <a href="index.html" class="logo-btn">
                 <img src="/src/assets/img/Logo.svg" alt="BAJA">
@@ -672,6 +945,126 @@
                 <button class="tab-btn" onclick="filterEncyclopedia('cat:farm')">🐄 Hewan (28)</button>
             </div>
             <div class="modal-content" id="encyclopediaGrid"></div>
+        </div>
+    </div>
+
+    
+    <!-- MINECRAFT MAIN MENU SCREEN -->
+    <div id="mainMenuScreen" class="mc-overlay">
+        <div class="mc-title-wrapper">
+            <div class="mc-main-logo">BAJACRAFT 3D</div>
+            <div class="mc-subtitle">INFINITE VOXEL WORLD & BIOMES</div>
+            <div class="mc-splash" id="mcSplashText">Sistem 7 Biome Aktif!</div>
+        </div>
+        <div class="mc-menu-panel">
+            <button class="mc-btn mc-btn-primary" onclick="openWorldSelectModal()">
+                <span>▶</span> Mainkan Dunia (Play World)
+            </button>
+            <button class="mc-btn" onclick="openCreateWorldModal()">
+                <span>➕</span> Buat Dunia Baru (Create World)
+            </button>
+            <button class="mc-btn" onclick="toggleEncyclopedia()">
+                <span>📖</span> Ensiklopedia Biome (110 Spesies)
+            </button>
+            <button class="mc-btn mc-btn-secondary" onclick="playActiveWorld()">
+                <span>🎮</span> Masuk Langsung ke Dunia
+            </button>
+            <a href="/public/index.html" class="mc-btn mc-btn-secondary">
+                <span>🏠</span> Kembali ke Portal BAJA WEB
+            </a>
+        </div>
+    </div>
+
+    <!-- WORLD SELECTION MODAL -->
+    <div id="worldSelectModal" class="mc-overlay" style="display:none;">
+        <div class="mc-modal-box">
+            <div class="mc-modal-header">
+                <h2>Pilih Dunia untuk Dimainkan</h2>
+                <button class="close-btn" onclick="closeWorldSelectModal()">✕</button>
+            </div>
+            <div class="mc-modal-body">
+                <div class="mc-world-grid" id="worldListContainer">
+                    <!-- Dynamic World Cards -->
+                </div>
+            </div>
+            <div class="mc-modal-footer">
+                <button class="mc-btn mc-btn-primary" onclick="openCreateWorldModal()">➕ Buat Dunia Baru</button>
+                <button class="mc-btn" onclick="closeWorldSelectModal()">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CREATE NEW WORLD MODAL -->
+    <div id="createWorldModal" class="mc-overlay" style="display:none;">
+        <div class="mc-modal-box" style="max-width: 580px;">
+            <div class="mc-modal-header">
+                <h2>Buat Dunia Baru (Create New World)</h2>
+                <button class="close-btn" onclick="closeCreateWorldModal()">✕</button>
+            </div>
+            <div class="mc-modal-body">
+                <div class="mc-form-group">
+                    <label>Nama Dunia:</label>
+                    <input type="text" id="newWorldName" value="Dunia Petualangan Baru" class="mc-input">
+                </div>
+                <div class="mc-form-group">
+                    <label>Pilihan Tipe Dunia / Biome Preset:</label>
+                    <select id="newWorldPreset" class="mc-select">
+                        <option value="all">🌍 Multiverse (Semua 7 Biome Alami Tak Terbatas)</option>
+                        <option value="sakura">🌸 Sakura Blossom Paradise (Lembah Sakura Pink)</option>
+                        <option value="taiga">🌲 Snowy Taiga Alpine (Cemara Dingin Bersalju)</option>
+                        <option value="jungle">🌴 Tropical Jungle Oasis (Hutan Hujan & Kelapa)</option>
+                        <option value="savanna">🏜️ Savanna Safari (Padang Rumput Akasia Kering)</option>
+                        <option value="dark_forest">🍂 Dark Forest & Birch (Hutan Ek Gelap & Birch)</option>
+                        <option value="orchard">🍎 Sunny Fruit Orchards (Lembah Kebun Buah Manis)</option>
+                        <option value="amplified">⛰️ Pegunungan Amplified (Tebing Voxel Ekstrem)</option>
+                        <option value="superflat">🟩 Superflat Creative (Dataran Rumput Datar)</option>
+                    </select>
+                </div>
+                <div class="mc-form-group">
+                    <label>Mode Game:</label>
+                    <select id="newWorldMode" class="mc-select">
+                        <option value="survival">⚔️ Survival Mode (Gravitasi & Lompat Normal)</option>
+                        <option value="creative">🚀 Creative Mode (Bisa Terbang & Blok Bebas)</option>
+                        <option value="peaceful">🕊️ Peaceful Mode (Santai Menjelajahi Bioma)</option>
+                    </select>
+                </div>
+                <div class="mc-form-group">
+                    <label>Seed Dunia (Opsional):</label>
+                    <input type="text" id="newWorldSeed" placeholder="Ketik seed atau biarkan acak..." class="mc-input">
+                </div>
+            </div>
+            <div class="mc-modal-footer">
+                <button class="mc-btn mc-btn-primary" onclick="confirmCreateNewWorld()">✨ Buat Dunia Sekarang!</button>
+                <button class="mc-btn" onclick="closeCreateWorldModal()">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- IN-GAME PAUSE MENU (ESC) -->
+    <div id="pauseMenuModal" class="mc-overlay" style="display:none;">
+        <div class="mc-modal-box" style="max-width: 420px; align-items: center; text-align: center;">
+            <div class="mc-modal-header" style="width: 100%; justify-content: center;">
+                <h2>Permainan Dijeda</h2>
+            </div>
+            <div class="mc-modal-body" style="width: 100%; align-items: center;">
+                <div class="mc-menu-panel" style="width: 100%;">
+                    <button class="mc-btn mc-btn-primary" onclick="resumeGame()">
+                        <span>▶</span> Lanjutkan Permainan
+                    </button>
+                    <button class="mc-btn" onclick="openWorldSelectModal()">
+                        <span>🗺️</span> Pilihan Dunia
+                    </button>
+                    <button class="mc-btn" onclick="openCreateWorldModal()">
+                        <span>➕</span> Buat Dunia Baru
+                    </button>
+                    <button class="mc-btn" onclick="toggleEncyclopedia()">
+                        <span>📖</span> Ensiklopedia Biome
+                    </button>
+                    <button class="mc-btn mc-btn-secondary" onclick="exitToMainMenu()">
+                        <span>🚪</span> Simpan & Menu Utama
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -920,7 +1313,7 @@ const TAXONOMY_DATABASE = [
 
         // Player physics
         const player = {
-            height: 1.8,
+            height: 3.6, // Tinggi karakter 2 blok penuh (1.8 blok mata, BLOCK_SIZE = 2.0)
             speed: 12.0,
             sprintSpeed: 20.0,
             velocity: new THREE.Vector3(),
@@ -959,93 +1352,130 @@ const TAXONOMY_DATABASE = [
                 canvas.width = 64;
                 canvas.height = 64;
                 const ctx = canvas.getContext('2d');
+                ctx.imageSmoothingEnabled = false;
 
                 if (type === 'grass_top') {
-                    ctx.fillStyle = '#22c55e';
+                    ctx.fillStyle = '#4ade80';
                     ctx.fillRect(0, 0, 64, 64);
-                    // Pixel noise
-                    for (let i = 0; i < 90; i++) {
-                        ctx.fillStyle = Math.random() > 0.5 ? '#16a34a' : '#86efac';
-                        const px = Math.floor(Math.random() * 16) * 4;
-                        const py = Math.floor(Math.random() * 16) * 4;
-                        ctx.fillRect(px, py, 4, 4);
+                    for (let x = 0; x < 64; x += 4) {
+                        for (let y = 0; y < 64; y += 4) {
+                            const r = Math.random();
+                            if (r > 0.65) {
+                                ctx.fillStyle = '#22c55e';
+                                ctx.fillRect(x, y, 4, 4);
+                            } else if (r < 0.2) {
+                                ctx.fillStyle = '#86efac';
+                                ctx.fillRect(x, y, 4, 4);
+                            }
+                        }
                     }
                 } else if (type === 'grass_side') {
                     ctx.fillStyle = '#78350f';
                     ctx.fillRect(0, 0, 64, 64);
-                    // Dirt pebbles
-                    for (let i = 0; i < 70; i++) {
-                        ctx.fillStyle = Math.random() > 0.5 ? '#5c2a08' : '#92400e';
-                        ctx.fillRect(Math.floor(Math.random()*16)*4, Math.floor(Math.random()*16)*4, 4, 4);
+                    for (let x = 0; x < 64; x += 4) {
+                        for (let y = 16; y < 64; y += 4) {
+                            const r = Math.random();
+                            if (r > 0.7) {
+                                ctx.fillStyle = '#92400e';
+                                ctx.fillRect(x, y, 4, 4);
+                            } else if (r < 0.2) {
+                                ctx.fillStyle = '#5c2606';
+                                ctx.fillRect(x, y, 4, 4);
+                            }
+                        }
                     }
-                    // Grass top fringe
-                    ctx.fillStyle = '#22c55e';
-                    ctx.fillRect(0, 0, 64, 16);
-                    for (let x = 0; x < 16; x++) {
-                        const h = 16 + Math.floor(Math.random() * 3) * 4;
-                        ctx.fillRect(x * 4, 0, 4, h);
+                    ctx.fillStyle = '#4ade80';
+                    ctx.fillRect(0, 0, 64, 12);
+                    const fringeHeights = [16, 20, 16, 12, 20, 16, 12, 16, 20, 16, 12, 16, 20, 16, 12, 16];
+                    for (let i = 0; i < 16; i++) {
+                        ctx.fillStyle = '#22c55e';
+                        ctx.fillRect(i * 4, 12, 4, fringeHeights[i] - 12);
                     }
                 } else if (type === 'dirt') {
                     ctx.fillStyle = '#78350f';
                     ctx.fillRect(0, 0, 64, 64);
-                    for (let i = 0; i < 110; i++) {
-                        ctx.fillStyle = Math.random() > 0.5 ? '#5c2a08' : '#92400e';
-                        ctx.fillRect(Math.floor(Math.random()*16)*4, Math.floor(Math.random()*16)*4, 4, 4);
+                    for (let x = 0; x < 64; x += 4) {
+                        for (let y = 0; y < 64; y += 4) {
+                            const r = Math.random();
+                            if (r > 0.65) {
+                                ctx.fillStyle = '#92400e';
+                                ctx.fillRect(x, y, 4, 4);
+                            } else if (r < 0.25) {
+                                ctx.fillStyle = '#5c2606';
+                                ctx.fillRect(x, y, 4, 4);
+                            }
+                        }
                     }
                 } else if (type === 'stone') {
                     ctx.fillStyle = '#64748b';
                     ctx.fillRect(0, 0, 64, 64);
-                    for (let i = 0; i < 100; i++) {
-                        ctx.fillStyle = Math.random() > 0.5 ? '#475569' : '#94a3b8';
-                        ctx.fillRect(Math.floor(Math.random()*16)*4, Math.floor(Math.random()*16)*4, 4, 4);
+                    for (let x = 0; x < 64; x += 4) {
+                        for (let y = 0; y < 64; y += 4) {
+                            const r = Math.random();
+                            if (r > 0.6) {
+                                ctx.fillStyle = '#94a3b8';
+                                ctx.fillRect(x, y, 4, 4);
+                            } else if (r < 0.25) {
+                                ctx.fillStyle = '#475569';
+                                ctx.fillRect(x, y, 4, 4);
+                            }
+                        }
                     }
                 } else if (type === 'wood_oak') {
                     ctx.fillStyle = '#b45309';
                     ctx.fillRect(0, 0, 64, 64);
-                    ctx.fillStyle = '#92400e';
-                    ctx.fillRect(0, 16, 64, 2);
-                    ctx.fillRect(0, 32, 64, 2);
-                    ctx.fillRect(0, 48, 64, 2);
-                    for (let i = 0; i < 50; i++) {
-                        ctx.fillStyle = '#78350f';
-                        ctx.fillRect(Math.floor(Math.random()*16)*4, Math.floor(Math.random()*16)*4, 4, 4);
+                    for (let x = 0; x < 64; x += 4) {
+                        for (let y = 0; y < 64; y += 8) {
+                            ctx.fillStyle = Math.random() > 0.5 ? '#92400e' : '#d97706';
+                            ctx.fillRect(x, y, 4, 8);
+                        }
                     }
                 } else if (type === 'wood_birch') {
-                    ctx.fillStyle = '#f1f5f9';
+                    ctx.fillStyle = '#f8fafc';
                     ctx.fillRect(0, 0, 64, 64);
-                    ctx.fillStyle = '#0f172a';
-                    for (let i = 0; i < 16; i++) {
-                        const py = Math.floor(Math.random()*14)*4;
-                        const px = Math.floor(Math.random()*12)*4;
-                        ctx.fillRect(px, py, 12, 3);
-                    }
+                    ctx.fillStyle = '#1e293b';
+                    ctx.fillRect(8, 12, 16, 4);
+                    ctx.fillRect(36, 28, 20, 4);
+                    ctx.fillRect(4, 44, 24, 4);
+                    ctx.fillRect(40, 52, 12, 4);
                 } else if (type === 'wood_pine') {
-                    ctx.fillStyle = '#451a03';
+                    ctx.fillStyle = '#38200f';
                     ctx.fillRect(0, 0, 64, 64);
-                    for (let i = 0; i < 60; i++) {
-                        ctx.fillStyle = '#271206';
-                        ctx.fillRect(Math.floor(Math.random()*16)*4, Math.floor(Math.random()*16)*4, 4, 4);
+                    for (let x = 0; x < 64; x += 4) {
+                        for (let y = 0; y < 64; y += 8) {
+                            ctx.fillStyle = Math.random() > 0.5 ? '#271206' : '#451a03';
+                            ctx.fillRect(x, y, 4, 8);
+                        }
                     }
                 } else if (type === 'wood_cherry') {
                     ctx.fillStyle = '#f472b6';
                     ctx.fillRect(0, 0, 64, 64);
-                    for (let i = 0; i < 60; i++) {
-                        ctx.fillStyle = '#fb7185';
-                        ctx.fillRect(Math.floor(Math.random()*16)*4, Math.floor(Math.random()*16)*4, 4, 4);
+                    for (let x = 0; x < 64; x += 4) {
+                        for (let y = 0; y < 64; y += 8) {
+                            ctx.fillStyle = Math.random() > 0.5 ? '#fb7185' : '#fda4af';
+                            ctx.fillRect(x, y, 4, 8);
+                        }
                     }
                 } else if (type === 'sand') {
                     ctx.fillStyle = '#fde047';
                     ctx.fillRect(0, 0, 64, 64);
-                    for (let i = 0; i < 70; i++) {
-                        ctx.fillStyle = '#eab308';
-                        ctx.fillRect(Math.floor(Math.random()*16)*4, Math.floor(Math.random()*16)*4, 4, 4);
+                    for (let x = 0; x < 64; x += 4) {
+                        for (let y = 0; y < 64; y += 4) {
+                            if (Math.random() > 0.6) {
+                                ctx.fillStyle = '#eab308';
+                                ctx.fillRect(x, y, 4, 4);
+                            }
+                        }
                     }
+                } else {
+                    ctx.fillStyle = '#10b981';
+                    ctx.fillRect(0, 0, 64, 64);
                 }
 
-                const tex = new THREE.CanvasTexture(canvas);
-                tex.magFilter = THREE.NearestFilter;
-                tex.minFilter = THREE.NearestFilter;
-                return tex;
+                const texture = new THREE.CanvasTexture(canvas);
+                texture.magFilter = THREE.NearestFilter;
+                texture.minFilter = THREE.NearestFilter;
+                return texture;
             }
 
             const grassTop = makePixelTexture('grass_top');
@@ -1061,18 +1491,17 @@ const TAXONOMY_DATABASE = [
             blockMaterials.grass = [
                 new THREE.MeshStandardMaterial({ map: grassSide, roughness: 0.8 }),
                 new THREE.MeshStandardMaterial({ map: grassSide, roughness: 0.8 }),
-                new THREE.MeshStandardMaterial({ map: grassTop, roughness: 0.7 }),
+                new THREE.MeshStandardMaterial({ map: grassTop, roughness: 0.6 }),
                 new THREE.MeshStandardMaterial({ map: dirtTex, roughness: 0.9 }),
                 new THREE.MeshStandardMaterial({ map: grassSide, roughness: 0.8 }),
                 new THREE.MeshStandardMaterial({ map: grassSide, roughness: 0.8 })
             ];
             blockMaterials.dirt = new THREE.MeshStandardMaterial({ map: dirtTex, roughness: 0.9 });
-            blockMaterials.stone = new THREE.MeshStandardMaterial({ map: stoneTex, roughness: 0.85 });
-            blockMaterials.wood = new THREE.MeshStandardMaterial({ map: oakTex, roughness: 0.7 });
-            blockMaterials.log_oak = new THREE.MeshStandardMaterial({ map: oakTex, roughness: 0.7 });
-            blockMaterials.log_birch = new THREE.MeshStandardMaterial({ map: birchTex, roughness: 0.7 });
-            blockMaterials.log_pine = new THREE.MeshStandardMaterial({ map: pineTex, roughness: 0.7 });
-            blockMaterials.log_cherry = new THREE.MeshStandardMaterial({ map: cherryTex, roughness: 0.7 });
+            blockMaterials.stone = new THREE.MeshStandardMaterial({ map: stoneTex, roughness: 0.7 });
+            blockMaterials.wood_oak = new THREE.MeshStandardMaterial({ map: oakTex, roughness: 0.7 });
+            blockMaterials.wood_birch = new THREE.MeshStandardMaterial({ map: birchTex, roughness: 0.7 });
+            blockMaterials.wood_pine = new THREE.MeshStandardMaterial({ map: pineTex, roughness: 0.7 });
+            blockMaterials.wood_cherry = new THREE.MeshStandardMaterial({ map: cherryTex, roughness: 0.7 });
             blockMaterials.sand = new THREE.MeshStandardMaterial({ map: sandTex, roughness: 0.9 });
         }
 
@@ -1190,33 +1619,62 @@ const TAXONOMY_DATABASE = [
         // 4. INFINITE CHUNK MANAGER & PROCEDURAL TERRAIN
         // ==========================================
         function getElevationNoise(gx, gz) {
+            if (typeof activeWorld !== 'undefined') {
+                if (activeWorld.preset === 'superflat') {
+                    return 4;
+                }
+            }
+
             // Create a scenic flat meadow around spawn for pristine viewing
             if (Math.abs(gx) <= 7 && Math.abs(gz) <= 7) {
                 return 4;
             }
+
+            let mult = 1.0;
+            let baseElev = 0;
+            if (typeof activeWorld !== 'undefined' && activeWorld.preset === 'amplified') {
+                mult = 2.4;
+                baseElev = 3;
+            }
+
+            const seedOffset = (typeof activeWorld !== 'undefined' && activeWorld.seed) ? (activeWorld.seed % 1000) : 0;
+            const sx = gx + seedOffset;
+            const sz = gz + seedOffset;
+
             // Rolling hills beyond spawn
-            const s1 = Math.sin(gx * 0.12) * Math.cos(gz * 0.12) * 3.5;
-            const s2 = Math.cos(gx * 0.05 + gz * 0.04) * 4.0;
-            const s3 = Math.sin((gx + gz) * 0.25) * 1.0;
-            let elev = Math.floor(s1 + s2 + s3);
+            const s1 = Math.sin(sx * 0.12) * Math.cos(sz * 0.12) * 3.5;
+            const s2 = Math.cos(sx * 0.05 + sz * 0.04) * 4.0;
+            const s3 = Math.sin((sx + sz) * 0.25) * 1.0;
+            let elev = Math.floor((s1 + s2 + s3) * mult + baseElev);
             if (elev < 1) elev = 1;
             return elev;
         }
 
         function getBiomeAt(gx, gz) {
-            // Peaceful spawn clearing is Plains
+            if (typeof activeWorld !== 'undefined') {
+                if (activeWorld.preset === 'sakura') return BIOMES_CONFIG.sakura;
+                if (activeWorld.preset === 'taiga') return BIOMES_CONFIG.taiga;
+                if (activeWorld.preset === 'jungle') return BIOMES_CONFIG.jungle;
+                if (activeWorld.preset === 'savanna') return BIOMES_CONFIG.savanna;
+                if (activeWorld.preset === 'dark_forest') return BIOMES_CONFIG.dark_forest;
+                if (activeWorld.preset === 'orchard') return BIOMES_CONFIG.orchard;
+                if (activeWorld.preset === 'plains' || activeWorld.preset === 'superflat') return BIOMES_CONFIG.plains;
+            }
+
             if (Math.abs(gx) <= 12 && Math.abs(gz) <= 12) return BIOMES_CONFIG.plains;
 
-            // Deterministic 2D temperature & moisture noise
-            const temp = Math.sin(gx * 0.02) * Math.cos(gz * 0.02) + 0.3 * Math.sin(gx * 0.05);
-            const moisture = Math.cos(gx * 0.02) * Math.sin(gz * 0.02) + 0.3 * Math.cos(gz * 0.05);
+            const seedOffset = (typeof activeWorld !== 'undefined' && activeWorld.seed) ? (activeWorld.seed % 500) : 0;
+            const sx = gx + seedOffset;
+            const sz = gz + seedOffset;
+            const temp = Math.sin(sx * 0.02) * Math.cos(sz * 0.02) + 0.3 * Math.sin(sx * 0.05);
+            const moisture = Math.cos(sx * 0.02) * Math.sin(sz * 0.02) + 0.3 * Math.cos(sz * 0.05);
 
-            if (temp < -0.35) return BIOMES_CONFIG.taiga;
-            if (temp > 0.35 && moisture < -0.15) return BIOMES_CONFIG.savanna;
-            if (temp > 0.25 && moisture > 0.25) return BIOMES_CONFIG.jungle;
-            if (moisture > 0.35) return BIOMES_CONFIG.sakura;
-            if (temp < 0.1 && moisture < -0.15) return BIOMES_CONFIG.dark_forest;
-            if (moisture > 0.1) return BIOMES_CONFIG.orchard;
+            if (temp < -0.3) return BIOMES_CONFIG.taiga;
+            if (temp > 0.4 && moisture < -0.1) return BIOMES_CONFIG.savanna;
+            if (moisture > 0.4 && temp > 0.1) return BIOMES_CONFIG.jungle;
+            if (temp >= -0.2 && temp <= 0.3 && moisture >= 0.2) return BIOMES_CONFIG.sakura;
+            if (temp < 0.2 && moisture < 0.1 && moisture > -0.3) return BIOMES_CONFIG.dark_forest;
+            if (temp > 0.1 && temp < 0.4 && moisture > -0.2) return BIOMES_CONFIG.orchard;
             return BIOMES_CONFIG.plains;
         }
 
@@ -1291,7 +1749,7 @@ const TAXONOMY_DATABASE = [
                             ? biomeTrees[Math.floor(Math.abs(Math.sin(gx * 13.7 + gz * 89.1)) * biomeTrees.length)].id 
                             : 'tree_oak';
 
-                        const treeModel = spawn3DTree(gx, elevation + 1, gz, treeChoice);
+                        const treeModel = spawn3DTree(gx, elevation, gz, treeChoice);
                         if (treeModel) {
                             chunkGroup.add(treeModel);
                             chunkData.entities.push(treeModel);
@@ -1303,7 +1761,7 @@ const TAXONOMY_DATABASE = [
                             ? biomePlants[Math.floor(Math.abs(Math.cos(gx * 29.3 + gz * 43.7)) * biomePlants.length)].id
                             : 'flower_rose';
 
-                        const plantModel = spawn3DPlant(gx, elevation + 1, gz, plantChoice);
+                        const plantModel = spawn3DPlant(gx, elevation, gz, plantChoice);
                         if (plantModel) {
                             chunkGroup.add(plantModel);
                             chunkData.entities.push(plantModel);
@@ -1326,7 +1784,7 @@ const TAXONOMY_DATABASE = [
                             else if (chosen.id.includes('horse') || chosen.id.includes('bull')) animalChoice = 'horse';
                             else animalChoice = 'cow';
                         }
-                        const animalModel = spawn3DAnimal(gx, elevation + 1, gz, animalChoice);
+                        const animalModel = spawn3DAnimal(gx, elevation, gz, animalChoice);
                         if (animalModel) {
                             chunkGroup.add(animalModel);
                             chunkData.entities.push(animalModel);
@@ -1435,7 +1893,7 @@ const TAXONOMY_DATABASE = [
 
             // 2. Foliage based on Style
             if (data.style === 'conifer' || data.style === 'conifer_tall') {
-                // Tiered Pine Cones
+                // Tiered Pine Cones (Spruce / Pine)
                 const coneMat = new THREE.MeshStandardMaterial({ color: data.leaves[0], roughness: 0.7, flatShading: true });
                 const tiers = [
                     { y: 3.2, r: 2.2, h: 2.2 },
@@ -1449,6 +1907,26 @@ const TAXONOMY_DATABASE = [
                     cone.position.y = t.y;
                     cone.castShadow = true;
                     group.add(cone);
+                });
+            } else if (data.style === 'acacia') {
+                // Iconic Savanna Flat Umbrella Canopy
+                const leafMat = new THREE.MeshStandardMaterial({ color: data.leaves[0], roughness: 0.65, flatShading: true });
+                const branches = [
+                    { x: 0.8, y: trunkHeight, z: 0.4, rx: 0.3, rz: 0.5 },
+                    { x: -0.8, y: trunkHeight + 0.3, z: -0.4, rx: -0.2, rz: -0.5 }
+                ];
+                branches.forEach(b => {
+                    const bMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.24, 1.8, 6), trunkMat);
+                    bMesh.position.set(b.x * 0.5, b.y - 0.5, b.z * 0.5);
+                    bMesh.rotation.x = b.rx;
+                    bMesh.rotation.z = b.rz;
+                    group.add(bMesh);
+
+                    const diskGeo = new THREE.CylinderGeometry(2.2, 2.0, 0.5, 8);
+                    const disk = new THREE.Mesh(diskGeo, leafMat);
+                    disk.position.set(b.x * 1.5, b.y + 0.6, b.z * 1.5);
+                    disk.castShadow = true;
+                    group.add(disk);
                 });
             } else if (data.style === 'palm') {
                 // Palm Fronds & Coconuts
@@ -1517,7 +1995,7 @@ const TAXONOMY_DATABASE = [
                 }
             }
 
-            group.position.set(gx * BLOCK_SIZE, (gy - 0.5) * BLOCK_SIZE, gz * BLOCK_SIZE);
+            group.position.set(gx * BLOCK_SIZE, (gy + 0.5) * BLOCK_SIZE, gz * BLOCK_SIZE);
             group.userData = { isTree: true, treeData: data, gx, gy, gz };
 
             // Register children for raycast chopping
@@ -2042,6 +2520,299 @@ const TAXONOMY_DATABASE = [
         // ==========================================
         // 7. INITIALIZATION & GAME LOOP
         // ==========================================
+        
+        // ==========================================
+        // MINECRAFT-STYLE WORLD ENGINE & MANAGEMENT
+        // ==========================================
+        const WORLD_STORAGE_KEY = 'bajacraft_worlds_v1';
+        
+        const PRESET_WORLDS = [
+            {
+                id: 'world_multiverse',
+                name: '🌍 Dunia Petualangan (Multiverse)',
+                preset: 'all',
+                mode: 'survival',
+                desc: 'Jelajahi perpaduan 7 bioma alami tak terbatas secara dinamis.',
+                badge: 'Multiverse 7 Biome',
+                badgeColor: '#10b981',
+                seed: 12345
+            },
+            {
+                id: 'world_sakura',
+                name: '🌸 Sakura Blossom Paradise',
+                preset: 'sakura',
+                mode: 'peaceful',
+                desc: 'Hamparan bukit pohon sakura pink mekar dengan domba dan kelinci lucu.',
+                badge: 'Cherry Grove',
+                badgeColor: '#f472b6',
+                seed: 88888
+            },
+            {
+                id: 'world_taiga',
+                name: '🌲 Snowy Taiga Alpine',
+                preset: 'taiga',
+                mode: 'survival',
+                desc: 'Hutan pinus cemara dingin bersalju lebat, dihuni serigala dan rusa.',
+                badge: 'Snowy Taiga',
+                badgeColor: '#0ea5e9',
+                seed: 45678
+            },
+            {
+                id: 'world_jungle',
+                name: '🌴 Tropical Jungle Oasis',
+                preset: 'jungle',
+                mode: 'creative',
+                desc: 'Hutan hujan tropis rimbun dengan pohon kelapa, burung beo, dan monyet.',
+                badge: 'Rainforest',
+                badgeColor: '#059669',
+                seed: 99999
+            },
+            {
+                id: 'world_savanna',
+                name: '🏜️ Savanna Safari Wild',
+                preset: 'savanna',
+                mode: 'survival',
+                desc: 'Padang rumput hangat berpohon akasia payung dengan kawanan singa dan kuda.',
+                badge: 'Savanna Safari',
+                badgeColor: '#eab308',
+                seed: 77777
+            },
+            {
+                id: 'world_orchard',
+                name: '🍎 Sunny Fruit Orchards',
+                preset: 'orchard',
+                mode: 'survival',
+                desc: 'Lembah kebun pohon apel manis berbuah lebat dengan ternak babi pink dan ayam.',
+                badge: 'Fruit Orchard',
+                badgeColor: '#f97316',
+                seed: 33333
+            },
+            {
+                id: 'world_amplified',
+                name: '⛰️ Pegunungan Amplified Ekstrem',
+                preset: 'amplified',
+                mode: 'survival',
+                desc: 'Dunia tebing voxel menjulang tinggi dan jurang megah spektakuler.',
+                badge: 'Amplified Hills',
+                badgeColor: '#8b5cf6',
+                seed: 11111
+            },
+            {
+                id: 'world_superflat',
+                name: '🟩 Superflat Creative Building',
+                preset: 'superflat',
+                mode: 'creative',
+                desc: 'Dataran rumput luas tanpa bukit, sempurna untuk bebas membangun balok.',
+                badge: 'Superflat',
+                badgeColor: '#22c55e',
+                seed: 55555
+            }
+        ];
+
+        let activeWorld = Object.assign({}, PRESET_WORLDS[0]);
+
+        function getStoredWorlds() {
+            try {
+                const stored = localStorage.getItem(WORLD_STORAGE_KEY);
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                }
+            } catch (e) {}
+            return PRESET_WORLDS.slice();
+        }
+
+        function saveStoredWorlds(list) {
+            try {
+                localStorage.setItem(WORLD_STORAGE_KEY, JSON.stringify(list));
+            } catch (e) {}
+        }
+
+        function renderWorldList() {
+            const container = document.getElementById('worldListContainer');
+            if (!container) return;
+            const worlds = getStoredWorlds();
+            container.innerHTML = '';
+
+            worlds.forEach(w => {
+                const isSelected = w.id === activeWorld.id;
+                const card = document.createElement('div');
+                card.className = 'mc-world-card' + (isSelected ? ' active' : '');
+                card.innerHTML = `
+                    <div class="mc-card-top">
+                        <div class="mc-card-title">${w.name}</div>
+                        <span class="mc-card-badge" style="background: ${w.badgeColor || '#10b981'}22; color: ${w.badgeColor || '#10b981'}; border-color: ${w.badgeColor || '#10b981'}55;">
+                            ${w.badge || w.preset}
+                        </span>
+                    </div>
+                    <div class="mc-card-desc">${w.desc || 'Dunia voxel kustom pemain.'}</div>
+                    <div class="mc-card-meta">Mode: <strong>${w.mode.toUpperCase()}</strong> | Seed: ${w.seed || 'Default'}</div>
+                    <div class="mc-card-actions">
+                        <button class="mc-btn mc-btn-primary" style="padding: 8px 16px; font-size: 13px;" onclick="loadAndPlayWorld('${w.id}')">
+                            ▶ Masuk Dunia
+                        </button>
+                        ${!w.id.startsWith('world_') ? `
+                        <button class="mc-btn mc-btn-danger" style="padding: 8px 12px; font-size: 13px;" onclick="deleteCustomWorld('${w.id}', event)">
+                            🗑️
+                        </button>` : ''}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openWorldSelectModal() {
+            renderWorldList();
+            document.getElementById('worldSelectModal').style.display = 'flex';
+        }
+
+        function closeWorldSelectModal() {
+            document.getElementById('worldSelectModal').style.display = 'none';
+        }
+
+        function openCreateWorldModal() {
+            document.getElementById('newWorldName').value = 'Dunia Petualangan Baru ' + (Math.floor(Math.random() * 900) + 100);
+            document.getElementById('createWorldModal').style.display = 'flex';
+        }
+
+        function closeCreateWorldModal() {
+            document.getElementById('createWorldModal').style.display = 'none';
+        }
+
+        function confirmCreateNewWorld() {
+            const name = document.getElementById('newWorldName').value.trim() || 'Dunia Tanpa Nama';
+            const preset = document.getElementById('newWorldPreset').value;
+            const mode = document.getElementById('newWorldMode').value;
+            const seedStr = document.getElementById('newWorldSeed').value.trim();
+            const seed = seedStr ? (parseInt(seedStr) || Math.abs(seedStr.split('').reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0))) : Math.floor(Math.random() * 999999);
+
+            const presetBadges = {
+                all: { name: 'Multiverse 7 Biome', color: '#10b981' },
+                sakura: { name: 'Cherry Grove', color: '#f472b6' },
+                taiga: { name: 'Snowy Taiga', color: '#0ea5e9' },
+                jungle: { name: 'Rainforest', color: '#059669' },
+                savanna: { name: 'Savanna Safari', color: '#eab308' },
+                dark_forest: { name: 'Dark Forest', color: '#6366f1' },
+                orchard: { name: 'Fruit Orchard', color: '#f97316' },
+                amplified: { name: 'Amplified Hills', color: '#8b5cf6' },
+                superflat: { name: 'Superflat', color: '#22c55e' }
+            };
+
+            const newWorldObj = {
+                id: 'custom_' + Date.now(),
+                name: name,
+                preset: preset,
+                mode: mode,
+                desc: 'Dunia kustom buatan pemain dengan variasi procedural voxel.',
+                badge: (presetBadges[preset] || {}).name || preset,
+                badgeColor: (presetBadges[preset] || {}).color || '#10b981',
+                seed: seed
+            };
+
+            const worlds = getStoredWorlds();
+            worlds.unshift(newWorldObj);
+            saveStoredWorlds(worlds);
+
+            closeCreateWorldModal();
+            loadAndPlayWorld(newWorldObj.id);
+        }
+
+        function deleteCustomWorld(id, e) {
+            if (e) e.stopPropagation();
+            if (!confirm('Hapus dunia ini secara permanen?')) return;
+            let worlds = getStoredWorlds();
+            worlds = worlds.filter(w => w.id !== id);
+            saveStoredWorlds(worlds);
+            renderWorldList();
+        }
+
+        function loadAndPlayWorld(worldId) {
+            const worlds = getStoredWorlds();
+            const target = worlds.find(w => w.id === worldId) || PRESET_WORLDS[0];
+            activeWorld = target;
+
+            applyActiveWorldToScene();
+
+            closeWorldSelectModal();
+            if (document.getElementById('pauseMenuModal')) document.getElementById('pauseMenuModal').style.display = 'none';
+            playActiveWorld();
+        }
+
+        function playActiveWorld() {
+            const titleScreen = document.getElementById('mainMenuScreen');
+            if (titleScreen) titleScreen.style.display = 'none';
+            if (fpControls && fpControls.lock) {
+                fpControls.lock();
+            }
+        }
+
+        function openPauseMenu() {
+            if (fpControls && fpControls.unlock) fpControls.unlock();
+            const pauseModal = document.getElementById('pauseMenuModal');
+            if (pauseModal) pauseModal.style.display = 'flex';
+        }
+
+        function resumeGame() {
+            const pauseModal = document.getElementById('pauseMenuModal');
+            if (pauseModal) pauseModal.style.display = 'none';
+            if (fpControls && fpControls.lock) fpControls.lock();
+        }
+
+        function exitToMainMenu() {
+            const pauseModal = document.getElementById('pauseMenuModal');
+            if (pauseModal) pauseModal.style.display = 'none';
+            const titleScreen = document.getElementById('mainMenuScreen');
+            if (titleScreen) titleScreen.style.display = 'flex';
+            if (fpControls && fpControls.unlock) fpControls.unlock();
+        }
+
+        function applyActiveWorldToScene() {
+            loadedChunks.forEach(chunk => {
+                scene.remove(chunk.group);
+            });
+            loadedChunks.clear();
+            interactiveBlocks.clear();
+
+            livingEntities.forEach(ent => {
+                scene.remove(ent);
+            });
+            livingEntities.length = 0;
+
+            if (activeWorld.mode === 'creative') {
+                isFlying = true;
+                player.speed = 18.0;
+            } else {
+                isFlying = false;
+                player.speed = 12.0;
+            }
+
+            const spawnElev = getElevationNoise(0, 0);
+            const startGroundY = (spawnElev + 0.5) * BLOCK_SIZE;
+            const eyeY = startGroundY + player.height;
+            if (fpControls && fpControls.getObject) {
+                fpControls.getObject().position.set(0, eyeY, 8.2);
+            } else {
+                camera.position.set(0, eyeY, 8.2);
+            }
+            camera.rotation.set(-0.25, 0, 0);
+
+            setupSpawnShowcase();
+            updateChunksAroundPlayer(true);
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const titleScreen = document.getElementById('mainMenuScreen');
+                if (titleScreen && titleScreen.style.display === 'flex') return;
+                const pauseModal = document.getElementById('pauseMenuModal');
+                if (pauseModal && pauseModal.style.display === 'flex') {
+                    resumeGame();
+                } else {
+                    openPauseMenu();
+                }
+            }
+        });
+
         function initApp() {
             const container = document.getElementById('viewport-container');
 
@@ -2069,6 +2840,12 @@ const TAXONOMY_DATABASE = [
             buildEncyclopediaGrid();
             if (window.location.search.includes('encyclopedia=1')) {
                 toggleEncyclopedia();
+            }
+            if (window.location.search.includes('worlds=1')) {
+                openWorldSelectModal();
+            }
+            if (window.location.search.includes('ingame=1')) {
+                playActiveWorld();
             }
 
             // Initial Spawn & Chunk Loading
@@ -2101,10 +2878,9 @@ const TAXONOMY_DATABASE = [
             const chick = spawn3DAnimal(-0.7, 4, 1.7, 'chicken');
             if (chick) { chick.rotation.y = 0.25; scene.add(chick); livingEntities.push(chick); }
 
-            // 3. Floating 3D Wood Logs & Fruit Drops in center
-            spawnFloatingDrop(-1.0, 9.2, 4.2, 'log_oak');
-            spawnFloatingDrop(1.0, 9.2, 4.2, 'log_birch');
-            spawnFloatingDrop(0.0, 9.0, 4.0, 'apple');
+            // 3. Resting 3D Wood Logs on grass
+            spawnFloatingDrop(-1.2, 9.1, 4.0, 'log_oak');
+            spawnFloatingDrop(1.2, 9.1, 4.0, 'log_birch');
 
             // 4. Flowers across the meadow
             [-2.2, -1.0, 0, 1.0, 2.2].forEach((fx, fi) => {
@@ -2113,7 +2889,7 @@ const TAXONOMY_DATABASE = [
             });
 
             // 5. Position Camera & Controls for scenic vista
-            fpControls.getObject().position.set(0, 11.2, 8.2);
+            fpControls.getObject().position.set(0, 12.6, 8.2);
             camera.rotation.x = -0.28;
             
             animate();
@@ -2163,6 +2939,12 @@ const TAXONOMY_DATABASE = [
                             if (animal.legs[3]) animal.legs[3].rotation.x = legSwing;
                         }
                     }
+
+                    // Strict Terrain Clamping (Anti Mob Terbang / Melayang)
+                    const agx = Math.round(animal.position.x / BLOCK_SIZE);
+                    const agz = Math.round(animal.position.z / BLOCK_SIZE);
+                    const curElev = getElevationNoise(agx, agz);
+                    animal.position.y = (curElev + 0.5) * BLOCK_SIZE;
                 }
             }
 
@@ -2197,9 +2979,11 @@ const TAXONOMY_DATABASE = [
                 if (!isFlying) {
                     const gx = Math.round(camera.position.x / BLOCK_SIZE);
                     const gz = Math.round(camera.position.z / BLOCK_SIZE);
-                    const groundY = getElevationNoise(gx, gz) * BLOCK_SIZE + player.height;
-                    if (camera.position.y < groundY) {
-                        camera.position.y = groundY;
+                    const elev = getElevationNoise(gx, gz);
+                    const groundSurfaceY = (elev + 0.5) * BLOCK_SIZE;
+                    const playerEyeY = groundSurfaceY + player.height;
+                    if (camera.position.y < playerEyeY) {
+                        camera.position.y = playerEyeY;
                         player.velocity.y = 0;
                         player.canJump = true;
                     }
