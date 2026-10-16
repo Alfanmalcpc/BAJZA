@@ -155,18 +155,30 @@
             pointer-events: none;
             border: 1px solid #fff;
         }
-        /* Custom Dragable Seabed Decoration Elements */
+        /* Custom Dragable Seabed & Floating Decoration Elements */
         .decor-item {
             position: absolute;
-            bottom: 5px; /* Locked to bottom seabed floor */
+            bottom: 5px;
             cursor: grab;
             z-index: 4;
             user-select: none;
             transition: transform 0.1s;
         }
+        .decor-item.is-floating {
+            bottom: auto !important;
+            animation: decorFloatingBob 4s ease-in-out infinite;
+        }
         .decor-item:active {
             cursor: grabbing;
             transform: scale(1.05);
+        }
+        .decor-item.is-floating:active {
+            animation-play-state: paused;
+        }
+        @keyframes decorFloatingBob {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(1.5deg); }
+            100% { transform: translateY(0px) rotate(-1deg); }
         }
         .decor-item svg, .decor-item img {
             display: block;
@@ -466,198 +478,38 @@
     const foodName = document.getElementById('foodName');
     // Custom Vector SVG Assets for Seabed Decorations (Anti-Emoji, Professional Sizing)
         const DECORATION_ASSETS = [
-        {
-            id: 'treasure-animated',
-            name: 'Peti Emas Bajak Laut',
-            cost: 15,
-            svg: '<svg viewBox="0 0 100 80" width="85" height="75"><defs><linearGradient id="goldLid" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fde047"/><stop offset="50%" stop-color="#eab308"/><stop offset="100%" stop-color="#a16207"/></linearGradient><linearGradient id="woodChest" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#854d0e"/><stop offset="100%" stop-color="#451a03"/></linearGradient></defs><rect x="10" y="32" width="80" height="42" rx="6" fill="url(#woodChest)" stroke="#0f172a" stroke-width="3"/><rect x="16" y="36" width="68" height="6" fill="#a16207"/><rect x="16" y="62" width="68" height="6" fill="#a16207"/><g class="anim-chest-lid"><path d="M8 32 Q50 4 92 32 Z" fill="url(#goldLid)" stroke="#0f172a" stroke-width="3"/><circle cx="50" cy="24" r="5" fill="#fef08a" stroke="#713f12" stroke-width="2"/><ellipse cx="50" cy="30" rx="36" ry="3" fill="#fde047" opacity="0.6"/></g><circle cx="50" cy="48" r="6" fill="#fde047" stroke="#713f12" stroke-width="2.5"/><circle cx="50" cy="48" r="2.5" fill="#0f172a"/></svg>'
-        },
-        {
-            id: 'jellyfish-floating',
-            name: 'Ubur-Ubur Pink (Melayang)',
-            cost: 25,
-            svg: '<svg viewBox="0 0 80 100" width="70" height="100" class="anim-float"><defs><radialGradient id="pinkJelly" cx="50%" cy="40%" r="50%"><stop offset="0%" stop-color="#f472b6"/><stop offset="70%" stop-color="#db2777"/><stop offset="100%" stop-color="#9d174d"/></radialGradient></defs><path d="M12 45 C12 12 68 12 68 45 C56 50 48 46 40 50 C32 46 24 50 12 45 Z" fill="url(#pinkJelly)" opacity="0.9" stroke="#fbcfe8" stroke-width="2"/><circle cx="28" cy="30" r="4" fill="#fdf2f8" opacity="0.8"/><circle cx="52" cy="30" r="4" fill="#fdf2f8" opacity="0.8"/><path d="M22 48 Q28 72 20 95 M32 49 Q40 75 34 98 M48 49 Q42 75 48 98 M58 48 Q52 72 60 95" fill="none" stroke="#f472b6" stroke-width="2.5" stroke-linecap="round" opacity="0.85"/></svg>'
-        },
-        {
-            id: 'cyan-jellyfish-floating',
-            name: 'Ubur-Ubur Neon Cyan (Melayang)',
-            cost: 30,
-            svg: '<svg viewBox="0 0 80 100" width="75" height="110" class="anim-float"><defs><radialGradient id="cyanJelly" cx="50%" cy="40%" r="50%"><stop offset="0%" stop-color="#67e8f9"/><stop offset="70%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#0e7490"/></radialGradient></defs><path d="M12 45 C12 10 68 10 68 45 C56 50 48 45 40 50 C32 45 24 50 12 45 Z" fill="url(#cyanJelly)" opacity="0.92" stroke="#a5f3fc" stroke-width="2.5"/><circle cx="40" cy="28" r="8" fill="#e0f2fe" opacity="0.75"/><path d="M22 48 Q16 70 24 96 M34 50 Q40 75 32 98 M46 50 Q40 75 48 98 M58 48 Q64 70 56 96" fill="none" stroke="#22d3ee" stroke-width="2.5" stroke-linecap="round"/></svg>'
-        },
-        {
-            id: 'seaweed',
-            name: 'Rumput Laut Hijau Segar',
-            cost: 5,
-            svg: '<svg viewBox="0 0 80 150" width="70" height="150"><defs><linearGradient id="kelpGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4ade80"/><stop offset="60%" stop-color="#16a34a"/><stop offset="100%" stop-color="#14532d"/></linearGradient></defs><path d="M42 145 Q20 105 52 70 Q24 35 44 8 Q32 35 15 70 Q42 105 22 145 Z" fill="url(#kelpGrad)" stroke="#052e16" stroke-width="2.5"/><path d="M58 145 Q40 115 62 85 Q45 55 58 30 Q48 55 35 85 Q52 115 42 145 Z" fill="#22c55e" opacity="0.75"/></svg>'
-        },
-        {
-            id: 'purple-seaweed',
-            name: 'Rumput Laut Kristal Ungu',
-            cost: 8,
-            svg: '<svg viewBox="0 0 80 150" width="70" height="150"><defs><linearGradient id="purpleKelp" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#c084fc"/><stop offset="60%" stop-color="#9333ea"/><stop offset="100%" stop-color="#581c87"/></linearGradient></defs><path d="M42 145 Q20 105 52 70 Q24 35 44 8 Q32 35 15 70 Q42 105 22 145 Z" fill="url(#purpleKelp)" stroke="#3b0764" stroke-width="2.5"/><circle cx="44" cy="18" r="4" fill="#f0abfc" opacity="0.8"/><circle cx="34" cy="55" r="3.5" fill="#f0abfc" opacity="0.8"/></svg>'
-        },
-        {
-            id: 'coral',
-            name: 'Karang Merah Delima',
-            cost: 10,
-            svg: '<svg viewBox="0 0 100 120" width="100" height="120"><defs><linearGradient id="redCoral" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#fb7185"/><stop offset="50%" stop-color="#e11d48"/><stop offset="100%" stop-color="#881337"/></linearGradient></defs><path d="M50 115 C50 85 22 75 22 45 C22 25 36 25 36 40 C36 65 50 65 50 38 C50 16 66 16 66 32 C66 52 82 52 82 32 C82 16 96 22 92 42 C82 82 52 82 50 115 Z" fill="url(#redCoral)" stroke="#4c0519" stroke-width="3"/><circle cx="36" cy="30" r="3.5" fill="#ffe4e6"/><circle cx="66" cy="22" r="3.5" fill="#ffe4e6"/><circle cx="88" cy="28" r="3.5" fill="#ffe4e6"/></svg>'
-        },
-        {
-            id: 'golden-coral',
-            name: 'Karang Emas Atlantis',
-            cost: 20,
-            svg: '<svg viewBox="0 0 100 120" width="100" height="120"><defs><linearGradient id="goldCoral" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#fef08a"/><stop offset="50%" stop-color="#eab308"/><stop offset="100%" stop-color="#854d0e"/></linearGradient></defs><path d="M50 115 C50 85 22 75 22 45 C22 25 36 25 36 40 C36 65 50 65 50 38 C50 16 66 16 66 32 C66 52 82 52 82 32 C82 16 96 22 92 42 C82 82 52 82 50 115 Z" fill="url(#goldCoral)" stroke="#713f12" stroke-width="3"/><circle cx="36" cy="30" r="4" fill="#ffffff" opacity="0.9"/><circle cx="66" cy="22" r="4" fill="#ffffff" opacity="0.9"/><circle cx="88" cy="28" r="4" fill="#ffffff" opacity="0.9"/></svg>'
-        },
-        {
-            id: 'ancient-sub',
-            name: 'Kapal Selam Riset (Melayang)',
-            cost: 45,
-            svg: '<svg viewBox="0 0 120 80" width="120" height="80" class="anim-float"><defs><linearGradient id="subYellow" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#fde047"/><stop offset="70%" stop-color="#eab308"/><stop offset="100%" stop-color="#ca8a04"/></linearGradient></defs><ellipse cx="60" cy="45" rx="46" ry="26" fill="url(#subYellow)" stroke="#0f172a" stroke-width="3.5"/><rect x="50" y="10" width="20" height="15" rx="3" fill="#a16207" stroke="#0f172a" stroke-width="2.5"/><circle cx="44" cy="45" r="9" fill="#0284c7" stroke="#0f172a" stroke-width="2.5"/><circle cx="44" cy="45" r="6" fill="#38bdf8"/><circle cx="76" cy="45" r="9" fill="#0284c7" stroke="#0f172a" stroke-width="2.5"/><circle cx="76" cy="45" r="6" fill="#38bdf8"/><path d="M14 45 L4 37 L4 53 Z" fill="#eab308" stroke="#0f172a" stroke-width="2"/><ellipse cx="106" cy="45" rx="6" ry="12" fill="#fef08a" opacity="0.6"/></svg>'
-        },
-        {
-            id: 'energy-crystal',
-            name: 'Kristal Amethyst Ungu',
-            cost: 18,
-            svg: '<svg viewBox="0 0 60 110" width="60" height="110"><defs><linearGradient id="amethystGlow" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#e879f9"/><stop offset="50%" stop-color="#a855f7"/><stop offset="100%" stop-color="#581c87"/></linearGradient></defs><polygon points="30,8 54,88 30,108 6,88" fill="url(#amethystGlow)" stroke="#3b0764" stroke-width="3"/><polygon points="30,8 54,88 30,108" fill="#f0abfc" opacity="0.45"/><polygon points="18,30 30,8 30,108" fill="#c084fc" opacity="0.35"/></svg>'
-        },
-        {
-            id: 'cyan-crystal',
-            name: 'Kristal Es Arctic',
-            cost: 22,
-            svg: '<svg viewBox="0 0 60 110" width="60" height="110"><defs><linearGradient id="iceGlow" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#e0f2fe"/><stop offset="40%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0369a1"/></linearGradient></defs><polygon points="30,8 54,88 30,108 6,88" fill="url(#iceGlow)" stroke="#0c4a6e" stroke-width="3"/><polygon points="30,8 54,88 30,108" fill="#bae6fd" opacity="0.5"/><polygon points="18,30 30,8 30,108" fill="#7dd3fc" opacity="0.3"/></svg>'
-        },
-        {
-            id: 'ancient-statue',
-            name: 'Patung Moai Kuno',
-            cost: 25,
-            svg: '<svg viewBox="0 0 80 130" width="80" height="130"><defs><linearGradient id="stoneMoai" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#94a3b8"/><stop offset="60%" stop-color="#64748b"/><stop offset="100%" stop-color="#334155"/></linearGradient></defs><path d="M18 122 L20 28 Q40 8 60 28 L64 122 Z" fill="url(#stoneMoai)" stroke="#0f172a" stroke-width="3.5"/><rect x="24" y="42" width="32" height="9" rx="2" fill="#334155"/><polygon points="36,48 44,48 42,75 38,75" fill="#475569"/><rect x="22" y="78" width="36" height="12" rx="3" fill="#1e293b"/><path d="M20 95 Q30 90 24 122" fill="#15803d" opacity="0.7"/></svg>'
-        },
-        {
-            id: 'volcano-vent',
-            name: 'Gunung Berapi Mini Abisal',
-            cost: 35,
-            svg: '<svg viewBox="0 0 110 100" width="110" height="100"><defs><linearGradient id="lavaGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#fef08a"/><stop offset="40%" stop-color="#f97316"/><stop offset="100%" stop-color="#dc2626"/></linearGradient></defs><polygon points="10,98 38,22 72,22 100,98" fill="#1c1917" stroke="#000" stroke-width="3.5"/><ellipse cx="55" cy="22" rx="17" ry="6" fill="url(#lavaGrad)"/><circle cx="55" cy="12" r="5" fill="#f97316" opacity="0.85"/><circle cx="48" cy="4" r="3.5" fill="#fef08a" opacity="0.7"/><circle cx="62" cy="6" r="3" fill="#ef4444" opacity="0.8"/></svg>'
-        },
-        {
-            id: 'golden-anchor',
-            name: 'Jangkar Emas Kerajaan',
-            cost: 40,
-            svg: '<svg viewBox="0 0 80 110" width="80" height="110"><defs><linearGradient id="goldAnchor" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fde047"/><stop offset="50%" stop-color="#eab308"/><stop offset="100%" stop-color="#a16207"/></linearGradient></defs><circle cx="40" cy="18" r="11" fill="none" stroke="url(#goldAnchor)" stroke-width="5"/><line x1="40" y1="28" x2="40" y2="98" stroke="url(#goldAnchor)" stroke-width="7" stroke-linecap="round"/><line x1="22" y1="42" x2="58" y2="42" stroke="url(#goldAnchor)" stroke-width="6" stroke-linecap="round"/><path d="M12 76 C12 106 68 106 68 76" fill="none" stroke="url(#goldAnchor)" stroke-width="7" stroke-linecap="round"/><polygon points="8,76 16,76 12,68" fill="#eab308"/><polygon points="64,76 72,76 68,68" fill="#eab308"/></svg>'
-        },
-        {
-            id: 'floating-alien-ship',
-            name: 'UFO Alien Transparan (Melayang)',
-            cost: 50,
-            svg: '<svg viewBox="0 0 130 75" width="130" height="75" class="anim-float"><defs><linearGradient id="ufoHull" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#c084fc"/><stop offset="60%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#4c1d95"/></linearGradient></defs><polygon points="40,48 90,48 115,75 15,75" fill="#a5f3fc" opacity="0.25"/><ellipse cx="65" cy="45" rx="56" ry="18" fill="url(#ufoHull)" stroke="#0f172a" stroke-width="3"/><ellipse cx="65" cy="32" rx="30" ry="18" fill="#38bdf8" opacity="0.85" stroke="#bae6fd" stroke-width="2"/><circle cx="35" cy="46" r="4" fill="#fde047"/><circle cx="65" cy="46" r="4" fill="#22c55e"/><circle cx="95" cy="46" r="4" fill="#fde047"/></svg>'
-        },
-        {
-            id: 'space-satellite',
-            name: 'Satelit Sub-Orbital (Melayang)',
-            cost: 60,
-            svg: '<svg viewBox="0 0 140 90" width="140" height="90" class="anim-float"><defs><linearGradient id="solarBlue" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0284c7"/><stop offset="50%" stop-color="#0ea5e9"/><stop offset="100%" stop-color="#0369a1"/></linearGradient></defs><rect x="52" y="28" width="36" height="34" rx="4" fill="#e2e8f0" stroke="#0f172a" stroke-width="3"/><rect x="6" y="32" width="38" height="26" rx="2" fill="url(#solarBlue)" stroke="#0f172a" stroke-width="2"/><rect x="96" y="32" width="38" height="26" rx="2" fill="url(#solarBlue)" stroke="#0f172a" stroke-width="2"/><line x1="44" y1="45" x2="52" y2="45" stroke="#0f172a" stroke-width="3.5"/><line x1="88" y1="45" x2="96" y2="45" stroke="#0f172a" stroke-width="3.5"/><circle cx="70" cy="45" r="7" fill="#fbbf24" stroke="#0f172a" stroke-width="2"/></svg>'
-        },
-        {
-            id: 'ancient-galleon',
-            name: 'Bangkai Kapal Karam Kuno',
-            cost: 32,
-            svg: '<svg viewBox="0 0 130 90" width="125" height="85"><defs><linearGradient id="woodWreck" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#78350f"/><stop offset="100%" stop-color="#291102"/></linearGradient></defs><path d="M10 50 C30 50 40 70 80 75 C105 78 120 60 120 50 C120 80 90 88 50 88 C20 88 10 70 10 50 Z" fill="url(#woodWreck)" stroke="#0f172a" stroke-width="3"/><line x1="45" y1="12" x2="45" y2="70" stroke="#78350f" stroke-width="4"/><line x1="85" y1="20" x2="85" y2="70" stroke="#78350f" stroke-width="3.5"/><line x1="30" y1="24" x2="60" y2="24" stroke="#451a03" stroke-width="2.5"/><line x1="75" y1="32" x2="98" y2="32" stroke="#451a03" stroke-width="2"/><circle cx="35" cy="65" r="4" fill="#0f172a"/><circle cx="55" cy="67" r="4" fill="#0f172a"/><circle cx="75" cy="69" r="4" fill="#0f172a"/><path d="M12 70 Q30 65 24 88" fill="#15803d" opacity="0.6"/></svg>'
-        },
-        {
-            id: 'atlantis-pillar',
-            name: 'Pilar Marmer Atlantis',
-            cost: 28,
-            svg: '<svg viewBox="0 0 70 130" width="65" height="120"><defs><linearGradient id="marbleGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#cbd5e1"/><stop offset="50%" stop-color="#f8fafc"/><stop offset="100%" stop-color="#94a3b8"/></linearGradient></defs><rect x="10" y="112" width="50" height="14" rx="2" fill="#64748b" stroke="#0f172a" stroke-width="3"/><rect x="15" y="104" width="40" height="8" fill="#94a3b8" stroke="#0f172a" stroke-width="2"/><rect x="18" y="24" width="34" height="80" fill="url(#marbleGrad)" stroke="#0f172a" stroke-width="2.5"/><line x1="26" y1="24" x2="26" y2="104" stroke="#64748b" stroke-width="2"/><line x1="35" y1="24" x2="35" y2="104" stroke="#64748b" stroke-width="2"/><line x1="44" y1="24" x2="44" y2="104" stroke="#64748b" stroke-width="2"/><path d="M12 12 Q35 24 58 12 L54 24 L16 24 Z" fill="#94a3b8" stroke="#0f172a" stroke-width="2.5"/><path d="M22 45 L30 55 L22 65 M48 70 L40 80 L48 90" fill="none" stroke="#22d3ee" stroke-width="2" opacity="0.9"/></svg>'
-        },
-        {
-            id: 'glowing-pearl-clam',
-            name: 'Kerang Mutiara Raksasa',
-            cost: 36,
-            svg: '<svg viewBox="0 0 90 80" width="85" height="75"><defs><linearGradient id="shellGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#fbcfe8"/><stop offset="50%" stop-color="#ec4899"/><stop offset="100%" stop-color="#831843"/></linearGradient><radialGradient id="pearlGlow" cx="40%" cy="40%" r="50%"><stop offset="0%" stop-color="#ffffff"/><stop offset="40%" stop-color="#e0f2fe"/><stop offset="80%" stop-color="#c084fc"/><stop offset="100%" stop-color="#7c3aed"/></radialGradient></defs><path d="M10 50 Q45 80 80 50 Q45 35 10 50 Z" fill="url(#shellGrad)" stroke="#0f172a" stroke-width="2.5"/><path d="M10 50 Q45 10 80 50 Q45 28 10 50 Z" fill="#f472b6" opacity="0.85" stroke="#0f172a" stroke-width="2.5"/><circle cx="45" cy="42" r="14" fill="url(#pearlGlow)" stroke="#fdf4ff" stroke-width="2" filter="drop-shadow(0 0 6px #e879f9)"/><ellipse cx="41" cy="38" rx="4" ry="2" fill="#fff" opacity="0.9"/></svg>'
-        },
-        {
-            id: 'poseidon-trident',
-            name: 'Trisula Emas Poseidon',
-            cost: 42,
-            svg: '<svg viewBox="0 0 70 120" width="65" height="115"><defs><linearGradient id="tridentGold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fef08a"/><stop offset="50%" stop-color="#eab308"/><stop offset="100%" stop-color="#a16207"/></linearGradient></defs><path d="M15 110 Q35 100 55 110 Q45 118 20 118 Z" fill="#475569" stroke="#0f172a" stroke-width="2"/><line x1="35" y1="20" x2="35" y2="105" stroke="url(#tridentGold)" stroke-width="6" stroke-linecap="round"/><path d="M16 35 C16 60 35 60 35 60 C35 60 54 60 54 35" fill="none" stroke="url(#tridentGold)" stroke-width="5" stroke-linecap="round"/><polygon points="35,6 30,22 40,22" fill="#fde047" stroke="#713f12" stroke-width="1.5"/><polygon points="16,22 12,35 20,35" fill="#fde047" stroke="#713f12" stroke-width="1.5"/><polygon points="54,22 50,35 58,35" fill="#fde047" stroke="#713f12" stroke-width="1.5"/><ellipse cx="35" cy="50" rx="22" ry="6" fill="none" stroke="#38bdf8" stroke-width="2" opacity="0.6"/></svg>'
-        },
-        {
-            id: 'hydrothermal-vent',
-            name: 'Cerobong Magma Abisal',
-            cost: 38,
-            svg: '<svg viewBox="0 0 80 110" width="75" height="105"><defs><linearGradient id="ventChimney" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#1e293b"/><stop offset="50%" stop-color="#334155"/><stop offset="100%" stop-color="#0f172a"/></linearGradient></defs><polygon points="12,108 26,20 54,20 68,108" fill="url(#ventChimney)" stroke="#000" stroke-width="3"/><ellipse cx="40" cy="20" rx="14" ry="5" fill="#f97316"/><circle cx="40" cy="12" r="6" fill="#334155" opacity="0.6"/><circle cx="44" cy="5" r="5" fill="#475569" opacity="0.4"/><circle cx="36" cy="18" r="2.5" fill="#fef08a"/><circle cx="44" cy="19" r="2.5" fill="#ef4444"/></svg>'
-        },
-        {
-            id: 'deepsea-angler',
-            name: 'Lentera Ikan Abisal',
-            cost: 26,
-            svg: '<svg viewBox="0 0 80 100" width="75" height="95"><path d="M15 95 Q40 85 65 95 Q55 100 25 100 Z" fill="#334155" stroke="#0f172a" stroke-width="2"/><path d="M35 90 Q30 40 55 25" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round"/><circle cx="58" cy="24" r="9" fill="#22d3ee" filter="drop-shadow(0 0 8px #06b6d4)"/><circle cx="58" cy="24" r="5" fill="#ffffff"/></svg>'
-        },
-        {
-            id: 'steampunk-helmet',
-            name: 'Helm Selam Tembaga',
-            cost: 34,
-            svg: '<svg viewBox="0 0 90 95" width="85" height="90"><defs><linearGradient id="brassGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fde047"/><stop offset="50%" stop-color="#b45309"/><stop offset="100%" stop-color="#78350f"/></linearGradient></defs><circle cx="45" cy="46" r="34" fill="url(#brassGrad)" stroke="#0f172a" stroke-width="3.5"/><rect x="25" y="80" width="40" height="12" rx="4" fill="#92400e" stroke="#0f172a" stroke-width="2.5"/><circle cx="45" cy="46" r="14" fill="#38bdf8" stroke="#0f172a" stroke-width="3"/><line x1="45" y1="32" x2="45" y2="60" stroke="#0f172a" stroke-width="2"/><line x1="31" y1="46" x2="59" y2="46" stroke="#0f172a" stroke-width="2"/><circle cx="16" cy="46" r="6" fill="#38bdf8" stroke="#0f172a" stroke-width="2"/><circle cx="74" cy="46" r="6" fill="#38bdf8" stroke="#0f172a" stroke-width="2"/></svg>'
-        },
-        {
-            id: 'starfish-reef',
-            name: 'Batu Bintang Laut',
-            cost: 16,
-            svg: '<svg viewBox="0 0 100 80" width="95" height="75"><path d="M10 75 Q50 60 90 75 Q70 82 25 82 Z" fill="#64748b" stroke="#0f172a" stroke-width="2.5"/><polygon points="35,38 38,48 48,48 40,54 43,64 35,58 27,64 30,54 22,48 32,48" fill="#f97316" stroke="#c2410c" stroke-width="1.5"/><polygon points="65,42 67,50 75,50 69,55 71,63 65,58 59,63 61,55 55,50 63,50" fill="#a855f7" stroke="#7e22ce" stroke-width="1.5"/><polygon points="50,56 51,62 57,62 52,66 54,72 50,68 46,72 48,66 43,62 49,62" fill="#06b6d4" stroke="#0891b2" stroke-width="1.5"/></svg>'
-        },
-        {
-            id: 'sunken-shrine',
-            name: 'Gapura Kuil Bawah Laut',
-            cost: 30,
-            svg: '<svg viewBox="0 0 90 100" width="85" height="95"><defs><linearGradient id="shrineRed" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#991b1b"/></linearGradient></defs><rect x="18" y="24" width="8" height="72" fill="url(#shrineRed)" stroke="#0f172a" stroke-width="2"/><rect x="64" y="24" width="8" height="72" fill="url(#shrineRed)" stroke="#0f172a" stroke-width="2"/><rect x="8" y="16" width="74" height="9" rx="2" fill="url(#shrineRed)" stroke="#0f172a" stroke-width="2.5"/><path d="M4 16 Q45 8 86 16" fill="none" stroke="#b91c1c" stroke-width="4"/><rect x="14" y="32" width="62" height="6" fill="#1e293b"/><path d="M22 60 Q32 50 26 80" fill="#16a34a" opacity="0.75"/></svg>'
-        },
-        {
-            id: 'cyber-monolith',
-            name: 'Monolit Cyberpunk Abisal',
-            cost: 44,
-            svg: '<svg viewBox="0 0 60 120" width="55" height="110"><defs><linearGradient id="monoDark" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#18181b"/><stop offset="100%" stop-color="#09090b"/></linearGradient></defs><polygon points="30,8 52,24 52,112 8,112 8,24" fill="url(#monoDark)" stroke="#000" stroke-width="2.5"/><line x1="30" y1="20" x2="30" y2="105" stroke="#22d3ee" stroke-width="2.5" filter="drop-shadow(0 0 4px #06b6d4)"/><line x1="20" y1="40" x2="30" y2="40" stroke="#f43f5e" stroke-width="2"/><line x1="30" y1="65" x2="42" y2="65" stroke="#a855f7" stroke-width="2"/><line x1="18" y1="90" x2="30" y2="90" stroke="#22d3ee" stroke-width="2"/></svg>'
-        },
-        {
-            id: 'glowing-anemone',
-            name: 'Anemon Neon Bioluminesen',
-            cost: 24,
-            svg: '<svg viewBox="0 0 90 90" width="85" height="85"><path d="M20 85 Q45 70 70 85 Q55 90 35 90 Z" fill="#475569" stroke="#0f172a" stroke-width="2"/><g fill="none" stroke="#ec4899" stroke-width="3" stroke-linecap="round"><path d="M30 80 Q20 50 16 35"/><path d="M36 78 Q28 42 28 25"/><path d="M42 76 Q38 35 40 18"/><path d="M48 76 Q52 35 50 18"/><path d="M54 78 Q62 42 62 25"/><path d="M60 80 Q70 50 74 35"/></g><circle cx="16" cy="35" r="3" fill="#fdf2f8"/><circle cx="28" cy="25" r="3" fill="#fdf2f8"/><circle cx="40" cy="18" r="3.5" fill="#fdf2f8"/><circle cx="50" cy="18" r="3.5" fill="#fdf2f8"/><circle cx="62" cy="25" r="3" fill="#fdf2f8"/><circle cx="74" cy="35" r="3" fill="#fdf2f8"/></svg>'
-        },
-        {
-            id: 'pirate-cannon',
-            name: 'Meriam Besi Karam',
-            cost: 27,
-            svg: '<svg viewBox="0 0 110 70" width="105" height="65"><defs><linearGradient id="cannonIron" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#475569"/><stop offset="50%" stop-color="#1e293b"/><stop offset="100%" stop-color="#0f172a"/></linearGradient></defs><polygon points="20,55 90,55 85,68 15,68" fill="#78350f" stroke="#0f172a" stroke-width="2"/><circle cx="35" cy="62" r="8" fill="#451a03" stroke="#0f172a" stroke-width="2"/><circle cx="75" cy="62" r="8" fill="#451a03" stroke="#0f172a" stroke-width="2"/><path d="M15 32 L85 20 L88 38 L15 44 Z" fill="url(#cannonIron)" stroke="#0f172a" stroke-width="3"/><ellipse cx="86" cy="29" rx="4" ry="9" fill="#020617"/><circle cx="15" cy="38" r="6" fill="#334155" stroke="#0f172a" stroke-width="2"/></svg>'
-        },
-        {
-            id: 'crystal-geode',
-            name: 'Gua Kristal Zamrud',
-            cost: 33,
-            svg: '<svg viewBox="0 0 95 85" width="90" height="80"><defs><linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#6ee7b7"/><stop offset="50%" stop-color="#10b981"/><stop offset="100%" stop-color="#065f46"/></linearGradient></defs><path d="M12 75 C10 35 30 15 50 15 C75 15 88 35 85 75 Z" fill="#334155" stroke="#0f172a" stroke-width="3"/><path d="M22 72 C22 42 35 28 50 28 C65 28 75 42 74 72 Z" fill="#0f172a"/><polygon points="32,70 38,45 44,70" fill="url(#emeraldGrad)"/><polygon points="42,70 50,38 58,70" fill="url(#emeraldGrad)"/><polygon points="56,70 62,48 68,70" fill="url(#emeraldGrad)"/><circle cx="50" cy="40" r="2.5" fill="#ffffff" opacity="0.8"/></svg>'
-        },
-        {
-            id: 'golden-crown',
-            name: 'Mahkota Raja Samudra',
-            cost: 45,
-            svg: '<svg viewBox="0 0 90 70" width="85" height="65"><defs><linearGradient id="crownGold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fef08a"/><stop offset="50%" stop-color="#eab308"/><stop offset="100%" stop-color="#a16207"/></linearGradient></defs><path d="M12 55 L16 20 L35 40 L45 15 L55 40 L74 20 L78 55 Z" fill="url(#crownGold)" stroke="#713f12" stroke-width="3"/><rect x="12" y="55" width="66" height="10" rx="3" fill="#ca8a04" stroke="#713f12" stroke-width="2"/><circle cx="16" cy="20" r="4" fill="#38bdf8"/><circle cx="45" cy="15" r="4.5" fill="#ef4444"/><circle cx="74" cy="20" r="4" fill="#38bdf8"/><circle cx="45" cy="60" r="3.5" fill="#10b981"/></svg>'
-        },
-        {
-            id: 'ancient-amphora',
-            name: 'Guci Emas Yunani Kuno',
-            cost: 29,
-            svg: '<svg viewBox="0 0 90 70" width="85" height="65"><defs><linearGradient id="clayUrn" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fdba74"/><stop offset="50%" stop-color="#ea580c"/><stop offset="100%" stop-color="#9a3412"/></linearGradient></defs><ellipse cx="40" cy="42" rx="28" ry="18" fill="url(#clayUrn)" stroke="#0f172a" stroke-width="3" transform="rotate(-20 40 42)"/><circle cx="72" cy="48" r="5" fill="#fde047" stroke="#a16207" stroke-width="1.5"/><circle cx="80" cy="52" r="5" fill="#fde047" stroke="#a16207" stroke-width="1.5"/><circle cx="76" cy="58" r="5" fill="#fde047" stroke="#a16207" stroke-width="1.5"/></svg>'
-        },
-        {
-            id: 'biolum-mushroom',
-            name: 'Jamur Bawah Laut Glow',
-            cost: 21,
-            svg: '<svg viewBox="0 0 85 85" width="80" height="80"><defs><radialGradient id="shroomCap" cx="50%" cy="40%" r="50%"><stop offset="0%" stop-color="#a5f3fc"/><stop offset="60%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#083344"/></radialGradient></defs><path d="M38 78 Q36 50 38 42" stroke="#e0f2fe" stroke-width="5" stroke-linecap="round"/><path d="M18 42 C18 20 58 20 58 42 Z" fill="url(#shroomCap)" stroke="#0e7490" stroke-width="2.5"/><circle cx="28" cy="32" r="2.5" fill="#fff"/><circle cx="46" cy="30" r="3" fill="#fff"/><path d="M58 78 Q56 60 58 52" stroke="#e0f2fe" stroke-width="4" stroke-linecap="round"/><path d="M44 52 C44 36 72 36 72 52 Z" fill="url(#shroomCap)" stroke="#0e7490" stroke-width="2"/></svg>'
-        },
-        {
-            id: 'abyssal-drone',
-            name: 'Drone Riset Laut (Melayang)',
-            cost: 55,
-            svg: '<svg viewBox="0 0 110 75" width="105" height="70" class="anim-float"><defs><linearGradient id="droneBody" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f8fafc"/><stop offset="60%" stop-color="#94a3b8"/><stop offset="100%" stop-color="#475569"/></linearGradient></defs><rect x="25" y="24" width="60" height="30" rx="8" fill="url(#droneBody)" stroke="#0f172a" stroke-width="3"/><circle cx="70" cy="39" r="8" fill="#38bdf8" stroke="#0f172a" stroke-width="2"/><polygon points="85,32 104,24 104,54 85,46" fill="#38bdf8" opacity="0.35"/><rect x="12" y="28" width="14" height="8" rx="2" fill="#ef4444" stroke="#0f172a" stroke-width="1.5"/><rect x="12" y="42" width="14" height="8" rx="2" fill="#ef4444" stroke="#0f172a" stroke-width="1.5"/></svg>'
-        }
+        { id: 'treasure-animated', name: 'Peti Emas Bajak Laut', cost: 15, width: 85, height: 75, allowFloat: false, svg: '<svg viewBox="0 0 100 80" width="85" height="75"><defs><linearGradient id="goldLid" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fde047"/><stop offset="50%" stop-color="#eab308"/><stop offset="100%" stop-color="#a16207"/></linearGradient><linearGradient id="woodChest" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#854d0e"/><stop offset="100%" stop-color="#451a03"/></linearGradient></defs><rect x="10" y="32" width="80" height="42" rx="6" fill="url(#woodChest)" stroke="#0f172a" stroke-width="3"/><rect x="16" y="36" width="68" height="6" fill="#a16207"/><rect x="16" y="62" width="68" height="6" fill="#a16207"/><g class="anim-chest-lid"><path d="M8 32 Q50 4 92 32 Z" fill="url(#goldLid)" stroke="#0f172a" stroke-width="3"/><circle cx="50" cy="24" r="5" fill="#fef08a" stroke="#713f12" stroke-width="2"/><ellipse cx="50" cy="30" rx="36" ry="3" fill="#fde047" opacity="0.6"/></g><circle cx="50" cy="48" r="6" fill="#fde047" stroke="#713f12" stroke-width="2.5"/><circle cx="50" cy="48" r="2.5" fill="#0f172a"/></svg>' },
+        { id: 'jellyfish-floating', name: 'Ubur-Ubur Pink (Melayang)', cost: 25, width: 70, height: 100, allowFloat: true, svg: '<svg viewBox="0 0 80 100" width="70" height="100" class="anim-float"><defs><radialGradient id="pinkJelly" cx="50%" cy="40%" r="50%"><stop offset="0%" stop-color="#f472b6"/><stop offset="70%" stop-color="#db2777"/><stop offset="100%" stop-color="#9d174d"/></radialGradient></defs><path d="M12 45 C12 12 68 12 68 45 C56 50 48 46 40 50 C32 46 24 50 12 45 Z" fill="url(#pinkJelly)" opacity="0.9" stroke="#fbcfe8" stroke-width="2"/><circle cx="28" cy="30" r="4" fill="#fdf2f8" opacity="0.8"/><circle cx="52" cy="30" r="4" fill="#fdf2f8" opacity="0.8"/><path d="M22 48 Q28 72 20 95 M32 49 Q40 75 34 98 M48 49 Q42 75 48 98 M58 48 Q52 72 60 95" fill="none" stroke="#f472b6" stroke-width="2.5" stroke-linecap="round" opacity="0.85"/></svg>' },
+        { id: 'cyan-jellyfish-floating', name: 'Ubur-Ubur Neon Cyan (Melayang)', cost: 30, width: 75, height: 110, allowFloat: true, svg: '<svg viewBox="0 0 80 100" width="75" height="110" class="anim-float"><defs><radialGradient id="cyanJelly" cx="50%" cy="40%" r="50%"><stop offset="0%" stop-color="#67e8f9"/><stop offset="70%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#0e7490"/></radialGradient></defs><path d="M12 45 C12 10 68 10 68 45 C56 50 48 45 40 50 C32 45 24 50 12 45 Z" fill="url(#cyanJelly)" opacity="0.92" stroke="#a5f3fc" stroke-width="2.5"/><circle cx="40" cy="28" r="8" fill="#e0f2fe" opacity="0.75"/><path d="M22 48 Q16 70 24 96 M34 50 Q40 75 32 98 M46 50 Q40 75 48 98 M58 48 Q64 70 56 96" fill="none" stroke="#22d3ee" stroke-width="2.5" stroke-linecap="round"/></svg>' },
+        { id: 'seaweed', name: 'Rumput Laut Hijau Segar', cost: 5, width: 70, height: 150, allowFloat: false, svg: '<svg viewBox="0 0 80 150" width="70" height="150"><defs><linearGradient id="kelpGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#4ade80"/><stop offset="60%" stop-color="#16a34a"/><stop offset="100%" stop-color="#14532d"/></linearGradient></defs><path d="M42 145 Q20 105 52 70 Q24 35 44 8 Q32 35 15 70 Q42 105 22 145 Z" fill="url(#kelpGrad)" stroke="#052e16" stroke-width="2.5"/><path d="M58 145 Q40 115 62 85 Q45 55 58 30 Q48 55 35 85 Q52 115 42 145 Z" fill="#22c55e" opacity="0.75"/></svg>' },
+        { id: 'purple-seaweed', name: 'Rumput Laut Kristal Ungu', cost: 8, width: 70, height: 150, allowFloat: false, svg: '<svg viewBox="0 0 80 150" width="70" height="150"><defs><linearGradient id="purpleKelp" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#c084fc"/><stop offset="60%" stop-color="#9333ea"/><stop offset="100%" stop-color="#581c87"/></linearGradient></defs><path d="M42 145 Q20 105 52 70 Q24 35 44 8 Q32 35 15 70 Q42 105 22 145 Z" fill="url(#purpleKelp)" stroke="#3b0764" stroke-width="2.5"/><circle cx="44" cy="18" r="4" fill="#f0abfc" opacity="0.8"/><circle cx="34" cy="55" r="3.5" fill="#f0abfc" opacity="0.8"/></svg>' },
+        { id: 'coral', name: 'Karang Merah Delima', cost: 10, width: 100, height: 120, allowFloat: false, svg: '<svg viewBox="0 0 100 120" width="100" height="120"><defs><linearGradient id="redCoral" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#fb7185"/><stop offset="50%" stop-color="#e11d48"/><stop offset="100%" stop-color="#881337"/></linearGradient></defs><path d="M50 115 C50 85 22 75 22 45 C22 25 36 25 36 40 C36 65 50 65 50 38 C50 16 66 16 66 32 C66 52 82 52 82 32 C82 16 96 22 92 42 C82 82 52 82 50 115 Z" fill="url(#redCoral)" stroke="#4c0519" stroke-width="3"/><circle cx="36" cy="30" r="3.5" fill="#ffe4e6"/><circle cx="66" cy="22" r="3.5" fill="#ffe4e6"/><circle cx="88" cy="28" r="3.5" fill="#ffe4e6"/></svg>' },
+        { id: 'golden-coral', name: 'Karang Emas Atlantis', cost: 20, width: 100, height: 120, allowFloat: false, svg: '<svg viewBox="0 0 100 120" width="100" height="120"><defs><linearGradient id="goldCoral" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#fef08a"/><stop offset="50%" stop-color="#eab308"/><stop offset="100%" stop-color="#854d0e"/></linearGradient></defs><path d="M50 115 C50 85 22 75 22 45 C22 25 36 25 36 40 C36 65 50 65 50 38 C50 16 66 16 66 32 C66 52 82 52 82 32 C82 16 96 22 92 42 C82 82 52 82 50 115 Z" fill="url(#goldCoral)" stroke="#713f12" stroke-width="3"/><circle cx="36" cy="30" r="4" fill="#ffffff" opacity="0.9"/><circle cx="66" cy="22" r="4" fill="#ffffff" opacity="0.9"/><circle cx="88" cy="28" r="4" fill="#ffffff" opacity="0.9"/></svg>' },
+        { id: 'ancient-sub', name: 'Kapal Selam Riset (Melayang)', cost: 45, width: 120, height: 80, allowFloat: true, svg: '<svg viewBox="0 0 120 80" width="120" height="80" class="anim-float"><defs><linearGradient id="subYellow" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#fde047"/><stop offset="70%" stop-color="#eab308"/><stop offset="100%" stop-color="#ca8a04"/></linearGradient></defs><ellipse cx="60" cy="45" rx="46" ry="26" fill="url(#subYellow)" stroke="#0f172a" stroke-width="3.5"/><rect x="50" y="10" width="20" height="15" rx="3" fill="#a16207" stroke="#0f172a" stroke-width="2.5"/><circle cx="44" cy="45" r="9" fill="#0284c7" stroke="#0f172a" stroke-width="2.5"/><circle cx="44" cy="45" r="6" fill="#38bdf8"/><circle cx="76" cy="45" r="9" fill="#0284c7" stroke="#0f172a" stroke-width="2.5"/><circle cx="76" cy="45" r="6" fill="#38bdf8"/><path d="M14 45 L4 37 L4 53 Z" fill="#eab308" stroke="#0f172a" stroke-width="2"/><ellipse cx="106" cy="45" rx="6" ry="12" fill="#fef08a" opacity="0.6"/></svg>' },
+        { id: 'energy-crystal', name: 'Kristal Amethyst Ungu', cost: 18, width: 60, height: 110, allowFloat: false, svg: '<svg viewBox="0 0 60 110" width="60" height="110"><defs><linearGradient id="amethystGlow" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#e879f9"/><stop offset="50%" stop-color="#a855f7"/><stop offset="100%" stop-color="#581c87"/></linearGradient></defs><polygon points="30,8 54,88 30,108 6,88" fill="url(#amethystGlow)" stroke="#3b0764" stroke-width="3"/><polygon points="30,8 54,88 30,108" fill="#f0abfc" opacity="0.45"/><polygon points="18,30 30,8 30,108" fill="#c084fc" opacity="0.35"/></svg>' },
+        { id: 'cyan-crystal', name: 'Kristal Es Arctic', cost: 22, width: 60, height: 110, allowFloat: false, svg: '<svg viewBox="0 0 60 110" width="60" height="110"><defs><linearGradient id="iceGlow" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#e0f2fe"/><stop offset="40%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#0369a1"/></linearGradient></defs><polygon points="30,8 54,88 30,108 6,88" fill="url(#iceGlow)" stroke="#0c4a6e" stroke-width="3"/><polygon points="30,8 54,88 30,108" fill="#bae6fd" opacity="0.5"/><polygon points="18,30 30,8 30,108" fill="#7dd3fc" opacity="0.3"/></svg>' },
+        { id: 'ancient-statue', name: 'Patung Moai Kuno', cost: 25, width: 80, height: 130, allowFloat: false, svg: '<svg viewBox="0 0 80 130" width="80" height="130"><defs><linearGradient id="stoneMoai" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#94a3b8"/><stop offset="60%" stop-color="#64748b"/><stop offset="100%" stop-color="#334155"/></linearGradient></defs><path d="M18 122 L20 28 Q40 8 60 28 L64 122 Z" fill="url(#stoneMoai)" stroke="#0f172a" stroke-width="3.5"/><rect x="24" y="42" width="32" height="9" rx="2" fill="#334155"/><polygon points="36,48 44,48 42,75 38,75" fill="#475569"/><rect x="22" y="78" width="36" height="12" rx="3" fill="#1e293b"/><path d="M20 95 Q30 90 24 122" fill="#15803d" opacity="0.7"/></svg>' },
+        { id: 'volcano-vent', name: 'Gunung Berapi Mini Abisal', cost: 35, width: 110, height: 100, allowFloat: false, svg: '<svg viewBox="0 0 110 100" width="110" height="100"><defs><linearGradient id="lavaGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#fef08a"/><stop offset="40%" stop-color="#f97316"/><stop offset="100%" stop-color="#dc2626"/></linearGradient></defs><polygon points="10,98 38,22 72,22 100,98" fill="#1c1917" stroke="#000" stroke-width="3.5"/><ellipse cx="55" cy="22" rx="17" ry="6" fill="url(#lavaGrad)"/><circle cx="55" cy="12" r="5" fill="#f97316" opacity="0.85"/><circle cx="48" cy="4" r="3.5" fill="#fef08a" opacity="0.7"/><circle cx="62" cy="6" r="3" fill="#ef4444" opacity="0.8"/></svg>' },
+        { id: 'golden-anchor', name: 'Jangkar Emas Kerajaan', cost: 40, width: 80, height: 110, allowFloat: false, svg: '<svg viewBox="0 0 80 110" width="80" height="110"><defs><linearGradient id="goldAnchor" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fde047"/><stop offset="50%" stop-color="#eab308"/><stop offset="100%" stop-color="#a16207"/></linearGradient></defs><circle cx="40" cy="18" r="11" fill="none" stroke="url(#goldAnchor)" stroke-width="5"/><line x1="40" y1="28" x2="40" y2="98" stroke="url(#goldAnchor)" stroke-width="7" stroke-linecap="round"/><line x1="22" y1="42" x2="58" y2="42" stroke="url(#goldAnchor)" stroke-width="6" stroke-linecap="round"/><path d="M12 76 C12 106 68 106 68 76" fill="none" stroke="url(#goldAnchor)" stroke-width="7" stroke-linecap="round"/><polygon points="8,76 16,76 12,68" fill="#eab308"/><polygon points="64,76 72,76 68,68" fill="#eab308"/></svg>' },
+        { id: 'floating-alien-ship', name: 'UFO Alien Transparan (Melayang)', cost: 50, width: 130, height: 75, allowFloat: true, svg: '<svg viewBox="0 0 130 75" width="130" height="75" class="anim-float"><defs><linearGradient id="ufoHull" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#c084fc"/><stop offset="60%" stop-color="#7c3aed"/><stop offset="100%" stop-color="#4c1d95"/></linearGradient></defs><polygon points="40,48 90,48 115,75 15,75" fill="#a5f3fc" opacity="0.25"/><ellipse cx="65" cy="45" rx="56" ry="18" fill="url(#ufoHull)" stroke="#0f172a" stroke-width="3"/><ellipse cx="65" cy="32" rx="30" ry="18" fill="#38bdf8" opacity="0.85" stroke="#bae6fd" stroke-width="2"/><circle cx="35" cy="46" r="4" fill="#fde047"/><circle cx="65" cy="46" r="4" fill="#22c55e"/><circle cx="95" cy="46" r="4" fill="#fde047"/></svg>' },
+        { id: 'space-satellite', name: 'Satelit Sub-Orbital (Melayang)', cost: 60, width: 140, height: 90, allowFloat: true, svg: '<svg viewBox="0 0 140 90" width="140" height="90" class="anim-float"><defs><linearGradient id="solarBlue" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#0284c7"/><stop offset="50%" stop-color="#0ea5e9"/><stop offset="100%" stop-color="#0369a1"/></linearGradient></defs><rect x="52" y="28" width="36" height="34" rx="4" fill="#e2e8f0" stroke="#0f172a" stroke-width="3"/><rect x="6" y="32" width="38" height="26" rx="2" fill="url(#solarBlue)" stroke="#0f172a" stroke-width="2"/><rect x="96" y="32" width="38" height="26" rx="2" fill="url(#solarBlue)" stroke="#0f172a" stroke-width="2"/><line x1="44" y1="45" x2="52" y2="45" stroke="#0f172a" stroke-width="3.5"/><line x1="88" y1="45" x2="96" y2="45" stroke="#0f172a" stroke-width="3.5"/><circle cx="70" cy="45" r="7" fill="#fbbf24" stroke="#0f172a" stroke-width="2"/></svg>' },
+        { id: 'ancient-galleon', name: 'Bangkai Kapal Karam Kuno', cost: 32, width: 125, height: 85, allowFloat: false, svg: '<svg viewBox="0 0 130 90" width="125" height="85"><defs><linearGradient id="woodWreck" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#78350f"/><stop offset="100%" stop-color="#291102"/></linearGradient></defs><path d="M10 50 C30 50 40 70 80 75 C105 78 120 60 120 50 C120 80 90 88 50 88 C20 88 10 70 10 50 Z" fill="url(#woodWreck)" stroke="#0f172a" stroke-width="3"/><line x1="45" y1="12" x2="45" y2="70" stroke="#78350f" stroke-width="4"/><line x1="85" y1="20" x2="85" y2="70" stroke="#78350f" stroke-width="3.5"/><line x1="30" y1="24" x2="60" y2="24" stroke="#451a03" stroke-width="2.5"/><line x1="75" y1="32" x2="98" y2="32" stroke="#451a03" stroke-width="2"/><circle cx="35" cy="65" r="4" fill="#0f172a"/><circle cx="55" cy="67" r="4" fill="#0f172a"/><circle cx="75" cy="69" r="4" fill="#0f172a"/><path d="M12 70 Q30 65 24 88" fill="#15803d" opacity="0.6"/></svg>' },
+        { id: 'atlantis-pillar', name: 'Pilar Marmer Atlantis', cost: 28, width: 65, height: 120, allowFloat: false, svg: '<svg viewBox="0 0 70 130" width="65" height="120"><defs><linearGradient id="marbleGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#cbd5e1"/><stop offset="50%" stop-color="#f8fafc"/><stop offset="100%" stop-color="#94a3b8"/></linearGradient></defs><rect x="10" y="112" width="50" height="14" rx="2" fill="#64748b" stroke="#0f172a" stroke-width="3"/><rect x="15" y="104" width="40" height="8" fill="#94a3b8" stroke="#0f172a" stroke-width="2"/><rect x="18" y="24" width="34" height="80" fill="url(#marbleGrad)" stroke="#0f172a" stroke-width="2.5"/><line x1="26" y1="24" x2="26" y2="104" stroke="#64748b" stroke-width="2"/><line x1="35" y1="24" x2="35" y2="104" stroke="#64748b" stroke-width="2"/><line x1="44" y1="24" x2="44" y2="104" stroke="#64748b" stroke-width="2"/><path d="M12 12 Q35 24 58 12 L54 24 L16 24 Z" fill="#94a3b8" stroke="#0f172a" stroke-width="2.5"/><path d="M22 45 L30 55 L22 65 M48 70 L40 80 L48 90" fill="none" stroke="#22d3ee" stroke-width="2" opacity="0.9"/></svg>' },
+        { id: 'glowing-pearl-clam', name: 'Kerang Mutiara Raksasa', cost: 36, width: 85, height: 75, allowFloat: false, svg: '<svg viewBox="0 0 90 80" width="85" height="75"><defs><linearGradient id="shellGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#fbcfe8"/><stop offset="50%" stop-color="#ec4899"/><stop offset="100%" stop-color="#831843"/></linearGradient><radialGradient id="pearlGlow" cx="40%" cy="40%" r="50%"><stop offset="0%" stop-color="#ffffff"/><stop offset="40%" stop-color="#e0f2fe"/><stop offset="80%" stop-color="#c084fc"/><stop offset="100%" stop-color="#7c3aed"/></radialGradient></defs><path d="M10 50 Q45 80 80 50 Q45 35 10 50 Z" fill="url(#shellGrad)" stroke="#0f172a" stroke-width="2.5"/><path d="M10 50 Q45 10 80 50 Q45 28 10 50 Z" fill="#f472b6" opacity="0.85" stroke="#0f172a" stroke-width="2.5"/><circle cx="45" cy="42" r="14" fill="url(#pearlGlow)" stroke="#fdf4ff" stroke-width="2" filter="drop-shadow(0 0 6px #e879f9)"/><ellipse cx="41" cy="38" rx="4" ry="2" fill="#fff" opacity="0.9"/></svg>' },
+        { id: 'poseidon-trident', name: 'Trisula Emas Poseidon', cost: 42, width: 65, height: 115, allowFloat: false, svg: '<svg viewBox="0 0 70 120" width="65" height="115"><defs><linearGradient id="tridentGold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fef08a"/><stop offset="50%" stop-color="#eab308"/><stop offset="100%" stop-color="#a16207"/></linearGradient></defs><path d="M15 110 Q35 100 55 110 Q45 118 20 118 Z" fill="#475569" stroke="#0f172a" stroke-width="2"/><line x1="35" y1="20" x2="35" y2="105" stroke="url(#tridentGold)" stroke-width="6" stroke-linecap="round"/><path d="M16 35 C16 60 35 60 35 60 C35 60 54 60 54 35" fill="none" stroke="url(#tridentGold)" stroke-width="5" stroke-linecap="round"/><polygon points="35,6 30,22 40,22" fill="#fde047" stroke="#713f12" stroke-width="1.5"/><polygon points="16,22 12,35 20,35" fill="#fde047" stroke="#713f12" stroke-width="1.5"/><polygon points="54,22 50,35 58,35" fill="#fde047" stroke="#713f12" stroke-width="1.5"/><ellipse cx="35" cy="50" rx="22" ry="6" fill="none" stroke="#38bdf8" stroke-width="2" opacity="0.6"/></svg>' },
+        { id: 'hydrothermal-vent', name: 'Cerobong Magma Abisal', cost: 38, width: 75, height: 105, allowFloat: false, svg: '<svg viewBox="0 0 80 110" width="75" height="105"><defs><linearGradient id="ventChimney" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#1e293b"/><stop offset="50%" stop-color="#334155"/><stop offset="100%" stop-color="#0f172a"/></linearGradient></defs><polygon points="12,108 26,20 54,20 68,108" fill="url(#ventChimney)" stroke="#000" stroke-width="3"/><ellipse cx="40" cy="20" rx="14" ry="5" fill="#f97316"/><circle cx="40" cy="12" r="6" fill="#334155" opacity="0.6"/><circle cx="44" cy="5" r="5" fill="#475569" opacity="0.4"/><circle cx="36" cy="18" r="2.5" fill="#fef08a"/><circle cx="44" cy="19" r="2.5" fill="#ef4444"/></svg>' },
+        { id: 'deepsea-angler', name: 'Lentera Ikan Abisal', cost: 26, width: 75, height: 95, allowFloat: false, svg: '<svg viewBox="0 0 80 100" width="75" height="95"><path d="M15 95 Q40 85 65 95 Q55 100 25 100 Z" fill="#334155" stroke="#0f172a" stroke-width="2"/><path d="M35 90 Q30 40 55 25" fill="none" stroke="#64748b" stroke-width="4" stroke-linecap="round"/><circle cx="58" cy="24" r="9" fill="#22d3ee" filter="drop-shadow(0 0 8px #06b6d4)"/><circle cx="58" cy="24" r="5" fill="#ffffff"/></svg>' },
+        { id: 'steampunk-helmet', name: 'Helm Selam Tembaga', cost: 34, width: 85, height: 90, allowFloat: false, svg: '<svg viewBox="0 0 90 95" width="85" height="90"><defs><linearGradient id="brassGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fde047"/><stop offset="50%" stop-color="#b45309"/><stop offset="100%" stop-color="#78350f"/></linearGradient></defs><circle cx="45" cy="46" r="34" fill="url(#brassGrad)" stroke="#0f172a" stroke-width="3.5"/><rect x="25" y="80" width="40" height="12" rx="4" fill="#92400e" stroke="#0f172a" stroke-width="2.5"/><circle cx="45" cy="46" r="14" fill="#38bdf8" stroke="#0f172a" stroke-width="3"/><line x1="45" y1="32" x2="45" y2="60" stroke="#0f172a" stroke-width="2"/><line x1="31" y1="46" x2="59" y2="46" stroke="#0f172a" stroke-width="2"/><circle cx="16" cy="46" r="6" fill="#38bdf8" stroke="#0f172a" stroke-width="2"/><circle cx="74" cy="46" r="6" fill="#38bdf8" stroke="#0f172a" stroke-width="2"/></svg>' },
+        { id: 'starfish-reef', name: 'Batu Bintang Laut', cost: 16, width: 95, height: 75, allowFloat: false, svg: '<svg viewBox="0 0 100 80" width="95" height="75"><path d="M10 75 Q50 60 90 75 Q70 82 25 82 Z" fill="#64748b" stroke="#0f172a" stroke-width="2.5"/><polygon points="35,38 38,48 48,48 40,54 43,64 35,58 27,64 30,54 22,48 32,48" fill="#f97316" stroke="#c2410c" stroke-width="1.5"/><polygon points="65,42 67,50 75,50 69,55 71,63 65,58 59,63 61,55 55,50 63,50" fill="#a855f7" stroke="#7e22ce" stroke-width="1.5"/><polygon points="50,56 51,62 57,62 52,66 54,72 50,68 46,72 48,66 43,62 49,62" fill="#06b6d4" stroke="#0891b2" stroke-width="1.5"/></svg>' },
+        { id: 'sunken-shrine', name: 'Gapura Kuil Bawah Laut', cost: 30, width: 85, height: 95, allowFloat: false, svg: '<svg viewBox="0 0 90 100" width="85" height="95"><defs><linearGradient id="shrineRed" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#991b1b"/></linearGradient></defs><rect x="18" y="24" width="8" height="72" fill="url(#shrineRed)" stroke="#0f172a" stroke-width="2"/><rect x="64" y="24" width="8" height="72" fill="url(#shrineRed)" stroke="#0f172a" stroke-width="2"/><rect x="8" y="16" width="74" height="9" rx="2" fill="url(#shrineRed)" stroke="#0f172a" stroke-width="2.5"/><path d="M4 16 Q45 8 86 16" fill="none" stroke="#b91c1c" stroke-width="4"/><rect x="14" y="32" width="62" height="6" fill="#1e293b"/><path d="M22 60 Q32 50 26 80" fill="#16a34a" opacity="0.75"/></svg>' },
+        { id: 'cyber-monolith', name: 'Monolit Cyberpunk Abisal', cost: 44, width: 55, height: 110, allowFloat: false, svg: '<svg viewBox="0 0 60 120" width="55" height="110"><defs><linearGradient id="monoDark" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#18181b"/><stop offset="100%" stop-color="#09090b"/></linearGradient></defs><polygon points="30,8 52,24 52,112 8,112 8,24" fill="url(#monoDark)" stroke="#000" stroke-width="2.5"/><line x1="30" y1="20" x2="30" y2="105" stroke="#22d3ee" stroke-width="2.5" filter="drop-shadow(0 0 4px #06b6d4)"/><line x1="20" y1="40" x2="30" y2="40" stroke="#f43f5e" stroke-width="2"/><line x1="30" y1="65" x2="42" y2="65" stroke="#a855f7" stroke-width="2"/><line x1="18" y1="90" x2="30" y2="90" stroke="#22d3ee" stroke-width="2"/></svg>' },
+        { id: 'glowing-anemone', name: 'Anemon Neon Bioluminesen', cost: 24, width: 85, height: 85, allowFloat: false, svg: '<svg viewBox="0 0 90 90" width="85" height="85"><path d="M20 85 Q45 70 70 85 Q55 90 35 90 Z" fill="#475569" stroke="#0f172a" stroke-width="2"/><g fill="none" stroke="#ec4899" stroke-width="3" stroke-linecap="round"><path d="M30 80 Q20 50 16 35"/><path d="M36 78 Q28 42 28 25"/><path d="M42 76 Q38 35 40 18"/><path d="M48 76 Q52 35 50 18"/><path d="M54 78 Q62 42 62 25"/><path d="M60 80 Q70 50 74 35"/></g><circle cx="16" cy="35" r="3" fill="#fdf2f8"/><circle cx="28" cy="25" r="3" fill="#fdf2f8"/><circle cx="40" cy="18" r="3.5" fill="#fdf2f8"/><circle cx="50" cy="18" r="3.5" fill="#fdf2f8"/><circle cx="62" cy="25" r="3" fill="#fdf2f8"/><circle cx="74" cy="35" r="3" fill="#fdf2f8"/></svg>' },
+        { id: 'pirate-cannon', name: 'Meriam Besi Karam', cost: 27, width: 105, height: 65, allowFloat: false, svg: '<svg viewBox="0 0 110 70" width="105" height="65"><defs><linearGradient id="cannonIron" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#475569"/><stop offset="50%" stop-color="#1e293b"/><stop offset="100%" stop-color="#0f172a"/></linearGradient></defs><polygon points="20,55 90,55 85,68 15,68" fill="#78350f" stroke="#0f172a" stroke-width="2"/><circle cx="35" cy="62" r="8" fill="#451a03" stroke="#0f172a" stroke-width="2"/><circle cx="75" cy="62" r="8" fill="#451a03" stroke="#0f172a" stroke-width="2"/><path d="M15 32 L85 20 L88 38 L15 44 Z" fill="url(#cannonIron)" stroke="#0f172a" stroke-width="3"/><ellipse cx="86" cy="29" rx="4" ry="9" fill="#020617"/><circle cx="15" cy="38" r="6" fill="#334155" stroke="#0f172a" stroke-width="2"/></svg>' },
+        { id: 'crystal-geode', name: 'Gua Kristal Zamrud', cost: 33, width: 90, height: 80, allowFloat: false, svg: '<svg viewBox="0 0 95 85" width="90" height="80"><defs><linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#6ee7b7"/><stop offset="50%" stop-color="#10b981"/><stop offset="100%" stop-color="#065f46"/></linearGradient></defs><path d="M12 75 C10 35 30 15 50 15 C75 15 88 35 85 75 Z" fill="#334155" stroke="#0f172a" stroke-width="3"/><path d="M22 72 C22 42 35 28 50 28 C65 28 75 42 74 72 Z" fill="#0f172a"/><polygon points="32,70 38,45 44,70" fill="url(#emeraldGrad)"/><polygon points="42,70 50,38 58,70" fill="url(#emeraldGrad)"/><polygon points="56,70 62,48 68,70" fill="url(#emeraldGrad)"/><circle cx="50" cy="40" r="2.5" fill="#ffffff" opacity="0.8"/></svg>' },
+        { id: 'golden-crown', name: 'Mahkota Raja Samudra', cost: 45, width: 85, height: 65, allowFloat: false, svg: '<svg viewBox="0 0 90 70" width="85" height="65"><defs><linearGradient id="crownGold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fef08a"/><stop offset="50%" stop-color="#eab308"/><stop offset="100%" stop-color="#a16207"/></linearGradient></defs><path d="M12 55 L16 20 L35 40 L45 15 L55 40 L74 20 L78 55 Z" fill="url(#crownGold)" stroke="#713f12" stroke-width="3"/><rect x="12" y="55" width="66" height="10" rx="3" fill="#ca8a04" stroke="#713f12" stroke-width="2"/><circle cx="16" cy="20" r="4" fill="#38bdf8"/><circle cx="45" cy="15" r="4.5" fill="#ef4444"/><circle cx="74" cy="20" r="4" fill="#38bdf8"/><circle cx="45" cy="60" r="3.5" fill="#10b981"/></svg>' },
+        { id: 'ancient-amphora', name: 'Guci Emas Yunani Kuno', cost: 29, width: 85, height: 65, allowFloat: false, svg: '<svg viewBox="0 0 90 70" width="85" height="65"><defs><linearGradient id="clayUrn" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#fdba74"/><stop offset="50%" stop-color="#ea580c"/><stop offset="100%" stop-color="#9a3412"/></linearGradient></defs><ellipse cx="40" cy="42" rx="28" ry="18" fill="url(#clayUrn)" stroke="#0f172a" stroke-width="3" transform="rotate(-20 40 42)"/><circle cx="72" cy="48" r="5" fill="#fde047" stroke="#a16207" stroke-width="1.5"/><circle cx="80" cy="52" r="5" fill="#fde047" stroke="#a16207" stroke-width="1.5"/><circle cx="76" cy="58" r="5" fill="#fde047" stroke="#a16207" stroke-width="1.5"/></svg>' },
+        { id: 'biolum-mushroom', name: 'Jamur Bawah Laut Glow', cost: 21, width: 80, height: 80, allowFloat: false, svg: '<svg viewBox="0 0 85 85" width="80" height="80"><defs><radialGradient id="shroomCap" cx="50%" cy="40%" r="50%"><stop offset="0%" stop-color="#a5f3fc"/><stop offset="60%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#083344"/></radialGradient></defs><path d="M38 78 Q36 50 38 42" stroke="#e0f2fe" stroke-width="5" stroke-linecap="round"/><path d="M18 42 C18 20 58 20 58 42 Z" fill="url(#shroomCap)" stroke="#0e7490" stroke-width="2.5"/><circle cx="28" cy="32" r="2.5" fill="#fff"/><circle cx="46" cy="30" r="3" fill="#fff"/><path d="M58 78 Q56 60 58 52" stroke="#e0f2fe" stroke-width="4" stroke-linecap="round"/><path d="M44 52 C44 36 72 36 72 52 Z" fill="url(#shroomCap)" stroke="#0e7490" stroke-width="2"/></svg>' },
+        { id: 'abyssal-drone', name: 'Drone Riset Laut (Melayang)', cost: 55, width: 105, height: 70, allowFloat: true, svg: '<svg viewBox="0 0 110 75" width="105" height="70" class="anim-float"><defs><linearGradient id="droneBody" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#f8fafc"/><stop offset="60%" stop-color="#94a3b8"/><stop offset="100%" stop-color="#475569"/></linearGradient></defs><rect x="25" y="24" width="60" height="30" rx="8" fill="url(#droneBody)" stroke="#0f172a" stroke-width="3"/><circle cx="70" cy="39" r="8" fill="#38bdf8" stroke="#0f172a" stroke-width="2"/><polygon points="85,32 104,24 104,54 85,46" fill="#38bdf8" opacity="0.35"/><rect x="12" y="28" width="14" height="8" rx="2" fill="#ef4444" stroke="#0f172a" stroke-width="1.5"/><rect x="12" y="42" width="14" height="8" rx="2" fill="#ef4444" stroke="#0f172a" stroke-width="1.5"/></svg>' }
     ];
     // 20+ Diverse Themes for Aquarium Tank ONLY with Iconic Embedded Decors & Boosters
     // limitBoost: Batas harian penambahan berat badan per ikan (standar = 1, mahal = 2, 3, 4)
@@ -1076,7 +928,7 @@
             document.querySelectorAll('.decor-item').forEach(el => el.remove());
             decors.forEach(d => {
                 const asset = DECORATION_ASSETS.find(x => x.id === d.id);
-                if (asset) spawnDecorOnSeabed(asset, d.left);
+                if (asset) spawnDecorOnSeabed(asset, d.left, d.top, d.bottom);
             });
         }
         updateStats();
@@ -1636,7 +1488,6 @@
                 tokens -= d.cost;
                 updateStats();
                 spawnDecorOnSeabed(d);
-                closeModal('decorModal');
             };
             wrap.appendChild(c);
         });
@@ -1644,30 +1495,49 @@
     // Spawn & Drag Seabed Decorations (Locked firmly on seabed, draggable horizontally)
     function spawnDecorOnSeabed(d, savedLeft, savedTop, savedBottom) {
         const item = document.createElement('div');
-        item.className = 'decor-item ' + (d.anim || '');
+        const isFloating = !!(d.allowFloat || (d.name && d.name.toLowerCase().includes('melayang')));
+        item.className = 'decor-item ' + (isFloating ? 'is-floating ' : '') + (d.anim || '');
         item.dataset.decorId = d.id;
         item.innerHTML = d.svg;
-        let initialX = savedLeft ? parseFloat(savedLeft) : (Math.random() * (tank.offsetWidth - d.width - 20) + 10);
+        
+        const w = d.width || 80;
+        const h = d.height || 80;
+        const tankW = tank.offsetWidth || 800;
+        const tankH = tank.offsetHeight || 500;
+
+        let initialX = savedLeft ? parseFloat(savedLeft) : (Math.random() * Math.max(50, tankW - w - 40) + 20);
         item.style.left = initialX + 'px';
-        if (d.allowFloat) {
-            let initialY = savedTop ? parseFloat(savedTop) : (Math.random() * (tank.offsetHeight - d.height - 80) + 30);
+
+        if (isFloating) {
+            item.style.bottom = 'auto';
+            let initialY;
+            if (savedTop && savedTop !== 'auto' && savedTop !== '') {
+                initialY = parseFloat(savedTop);
+            } else {
+                initialY = Math.random() * (tankH * 0.45) + (tankH * 0.15);
+            }
             item.style.top = initialY + 'px';
         } else {
+            item.style.top = 'auto';
             item.style.bottom = savedBottom || '5px';
         }
-        // Horizontal & Vertical Dragging (jika allowFloat bebas melayang di air)
+
+        // Horizontal & Vertical Dragging
         item.addEventListener('pointerdown', (e) => {
             item.setPointerCapture(e.pointerId);
             const startX = e.clientX - item.offsetLeft;
             const startY = e.clientY - item.offsetTop;
             item.onpointermove = (ev) => {
+                const curTankW = tank.offsetWidth || 800;
+                const curTankH = tank.offsetHeight || 500;
                 let newX = ev.clientX - startX;
-                newX = Math.max(5, Math.min(tank.offsetWidth - d.width - 5, newX));
+                newX = Math.max(5, Math.min(curTankW - w - 5, newX));
                 item.style.left = newX + 'px';
-                if (d.allowFloat) {
+                if (isFloating) {
                     let newY = ev.clientY - startY;
-                    newY = Math.max(20, Math.min(tank.offsetHeight - d.height - 20, newY));
+                    newY = Math.max(15, Math.min(curTankH - h - 30, newY));
                     item.style.top = newY + 'px';
+                    item.style.bottom = 'auto';
                 }
             };
             item.onpointerup = (ev) => {
@@ -1724,7 +1594,7 @@
         // Helper render leaderboard array
         const renderLeaderboardList = (lbArray) => {
             if (!lbArray || lbArray.length === 0) {
-                listEl.innerHTML = '<div style="text-align:center; padding:12px; color:#64748b;">Belum ada data pemain.</div>';
+                listEl.innerHTML = '<div style="text-align:center; padding:12px; color:#64748b;">Belum ada pemain lain yang terdaftar.</div>';
                 return;
             }
             let html = '';
@@ -1751,14 +1621,7 @@
             listEl.innerHTML = html;
         };
 
-        // Fallback komunitas master aquarist agar leaderboard selalu hidup dan ramai
-        const communityMasters = [
-            { uid: 'cm_1', name: 'Samudra Nusantara Pro', totalTokens: 1420.50, soldTokens: 980.00, fishCount: 16 },
-            { uid: 'cm_2', name: 'Aqua Emperor 8K', totalTokens: 955.20, soldTokens: 620.50, fishCount: 12 },
-            { uid: 'cm_3', name: 'Baja Deepsea Hunter', totalTokens: 680.75, soldTokens: 410.00, fishCount: 9 },
-            { uid: 'cm_4', name: 'Reef Master Atlantis', totalTokens: 420.30, soldTokens: 250.00, fishCount: 7 },
-            { uid: 'cm_5', name: 'Coral Keeper Sumberrejo', totalTokens: 215.80, soldTokens: 110.00, fishCount: 5 }
-        ];
+// Leaderboard murni 100% pemain real dari database Firebase
 
         // Fungsi pemroses data aquarium dari API atau Firebase RTDB langsung
         const processAllAquariumData = (allAquarium) => {
@@ -1802,12 +1665,7 @@
                 }
             }
 
-            // Gabungkan master komunitas jika jumlah pemain nyata masih sedikit
-            communityMasters.forEach(cm => {
-                if (!leaderboard.some(x => x.name === cm.name)) {
-                    leaderboard.push(cm);
-                }
-            });
+
 
             // Pastikan user saat ini selalu ada dengan skor terbarunya
             const myEntry = {
